@@ -31,7 +31,7 @@ const ImportExportView: React.FC<ImportExportViewProps> = ({ state, onImport }) 
       setStatusMessage('Export code generated successfully!');
       setImportStatus('success');
       setTimeout(() => setImportStatus('idle'), 3000);
-    } catch (error) {
+    } catch {
       setStatusMessage('Export failed. Please try again.');
       setImportStatus('error');
       setTimeout(() => setImportStatus('idle'), 3000);
@@ -99,7 +99,7 @@ const ImportExportView: React.FC<ImportExportViewProps> = ({ state, onImport }) 
         setImportStatus('idle');
         setStatusMessage('');
       }, 3000);
-    } catch (error) {
+    } catch {
       setStatusMessage('Import failed. The code may be corrupted or invalid.');
       setImportStatus('error');
       setTimeout(() => {
@@ -143,9 +143,7 @@ const ImportExportView: React.FC<ImportExportViewProps> = ({ state, onImport }) 
                 value={exportString}
                 className="w-full h-32 p-3 bg-black/60 border border-emerald-900/50 text-emerald-300 font-mono text-xs resize-none focus:outline-none focus:border-emerald-600"
               />
-              <p className="text-[10px] text-zinc-500 mt-1">
-                {exportString.length} characters
-              </p>
+              <p className="text-[10px] text-zinc-500 mt-1">{exportString.length} characters</p>
             </div>
 
             <button
@@ -218,16 +216,13 @@ const ImportExportView: React.FC<ImportExportViewProps> = ({ state, onImport }) 
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="modal-overlay" onClick={handleCancelImport}>
-          <div
-            className="modal-content max-w-md"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-content max-w-md" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg text-amber-400 uppercase tracking-wider mb-4 border-b border-amber-900/30 pb-2">
               Confirm Import
             </h3>
             <p className="text-sm text-zinc-300 mb-6 leading-relaxed">
-              This will <span className="text-amber-400 font-bold">permanently overwrite</span>{' '}
-              your current game progress with the imported save data. This action cannot be undone.
+              This will <span className="text-amber-400 font-bold">permanently overwrite</span> your
+              current game progress with the imported save data. This action cannot be undone.
             </p>
             <p className="text-xs text-zinc-400 mb-6">
               Make sure you have exported your current save if you want to keep it!
