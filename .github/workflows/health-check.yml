@@ -1,0 +1,49 @@
+name: Codebase Health Check
+
+on:
+  schedule:
+    # Run every Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  health-check:
+    name: Check Codebase Health
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Run all tests
+        run: npm run test:run
+        continue-on-error: true
+
+      - name: Check for outdated dependencies
+        run: npm outdated || true
+
+      - name: Generate health report
+        run: |
+          echo "## Codebase Health Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Generated on: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Dependencies Status" >> $GITHUB_STEP_SUMMARY
+          npm outdated --json > outdated.json || true
+          if [ -s outdated.json ]; then
+            echo "⚠️ Outdated dependencies found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All dependencies up to date" >> $GITHUB_STEP_SUMMARY
+          fi

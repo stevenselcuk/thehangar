@@ -1,0 +1,377 @@
+export const VOID_BROADCASTS = [
+  "RADIO: 'THE HATCH IS NOT SEALED. YOU ARE LEAKING REALITY INTO THE VOID.'",
+  "RADIO: 'PASSENGER IN 14F NEVER LEFT. HE IS WATCHING YOU FROM THE WIRING BAYS.'",
+  "RADIO: 'PROTOCOL 9: FORGET YOUR NAME TO SAVE THE AIRFRAME. FORGET YOUR NAME.'",
+  "RADIO: 'THE LOGS ARE LIES. THE PLANE IS BREATHING. FEED THE LEFT ENGINE.'",
+  "RADIO: 'CARGO DOOR OPENS TO A PLACE WITH NO STARS. DO NOT ENTER AFTER MIDNIGHT.'",
+];
+
+export const STANDARD_RADIO_CHATTER = [
+  "RADIO: 'Ground, United 451 ready for pushback.'",
+  "RADIO: 'Maintenance, this is Speedbird 28 heavy, we're showing a fault on the #2 hydraulic pump. Can you advise?'",
+  "RADIO: 'Ramp control, requesting a tow for the 777 at gate C14 to the remote stand.'",
+  "RADIO: 'All stations, be advised, lightning alert within 5 miles. All ramp activity is suspended.'",
+  "RADIO: 'Lead, this is tech 4-5-9, the IDG replacement on the A320 is complete. Ready for sign-off.'",
+  "RADIO: 'Ops, can we get an updated departure time for Delta 990? The catering is running late.'",
+];
+
+export const TOOLROOM_MASTER_DIALOUGE = [
+  "Master: 'If you bring back that torquemeter out of calibration one more time, I'll lock you in the avionics bay.'",
+  "Master: 'Lost another 10mm? It's in the fuselage. It's always in the fuselage.'",
+  "Master: 'These serial numbers don't match the manifest. Don't ask me why. Just sign the tag.'",
+  "Master: 'The 'Suit' was here looking for untraceable rotables. I told him we only have what's on the shelf. He didn't blink once.'",
+  "Master: 'Don't mix that touch-up paint near the oxygen bottles unless you want to see the moon up close.'",
+];
+
+export const MASTER_LORE = [
+  "Master: 'This place wasn't always just for planes. Before us... there were other... clients. Colder ones. Paid in materials you can't find on any chart.'",
+  "Master: 'Old Man Hemlock, my predecessor, used to talk about a plane that landed with no pilot and a cargo hold full of static. They buried it under the west taxiway.'",
+  "Master: 'You see that stain over by the hydraulic press? That's from '88. Something got loose from a crate marked 'geological survey'. Took three men to get it back in, and none of them were right in the head afterwards.'",
+  "Master: 'They say this whole airport is built on a confluence of ley lines. Bad energy. Explains the coffee, at least.'",
+];
+
+export const BOEING_REPLIES = [
+  "BOEING: 'The structural integrity of the center tank is within acceptable variance. Disregard the whistling.'",
+  "BOEING: 'Update to Service Bulletin 737-29-011. Inspect for cold spots in the insulation.'",
+  "BOEING: 'The part number you provided does not exist in our historical archives. Please verify if the aircraft is real.'",
+  "BOEING: 'Warning: Unauthorized repairs detected in section 41. Cease all work immediately and wait for The Suits.'",
+];
+
+export const SYSTEM_LOGS = {
+  BOOT: 'Diagnostic systems primed. Manual archives unlocked for deep retrieval.',
+  SYNC: 'Vending machine prices synced via legacy dial-up connection.',
+  FEAR_RECEDE: 'The dread slowly recedes into the background hum of the hangar.',
+  SHIFT_DELEGATED: 'Delegation active. Night crew clocks in.',
+  SHIFT_DISMISSED: 'Staff dismissed.',
+  TRANSIT_CHECK_DELEGATED:
+    'Remote dispatch active. Line maintenance crew is handling transit checks.',
+  TRANSIT_CHECK_SUSPENDED: 'Dispatch recalled. Transit check oversight returned to manual control.',
+  AUTO_SRF_DELEGATED: 'SRF auto-filer protocol engaged. Passive credit/XP generation initiated.',
+  AUTO_SRF_SUSPENDED: 'SRF auto-filer protocol suspended.',
+  NDT_SCAN: 'NDT Ultrasonic Scan complete. Subsurface structural integrity verified.',
+  EVENT_RESOLVED: 'Situation resolved and logged in the official manifest.',
+  ALERT_DISRUPTION: 'ALERT: SYSTEM DISRUPTION DETECTED.',
+  LOW_FOCUS: 'LOW FOCUS. VISIT CANTEEN FOR RE-STABILIZATION.',
+  MASTER_CALM: 'The Toolroom Master seems to have calmed down. For now.',
+  TEMP_DROP: 'The temperature on the apron is dropping. The cold is seeping into your bones.',
+  MIGRAINE_ONSET:
+    "The harsh hangar lights trigger a migraine. Your vision swims and it's hard to focus.",
+  MIGRAINE_END: 'The migraine subsides, leaving a dull ache behind your eyes.',
+  HIGH_NOISE: 'The constant noise is making it hard to think straight. Your focus is slipping.',
+  COMPLIANCE_PRESSURE_ON:
+    "You feel eyes on your back. A lead mechanic is observing your work. Don't mess up.",
+  COMPLIANCE_PRESSURE_OFF:
+    'The lead mechanic nods and walks away. You can breathe a little easier.',
+  JANITOR_APPEARS:
+    "The old Janitor is here. He moves with a slow, deliberate rhythm, mopping the same spot over and over. He hasn't looked at you yet.",
+  THE_GROAN:
+    "A deep, metallic groan echoes through the hangar. It did not come from the structure, but from the aircraft itself. For a moment, all the plane's cabin lights flash on in unison.",
+  THE_GROAN_CLUE:
+    'In the echo of the groan, you hear a faint sequence of clicks, like a transponder code being entered: 7-7-0-0. The emergency frequency.',
+};
+
+export const ACTION_LOGS: Record<string, string> = {
+  // NEW ACTIONS
+  DEEP_CLEAN_VENTS_NORMAL:
+    'You clear out a thick layer of dust from the server rack. The fans spin a little quieter now.',
+  DEEP_CLEAN_VENTS_DEVICE:
+    "Tucked deep inside the server chassis, you find a small, non-standard listening device wired directly to the motherboard. It's still warm.",
+  DEEP_CLEAN_VENTS_STATIC:
+    'As you blow out the dust, a burst of static electricity arcs to your hand. For a second, you see impossible geometric patterns in the dust motes.',
+  REVIEW_SURVEILLANCE_SUCCESS:
+    "You scrub through hours of footage. You find a 3-second clip where a 'Suit' is standing in your office, watching you work, before the feed corrupts.",
+  REVIEW_SURVEILLANCE_NOTHING:
+    "It's just grainy footage of an empty office. The hum of the servers is the only sound.",
+  REVIEW_SURVEILLANCE_CAUGHT:
+    "An alert flashes on your screen: 'UNAUTHORIZED ACCESS DETECTED - LOGGING USER ID 770-M-9M-MRO'. The feed cuts out.",
+  LISTEN_FUSELAGE_NORMAL:
+    'You hear the normal groans and clicks of cooling metal. Nothing out of the ordinary.',
+  LISTEN_FUSELAGE_WHISPERS:
+    'You press your ear to the cold aluminum. Faintly, you hear what sounds like whispers, distorted, as if coming from a great distance.',
+  LISTEN_FUSELAGE_HEARTBEAT:
+    "There's a sound. A slow, rhythmic thumping, like a massive heart beating deep within the aircraft's structure.",
+  CHECK_REDACTED_SUCCESS:
+    "Using a flashlight and a keen eye, you can just make out the words under the black ink: '...cargo is not inanimate... requires pacification...'",
+  CHECK_REDACTED_FAIL:
+    "You try to make out the text, but the ink is too thick. You've smudged it, making it permanently unreadable.",
+  CHECK_REDACTED_SUITS:
+    'As you lean in close, you hear a quiet cough behind you. A tall man in a charcoal suit is standing at the other end of the hangar, watching you.',
+  TALK_TO_REGULAR_CLUE:
+    "The old pilot grabs your arm. 'They don't fly point-to-point,' he whispers, eyes wide. 'They fly along the seams. The seams of the world.'",
+  TALK_TO_REGULAR_RAMBLE:
+    'He rambles about the glory days of Pan Am and how the coffee has never been the same. You manage to escape after ten minutes.',
+  TALK_TO_REGULAR_WARNING:
+    "'They put something in the water,' he mutters, stirring his coffee. 'Makes you forget. Makes you compliant. Don't drink the tap water.'",
+  RUMMAGE_LOST_FOUND_CREDITS:
+    'You find a wallet with a few credits inside. The ID is completely blank.',
+  RUMMAGE_LOST_FOUND_SANITY:
+    'You find a worn photograph of a family on a beach, smiling. A moment of warmth in the cold hangar. It helps.',
+  RUMMAGE_LOST_FOUND_WEIRD:
+    "At the bottom of the box, you find a single, perfectly preserved raven's feather. It's impossibly black.",
+  CHECK_DELAYED_GATE_NORMAL:
+    "The gate is empty and dark. The jet bridge is retracted. It's just a dead end.",
+  CHECK_DELAYED_GATE_SOUND:
+    "As you approach the gate, you hear the faint sound of an airport announcement in a language you don't recognize. The sound cuts off abruptly.",
+  CHECK_DELAYED_GATE_COLD:
+    "A profound cold emanates from the gate door. The window is frosted over, even though it's not cold in the terminal.",
+  INSPECT_VENDING_MACHINE_COIN:
+    "You find a strange, heavy coin made of a dark, non-metallic material. It's cold to the touch.",
+  INSPECT_VENDING_MACHINE_NOTHING: 'You find nothing but dust and a dead spider.',
+  INSPECT_VENDING_MACHINE_NOTE:
+    "Wedged deep inside is a folded, yellowed note. It reads: 'IT'S NOT A PLANE'.",
+
+  // BACKSHOPS ACTIONS
+  DECONSTRUCT_FDR_SUCCESS:
+    "You extract a corrupted data fragment. It speaks of a 'non-Euclidean trajectory' and a 'cargo that was singing'. You gain significant insight but feel colder.",
+  DECONSTRUCT_FDR_FAIL_SUITS:
+    "As you pry it open, the lights in the backshop flicker. Your radio crackles: 'Security team to backshops. Unauthorized access detected.' You have seconds.",
+  DECONSTRUCT_FDR_FAIL_MIND:
+    'The data was not meant for human minds. You see flight paths through dead stars and hear the screams of the passengers. The box goes inert.',
+  XRAY_WELDS_NORMAL:
+    'The welds show standard levels of stress and fatigue. Nothing out of the ordinary.',
+  XRAY_WELDS_ANOMALY_WRITING:
+    "You see it for a second before the screen glitches: hairline fractures inside the weld, spelling out coordinates and a word: 'KARDEX'.",
+  XRAY_WELDS_ANOMALY_ORGANIC:
+    "The X-Ray reveals... something organic fused into the alloy. It's not a bird strike. It's woven into the metal.",
+  CLEAN_ULD_SUCCESS:
+    "You decontaminate the ULD according to protocol. You're left with a small, sealed vial of the black residue.",
+  CLEAN_ULD_EXPOSURE:
+    'A fine black dust coats the interior. As you wipe it, you feel a numbing cold spread up your arm. You feel... hollowed out.',
+
+  // HANGAR & NDT ACTIONS
+  HFEC_SCAN_SUCCESS_NORMAL:
+    'HFEC scan of FR.40 reveals no subsurface defects. The structure is sound.',
+  HFEC_SCAN_SUCCESS_CRACK:
+    'Finding: Minor stress crack detected on the forward fork beam. A non-routine card should be raised.',
+  HFEC_SCAN_SUCCESS_FATIGUE:
+    'Finding: Significant subsurface fatigue found around the main landing gear pivot. This is a major structural issue.',
+  HFEC_SCAN_SUSPICIOUS_BURN:
+    "Finding: A bizarre burn pattern detected inside the fuel tank. It's not corrosion. It looks... geometric. The air smells of ozone.",
+  BORESCOPE_SUCCESS_NORMAL:
+    'Borescope inspection of the HP compressor shows normal operational wear. Blades are within tolerance.',
+  BORESCOPE_SUCCESS_HOTSPOTS:
+    'Finding: Hot spots and carbon buildup detected in the combustion chamber. Efficiency is likely reduced.',
+  BORESCOPE_SUSPICIOUS_RESIDUE:
+    "Finding: An unidentifiable organic residue is coating the 10th stage compressor blades. It's slick and slightly iridescent.",
+  NON_ROUTINE_FILED_MINOR:
+    "Non-Routine card filed for a minor defect. You've been credited for your diligence.",
+  NON_ROUTINE_FILED_MAJOR:
+    'A major structural defect has been logged and escalated. Good catch. The paperwork earns you a significant bonus.',
+  NON_ROUTINE_FILED_SUSPICIOUS:
+    'You file the non-routine report, carefully omitting the more... impossible details. The report is accepted, but your file is flagged for review.',
+  SLS3_DISCOVERED:
+    "While hiding in the shadows of the boneyard, you notice a section of the concrete floor doesn't match the rest. A heavy steel plate with a recessed handle, almost completely hidden by decades of grime and debris. A hatch.",
+  SLS3_DESCEND_SCAVENGE:
+    'You pry open the heavy hatch and descend into the cloying dark. After a few minutes of searching with your flashlight, you find a discarded, untraceable component.',
+  SLS3_DESCEND_CLUE:
+    "The beam of your flashlight catches stenciling on a sealed crate: 'PROJECT KARDEX'. A loose data slate next to it contains an encrypted fragment.",
+  SLS3_DESCEND_ENCOUNTER:
+    "You're not alone. A tall, impossibly thin figure in a charcoal suit stands at the edge of your flashlight beam. It doesn't move. It doesn't have a face. An eternity passes in a second before you scramble back up the ladder, slamming the hatch shut. It saw you.",
+
+  // HR FLOOR ACTIONS
+  REVIEW_COMPLIANCE_LOOPHOLE:
+    'You find a loophole in the overtime policy. For a short time, you can file paperwork with less mental fatigue.',
+  REVIEW_COMPLIANCE_DISTURBING:
+    "Tucked into an appendix on waste disposal is a redacted protocol for 'non-biological, sentient material'. Your blood runs cold.",
+  REVIEW_COMPLIANCE_STANDARD_1:
+    'The text blurs together. Corporate jargon about synergy and proactive paradigms. You feel your mind numbing.',
+  REVIEW_COMPLIANCE_STANDARD_2:
+    'You spend an hour reading about the proper disposal of hazardous materials. You feel dumber, but you look diligent.',
+  REVIEW_COMPLIANCE_STANDARD_3:
+    "You've reread the same paragraph about forklift safety five times. It has lost all meaning.",
+  REPORT_MUNDANE_SUCCESS:
+    'Your report on a minor safety infraction is acknowledged. You look like you care. Suspicion slightly reduced.',
+  REPORT_MUNDANE_BACKFIRE:
+    'Your report on a loose floor panel was traced back to you. The day-shift lead gives you a cold stare. Social Stress increased.',
+  REPORT_MUNDANE_IGNORED:
+    'Your report is submitted to the digital void. You receive an automated confirmation number: #E-42819. Nothing changes.',
+  REPORT_MUNDANE_OVERZEALOUS:
+    'Another report? Management is starting to wonder why you have so much free time. Suspicion slightly increased.',
+  REPORT_MUNDANE_CONSEQUENCE:
+    "Your report on a 'flickering light' triggers a bay-wide electrical audit, compressing all schedules. The lead gives you a look that could kill.",
+  REPORT_ANOMALOUS_SUCCESS:
+    "You describe the impossible event in cold, technical detail. The system accepts the report, flagging your file for 'Stress-Related Observational Inconsistencies.' The dread recedes, for now.",
+  REPORT_ANOMALOUS_SECURITY_SWEEP:
+    'Your report triggers an immediate security alert. Two internal security officers sweep your area, eyeing you with distrust. Suspicion skyrockets.',
+  REPORT_ANOMALOUS_SUITS:
+    'The report is intercepted. The screen flickers, displaying a single, black, rectangular icon. The terminal goes dead for a moment. You feel a cold dread.',
+  REPORT_ANOMALOUS_GASLIGHT:
+    "HR responds: 'The phenomenon you described is a known visual artifact of the hangar's high-intensity discharge lighting. Please ensure you are taking your mandated breaks.'",
+  REPORT_ANOMALOUS_WIPE:
+    'You hit submit. The screen flashes white. You blink, looking at a blank report form. What were you just doing? A headache is building behind your eyes.',
+  FORGE_SAMPLE_SUCCESS:
+    "You pay a contact in the lab to swap your sample. The system accepts the clean data. It's a costly, but effective, solution.",
+  FORGE_SAMPLE_FAIL:
+    'The forged sample is flagged as synthetic. An internal investigation has been launched. Your name is at the top of the list.',
+  PERFORMANCE_REVIEW_GOOD:
+    "HR REVIEW: 'Exemplary performance. Your efficiency has been noted.' A small credit bonus has been deposited.",
+  PERFORMANCE_REVIEW_BAD:
+    "HR REVIEW: 'Sub-optimal performance metrics detected. Your workflow will be monitored more closely.'",
+  PERFORMANCE_REVIEW_PIP:
+    "HR REVIEW: 'Performance Unacceptable. You have been placed on a Performance Improvement Plan. All tasks will now require more focus.'",
+  REQUEST_LEAVE_SUCCESS:
+    'Your request for unpaid leave is automatically approved. The system docks your pay. For a few precious hours, the hangar and its ghosts are not your problem.',
+  // EXISTING ACTIONS
+  MIX_PAINT:
+    'Mixing Alodine and Zinc-Chromate. The fumes are sweet and nauseating. +5% Lung Fatigue.',
+  SONIC_CLEAN:
+    'The high-pitched whine of the sonic cleaner makes your teeth ache. The grease is dissolving into a grey void.',
+  UNTRACEABLE_FOUND:
+    "FOUND: A rotable with a scratched-out P/N. It's warm to the touch and smells of ozone.",
+  TOOLROOM_LOCK: "The toolroom gate rattles. You feel the Master's eyes on your back.",
+  SWAP_ROTABLE: "Component swapped. The new S/N is etched in a font you don't recognize.",
+  CHECK_BOARDS:
+    "ML470 is still marked as 'EN ROUTE' since last week. The gate agent is ignoring it.",
+  SMALL_TALK:
+    "Exchanging shift rumors with ground staff. They say a 'Suit' was seen in the baggage claim.",
+  SMALL_TALK_CABIN_1:
+    "Chatting with the cabin crew. They're complaining about the new coffee maker; they say it whispers.",
+  SMALL_TALK_CABIN_2:
+    'A flight attendant mentions the aft galley coffee maker has been making strange grinding noises, even when unplugged.',
+  SMALL_TALK_CABIN_3:
+    'The lead flight attendant seems stressed. She mentions that passenger counts have been off on the last few flights—more people boarding than are on the manifest.',
+  SMALL_TALK_CABIN_4:
+    "A junior flight attendant asks you if you've ever seen the lights flicker in a pattern. You pretend you haven't.",
+  TAKE_WALK: "A brisk walk through the deserted Terminal B. It's too quiet.",
+  GO_RESTROOM: 'Splashing cold water on your face. You feel a bit more grounded.',
+  GO_RESTROOM_SUIT:
+    "As you exit the restroom, a tall figure in a charcoal suit brushes past you. The air goes cold. You didn't see them enter.",
+  EAT_BURGER:
+    "Eating a Terminal Burger. The synthetic soy patty has a surprisingly decent char. It's grey but filling.",
+  WALK_AROUND: 'Walk-around complete. Found some loose rivets in the belly.',
+  DAILY_CHECK: 'Daily check items signed off. Ramp is clearing.',
+  RADIO_VOID_OZONE: 'You feel cold. The air in the car suddenly tastes like ozone and stale blood.',
+  RADIO_MEZZANINE: "RADIO: '...the mezzanine is hungry... don't look up...' Static follows.",
+  SEARCH_MANUALS_NOTES:
+    "FOUND: Handwritten notes from 2012. 'The landing gear is being held by something elsewhere.'",
+  SEARCH_MANUALS_KARDEX:
+    "FOUND: A series of coordinates and the word 'KARDEX' circled in black ink.",
+  PC_ASSEMBLED: 'The Windows XP startup chime echoes through the office. It sounds... distorted.',
+  NAP_TABLE:
+    'You drift off on the sticky Formica table. The hum of the vending machine sounds like a beating heart.',
+  READ_MAGAZINE: 'You read a magazine from 2021. The ink stains your fingers black.',
+  EXAM_PASS:
+    'EXAM PASSED. Your credentials have been updated in the master database. You are now officially authorized.',
+  EXAM_FAIL:
+    'EXAM FAILED. The proctor stared at you through the webcam without blinking. Try again when you are more focused.',
+  SRF_FILED: 'SRF Form #8130-3 generated. Paperwork is your only shield against the void.',
+  DIGITAL_AMM:
+    "The digital manuals are terrifyingly detailed. You find a chapter on 'Recursive Rivet Maintenance' that shouldn't exist.",
+  UPGRADE_GPU:
+    'GeForceFX 256 installed. The UI is smoother, and the archival search algorithms are 5% more efficient.',
+  UPGRADE_HDD: "40GB Maxtor installed. You have more room for 'unauthorized' technical data.",
+  MAIL_NONE: 'The inbox is empty. The network is quiet... too quiet.',
+  MANIFEST_CROSS_REF_SUCCESS:
+    "You find another discrepancy. A passenger name that doesn't exist, a cargo weight that defies physics. You've recorded the encrypted data fragment, but you feel like you just signed your own death warrant.",
+  URINE_SAMPLE_PASS: "The machine beeps. 'SAMPLE ACCEPTED.' Your compliance has been noted.",
+  URINE_SAMPLE_FAIL:
+    "The machine flashes red. 'ANOMALOUS BIOMARKERS DETECTED.' A report has been automatically filed.",
+  CALIBRATION_PERFECT:
+    'Perfect calibration. The tool hums with potential. You feel a surge of efficiency.',
+  CALIBRATION_GOOD: 'Calibration successful. The tool is within standard operational parameters.',
+  CALIBRATION_FAIL:
+    'Calibration failed! You hear the Master curse your name from across the room. The tool seems worse off than before.',
+  HARVEST_SUCCESS:
+    'You carefully disassemble the anomalous component, salvaging some unidentifiable but potentially valuable alloys.',
+  DISPOSE_SUCCESS:
+    "The Master nods, taking the red-tagged component. 'It never existed,' he says, and the part disappears into a secure disposal locker.",
+  SERVICE_LAVATORY_SUCCESS: 'Lavatory system serviced. A disgusting but profitable job.',
+  SERVICE_LAVATORY_FIND_ID:
+    'While clearing a blockage, you find a heavily redacted ID card wedged in the pipes. The name is gone, but the photo looks... familiar.',
+  SERVICE_LAVATORY_FIND_SPHERE:
+    "You fish out a small, perfectly smooth metallic sphere from the waste tank. It's cold to the touch and doesn't have any seams.",
+  OBSERVE_SUITS:
+    "From the shadows of a derelict 727, you spot three Suits observing the main hangar. They don't move. They just watch.",
+  OBSERVE_WEATHER:
+    "The sky is an unnatural shade of bruised purple to the west. A storm is coming, one that doesn't show up on any weather radar.",
+  OBSERVE_GHOST:
+    'An old constellation, lights off, taxis silently across a distant runway before vanishing behind a cloud of exhaust. No one else seems to have noticed. Your blood runs cold.',
+  SCAVENGE_SUCCESS:
+    'You managed to cannibalize a functional component from the aircraft graveyard. It has no serial number.',
+  CATERING_INCIDENT_RESOLVED:
+    'You convinced the catering manager it was a sensor malfunction. A few credits greased the wheels. No report was filed.',
+  GROUND_POWER_RESOLVED:
+    'You located a working GPU on the adjacent stand and hooked it up. The delay was minimal.',
+  BAGGAGE_IMPACT_LOGGED:
+    "You inspected the cargo door for damage. It's just a paint scrape. You signed off the logbook.",
+  FUEL_LOG_CORRECTED:
+    'After a frustrating back-and-forth with the fueler and flight crew, you determined it was a simple data entry error. The logs are corrected.',
+  JANITOR_IGNORES: 'The Janitor continues mopping, his back to you. The moment has passed.',
+  JANITOR_STARES:
+    'The Janitor stops, turning his head slowly. His eyes are milky white. He stares through you, and for a second, you see the hangar through his eyes—a place of echoing voids and crawling geometry. Your blood runs cold.',
+  JANITOR_GIVES_ITEM:
+    "The Janitor glances at you, then at a table in the corner. As he mops past it, he kicks something small under it. He doesn't break his rhythm. You find an old, redacted ID card.",
+  JANITOR_GIVES_HINT:
+    'The Janitor sweeps a pile of dust into a perfect circle, then deliberately sweeps a line through it, pointing towards the office. He gives a single, slow nod before resuming his work.',
+  HALLUCINATION_ONSET_WATER:
+    'The water tasted like static. The edges of your vision are starting to fray, colors bleeding into each other.',
+  FOOD_POISONING_REESES:
+    'That was a mistake. The twenty-year-old peanut butter is staging a rebellion in your stomach.',
+  ANOMALY_FOUND:
+    "While signing off the work order, you notice a component left over that wasn't on the manifest. It hums with a faint, purple light. You've secured it for later analysis.",
+  ANOMALY_ANALYSIS_SUCCESS:
+    "Success! You've stabilized the component's weird energy signature and extracted several rare materials. More importantly, you understand the principle behind it. A new retrofit work order has been generated.",
+  ANOMALY_ANALYSIS_FAIL:
+    'The component shudders violently, then shatters, releasing a wave of non-Euclidean energy. The lights flicker and die, and for a moment, you see too many corners in the room.',
+  SMOKE_1:
+    'You retreat to your F-150. The first drag of the cigarette is sharp and calming. The runway lights blur into long streaks.',
+  SMOKE_2:
+    'Leaning against the cold truck door, you watch the smoke curl into the night air. For a moment, the hangar seems far away.',
+  SMOKE_3:
+    "The cherry of the cigarette glows like a distant star. It's a small, predictable fire in a world of cold metal and uncertainty.",
+  SMOKE_4:
+    'You crack the window just enough to let the smoke out. The radio plays static-laced jazz. A moment of peace.',
+  SMOKE_5:
+    'The nicotine hits your system. Your hands feel steadier. The low hum of the airport feels less oppressive.',
+  DRINK_COFFEE:
+    "You find a half-full pot of coffee in a parked 737 galley. It's thick, bitter, and tastes faintly of jet fuel, but it's hot. Your nerves feel... sharpened.",
+  SCAVENGE_SUCCESS_SANDWICH:
+    "Success. You found a cart full of untouched, stale ham-and-cheese sandwiches. It's not glamorous, but it's a few extra credits in your pocket.",
+  SCAVENGE_FAIL:
+    'You find nothing but empty containers and the faint, sour smell of spoiled milk. A wasted effort.',
+  WATCH_RUNWAY_1:
+    'You watch an A320 grease the landing. A perfect 10/10. The pilot knows their stuff.',
+  WATCH_RUNWAY_2:
+    'A 777 comes in a bit hot and floats down the runway before touching down. Solid, but not pretty. 6/10.',
+  WATCH_RUNWAY_3:
+    'A small regional jet bounces hard on touchdown. The co-pilot is getting an earful right now. 2/10.',
+  WATCH_RUNWAY_4:
+    'Crosswind landing by a 747. A masterful display of skill, crabbing in and straightening out at the last second. 9.5/10.',
+  SLEEP_GATE_1:
+    'You doze off in an uncomfortable gate chair. The announcements for flights that will never depart blend into a meaningless drone.',
+  SLEEP_GATE_2: 'You dream of a plane with no windows, flying over an ocean of black ink.',
+  SLEEP_GATE_3:
+    "You're jolted awake by a security guard. He gives you a suspicious look before moving on.",
+  SMALL_TALK_PERSONNEL_1:
+    'You chat with a gate agent. She complains about a passenger who checked in for a flight to Kuala Lumpur but never boarded.',
+  SMALL_TALK_PERSONNEL_2:
+    "A pilot tells you about the weird magnetic deviation over the Pacific. Says it's getting worse and the 'suits' are interested.",
+  TERMINAL_RESTROOM_1:
+    'The terminal restroom is sterile and empty. The silence is deafening. You splash cold water on your face.',
+  TERMINAL_RESTROOM_2:
+    "You find strange geometric graffiti scrawled on a stall door. It seems to shift when you're not looking directly at it.",
+  WATCH_BOARDS_1:
+    'The departure board is a cascade of green text. So many destinations. So many people leaving.',
+  WATCH_BOARDS_2:
+    "A flight to Kuala Lumpur is listed as 'INDEFINITELY DELAYED'. Your stomach churns.",
+  WATCH_BOARDS_3:
+    "You watch the arrivals. A flight from a city that doesn't exist just landed at gate B12. No one gets off.",
+  OFFER_ASSISTANCE_NORMAL:
+    'You help a confused tourist find their gate to Chicago. They thank you profusely. A moment of simple human connection.',
+  OFFER_ASSISTANCE_SUSPICIOUS:
+    'The passenger is unusually inquisitive, asking pointed questions about security patrols and flight crew schedules. You make an excuse and leave. The encounter leaves you unsettled.',
+  OFFER_ASSISTANCE_WEIRD:
+    "The passenger insists they're flying to 'Carcosa' from Gate 9¾. Their eyes are wide with fear. You back away slowly, the hair on your arms standing on end.",
+  OFFER_ASSISTANCE_CLUE:
+    "A businessman, pale and shaking, asks where the nearest chapel is. He mutters something about seeing 'a plane with no windows' on a remote stand during his landing.",
+  OFFER_ASSISTANCE_CAUGHT:
+    "A TSA agent approaches. 'You're a little far from the hangar, aren't you? Get back to your post.' He's taking notes.",
+  PAYPHONE_DIAL_TONE:
+    "You pick up the receiver. A steady, comforting dial tone. A sound from a forgotten time. It's calming.",
+  PAYPHONE_CROSSED_LINE:
+    "You hear faint voices on the line. A man says, 'The asset is not secure. Repeat, the asset is not secure.' The line goes dead.",
+  PAYPHONE_NUMBERS:
+    "A monotone voice reads a sequence of numbers: 'Four... sixteen... thirty-two... four... eight... fifteen...' The pattern is hypnotic and deeply unsettling.",
+  PAYPHONE_SILENCE:
+    'You pick up the phone. There is no dial tone. Just a profound, listening silence.',
+};

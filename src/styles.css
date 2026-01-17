@@ -1,0 +1,233 @@
+@import 'tailwindcss';
+
+body {
+  font-family: 'Fira Code', monospace;
+  background-color: #1a1a1a;
+  color: #10b981;
+  /* terminal-green */
+  overflow: hidden;
+}
+
+.vibrate {
+  animation: vibrate 0.1s linear infinite;
+}
+
+@keyframes vibrate {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(1px, 1px);
+  }
+
+  50% {
+    transform: translate(-1px, -1px);
+  }
+
+  75% {
+    transform: translate(1px, -1px);
+  }
+
+  100% {
+    transform: translate(-1px, 1px);
+  }
+}
+
+.flicker {
+  animation: flicker 1s infinite;
+}
+
+@keyframes flicker {
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    opacity: 1;
+  }
+
+  20%,
+  22%,
+  24%,
+  55% {
+    opacity: 0.3;
+  }
+}
+
+/* New Log Animations */
+@keyframes log-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes story-reveal {
+  0% {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+  }
+
+  100% {
+    background-color: transparent;
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+}
+
+.log-entry {
+  animation: log-slide-in 0.4s ease-out forwards;
+  position: relative;
+}
+
+.log-story {
+  animation:
+    log-slide-in 0.4s ease-out forwards,
+    story-reveal 2s ease-out forwards;
+}
+
+.log-warning {
+  animation:
+    log-slide-in 0.4s ease-out forwards,
+    vibrate 0.2s linear 3;
+}
+
+/* Hallucination Visuals */
+.hallucination {
+  filter: hue-rotate(90deg) blur(0.5px) saturate(2);
+  transition: filter 2s ease-in-out;
+}
+
+/* Fear Visuals */
+.fear-state {
+  animation: vibrate 0.05s linear infinite;
+  filter: grayscale(0.5) contrast(1.2) brightness(0.8);
+  transition: filter 0.5s ease-in-out;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #064e3b;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: #0a0a0a;
+  border: 2px solid #064e3b;
+  padding: 2rem;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 0 40px rgba(16, 185, 129, 0.2);
+}
+
+@keyframes glow-pulse-border {
+  0%,
+  100% {
+    border-color: #059669;
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.2);
+  }
+
+  50% {
+    border-color: #6ee7b7;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+  }
+}
+
+.glow-pulse-border {
+  animation: glow-pulse-border 2s infinite;
+}
+
+/* Terminal Styles */
+.terminal {
+  background-color: #050806;
+  color: #33ff99;
+  font-family: 'Fira Code', monospace;
+  text-shadow: 0 0 5px rgba(51, 255, 153, 0.4);
+}
+
+.terminal-output {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.terminal-output .prompt {
+  color: #1f995c;
+}
+
+.terminal-output .error {
+  color: #ff4444;
+}
+
+.terminal-output .redacted {
+  background-color: #33ff99;
+  color: #33ff99;
+}
+
+.terminal-input {
+  background: transparent;
+  border: none;
+  color: #33ff99;
+  width: 100%;
+  outline: none;
+}
+
+.blinking-cursor {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% {
+    background-color: transparent;
+  }
+}
+
+.security-alert {
+  animation: security-flicker 0.5s infinite;
+}
+
+@keyframes security-flicker {
+  0%,
+  100% {
+    background-color: #330000;
+    color: #ff6666;
+    border-color: #ff3333;
+  }
+
+  50% {
+    background-color: #110000;
+    color: #ff2222;
+    border-color: #ff0000;
+  }
+}

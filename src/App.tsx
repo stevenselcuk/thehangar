@@ -1,0 +1,297 @@
+import React, { lazy, Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import ActionPanel from './components/ActionPanel.tsx';
+import DevModeModal from './components/DevModeModal.tsx';
+import HazardBar from './components/HazardBar.tsx';
+import ResourceBar from './components/ResourceBar.tsx';
+import Sidebar from './components/Sidebar.tsx';
+import { DevModeProvider } from './context/DevModeContext.tsx';
+import { useDevMode } from './hooks/useDevMode.ts';
+import { useResourceSelectors } from './hooks/useGameSelectors.ts';
+import { GameState, TabType } from './types.ts';
+
+// Lazy load modals
+const AboutModal = lazy(() => import('./components/AboutModal.tsx'));
+const ArchiveTerminalModal = lazy(() => import('./components/ArchiveTerminalModal.tsx'));
+const CalibrationMinigame = lazy(() => import('./components/CalibrationMinigame.tsx'));
+const DashboardModal = lazy(() => import('./components/DashboardModal.tsx'));
+const MaintenanceTerminalModal = lazy(() => import('./components/MaintenanceTerminalModal.tsx'));
+const PersonalIdCardModal = lazy(() => import('./components/PersonalIdCardModal.tsx'));
+
+import { useAutoSave } from './hooks/useAutoSave.ts';
+import { useGameEngine } from './hooks/useGameEngine.ts';
+import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
+import { loadState } from './state/initialState.ts';
+
+const SAVE_KEY = 'the_hangar_save_hf_v26_full_hf';
+
+const playClick = () => {
+  const audio = new Audio('/sounds/ui_click.mp3');
+  audio.volume = 0.3;
+  audio.play().catch(() => {});
+};
+
+const playLevelUpSound = () => {
+  const audio = new Audio('/sounds/level_up.mp3');
+  audio.volume = 0.5;
+  audio.play().catch(() => {});
+};
+
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="text-emerald-500 text-xs uppercase tracking-widest animate-pulse">
+      LOADING...
+    </div>
+  </div>
+);
+
+const AppContent: React.FC = () => {
+  const [state, dispatch] = useReducer<React.Reducer<GameState, GameReducerAction>>(
+    gameReducer,
+    loadState(SAVE_KEY)
+  );
+
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const savedTab = localStorage.getItem(`${SAVE_KEY}_tab`);
+    if (savedTab === 'APRON' || savedTab === 'LINE_MAINT') return TabType.APRON_LINE;
+    if (savedTab === 'TRAINING_DEPT') return TabType.TRAINING;
+    if (savedTab && Object.values(TabType).includes(savedTab as TabType))
+      return savedTab as TabType;
+    return TabType.APRON_LINE;
+  });
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [levelUpNotif, setLevelUpNotif] = useState(false);
+  const [isDashboardModalOpen, setIsDashboardModalOpen] = useState(false);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
+  const [isIdCardOpen, setIsIdCardOpen] = useState(false);
+  const [isArchiveTerminalOpen, setIsArchiveTerminalOpen] = useState(false);
+  const [isMaintenanceTerminalOpen, setIsMaintenanceTerminalOpen] = useState(false);
+  const isRebootingRef = useRef(false);
+  const { isDevModeActive } = useDevMode();
+
+  // Use selectors for derived state
+  const { xpProgress } = useResourceSelectors(state);
+
+  // Custom hook for game loop
+  useGameEngine(state, dispatch as React.Dispatch<GameReducerAction>, activeTab);
+
+  // Custom hook for auto-saving
+  useAutoSave(
+    state,
+    SAVE_KEY,
+    activeTab,
+    () => setIsSaving(true),
+    () => setIsSaving(false),
+    isRebootingRef
+  );
+
+  // Effect to handle one-off events like level ups
+  useEffect(() => {
+    const currentLevel = state.resources.level;
+    const lastNotifiedLevel = state.eventTimestamps.lastLevelUpNotif || 0;
+    if (currentLevel > lastNotifiedLevel) {
+      // Use setTimeout to defer state updates
+      setTimeout(() => {
+        playLevelUpSound();
+        setLevelUpNotif(true);
+        setTimeout(() => setLevelUpNotif(false), 4000);
+      }, 0);
+      dispatch({
+        type: 'ACTION',
+        payload: { type: 'ACKNOWLEDGE_LEVEL_UP', payload: { level: currentLevel } },
+      });
+    }
+  }, [state.resources.level, state.eventTimestamps.lastLevelUpNotif, dispatch]);
+
+  // Memoize onAction callback to prevent unnecessary re-renders
+  const onAction = useCallback(
+    (type: string, payload?: Record<string, unknown>) => {
+      if (type === 'SHOW_ID_CARD') {
+        playClick();
+        setIsIdCardOpen(true);
+        return;
+      }
+      if (type === 'OPEN_ARCHIVE_TERMINAL') {
+        playClick();
+        setIsArchiveTerminalOpen(true);
+        return;
+      }
+      if (type === 'OPEN_MAINTENANCE_TERMINAL') {
+        playClick();
+        setIsMaintenanceTerminalOpen(true);
+        return;
+      }
+      dispatch({ type: 'ACTION', payload: { type, payload } });
+    },
+    [dispatch]
+  );
+
+  if (state.resources.suspicion >= 100 || state.resources.sanity <= 0) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-center text-red-500 bg-black">
+        <h1 className="text-6xl font-black mb-8 tracking-tighter flicker">SYSTEM FAILURE</h1>
+        <p className="text-xs uppercase mb-12 tracking-[0.5em] opacity-50">
+          Shift terminated by External Protocol
+        </p>
+        <button
+          onClick={() => {
+            isRebootingRef.current = true;
+            localStorage.removeItem(SAVE_KEY);
+            localStorage.removeItem(`${SAVE_KEY}_tab`);
+            window.location.reload();
+          }}
+          className="px-10 py-5 border-2 border-red-600 font-bold hover:bg-red-600 hover:text-white transition-all"
+        >
+          REBOOT
+        </button>
+      </div>
+    );
+  }
+
+  const rootClasses = `flex flex-col h-screen select-none bg-black text-emerald-500 overflow-hidden ${state.flags.isHallucinating ? 'hallucination' : ''} ${state.flags.isAfraid ? 'fear-state' : ''}`;
+  const proficiencyGlowClass = state.proficiency.skillPoints > 0 ? 'glow-pulse-border' : '';
+
+  return (
+    <div className={rootClasses}>
+      {levelUpNotif && (
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] p-8 bg-black border-4 border-emerald-400 shadow-2xl shadow-emerald-500/20">
+          <h2 className="text-4xl font-black text-emerald-300 flicker tracking-tighter">
+            LEVEL UP
+          </h2>
+          <p className="text-center text-emerald-500 mt-2 text-xs uppercase tracking-[0.3em]">
+            +1 SKILL POINT
+          </p>
+        </div>
+      )}
+
+      {isAboutModalOpen && (
+        <Suspense fallback={<LoadingFallback />}>
+          <AboutModal onClose={() => setIsAboutModalOpen(false)} />
+        </Suspense>
+      )}
+      {isIdCardOpen && (
+        <Suspense fallback={<LoadingFallback />}>
+          <PersonalIdCardModal state={state} onClose={() => setIsIdCardOpen(false)} />
+        </Suspense>
+      )}
+      {isArchiveTerminalOpen && (
+        <Suspense fallback={<LoadingFallback />}>
+          <ArchiveTerminalModal
+            state={state}
+            onAction={onAction}
+            onClose={() => setIsArchiveTerminalOpen(false)}
+          />
+        </Suspense>
+      )}
+      {isMaintenanceTerminalOpen && (
+        <Suspense fallback={<LoadingFallback />}>
+          <MaintenanceTerminalModal
+            state={state}
+            onAction={onAction}
+            onClose={() => setIsMaintenanceTerminalOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {isDashboardModalOpen && (
+        <Suspense fallback={<LoadingFallback />}>
+          <DashboardModal
+            state={state}
+            onAction={onAction}
+            onClose={() => setIsDashboardModalOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {state.calibrationMinigame.active && (
+        <Suspense fallback={<LoadingFallback />}>
+          <CalibrationMinigame
+            toolLabel={state.calibrationMinigame.toolLabel || ''}
+            fatigue={state.hfStats.fatigue}
+            onComplete={(result) =>
+              onAction('FINISH_CALIBRATION_MINIGAME', {
+                toolId: state.calibrationMinigame.toolId,
+                result,
+              })
+            }
+          />
+        </Suspense>
+      )}
+
+      {isDevModeActive && <DevModeModal gameState={state} dispatch={dispatch} />}
+
+      <header className="border-b border-emerald-900 p-4 flex justify-between items-center bg-[#0a0a0a] z-50">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={() => {
+              playClick();
+              setIsAboutModalOpen(true);
+            }}
+            className="focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-sm"
+          >
+            <img src="/images/logo.png" alt="THE HANGAR logo" className="h-8 w-8" />
+          </button>
+          <div className="flex space-x-1.5 overflow-x-auto">
+            {Object.values(TabType).map((t) => (
+              <button
+                key={t}
+                onClick={() => {
+                  playClick();
+                  setActiveTab(t);
+                }}
+                className={`px-3 py-1 border text-[9px] uppercase transition-all duration-200 
+                  ${activeTab === t ? 'bg-emerald-900 text-white border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'text-emerald-800 border-emerald-900 hover:text-emerald-400 hover:border-emerald-600'}`}
+              >
+                [ {t.replace(/_/g, ' ')} ]
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center space-x-6 text-[10px] uppercase font-bold text-emerald-900">
+          {isSaving && (
+            <div className="text-emerald-400 animate-pulse text-[8px] tracking-[0.2em]">
+              SYNCING...
+            </div>
+          )}
+          <button
+            onClick={() => {
+              playClick();
+              setIsDashboardModalOpen(true);
+            }}
+            className={`px-3 py-1 border border-transparent hover:border-emerald-600 transition-all ${proficiencyGlowClass}`}
+          >
+            LVL:{' '}
+            <span className="text-emerald-400">
+              {state.resources.level} | XP: {Math.floor(xpProgress.current)} / {xpProgress.needed}
+            </span>
+          </button>
+        </div>
+      </header>
+      <HazardBar hazards={state.activeHazards} />
+      <ResourceBar
+        resources={state.resources}
+        inventory={state.inventory}
+        hfStats={state.hfStats}
+        flags={state.flags}
+      />
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-1/2 p-6 overflow-y-auto border-r border-emerald-900/20 bg-[#0d0d0d]">
+          <ActionPanel activeTab={activeTab} state={state} onAction={onAction} />
+        </div>
+        <div className="w-1/2 p-6 bg-[#0a0a0a] overflow-y-auto">
+          <Sidebar logs={state.logs} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <DevModeProvider>
+      <AppContent />
+    </DevModeProvider>
+  );
+};
+
+export default App;
