@@ -25,6 +25,9 @@ function hexToString(hex: string): string {
   let str = '';
   for (let i = 0; i < hex.length; i += 4) {
     const charCode = parseInt(hex.substring(i, i + 4), 16);
+    if (isNaN(charCode)) {
+      throw new Error('Invalid hex encoding - corrupted data');
+    }
     str += String.fromCharCode(charCode);
   }
   return str;
@@ -46,9 +49,9 @@ function xorCipher(input: string, key: string): string {
 /**
  * Obfuscates a string using compression, XOR encryption, and Base64 encoding
  * This prevents casual editing in browser dev tools
- * 
+ *
  * Process: Compress → XOR Encrypt → Hex Encode → Base64 Encode
- * 
+ *
  * @param data - The plain string to obfuscate
  * @returns Obfuscated string safe for export
  * @throws Error if obfuscation fails
@@ -57,7 +60,7 @@ export function obfuscate(data: string): string {
   try {
     // Step 1: Compress the data using LZ-String
     const compressed = LZString.compressToUTF16(data);
-    
+
     if (!compressed) {
       throw new Error('Compression failed');
     }
@@ -73,15 +76,17 @@ export function obfuscate(data: string): string {
 
     return encoded;
   } catch (error) {
-    throw new Error(`Obfuscation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Obfuscation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
 /**
  * Deobfuscates a string that was obfuscated with the obfuscate() function
- * 
+ *
  * Process: Base64 Decode → Hex Decode → XOR Decrypt → Decompress
- * 
+ *
  * @param encoded - The obfuscated string to decode
  * @returns Original plain string
  * @throws Error if deobfuscation fails (invalid format, corrupted data, etc.)
@@ -118,14 +123,19 @@ export function deobfuscate(encoded: string): string {
     if (error instanceof Error && error.message.includes('Invalid hex')) {
       throw error;
     }
-    throw new Error(`Deobfuscation failed: ${error instanceof Error ? error.message : 'Invalid format'}`);
+    if (error instanceof Error && error.message.includes('corrupted')) {
+      throw error;
+    }
+    throw new Error(
+      `Deobfuscation failed: ${error instanceof Error ? error.message : 'Invalid format'}`
+    );
   }
 }
 
 /**
  * Validates if a string appears to be a valid obfuscated export
  * Does basic checks without full deobfuscation
- * 
+ *
  * @param encoded - String to validate
  * @returns true if string appears to be valid obfuscated data
  */

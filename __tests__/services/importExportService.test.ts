@@ -103,8 +103,9 @@ describe('importExportService', () => {
 
     it('should return null for corrupted export string', () => {
       const exported = exportGameData(testState);
-      // Corrupt the export by removing characters
-      const corrupted = exported.slice(0, -10);
+      // Corrupt the export by modifying characters in the middle (not just slicing)
+      // This ensures we corrupt the actual encoded data, not just truncate padding
+      const corrupted = exported.slice(0, 50) + 'XXXXX' + exported.slice(55);
 
       const result = importGameData(corrupted);
 
@@ -234,7 +235,9 @@ describe('importExportService', () => {
 
       expect(imported).not.toBeNull();
       expect(imported?.proficiency.unlocked).toEqual(testState.proficiency.unlocked);
-      expect(imported?.proficiency.easaModulesPassed).toEqual(testState.proficiency.easaModulesPassed);
+      expect(imported?.proficiency.easaModulesPassed).toEqual(
+        testState.proficiency.easaModulesPassed
+      );
     });
 
     it('should preserve nested objects through export/import', () => {
