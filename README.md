@@ -5,6 +5,8 @@
 [![Health Check](https://github.com/stevenselcuk/thehangar/actions/workflows/health-check.yml/badge.svg)](https://github.com/stevenselcuk/thehangar/actions/workflows/health-check.yml)
 [![CodeQL](https://github.com/stevenselcuk/thehangar/actions/workflows/codeql.yml/badge.svg)](https://github.com/stevenselcuk/thehangar/actions/workflows/codeql.yml)
 
+![screenshot](https://i.imgur.com/kqBEnaP.png)
+
 A browser-based incremental/idle game about aircraft maintenance in an unsettling, Lovecraftian-themed hangar. Manage resources, maintain aircraft, unlock skills, and try to survive the night shift without losing your sanity—or attracting too much attention from The Suits.
 
 ## Game Overview

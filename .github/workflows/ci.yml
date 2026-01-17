@@ -132,6 +132,9 @@ jobs:
       - name: Install dependencies (if cache miss)
         run: npm ci --prefer-offline
 
+      - name: Build project
+        run: npm run build
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
