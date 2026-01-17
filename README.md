@@ -39,16 +39,9 @@ You are an aircraft maintenance technician working the graveyard shift at a remo
 
 ## Architecture Highlights
 
-### State Management
-
-- **Single Giant Reducer**: 1498-line `gameReducer.ts` handles all state mutations
-- **No Immer (yet)**: Manual object spreading for immutability (`{ ...prev, resources: { ...prev.resources } }`)
-- **Embedded Logic**: `processTick()` and `handleGameAction()` live inside the reducer
-- **Why?**: Performance-critical game loop requires tight control; refactoring to Immer is planned
-
 ### Game Loop
 
-- **requestAnimationFrame**: ~60 FPS tick rate, delta time calculations
+- **requestAnimationFrame**: ~15-20 FPS tick rate, delta time calculations
 - **Time-Based Systems**: Events countdown, tools degrade, resources regenerate
 - **Conditional Logic**: Different mechanics activate based on active tab (e.g., Backshops increases suspicion)
 
@@ -303,9 +296,7 @@ MIT License (see LICENSE file)
 
 ## Credits
 
-- Game Design & Development: stevenselcuk
-- Aviation Consulting: [Your Name/Contributors]
-- Horror Writing: [Your Name/Contributors]
+- Game Design & Development: Steven J. Selcuk
 - Testing Framework: Vitest, Playwright, React Testing Library
 - Built with React, TypeScript, Vite
 
