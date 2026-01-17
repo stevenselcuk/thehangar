@@ -22,117 +22,103 @@
 
 **Core Gameplay**
 
-- Tick-based game engine (60 FPS, delta time calculations)
-- Resource management system (Focus, Sanity, Suspicion, Credits, XP)
-- Job card system with multiple aircraft types (B737, A320, A330, B777)
-- Tool degradation and condition tracking
-- Random event system (audits, accidents, eldritch manifestations)
-- Skill tree with 20+ skills
-- Multiple gameplay tabs (Hangar, Toolroom, Apron, Backshops, Office, HR, Terminal)
-- Auto-save to localStorage with state validation
-- Component calibration mini-game
-- Training and certification system
+- Tick-based game engine (15 FPS via requestAnimationFrame, delta time calculations)
+- Resource management system (Focus, Sanity, Suspicion, Credits, XP, Kardex Fragments)
+- Job card system with multiple aircraft types (MD-80, B737-400/700, A330, B777-200ER, A300 Cargo)
+- Tool degradation and condition tracking with calibration mini-game
+- Random event system (audits, accidents, eldritch manifestations, component failures)
+- Skill tree with 20+ skills across multiple specializations
+- Multiple gameplay tabs (Structure Shop, Hangar, Apron/Line, Toolroom, Canteen, Terminal, Office, HR Floor, Backshops, Training)
+- Auto-save to localStorage (60s interval + beforeunload) with state validation
+- Component calibration mini-game with difficulty scaling
+- Training and certification system (A&P, EASA, NDT, Type Ratings)
 - Mail system with time-sensitive messages
-- Hazard tracking (noise, fume exposure)
+- Hazard tracking (noise exposure, social stress, fatigue)
+- Rotable management (repair, registration, untraceable parts)
+- Archive terminal with KARDEX system
+- Maintenance terminal for aircraft diagnostics
 
 **Technical Infrastructure**
 
-- React 19 with TypeScript 5.8 (strict mode)
-- Vite 6.2 build system with fast HMR
-- Immer for immutable state updates
-- 574 passing tests across 19 test suites (~75% coverage)
-- GitHub Actions CI/CD pipeline
-- Automated deployment to GitHub Pages
-- CodeQL security scanning
-- ESLint + Prettier code quality tools
+- React 19.2.3 with TypeScript 5.8 (strict mode)
+- Vite 6.2 build system with ultra-fast HMR and `@/` path alias
+- Immer 11.1.3 for immutable state updates (✅ Complete integration)
+- TailwindCSS 4.1.18 with terminal-green aesthetic
+- Vitest + React Testing Library + Playwright
+- ~75% overall test coverage (strong in logic/services, weak in components)
+- GitHub Actions CI/CD pipeline with automated deployment
+- CodeQL security scanning + dependency reviews
+- ESLint flat config + Prettier code quality tools
 
 **Architecture**
 
-- Service-oriented architecture (CostCalculator, RewardCalculator, ResourceValidator)
-- Reducer composition with slice pattern
-- Comprehensive type safety (8.6KB types.ts)
-- Centralized logging service
+- ✅ **Slice-Based State Management**: Fully migrated to domain slices
+  - 12+ specialized reducers (~2,700 lines) in `state/slices/`
+  - `gameReducer.ts` (459 lines) orchestrates all state updates
+  - `reducerComposer.ts` (621 lines) routes TICK/ACTION events
+  - All slices use Immer's `produce()` for safe mutations
+- Service-oriented architecture (CostCalculator, RewardCalculator, logService)
+- Comprehensive type safety (379 lines in types.ts)
+- Centralized logging service with timestamps
 
 ---
 
 ## Technical Debt
 
-### 🔴 High Priority
+### � High Priority
 
 #### 1. State Management Cleanup
 
-**Status**: ✅ Nearly Complete  
-**Effort**: Small (1 day remaining)  
+**Status**: ✅ **COMPLETE** (January 2026)  
+**Effort**: Completed  
 **Impact**: High
 
-- **Achievement**: State management successfully migrated to slice-based architecture
-  - `gameReducer.ts` (459 lines) now orchestrates 12+ domain slices via Immer
-  - `reducerComposer.ts` (621 lines) routes TICK/ACTION events to specialized reducers
-  - All slices fully implemented: aircraft, encounters, shop, terminalLocation, backshop, compliance, events, inventory, proficiency, terminal, hangar, office
+- **Achievement**: State management fully migrated to slice-based architecture
+  - `gameReducer.ts` (459 lines) orchestrates 12+ domain slices via Immer
+  - `reducerComposer.ts` (621 lines) routes TICK/ACTION events
+  - All slices implemented: aircraft, backshop, compliance, encounters, events, hangar, inventory, office, proficiency, resources, shop, terminal, terminalLocation
   - Total slice code: ~2,700 lines across specialized domains
-- **Remaining Items**:
-  - [x] Complete migration of all actions to slice pattern
-  - [x] Consolidate state composition in `reducerComposer.ts`
-  - [x] Update documentation to reflect new architecture
-  - [ ] Migrate legacy tickProcessor.ts (297 lines) to full Immer patterns
-  - [ ] Migrate legacy actionProcessor.ts (1139 lines) to full Immer patterns
+  - All slices use `produce()` from Immer for safe state mutations
+- **Result**: Clean separation of concerns, easier testing, maintainable architecture
 
-#### 2. Test Failures
+#### 2. Component Test Coverage
 
-**Status**: ⚠️ Needs Verification  
-**Effort**: Small (1-2 days)  
-**Impact**: Medium
-
-- **Issue**: Test status unclear after slice migration
-  - `core.test.ts` has 47 total tests with header warning about refactor impacts
-  - Original claim of "11 failing tests" predates slice migration
-  - Test file header notes: "Tests may fail due to service integration in main reducer"
-  - Actual failure count unknown without running test suite
-
-- **Action Items**:
-  - [ ] Run `npm test` to determine actual failing test count
-  - [ ] Update test expectations to match slice-based architecture
-  - [ ] Verify efficiency boost calculations align with new service layer
-  - [ ] Fix any legitimate test failures vs outdated expectations
-  - [ ] Update test file headers to remove migration warnings
-
-### 🟡 Medium Priority
-
-#### 3. Path Alias Inconsistency
-
-**Status**: ✅ Fixed (January 2026)  
-**Effort**: Small  
-**Impact**: Low
-
-- **Resolved**: All imports now use `@/` alias pointing to `src/`
-- **Cleanup**: Removed duplicate `state/` and `hooks/` directories at root
-
-#### 4. Component Test Coverage
-
-**Status**: 🔴 Critical Gap  
+**Status**: 🔴 **CRITICAL GAP**  
 **Effort**: Large (2-3 weeks)  
 **Impact**: High
 
 - **Issue**: Component test coverage is severely lacking at ~5% (1/20 components tested)
   - Only `ErrorBoundary.test.tsx` exists in `__tests__/components/`
   - 19/20 components have zero test coverage
-  - Overall 75% coverage comes from logic/services, not components
+  - Overall 75% coverage comes from logic/services/slices, not components
 - **Critical Untested Components**:
-  - **ActionPanel.tsx** (803 lines) - Largest file, main UI orchestrator
-  - ResourceBar.tsx - Core resource display
-  - Sidebar.tsx - Log display system
-  - All modal components (AboutModal, DashboardModal, ArchiveTerminalModal, etc.)
-  - All tab components (BackshopsTab, CanteenTab, HRFloorTab, OfficeTab, TerminalTab, TrainingTab)
-  - ActionButton.tsx, HazardBar.tsx, ProficiencyTab.tsx
+  - **ActionPanel.tsx** (main UI orchestrator, tab router)
+  - **ResourceBar.tsx** (core resource display)
+  - **Sidebar.tsx** (log display system)
+  - **Modal Components**: AboutModal, DashboardModal, ArchiveTerminalModal, MaintenanceTerminalModal, CalibrationMinigame, PersonalIdCardModal
+  - **Tab Components**: BackshopsTab, CanteenTab, HRFloorTab, OfficeTab, TerminalTab, TrainingTab
+  - **UI Elements**: ActionButton, HazardBar, ProficiencyTab, ImportExportView
 
 - **Action Items**:
-  - [ ] Prioritize ActionPanel.tsx tests (highest complexity)
-  - [ ] Add tests for ResourceBar and Sidebar (core UI)
-  - [ ] Implement snapshot testing for modals
+  - [ ] Create comprehensive test suite for ActionPanel.tsx (highest complexity)
+  - [ ] Add tests for ResourceBar and Sidebar (core UI components)
+  - [ ] Implement snapshot testing for all modals
   - [ ] Test user interaction flows with React Testing Library
   - [ ] Target 80%+ component coverage to match project standards
+  - [ ] Reference `.github/copilot-instructions.md` for testing patterns
 
-#### 5. Error Boundary Coverage
+### 🟡 Medium Priority
+
+#### 3. Path Alias Consistency
+
+**Status**: ✅ **COMPLETE** (January 2026)  
+**Effort**: Completed  
+**Impact**: Low
+
+- **Resolved**: All imports now use `@/` alias pointing to `src/`
+- **Cleanup**: Path alias configured in vite.config.ts and tsconfig.json
+
+#### 4. Error Boundary Coverage
 
 **Status**: ⚠️ Partial  
 **Effort**: Small (1 day)  
@@ -146,21 +132,28 @@
 
 ### 🟢 Low Priority
 
-#### 6. Code Organization
+#### 5. Code Organization
 
 **Status**: 🔵 Planned  
 **Effort**: Medium (3-5 days)  
 **Impact**: Low
 
-- **Primary Target**: ActionPanel.tsx (803 lines) - Largest file in codebase
-  - Main gameplay UI orchestrator rendering all tabs
-  - Candidates for extraction: tab rendering logic, event display, job card display
-  - Consider splitting into ActionPanelCore + TabRenderer pattern
-- **Secondary Opportunities**:
+- **Opportunities**:
   - Extract magic numbers to constants
   - Consolidate flavor text generation
   - Create utility functions for common patterns
-  - gameReducer.ts (459 lines) is well-sized, no split needed
+  - Consider ActionPanel.tsx refactoring if complexity increases
+
+#### 6. E2E Test Maintenance
+
+**Status**: 🔵 Deferred  
+**Effort**: Medium (ongoing)  
+**Impact**: Low
+
+- **Note**: E2E tests intentionally deferred until v1.0.0
+  - Game is rapidly evolving, E2E tests are costly to maintain
+  - Will revisit once feature set stabilizes
+  - Focus on unit and integration tests for now
 
 ---
 
@@ -367,48 +360,55 @@
 
 ### 🧪 Testing Improvements
 
-#### Immediate (Next Sprint)
+#### Immediate (January 2026)
 
-1. **Verify Test Suite Status** 🔴
-   - Run `npm test` to determine actual failing test count
-   - Update test expectations post-slice migration
-   - Priority: Align tests with new architecture
-
-2. **Component Test Expansion** 🔴
+1. **Component Test Expansion** 🔴 **TOP PRIORITY**
    - Critical gap: Only 1/20 components tested (5% coverage)
-   - Priority: ActionPanel.tsx (803 lines), ResourceBar, Sidebar
+   - Priority targets:
+     1. ActionPanel.tsx (main UI orchestrator)
+     2. ResourceBar.tsx (core resource display)
+     3. Sidebar.tsx (log system)
+     4. ActionButton.tsx (reusable UI element)
+     5. Modal components (lazy-loaded, complex interactions)
    - Target: 80%+ component coverage
+   - See `.github/copilot-instructions.md` for testing workflows
 
-#### Short Term (1-2 Months)
+2. **ErrorBoundary Test Completion** ⚠️
+   - Complete skipped test
+   - Add error recovery scenarios
+   - Test error logging integration
 
-3. **Increase Coverage** 🟢
-   - Target: 85% overall
-   - Focus on components (currently 60%)
-   - Add integration tests for critical flows
+#### Short Term (Q2 2026)
 
-4. **E2E Test Expansion** 🟢
-   - Complete job flow
+3. **Slice Test Enhancement** 🟢
+   - Current: ~70% slice coverage
+   - Target: 90%+ for all slices
+   - Add edge case testing
+   - Test Immer immutability guarantees
+
+4. **Integration Test Expansion** 🟢
+   - Complete game flow testing
    - Event handling scenarios
-   - Game over conditions
    - Save/load functionality
+   - Cross-slice interactions
 
-5. **Visual Regression Testing** 🔵
+#### Long Term (Q3-Q4 2026)
+
+5. **E2E Test Revival** 🔵
+   - Deferred until v1.0.0 feature freeze
+   - Will implement comprehensive Playwright suite
+   - Game over conditions
+   - Full session testing
+
+6. **Visual Regression Testing** 🔵
    - Implement Playwright screenshots
    - Compare UI changes automatically
    - Catch unintended visual breaks
 
-#### Long Term (3-6 Months)
-
-6. **Performance Testing** 🔵
-   - Load testing for long game sessions
+7. **Performance Testing** 🔵
+   - Load testing for long sessions
    - Memory leak detection
    - Frame rate monitoring
-   - Save/load time benchmarks
-
-7. **Fuzz Testing** 🔵
-   - Random action sequences
-   - Edge case discovery
-   - State corruption detection
 
 ---
 
@@ -418,23 +418,28 @@
 
 #### High Priority
 
-1. **Architecture Documentation** ⭐⭐⭐
-   - Service layer patterns
-   - State management flow
-   - Reducer composition guide
-   - Testing patterns
+1. **Architecture Documentation** ✅ **COMPLETE**
+   - State management architecture fully documented in `.github/copilot-instructions.md`
+   - Service layer patterns explained
+   - Reducer composition guide included
+   - Testing patterns with examples
 
-2. **Contribution Guide** ⭐⭐
-   - How to add new actions
-   - How to create events
-   - How to add skills
-   - PR checklist
+2. **Contribution Workflows** ✅ **COMPLETE**
+   - 6 comprehensive workflows in `.github/copilot-instructions.md`:
+     - Adding a New Action (9 steps)
+     - Adding a New Event (6 steps)
+     - Adding a New Component/Tab (7 steps)
+     - Debugging Game State (8 steps)
+     - UI Fixes (6 steps)
+     - UX Fixes (7 steps)
+   - Mandatory quality standards enforced (tests, lint, docs)
+   - Pre-commit checklist included
 
-3. **API Documentation** ⭐⭐
-   - Service APIs (CostCalculator, etc.)
-   - State shape documentation
-   - Event structure
-   - Type definitions guide
+3. **API Documentation** ⚠️ Partial
+   - Service APIs documented in source files
+   - State shape documented in types.ts
+   - Event structure in data/events.ts
+   - **Needed**: Generate TypeDoc or similar for public APIs
 
 #### Medium Priority
 
@@ -496,13 +501,14 @@
 
 ### Q1 2026 (Jan-Mar)
 
-- [x] Fix test infrastructure
-- [x] Implement all domain slices (12+ slices complete)
-- [x] Complete state migration to slices (gameReducer 1498→459 lines)
-- [x] Documentation overhaul (copilot-instructions.md updated)
-- [ ] Verify and fix test suite (run npm test for actual status)
-- [ ] Component test coverage expansion (priority: ActionPanel, ResourceBar, Sidebar)
-- [ ] Migrate legacy processors to Immer (tickProcessor.ts, actionProcessor.ts)
+- [x] **Complete state migration to slices** (✅ Done - 12+ slices, ~2,700 lines)
+- [x] **Implement reducer composition** (✅ Done - reducerComposer.ts with composeTick/composeAction)
+- [x] **Full Immer integration** (✅ Done - all slices use produce())
+- [x] **Documentation overhaul** (✅ Done - comprehensive copilot-instructions.md with workflows)
+- [x] **Path alias consistency** (✅ Done - all imports use @/ alias)
+- [ ] **Component test coverage expansion** (🔴 Priority 1 - currently 5%, target 80%+)
+  - Focus: ActionPanel, ResourceBar, Sidebar, Modals, Tabs
+- [ ] **ErrorBoundary test completion** (⚠️ Complete skipped tests)
 
 ### Q2 2026 (Apr-Jun)
 

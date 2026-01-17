@@ -43,15 +43,30 @@ You are an aircraft maintenance technician working the graveyard shift at a remo
 
 ### Game Loop
 
-- **requestAnimationFrame**: ~15-20 FPS tick rate, delta time calculations
+- **requestAnimationFrame**: 15 FPS tick rate (TARGET_FPS constant), delta time calculations
 - **Time-Based Systems**: Events countdown, tools degrade, resources regenerate
-- **Conditional Logic**: Different mechanics activate based on active tab (e.g., Backshops increases suspicion)
+- **Conditional Logic**: Different mechanics activate based on active tab (e.g., Backshops increases suspicion passively)
+
+### State Management
+
+- **Custom Reducer Pattern**: No Redux/Zustand - built with React useReducer + Immer
+- **Central Orchestration**: `gameReducer.ts` (459 lines) coordinates all state updates
+- **Domain Slices**: 12+ specialized reducers (~2,700 lines total) in `state/slices/`
+  - aircraftSlice, backshopSlice, complianceSlice, encountersSlice, eventsSlice
+  - hangarSlice, inventorySlice, officeSlice, proficiencySlice, resourcesSlice
+  - shopSlice, terminalSlice, terminalLocationSlice
+- **Routing Layer**: `reducerComposer.ts` (621 lines) routes TICK/ACTION events
+  - `composeTick()`: Passive updates (resource regen, tool degradation)
+  - `composeAction()`: Player actions routed to domain slices
+- **Immutability**: All slices use Immer's `produce()` for safe state mutations
 
 ### Data Architecture
 
 - **Static Content**: All game data in `data/` folder (events, skills, items, flavor text)
-- **Type Safety**: 364 lines of TypeScript interfaces in `types.ts`
+- **Type Safety**: 379 lines of TypeScript interfaces in `types.ts`
 - **Event Templates**: Use `Omit<GameEvent, 'timeLeft'>` pattern, time added at spawn
+- **Service Layer**: Pure functions (CostCalculator, RewardCalculator, logService)
+- **Immutable Imports**: Never mutate data files - they're templates only
 
 ## Development Setup
 
@@ -122,32 +137,42 @@ thehangar/
 │   │   ├── useGameEngine.ts # requestAnimationFrame game loop
 │   │   └── useAutoSave.ts   # Debounced localStorage persistence
 │   ├── logic/           # Pure game logic functions
-│   │   ├── levels.ts    # XP calculations, level-up messages
-│   │   ├── tickProcessor.ts # Time-based resource updates
-│   │   └── actionProcessor.ts # Action handling logic
-│   ├── services/        # Business logic services
+│   │   └── levels.ts    # XP calculations, level-up messages
+│   ├── services/        # Business logic services (pure functions)
 │   │   ├── CostCalculator.ts # Cost calculations and validations
 │   │   ├── RewardCalculator.ts # Reward and XP calculations
 │   │   ├── ResourceValidator.ts # Resource validation
 │   │   └── logService.ts # Log management service
 │   ├── state/           # State management
-│   │   ├── gameReducer.ts   # Main game reducer
-│   │   ├── reducerComposer.ts # Reducer composition utilities
+│   │   ├── gameReducer.ts   # Main game reducer (459 lines, orchestrates slices)
+│   │   ├── reducerComposer.ts # Slice routing (621 lines: composeTick, composeAction)
 │   │   ├── initialState.ts  # Default game state, localStorage loading
 │   │   ├── stateValidator.ts # Runtime type checking for saved games
-│   │   └── slices/      # State slice reducers
-│   │       ├── hangarSlice.ts
-│   │       └── officeSlice.ts
+│   │   └── slices/      # Domain slice reducers (~2,700 lines total)
+│   │       ├── aircraftSlice.ts      # Aircraft task management
+│   │       ├── backshopSlice.ts      # Component overhaul operations
+│   │       ├── complianceSlice.ts    # HR, audits, documentation
+│   │       ├── encountersSlice.ts    # NPCs, janitor, sedan
+│   │       ├── eventsSlice.ts        # Job cards, event lifecycle
+│   │       ├── hangarSlice.ts        # Radio, FOD, NDT, riveting
+│   │       ├── inventorySlice.ts     # Tools, rotables, calibration
+│   │       ├── officeSlice.ts        # PC, mail, SRF filing
+│   │       ├── proficiencySlice.ts   # Skills, training, certs
+│   │       ├── resourcesSlice.ts     # Passive resource updates
+│   │       ├── shopSlice.ts          # Purchasing, vending
+│   │       ├── terminalSlice.ts      # Archive terminal commands
+│   │       └── terminalLocationSlice.ts # Terminal navigation
 │   ├── utils/           # Utilities and test helpers
 │   │   ├── gameHelpers.ts   # Log management, clamping, cost checks
 │   │   └── testHelpers.ts   # Seeded random, fixtures, test utilities
-│   ├── types.ts         # TypeScript type definitions (364 lines)
+│   ├── types.ts         # TypeScript type definitions (379 lines)
 │   ├── App.tsx          # Root component, modal management
 │   └── styles.css       # Global styles
 ├── __tests__/           # Test suites
-│   ├── fixtures/        # Reusable game state fixtures
-│   ├── logic/           # Pure function tests (levels, tick processor, actions)
-│   ├── services/        # Service layer tests
+│   ├── fixtures/        # Reusable game state fixtures (784 lines)
+│   ├── logic/           # Pure function tests (levels)
+│   ├── services/        # Service layer tests (100% coverage)
+│   ├── slices/          # Slice reducer tests
 │   ├── state/           # State management tests
 │   └── components/      # Component tests
 ├── public/              # Static assets (sounds, images)
@@ -188,12 +213,12 @@ thehangar/
 ### Coverage Goals
 
 - **Target**: 90%+ for all code (aspirational: 100%)
-- **Current**: ~75% overall (574 tests passing across 19 test suites)
-  - Logic: ~95% (levels, tick processor, action processor)
-  - Services: 100% (cost calculator, reward calculator, validators)
-  - State: ~80% (state initialization and management)
-  - Utils: 100% (helper functions)
-  - Components: ~60% (UI components - work in progress)
+- **Current**: ~75% overall
+  - Logic: ~95% (levels.ts pure functions)
+  - Services: 100% (CostCalculator, RewardCalculator, logService)
+  - Slices: ~70% (domain reducer tests)
+  - Utils: 100% (helper functions, testHelpers)
+  - Components: ~5% (⚠️ Critical gap - only ErrorBoundary tested)
 
 ### Test Categories
 
@@ -239,17 +264,34 @@ For detailed workflow documentation, see [.github/WORKFLOWS.md](.github/WORKFLOW
 
 ### Code Style
 
-- **Imports**: Always include file extensions (`.ts`, `.tsx`)
-- **State Updates**: Manual spreading (Immer migration planned)
-- **Logging**: Use `addLog()` helper with type-safe log types
+- **Imports**: Always include file extensions (`.ts`, `.tsx`). Use `@/` path alias for `src/`
+- **State Updates**: Always use Immer's `produce()` - never mutate state directly
+- **Logging**: Use `addLogToDraft()` from logService with timestamps
 - **Audio**: Create inline: `new Audio('/sounds/ui_click.mp3')`
+- **Testing**: Seeded random for determinism, fixtures for common scenarios
 
 ### Adding Content
 
-1. **New Action**: Add to `handleGameAction()` switch in `gameReducer.ts`
-2. **New Event**: Add template to `data/events.ts` with proper types
-3. **New Component**: Create in `components/`, import in `ActionPanel.tsx`
-4. **New Resource**: Update `ResourceState` interface, add to initial state
+See comprehensive workflows in `.github/copilot-instructions.md` for:
+
+- Adding new actions (9-step workflow with slice integration)
+- Adding new events (6-step workflow with tests)
+- Adding new components/tabs (7-step workflow)
+- Debugging game state issues
+- UI/UX fixes with mandatory quality checks
+
+**Quick Reference:**
+
+1. **New Action**: Define in slice → Implement with Immer → Register in reducerComposer → Add costs/rewards → UI button → Write tests
+2. **New Event**: Design data in `events.ts` → Add flavor text → Triggering logic → Write tests → Documentation
+3. **New Component**: TabType enum → Create component → Register in ActionPanel → App header → Write tests
+4. **New Resource**: Update `ResourceState` in types.ts → Add to initialState → Update slices → Write tests
+
+**Mandatory for ALL tasks:**
+
+- ✅ 100% test coverage for new code
+- ✅ Zero lint errors (`npm run lint:fix`)
+- ✅ Documentation updates (README, ROADMAP, copilot-instructions)
 
 ### Lovecraftian Writing Guidelines
 
@@ -277,13 +319,15 @@ For detailed workflow documentation, see [.github/WORKFLOWS.md](.github/WORKFLOW
 
 ### Planned Features
 
-- [ ] Immer integration for state management (refactoring)
+- [x] Immer integration for state management (✅ Complete - all slices use produce())
+- [x] Domain slice architecture (✅ Complete - 12+ slices implemented)
+- [ ] Component test coverage expansion (⚠️ Priority - currently 5%)
 - [ ] More aircraft types (A380, B787, regional jets)
 - [ ] Deeper skill trees (avionics specialization, management track)
-- [ ] Multiplayer leaderboards (survived shifts, sanity retention)
 - [ ] Audio engine (ambient hangar sounds, event stingers)
 - [ ] Achievement system
 - [ ] New Game+ (carry over knowledge, harder difficulty)
+- [ ] Multiplayer leaderboards (survived shifts, sanity retention)
 
 ### Performance Optimization
 
