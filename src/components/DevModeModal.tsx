@@ -398,9 +398,9 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch }) => {
                     <button
                       onClick={() =>
                         dispatch({
-                          type: 'ACCEPT_AOG_DEPLOYMENT',
-                          payload: {},
-                        } as unknown as GameReducerAction)
+                          type: 'ACTION',
+                          payload: { type: 'ACCEPT_AOG_DEPLOYMENT', payload: {} },
+                        })
                       }
                       className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2 px-4 border border-emerald-500 mb-2"
                     >
@@ -410,9 +410,9 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch }) => {
                     <button
                       onClick={() =>
                         dispatch({
-                          type: 'COMPLETE_AOG_DEPLOYMENT',
-                          payload: {},
-                        } as unknown as GameReducerAction)
+                          type: 'ACTION',
+                          payload: { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} },
+                        })
                       }
                       className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-2 px-4 border border-red-500"
                     >

@@ -446,6 +446,10 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           'START_CALIBRATION_MINIGAME',
           'FINISH_CALIBRATION_MINIGAME',
           'TOOLROOM_MASTER_TALK',
+          // AOG Actions
+          'ACCEPT_AOG_DEPLOYMENT',
+          'RESOLVE_AOG_ACTION',
+          'COMPLETE_AOG_DEPLOYMENT',
         ];
 
         if (composedActions.includes(type)) {

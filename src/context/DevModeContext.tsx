@@ -62,6 +62,30 @@ export const DevModeProvider: React.FC<DevModeProviderProps> = ({ children }) =>
     };
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check for Shift + Command + P
+      if (event.shiftKey && event.metaKey && (event.key === 'p' || event.key === 'P')) {
+        event.preventDefault(); // Prevent default browser action (like print or command palette)
+        // Toggle: If active, close it; if inactive, open it.
+        // But wait, window.enableDevMode() only opens it.
+        // User asked to trigger window.enableDevMode(), which sets it to true.
+        // Let's stick to calling window.enableDevMode() or internal openDevMode().
+        // Better yet, let's toggle if already open.
+        setIsDevModeActive((prev) => {
+          if (!prev) {
+            console.log('🔧 Dev Mode Shortcut Triggered');
+            return true;
+          }
+          return false; // Toggle off if already on
+        });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const value = {
     isDevModeActive,
     openDevMode,
