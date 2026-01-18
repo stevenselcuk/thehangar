@@ -1,8 +1,9 @@
 import React from 'react';
 import { aircraftData } from '../data/aircraft.ts';
 import { itemsData } from '../data/items.ts';
-import { AircraftType, GameState, Inventory, TabType } from '../types.ts';
+import { AircraftType, GameState, Inventory, SuitType, TabType } from '../types.ts';
 import ActionButton from './ActionButton.tsx';
+import AogTab from './AogTab.tsx';
 import BackshopsTab from './BackshopsTab.tsx';
 import CanteenTab from './CanteenTab.tsx';
 import HRFloorTab from './HRFloorTab.tsx';
@@ -790,6 +791,8 @@ const ActionPanel: React.FC<{
       return <BackshopsTab state={state} onAction={onAction} />;
     case TabType.TRAINING:
       return <TrainingTab state={state} onAction={onAction} />;
+    case TabType.AOG_DEPLOYMENT:
+      return <AogTab state={state} onAction={onAction} />;
     default:
       return (
         <div className="text-center opacity-30 mt-20 text-xs tracking-widest">

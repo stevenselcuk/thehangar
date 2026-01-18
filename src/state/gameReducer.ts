@@ -333,17 +333,17 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
         // Handle IMPORT_STATE specially - it needs direct state replacement
         if (type === 'IMPORT_STATE' && payload?.state) {
           const importedState = payload.state as GameState;
-          
+
           // Replace all state except runtime-specific fields
           Object.assign(draft, importedState);
-          
+
           // Reset runtime-only fields that shouldn't persist
           draft.activeEvent = null;
           draft.activeHazards = [];
           draft.activeScenario = null;
           draft.calibrationMinigame = { active: false, toolId: null, toolLabel: null };
           draft.lastUpdate = Date.now();
-          
+
           break;
         }
 
@@ -497,17 +497,17 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
         // Import a complete game state from import/export
         // Preserve runtime-only fields that shouldn't be imported
         const importedState = action.payload.state;
-        
+
         // Replace all state except runtime-specific fields
         Object.assign(draft, importedState);
-        
+
         // Reset runtime-only fields that shouldn't persist
         draft.activeEvent = null;
         draft.activeHazards = [];
         draft.activeScenario = null;
         draft.calibrationMinigame = { active: false, toolId: null, toolLabel: null };
         draft.lastUpdate = Date.now();
-        
+
         break;
       }
     }

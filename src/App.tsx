@@ -232,19 +232,21 @@ const AppContent: React.FC = () => {
             <img src="/images/logo.png" alt="THE HANGAR logo" className="h-8 w-8" />
           </button>
           <div className="flex space-x-1.5 overflow-x-auto">
-            {Object.values(TabType).map((t) => (
-              <button
-                key={t}
-                onClick={() => {
-                  playClick();
-                  setActiveTab(t);
-                }}
-                className={`px-3 py-1 border text-[9px] uppercase transition-all duration-200 
+            {Object.values(TabType)
+              .filter((t) => t !== TabType.AOG_DEPLOYMENT || state.aog.active)
+              .map((t) => (
+                <button
+                  key={t}
+                  onClick={() => {
+                    playClick();
+                    setActiveTab(t);
+                  }}
+                  className={`px-3 py-1 border text-[9px] uppercase transition-all duration-200 
                   ${activeTab === t ? 'bg-emerald-900 text-white border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'text-emerald-800 border-emerald-900 hover:text-emerald-400 hover:border-emerald-600'}`}
-              >
-                [ {t.replace(/_/g, ' ')} ]
-              </button>
-            ))}
+                >
+                  [ {t.replace(/_/g, ' ')} ]
+                </button>
+              ))}
           </div>
         </div>
         <div className="flex items-center space-x-6 text-[10px] uppercase font-bold text-emerald-900">

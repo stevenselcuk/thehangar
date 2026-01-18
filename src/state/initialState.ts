@@ -248,6 +248,12 @@ export const createInitialState = (): GameState => ({
   mail: [],
   lastUpdate: Date.now(),
   eventTimestamps: {},
+  aog: {
+    active: false,
+    stationId: null,
+    scenarioId: null,
+    startTime: 0,
+  },
 });
 
 export const loadState = (saveKey: string): GameState => {
@@ -308,6 +314,7 @@ export const loadState = (saveKey: string): GameState => {
         rotables: parsed.rotables || [],
         logs: parsed.logs && parsed.logs.length > 0 ? parsed.logs : defaults.logs,
         lastUpdate: Date.now(),
+        aog: parsed.aog || defaults.aog,
       };
     } catch (e) {
       console.error('Failed to parse saved state:', e);

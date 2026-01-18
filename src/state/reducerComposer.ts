@@ -1,6 +1,7 @@
 import { produce } from 'immer';
 import { GameState, TabType } from '../types.ts';
 import { AircraftAction, aircraftReducer } from './slices/aircraftSlice.ts';
+import { aogReducer } from './slices/aogSlice.ts';
 import { BackshopAction, backshopReducer } from './slices/backshopSlice.ts';
 import { ComplianceAction, complianceReducer } from './slices/complianceSlice.ts';
 import { EncountersAction, encountersReducer } from './slices/encountersSlice.ts';
@@ -452,7 +453,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         resources: draft.resources,
         inventory: draft.inventory,
         logs: draft.logs,
-        stats: draft.stats,
+        hfStats: draft.hfStats, // Added
         flags: draft.flags,
       };
 
@@ -465,7 +466,9 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.resources = updated.resources as typeof draft.resources;
       draft.inventory = updated.inventory;
       draft.logs = updated.logs as typeof draft.logs;
-      draft.stats = updated.stats as typeof draft.stats;
+      // draft.hfStats = updated.hfStats; // Aircraft reducer doesn't modify hfStats but needs it for state shape?
+      // Actually aircraftReducer CAN modify hfStats (fearTimer, venomSurgeTimer)
+      draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.flags = updated.flags as typeof draft.flags;
     });
   }
@@ -480,6 +483,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         flags: draft.flags,
         hfStats: draft.hfStats,
         logs: draft.logs,
+        proficiency: draft.proficiency, // Added
       };
 
       const updated = terminalLocationReducer(terminalLocationState, {
@@ -491,6 +495,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.flags = updated.flags as typeof draft.flags;
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs as typeof draft.logs;
+      draft.proficiency = updated.proficiency as typeof draft.proficiency; // Map back
     });
   }
 
@@ -500,7 +505,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       const officeState = {
         inventory: draft.inventory,
         resources: draft.resources,
-        mail: draft.mail,
+        // mail: draft.mail, // Removed
         flags: draft.flags,
         hfStats: draft.hfStats,
         logs: draft.logs,
@@ -515,7 +520,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
 
       draft.inventory = updated.inventory;
       draft.resources = updated.resources as typeof draft.resources;
-      draft.mail = updated.mail as typeof draft.mail;
+      // draft.mail = updated.mail as typeof draft.mail; // Removed
       draft.flags = updated.flags as typeof draft.flags;
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs as typeof draft.logs;
@@ -550,6 +555,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs as typeof draft.logs;
       draft.stats = updated.stats as typeof draft.stats;
+      draft.proficiency = updated.proficiency as typeof draft.proficiency;
     });
   }
 
@@ -562,6 +568,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         resources: draft.resources,
         vendingPrices: draft.vendingPrices,
         flags: draft.flags,
+        hfStats: draft.hfStats, // Added
         logs: draft.logs,
       };
 
@@ -575,6 +582,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.resources = updated.resources as typeof draft.resources;
       draft.vendingPrices = updated.vendingPrices as typeof draft.vendingPrices;
       draft.flags = updated.flags as typeof draft.flags;
+      draft.hfStats = updated.hfStats as typeof draft.hfStats; // Map back
       draft.logs = updated.logs as typeof draft.logs;
     });
   }
@@ -600,6 +608,28 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs as typeof draft.logs;
       draft.inventory = updated.inventory;
+    });
+  }
+
+  // Route AOG actions to aogSlice
+  if (
+    ['ACCEPT_AOG_DEPLOYMENT', 'RESOLVE_AOG_ACTION', 'COMPLETE_AOG_DEPLOYMENT'].includes(action.type)
+  ) {
+    return produce(state, (draft) => {
+      const aogState = {
+        aog: draft.aog,
+        resources: draft.resources,
+        logs: draft.logs,
+      };
+
+      const updated = aogReducer(aogState, {
+        type: action.type,
+        payload: action.payload as Record<string, unknown>,
+      });
+
+      draft.aog = updated.aog;
+      draft.resources = updated.resources;
+      draft.logs = updated.logs as typeof draft.logs;
     });
   }
 

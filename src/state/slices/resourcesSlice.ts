@@ -91,10 +91,11 @@ export const resourcesReducer = (
         const { delta, flags, hfStats, proficiency } = action.payload;
         const deltaSeconds = delta / 1000;
 
-        // Sanity drain (from tick processor, lines 123-127)
+        // Sanity drain (from tick processor lines 123-127)
         let sanityDrain = 0;
         if (flags.isAfraid) sanityDrain += 0.5;
-        if (proficiency.unlocked.includes('steadyNerves')) sanityDrain *= 0.9;
+        // Guard against missing proficiency state
+        if (proficiency?.unlocked?.includes('steadyNerves')) sanityDrain *= 0.9;
         if (hfStats.sanityShieldTimer > 0) sanityDrain = 0; // Sanity shield active
 
         draft.resources.sanity = Math.max(0, draft.resources.sanity - sanityDrain * deltaSeconds);

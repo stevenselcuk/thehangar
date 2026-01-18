@@ -83,7 +83,7 @@ function validateExportData(data: unknown): data is ExportData {
 
 /**
  * Exports the current game state as an obfuscated string
- * 
+ *
  * @param state - Current GameState to export
  * @returns Obfuscated export string that can be shared/saved
  * @throws Error if export fails
@@ -116,7 +116,7 @@ export function exportGameData(state: GameState): string {
 
 /**
  * Imports game data from an obfuscated export string
- * 
+ *
  * @param exportString - Obfuscated export string from exportGameData()
  * @returns GameState object if valid, null if invalid/corrupted
  */
@@ -157,7 +157,7 @@ export function importGameData(exportString: string): GameState | null {
 /**
  * Gets metadata from an export string without fully importing it
  * Useful for displaying export info before import
- * 
+ *
  * @param exportString - Obfuscated export string
  * @returns ExportMetadata if valid, null otherwise
  */

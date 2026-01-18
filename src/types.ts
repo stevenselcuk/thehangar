@@ -351,6 +351,12 @@ export interface GameState {
     clearanceLevel: number;
     hfRecurrentDueDate: number;
   };
+  aog: {
+    active: boolean;
+    stationId: string | null;
+    scenarioId: string | null;
+    startTime: number;
+  };
 }
 
 export enum TabType {
@@ -364,6 +370,7 @@ export enum TabType {
   HR_FLOOR = 'HR_FLOOR',
   BACKSHOPS = 'BACKSHOPS',
   TRAINING = 'TRAINING_DEPT',
+  AOG_DEPLOYMENT = 'AOG_DEPLOYMENT',
 }
 
 export interface ExportMetadata {

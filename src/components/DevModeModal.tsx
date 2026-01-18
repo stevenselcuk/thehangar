@@ -15,6 +15,7 @@ type TabType =
   | 'hfstats'
   | 'proficiency'
   | 'stats'
+  | 'aog'
   | 'actions';
 
 const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch }) => {
@@ -102,6 +103,7 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch }) => {
     { id: 'hfstats', label: 'HF Stats' },
     { id: 'proficiency', label: 'Proficiency' },
     { id: 'stats', label: 'Stats' },
+    { id: 'aog', label: 'AOG' },
     { id: 'actions', label: 'Quick Actions' },
   ] as const;
 
@@ -374,6 +376,62 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch }) => {
                     />
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* AOG Tab */}
+          {activeTab === 'aog' && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
+                AOG Deployment
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-emerald-950/50 p-4 border border-emerald-800">
+                  <h3 className="text-emerald-400 font-bold mb-2">Status</h3>
+                  <div className="mb-4">
+                    <span className="text-emerald-200">
+                      Active: {gameState.aog.active ? 'YES' : 'NO'}
+                    </span>
+                  </div>
+                  {!gameState.aog.active ? (
+                    <button
+                      onClick={() =>
+                        dispatch({
+                          type: 'ACCEPT_AOG_DEPLOYMENT',
+                          payload: {},
+                        } as unknown as GameReducerAction)
+                      }
+                      className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2 px-4 border border-emerald-500 mb-2"
+                    >
+                      🚀 Trigger Random Deployment
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        dispatch({
+                          type: 'COMPLETE_AOG_DEPLOYMENT',
+                          payload: {},
+                        } as unknown as GameReducerAction)
+                      }
+                      className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-2 px-4 border border-red-500"
+                    >
+                      ❌ Force Complete Deployment
+                    </button>
+                  )}
+                </div>
+
+                {gameState.aog.active && (
+                  <div className="bg-emerald-950/50 p-4 border border-emerald-800">
+                    <h3 className="text-emerald-400 font-bold mb-2">Current Mission</h3>
+                    <p className="text-xs text-emerald-300 mb-1">
+                      Station ID: {gameState.aog.stationId}
+                    </p>
+                    <p className="text-xs text-emerald-300">
+                      Scenario ID: {gameState.aog.scenarioId}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
