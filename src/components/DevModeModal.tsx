@@ -419,6 +419,18 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch }) => {
                       ❌ Force Complete Deployment
                     </button>
                   )}
+                  <button
+                    onClick={() => {
+                      // Force clear logic - dispatch complete just in case, but really we want to wipe it
+                      dispatch({
+                        type: 'ACTION',
+                        payload: { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} },
+                      });
+                    }}
+                    className="w-full mt-2 bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-1 px-4 border border-zinc-500 text-xs"
+                  >
+                    🗑️ Reset AOG State (Fix Corruption)
+                  </button>
                 </div>
 
                 {gameState.aog.active && (

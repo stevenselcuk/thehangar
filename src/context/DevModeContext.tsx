@@ -53,7 +53,7 @@ export const DevModeProvider: React.FC<DevModeProviderProps> = ({ children }) =>
       'color: #10b981; font-size: 16px; font-weight: bold;'
     );
     console.log(
-      '%cType window.enableDevMode() to activate developer tools',
+      '%cType window.enableDevMode() to activate developer tools or Shift + Command + P to toggle it.',
       'color: #6ee7b7; font-size: 12px;'
     );
 
