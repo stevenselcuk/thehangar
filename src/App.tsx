@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import ActionPanel from './components/ActionPanel.tsx';
+import CrtOverlay from './components/CrtOverlay.tsx';
 import DevModeModal from './components/DevModeModal.tsx';
 import HazardBar from './components/HazardBar.tsx';
 import ResourceBar from './components/ResourceBar.tsx';
@@ -291,6 +292,7 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <DevModeProvider>
+      <CrtOverlay />
       <AppContent />
     </DevModeProvider>
   );
