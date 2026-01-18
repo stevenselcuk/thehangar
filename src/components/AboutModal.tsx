@@ -165,6 +165,21 @@ const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 </a>
               </div>
               <div>
+                <h2 className="text-lg font-semibold text-emerald-400 mb-2">Public Repository</h2>
+                <p className="text-sm leading-relaxed mb-4">
+                  The Hangar is open source. Issue or feature request? Go to the GitHub repo. PR's
+                  welcome.
+                </p>
+                <a
+                  href="https://github.com/stevenselcuk/thehangar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-6 py-3 border border-emerald-700 bg-emerald-950/20 text-emerald-300 uppercase text-sm font-bold tracking-widest hover:bg-emerald-900/40 hover:border-emerald-500 transition-all"
+                >
+                  Go GitHub Repo
+                </a>
+              </div>
+              <div>
                 <h2 className="text-lg font-semibold text-emerald-400 mb-2">Developer Profile</h2>
                 <p className="text-sm leading-relaxed mb-4">
                   Check out the developer's other projects on GitHub.
