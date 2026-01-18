@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import { resourceTooltips } from '../data/tooltips.ts';
 import { getXpForNextLevel } from '../logic/levels';
 import { GameFlags, Inventory, ResourceState } from '../types';
@@ -18,11 +18,66 @@ interface Props {
   flags: GameFlags;
 }
 
-const Tooltip: React.FC<{ text: string }> = ({ text }) => (
-  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-2 bg-[#050505] border border-emerald-900 rounded-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20 w-48 text-center whitespace-normal">
-    <p className="text-[10px] text-emerald-700 uppercase tracking-tighter">{text}</p>
-  </div>
-);
+const SmartTooltip: React.FC<{ text: string; children: React.ReactNode }> = ({
+  text,
+  children,
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState({ left: '50%', transform: 'translateX(-50%)' });
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const calculatePosition = () => {
+    if (!tooltipRef.current || !wrapperRef.current) return;
+
+    const wrapperRect = wrapperRef.current.getBoundingClientRect();
+    const tooltipWidth = 192; // w-48 is 12rem = 192px
+    const padding = 10;
+    const windowWidth = window.innerWidth;
+
+    let leftOffset = 0;
+
+    // Check left edge
+    const projectedLeft = wrapperRect.left + wrapperRect.width / 2 - tooltipWidth / 2;
+    if (projectedLeft < padding) {
+      leftOffset = padding - projectedLeft;
+    }
+
+    // Check right edge
+    const projectedRight = wrapperRect.left + wrapperRect.width / 2 + tooltipWidth / 2;
+    if (projectedRight > windowWidth - padding) {
+      leftOffset = windowWidth - padding - projectedRight;
+    }
+
+    setPosition({
+      left: '50%',
+      transform: `translateX(calc(-50% + ${leftOffset}px))`,
+    });
+  };
+
+  return (
+    <div
+      ref={wrapperRef}
+      className="relative group"
+      onMouseEnter={() => {
+        calculatePosition();
+        setIsVisible(true);
+      }}
+      onMouseLeave={() => setIsVisible(false)}
+    >
+      {children}
+      <div
+        ref={tooltipRef}
+        style={position}
+        className={`absolute bottom-full mb-2 px-3 py-2 bg-[#050505] border border-emerald-900 rounded-sm shadow-lg transition-opacity duration-200 pointer-events-none z-[60] w-48 text-center whitespace-normal ${
+          isVisible ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <p className="text-[10px] text-emerald-700 uppercase tracking-tighter">{text}</p>
+      </div>
+    </div>
+  );
+};
 
 const ResourceBarComponent: React.FC<Props> = ({
   resources,
@@ -113,13 +168,14 @@ const ResourceBarComponent: React.FC<Props> = ({
             </div>
           )}
           {resources.kardexFragments > 0 && (
-            <div className="group relative flex items-center space-x-2">
-              <span className="text-[7px] text-purple-700 uppercase animate-pulse">K-FRAGS:</span>
-              <span className="text-[7px] text-purple-300 font-bold px-1 bg-purple-900/30 border border-purple-400/20">
-                {resources.kardexFragments}
-              </span>
-              <Tooltip text={resourceTooltips.kardexFragments} />
-            </div>
+            <SmartTooltip text={resourceTooltips.kardexFragments}>
+              <div className="flex items-center space-x-2">
+                <span className="text-[7px] text-purple-700 uppercase animate-pulse">K-FRAGS:</span>
+                <span className="text-[7px] text-purple-300 font-bold px-1 bg-purple-900/30 border border-purple-400/20">
+                  {resources.kardexFragments}
+                </span>
+              </div>
+            </SmartTooltip>
           )}
         </div>
       </div>
@@ -132,62 +188,80 @@ const ResourceBarComponent: React.FC<Props> = ({
           style={{ width: `${xpProgress}%` }}
         />
         <div className="px-4 py-2 flex items-center flex-wrap gap-x-6 bg-[#050505]/80 text-[9px] font-mono relative">
-          <div className="group relative flex items-center space-x-2">
-            <span className="text-emerald-950 font-bold uppercase">CR:</span>
-            <span className="text-emerald-400">${formatNum(resources.credits)}</span>
-            <Tooltip text={resourceTooltips.credits} />
-          </div>
-          <div className="group relative flex items-center space-x-2">
-            <span className="text-emerald-950 font-bold uppercase">LOG:</span>
-            <span className="text-blue-400">{formatNum(resources.technicalLogbookHours)}h</span>
-            <Tooltip text={resourceTooltips.technicalLogbookHours} />
-          </div>
-          <div className="group relative flex items-center space-x-2">
-            <span className="text-emerald-950 font-bold">AL:</span>
-            <span className="text-emerald-500">{formatNum(resources.alclad)}</span>
-            <Tooltip text={resourceTooltips.alclad} />
-          </div>
-          <div className="group relative flex items-center space-x-2">
-            <span className="text-emerald-950 font-bold">RIV:</span>
-            <span className="text-emerald-600">{formatNum(resources.rivets)}</span>
-            <Tooltip text={resourceTooltips.rivets} />
-          </div>
+          <SmartTooltip text={resourceTooltips.credits}>
+            <div className="flex items-center space-x-2">
+              <span className="text-emerald-950 font-bold uppercase">CR:</span>
+              <span className="text-emerald-400">${formatNum(resources.credits)}</span>
+            </div>
+          </SmartTooltip>
+
+          <SmartTooltip text={resourceTooltips.technicalLogbookHours}>
+            <div className="flex items-center space-x-2">
+              <span className="text-emerald-950 font-bold uppercase">LOG:</span>
+              <span className="text-blue-400">{formatNum(resources.technicalLogbookHours)}h</span>
+            </div>
+          </SmartTooltip>
+
+          <SmartTooltip text={resourceTooltips.alclad}>
+            <div className="flex items-center space-x-2">
+              <span className="text-emerald-950 font-bold">AL:</span>
+              <span className="text-emerald-500">{formatNum(resources.alclad)}</span>
+            </div>
+          </SmartTooltip>
+
+          <SmartTooltip text={resourceTooltips.rivets}>
+            <div className="flex items-center space-x-2">
+              <span className="text-emerald-950 font-bold">RIV:</span>
+              <span className="text-emerald-600">{formatNum(resources.rivets)}</span>
+            </div>
+          </SmartTooltip>
+
           {resources.crystallineResonators > 0 && (
-            <div className="group relative flex items-center space-x-2">
-              <span className="text-blue-900 font-bold">C-RES:</span>
-              <span className="text-blue-400">{formatNum(resources.crystallineResonators)}</span>
-              <Tooltip text={resourceTooltips.crystallineResonators} />
-            </div>
+            <SmartTooltip text={resourceTooltips.crystallineResonators}>
+              <div className="flex items-center space-x-2">
+                <span className="text-blue-900 font-bold">C-RES:</span>
+                <span className="text-blue-400">{formatNum(resources.crystallineResonators)}</span>
+              </div>
+            </SmartTooltip>
           )}
+
           {resources.bioFilament > 0 && (
-            <div className="group relative flex items-center space-x-2">
-              <span className="text-purple-900 font-bold">B-FIL:</span>
-              <span className="text-purple-400">{formatNum(resources.bioFilament)}</span>
-              <Tooltip text={resourceTooltips.bioFilament} />
-            </div>
+            <SmartTooltip text={resourceTooltips.bioFilament}>
+              <div className="flex items-center space-x-2">
+                <span className="text-purple-900 font-bold">B-FIL:</span>
+                <span className="text-purple-400">{formatNum(resources.bioFilament)}</span>
+              </div>
+            </SmartTooltip>
           )}
 
           <div className="ml-auto flex items-center space-x-4 border-l border-emerald-900/20 pl-4">
-            <div className="group relative flex items-center space-x-2">
-              <span className="text-emerald-950 uppercase font-bold text-[7px]">Fatigue:</span>
-              <span className="text-amber-700">{Math.round(hfStats.fatigue)}%</span>
-              <Tooltip text={resourceTooltips.fatigue} />
-            </div>
-            <div className="group relative flex items-center space-x-2">
-              <span className="text-emerald-950 uppercase font-bold text-[7px]">Noise:</span>
-              <span className="text-amber-700">{Math.round(hfStats.noiseExposure)}%</span>
-              <Tooltip text={resourceTooltips.noiseExposure} />
-            </div>
-            <div className="group relative flex items-center space-x-2">
-              <span className="text-emerald-950 uppercase font-bold text-[7px]">Stress:</span>
-              <span className="text-amber-700">{Math.round(hfStats.socialStress)}%</span>
-              <Tooltip text={resourceTooltips.socialStress} />
-            </div>
-            <div className="group relative flex items-center space-x-2 border-l border-emerald-900/20 pl-4">
-              <span className="text-emerald-950 uppercase font-bold text-[7px]">Temp:</span>
-              <span className="text-emerald-700">{hfStats.temperature.toFixed(1)}°C</span>
-              <Tooltip text={resourceTooltips.temperature} />
-            </div>
+            <SmartTooltip text={resourceTooltips.fatigue}>
+              <div className="flex items-center space-x-2">
+                <span className="text-emerald-950 uppercase font-bold text-[7px]">Fatigue:</span>
+                <span className="text-amber-700">{Math.round(hfStats.fatigue)}%</span>
+              </div>
+            </SmartTooltip>
+
+            <SmartTooltip text={resourceTooltips.noiseExposure}>
+              <div className="flex items-center space-x-2">
+                <span className="text-emerald-950 uppercase font-bold text-[7px]">Noise:</span>
+                <span className="text-amber-700">{Math.round(hfStats.noiseExposure)}%</span>
+              </div>
+            </SmartTooltip>
+
+            <SmartTooltip text={resourceTooltips.socialStress}>
+              <div className="flex items-center space-x-2">
+                <span className="text-emerald-950 uppercase font-bold text-[7px]">Stress:</span>
+                <span className="text-amber-700">{Math.round(hfStats.socialStress)}%</span>
+              </div>
+            </SmartTooltip>
+
+            <SmartTooltip text={resourceTooltips.temperature}>
+              <div className="flex items-center space-x-2 border-l border-emerald-900/20 pl-4">
+                <span className="text-emerald-950 uppercase font-bold text-[7px]">Temp:</span>
+                <span className="text-emerald-700">{hfStats.temperature.toFixed(1)}°C</span>
+              </div>
+            </SmartTooltip>
           </div>
         </div>
       </div>

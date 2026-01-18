@@ -1,22 +1,20 @@
-import React, { lazy, Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import AboutModal from './components/AboutModal.tsx';
 import ActionPanel from './components/ActionPanel.tsx';
+import ArchiveTerminalModal from './components/ArchiveTerminalModal.tsx';
+import CalibrationMinigame from './components/CalibrationMinigame.tsx';
 import CrtOverlay from './components/CrtOverlay.tsx';
+import DashboardModal from './components/DashboardModal.tsx';
 import DevModeModal from './components/DevModeModal.tsx';
 import HazardBar from './components/HazardBar.tsx';
+import MaintenanceTerminalModal from './components/MaintenanceTerminalModal.tsx';
+import PersonalIdCardModal from './components/PersonalIdCardModal.tsx';
 import ResourceBar from './components/ResourceBar.tsx';
 import Sidebar from './components/Sidebar.tsx';
 import { DevModeProvider } from './context/DevModeContext.tsx';
 import { useDevMode } from './hooks/useDevMode.ts';
 import { useResourceSelectors } from './hooks/useGameSelectors.ts';
 import { GameState, TabType } from './types.ts';
-
-// Lazy load modals
-const AboutModal = lazy(() => import('./components/AboutModal.tsx'));
-const ArchiveTerminalModal = lazy(() => import('./components/ArchiveTerminalModal.tsx'));
-const CalibrationMinigame = lazy(() => import('./components/CalibrationMinigame.tsx'));
-const DashboardModal = lazy(() => import('./components/DashboardModal.tsx'));
-const MaintenanceTerminalModal = lazy(() => import('./components/MaintenanceTerminalModal.tsx'));
-const PersonalIdCardModal = lazy(() => import('./components/PersonalIdCardModal.tsx'));
 
 import { useAutoSave } from './hooks/useAutoSave.ts';
 import { useGameEngine } from './hooks/useGameEngine.ts';
