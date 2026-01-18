@@ -140,7 +140,7 @@ const AppContent: React.FC = () => {
             localStorage.removeItem(`${SAVE_KEY}_tab`);
             window.location.reload();
           }}
-          className="px-10 py-5 border-2 border-red-600 font-bold hover:bg-red-600 hover:text-white transition-all"
+          className="px-10 py-5 border-2 border-red-600 font-bold hover:bg-red-600 hover:text-white transition-all focus:outline-none focus:ring-4 focus:ring-red-500"
         >
           REBOOT
         </button>
@@ -227,7 +227,7 @@ const AppContent: React.FC = () => {
               playClick();
               setIsAboutModalOpen(true);
             }}
-            className="focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-sm"
+            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm"
           >
             <img src="/images/logo.png" alt="THE HANGAR logo" className="h-8 w-8" />
           </button>
@@ -241,7 +241,7 @@ const AppContent: React.FC = () => {
                     playClick();
                     setActiveTab(t);
                   }}
-                  className={`px-3 py-1 border text-[9px] uppercase transition-all duration-200 
+                  className={`px-3 py-1 border text-[9px] uppercase transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-1 focus-visible:ring-offset-black
                   ${activeTab === t ? 'bg-emerald-900 text-white border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'text-emerald-800 border-emerald-900 hover:text-emerald-400 hover:border-emerald-600'}`}
                 >
                   [ {t.replace(/_/g, ' ')} ]
@@ -260,7 +260,7 @@ const AppContent: React.FC = () => {
               playClick();
               setIsDashboardModalOpen(true);
             }}
-            className={`px-3 py-1 border border-transparent hover:border-emerald-600 transition-all ${proficiencyGlowClass}`}
+            className={`px-3 py-1 border border-transparent hover:border-emerald-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${proficiencyGlowClass}`}
           >
             LVL:{' '}
             <span className="text-emerald-400">
