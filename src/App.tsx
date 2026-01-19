@@ -4,6 +4,7 @@ import ActionPanel from './components/ActionPanel.tsx';
 import ArchiveTerminalModal from './components/ArchiveTerminalModal.tsx';
 import CalibrationMinigame from './components/CalibrationMinigame.tsx';
 import CrtOverlay from './components/CrtOverlay.tsx';
+import CursorEffect from './components/CursorEffect.tsx';
 import DashboardModal from './components/DashboardModal.tsx';
 import DevModeModal from './components/DevModeModal.tsx';
 import HazardBar from './components/HazardBar.tsx';
@@ -11,6 +12,7 @@ import MaintenanceTerminalModal from './components/MaintenanceTerminalModal.tsx'
 import PersonalIdCardModal from './components/PersonalIdCardModal.tsx';
 import ResourceBar from './components/ResourceBar.tsx';
 import Sidebar from './components/Sidebar.tsx';
+import WorkInProgressModal from './components/WorkInProgressModal.tsx';
 import { DevModeProvider } from './context/DevModeContext.tsx';
 import { useDevMode } from './hooks/useDevMode.ts';
 import { useResourceSelectors } from './hooks/useGameSelectors.ts';
@@ -22,6 +24,7 @@ import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
 const SAVE_KEY = 'the_hangar_save_hf_v26_full_hf';
+const WIP_WARNING_KEY = 'hasSeenWipWarning_v1';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -60,6 +63,9 @@ const AppContent: React.FC = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [levelUpNotif, setLevelUpNotif] = useState(false);
+  const [showWipWarning, setShowWipWarning] = useState(
+    () => !localStorage.getItem(WIP_WARNING_KEY)
+  );
   const [isDashboardModalOpen, setIsDashboardModalOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isIdCardOpen, setIsIdCardOpen] = useState(false);
@@ -67,6 +73,12 @@ const AppContent: React.FC = () => {
   const [isMaintenanceTerminalOpen, setIsMaintenanceTerminalOpen] = useState(false);
   const isRebootingRef = useRef(false);
   const { isDevModeActive } = useDevMode();
+
+  const handleWipClose = () => {
+    playClick();
+    localStorage.setItem(WIP_WARNING_KEY, 'true');
+    setShowWipWarning(false);
+  };
 
   // Use selectors for derived state
   const { xpProgress } = useResourceSelectors(state);
@@ -152,6 +164,8 @@ const AppContent: React.FC = () => {
 
   return (
     <div className={rootClasses}>
+      {showWipWarning && <WorkInProgressModal onClose={handleWipClose} />}
+
       {levelUpNotif && (
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] p-8 bg-black border-4 border-emerald-400 shadow-2xl shadow-emerald-500/20">
           <h2 className="text-4xl font-black text-emerald-300 flicker tracking-tighter">
@@ -291,6 +305,7 @@ const App: React.FC = () => {
   return (
     <DevModeProvider>
       <CrtOverlay />
+      <CursorEffect />
       <AppContent />
     </DevModeProvider>
   );
