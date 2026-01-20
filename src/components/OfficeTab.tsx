@@ -104,14 +104,38 @@ const OfficeTab: React.FC<{
         </h4>
 
         {!inv.pcAssembled ? (
-          <div className="space-y-4">
-            <pre className="text-[7px] text-emerald-900 leading-none">
-              {`   ____________________
-  |   PART STATUS      |
-  |  MB: [${inv.mainboard ? 'X' : ' '}] GPU: [${inv.graphicCard ? 'X' : ' '}]  |
-  |  CD: [${inv.cdRom ? 'X' : ' '}] FDD: [${inv.floppyDrive ? 'X' : ' '}] |
-  |____________________|
-     ||          ||
+          <div className="space-y-4 flex flex-col items-center">
+            <pre className="text-[6px] text-emerald-900 leading-[7px] text-left w-fit">
+              {`                         .,,uod8B8bou,,.
+                ..,uod8BBBBBBBBBBBBBBBBRPFT?l!i:.
+           ||||||||||||||!?TFPRBBBBBBBBBBBBBBB8m=,
+           ||||   '""^^!!||||||||||TFPRBBBVT!:...!
+           ||||            '""^^!!|||||?!:.......!
+           ||||                     ||||.........!
+           ||||                     ||||.........!
+           ||||                     ||||.........!
+           ||||                     ||||.........!
+           ||||                     ||||.........!
+           ||||                     ||||.........!
+           ||||,                    ||||.........\`
+           |||||!!-._               ||||.......;.
+           ':!|||||||||!!-._        ||||.....bBBBBWdou,.
+         bBBBBB86foi!|||||||!!-..:|||!..bBBBBBBBBBBBBBBY!
+         ::!?TFPRBBBBBB86foi!||||||||!!bBBBBBBBBBBBBBBY..!
+         :::::::::!?TFPRBBBBBB86ftiaabBBBBBBBBBBBBBBY....!
+         :::;\`"^!:;::::::!?TFPRBBBBBBBBBBBBBBBBBBBY......!
+         ;::::::...''^::::::::::!?TFPRBBBBBBBBBBY........!
+     .ob86foi;::::::::::::::::::::::::!?TFPRBY..........\`
+    .b888888888886foi;:::::::::::::::::::::::..........\`
+ .b888888888888888888886foi;::::::::::::::::..........
+.b888888888888888888888888888886foi;:::::::::......\`
+!Tf998888888888888888888888888888888886foi;:::....\`
+  '"^!|Tf9988888888888888888888888888888888!::..\`
+       '"^!|Tf998888888888888888888888889!! '\`
+             '"^!|Tf9988888888888888888!!\`            iBBbo.
+                  '"^!|Tf998888888889!\`             WBBBBbo.
+                        '"^!|Tf9989!\`              YBBBP^'
+                              '"^!\`               \`
 `}
             </pre>
             <p className="text-[9px] text-emerald-700 uppercase">Parts Found: {pcPartsCount}/4</p>
