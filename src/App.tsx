@@ -251,18 +251,18 @@ const AppContent: React.FC = () => {
 
       {isDevModeActive && <DevModeModal gameState={state} dispatch={dispatch} />}
 
-      <header className="border-b border-emerald-900 p-4 flex justify-between items-center bg-[#0a0a0a] z-50">
-        <div className="flex items-center space-x-4">
+      <header className="border-b border-emerald-900 pl-4 pr-0 h-14 flex justify-between items-stretch bg-[#0a0a0a] z-50">
+        <div className="flex items-stretch space-x-4">
           <button
             onClick={() => {
               playClick();
               setIsAboutModalOpen(true);
             }}
-            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm"
+            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm self-center"
           >
             <img src="/images/logo.png" alt="THE HANGAR logo" className="h-8 w-8" />
           </button>
-          <div className="flex space-x-1.5 overflow-x-auto">
+          <div className="flex bg-[#050505] border-x border-emerald-900/50">
             {Object.values(TabType)
               .filter((t) => t !== TabType.AOG_DEPLOYMENT || state.aog.active)
               .map((t) => (
@@ -272,17 +272,17 @@ const AppContent: React.FC = () => {
                     playClick();
                     setActiveTab(t);
                   }}
-                  className={`px-3 py-1 border text-[9px] uppercase transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-1 focus-visible:ring-offset-black
-                  ${activeTab === t ? 'bg-emerald-900 text-white border-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]' : 'text-emerald-800 border-emerald-900 hover:text-emerald-400 hover:border-emerald-600'}`}
+                  className={`px-4 min-w-[120px] h-full border-r border-emerald-900/50 last:border-r-0 text-[10px] uppercase transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-inset
+                  ${activeTab === t ? 'bg-emerald-900/20 text-emerald-400 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]' : 'text-emerald-800 hover:text-emerald-400 hover:bg-emerald-900/10'}`}
                 >
-                  [ {t.replace(/_/g, ' ')} ]
+                  {t.replace(/_/g, ' ')}
                 </button>
               ))}
           </div>
         </div>
-        <div className="flex items-center space-x-6 text-[10px] uppercase font-bold text-emerald-900">
+        <div className="flex items-stretch space-x-6 text-[10px] uppercase font-bold text-emerald-900">
           {isSaving && (
-            <div className="text-emerald-400 animate-pulse text-[8px] tracking-[0.2em]">
+            <div className="text-emerald-400 animate-pulse text-[8px] tracking-[0.2em] self-center">
               SYNCING...
             </div>
           )}
@@ -291,10 +291,10 @@ const AppContent: React.FC = () => {
               playClick();
               setIsDashboardModalOpen(true);
             }}
-            className={`px-3 py-1 border border-transparent hover:border-emerald-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${proficiencyGlowClass}`}
+            className={`px-4 h-full border-x border-emerald-900/50 bg-[#050505] hover:bg-emerald-900/10 hover:text-emerald-400 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 flex items-center justify-center ${proficiencyGlowClass}`}
           >
             LVL:{' '}
-            <span className="text-emerald-400">
+            <span className="text-emerald-400 ml-1">
               {state.resources.level} | XP: {Math.floor(xpProgress.current)} / {xpProgress.needed}
             </span>
           </button>
