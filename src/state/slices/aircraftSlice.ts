@@ -90,7 +90,7 @@ export const aircraftReducer = (
       }
 
       case 'AIRCRAFT_ACTION': {
-        const { aircraftId, actionType, triggerEvent } = action.payload;
+        const { aircraftId, actionType, triggerEvent } = action.payload || {};
         const aircraft = aircraftData.find((a) => a.id === aircraftId);
         if (!aircraft) break;
 
@@ -208,7 +208,7 @@ export const aircraftReducer = (
         const logKey = cabinLogs[Math.floor(Math.random() * cabinLogs.length)];
         addLog(ACTION_LOGS[logKey], 'story');
 
-        if (Math.random() < 0.1 && action.payload.triggerEvent) {
+        if (Math.random() < 0.1 && action.payload?.triggerEvent) {
           action.payload.triggerEvent('incident', 'CABIN_LOG_DISCREPANCY');
         }
         break;
@@ -220,7 +220,7 @@ export const aircraftReducer = (
         const smokeLogs = ['SMOKE_1', 'SMOKE_2', 'SMOKE_3', 'SMOKE_4', 'SMOKE_5'];
         const logKey = smokeLogs[Math.floor(Math.random() * smokeLogs.length)];
         addLog(ACTION_LOGS[logKey], 'info');
-        if (Math.random() < 0.05 && action.payload.triggerEvent) {
+        if (Math.random() < 0.05 && action.payload?.triggerEvent) {
           action.payload.triggerEvent('incident', 'SMOKING_VIOLATION');
         }
         break;
@@ -230,7 +230,7 @@ export const aircraftReducer = (
         draft.resources.focus = Math.min(100, draft.resources.focus + 10);
         draft.resources.sanity = Math.max(0, draft.resources.sanity - 5);
         addLog(ACTION_LOGS.DRINK_COFFEE, 'info');
-        if (Math.random() < 0.05 && action.payload.triggerEvent) {
+        if (Math.random() < 0.05 && action.payload?.triggerEvent) {
           action.payload.triggerEvent('incident', 'CONTAMINATED_COFFEE');
         }
         break;
@@ -245,7 +245,7 @@ export const aircraftReducer = (
         } else {
           addLog(ACTION_LOGS.SCAVENGE_FAIL, 'info');
         }
-        if (Math.random() < 0.1 && action.payload.triggerEvent) {
+        if (Math.random() < 0.1 && action.payload?.triggerEvent) {
           action.payload.triggerEvent('incident', 'CAUGHT_SCAVENGING');
         }
         break;
