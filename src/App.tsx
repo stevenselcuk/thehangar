@@ -38,6 +38,12 @@ const playLevelUpSound = () => {
   audio.play().catch(() => {});
 };
 
+const playShockedSound = () => {
+  const audio = new Audio('/sounds/shocked.mp3');
+  audio.volume = 0.6;
+  audio.play().catch(() => {});
+};
+
 const LoadingFallback = () => (
   <div className="flex items-center justify-center p-8">
     <div className="text-emerald-500 text-xs uppercase tracking-widest animate-pulse">
@@ -72,6 +78,7 @@ const AppContent: React.FC = () => {
   const [isArchiveTerminalOpen, setIsArchiveTerminalOpen] = useState(false);
   const [isMaintenanceTerminalOpen, setIsMaintenanceTerminalOpen] = useState(false);
   const isRebootingRef = useRef(false);
+  const hasPlayedGameOverSoundRef = useRef(false);
   const { isDevModeActive } = useDevMode();
 
   const handleWipClose = () => {
@@ -113,6 +120,17 @@ const AppContent: React.FC = () => {
       });
     }
   }, [state.resources.level, state.eventTimestamps.lastLevelUpNotif, dispatch]);
+
+  // Effect for Game Over sound
+  useEffect(() => {
+    if (
+      (state.resources.suspicion >= 100 || state.resources.sanity <= 0) &&
+      !hasPlayedGameOverSoundRef.current
+    ) {
+      playShockedSound();
+      hasPlayedGameOverSoundRef.current = true;
+    }
+  }, [state.resources.suspicion, state.resources.sanity]);
 
   // Memoize onAction callback to prevent unnecessary re-renders
   const onAction = useCallback(
