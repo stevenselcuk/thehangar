@@ -17,7 +17,8 @@ export interface AogScenario {
     | 'flat_tire'
     | 'hard_landing'
     | 'tail_strike'
-    | 'engine_failure';
+    | 'engine_failure'
+    | 'unknown_interference';
   actions: {
     id: string;
     label: string;
@@ -35,7 +36,7 @@ export const aogStations: AogStation[] = [
     name: 'Svalbard Longyearbyen',
     code: 'LYR',
     description:
-      'Frozen tundra. The wind cuts through thermal layers. Polar bears are a genuine FOD hazard.',
+      "The sun hasn't risen in three weeks. The wind screams across the tundra like a dying turbine. Shadows stretch and twist on the ice. Something watches from the perimeter fence, its eyes reflecting the strobe lights.",
     difficulty: 'extreme',
   },
   {
@@ -43,7 +44,7 @@ export const aogStations: AogStation[] = [
     name: 'Mojave Air and Space Port',
     code: 'MHV',
     description:
-      'Scorching heat. Dust gets into everything. The ghosts of retired aircraft watch your every move.',
+      'A graveyard of aluminium giants. The heat creates shimmering mirages that look like people walking between the rows of dead aircraft. The silence is absolute, until the metal groans in the cooling dusk.',
     difficulty: 'challenging',
   },
   {
@@ -51,7 +52,7 @@ export const aogStations: AogStation[] = [
     name: 'Princess Juliana',
     code: 'SXM',
     description:
-      'Caribbean humidity. Salt air accelerating corrosion. Tourists blasting apart on the fence line.',
+      'The air is thick with salt and jet fuel. Tourists line the fence, oblivious to the corrosion eating away at the spar. The waves crash with a rhythm that matches your pounding headache.',
     difficulty: 'routine',
   },
   {
@@ -59,7 +60,7 @@ export const aogStations: AogStation[] = [
     name: 'El Alto International',
     code: 'LPB',
     description:
-      'Thin air. Oxygen deprivation makes simple tasks exhausting. The view is dizzying.',
+      'The air is too thin. Thoughts come slowly, like molasses in a hydraulic line. The sky is a bruising shade of purple. You swear you can see the curvature of the earth bending incorrectly.',
     difficulty: 'challenging',
   },
   {
@@ -67,7 +68,7 @@ export const aogStations: AogStation[] = [
     name: 'Amazonas Outpost',
     code: 'AMZ',
     description:
-      'Oppressive humidity. Insects the size of rivets. Nature is reclaiming the runway.',
+      'The humidity is a physical weight. Moss grows on the landing gear overnight. The forest canopy is a wall of screaming insects and unseen movement. The locals refuse to approach the aircraft after dark.',
     difficulty: 'extreme',
   },
 ];
@@ -77,85 +78,116 @@ export const aogScenarios: AogScenario[] = [
     id: 'runway_excursion',
     title: 'Runway Excursion',
     description:
-      'The aircraft slid off the runway into the mud. Gear is buried. Structure may be compromised.',
+      'The aircraft overran the threshold and settled into the unstable earth. The gear is swallowed by the mud. It looks less like an accident and more like the ground is trying to digest the machine.',
     type: 'runway_excursion',
     actions: [
       {
         id: 'dig_out_gear',
-        label: 'Dig Out Gear',
+        label: 'Excavate Landing Gear',
         cost: { resource: 'focus', amount: 30 },
-        consequence: 'Back-breaking labor.',
+        consequence:
+          'The mud smells ancient and metallic. You find bone fragments mixed with the soil.',
       },
       {
         id: 'inspect_struts',
-        label: 'Inspect Struts',
+        label: 'Inspect Oleo Struts',
         cost: { resource: 'focus', amount: 15 },
-        consequence: 'Looking for cracks in the mud.',
+        consequence: 'Micro-fractures spiderweb across the chrome. They Pulse when you look away.',
       },
     ],
   },
   {
     id: 'bird_strike_engine',
-    title: 'Massive Bird Strike',
+    title: 'Biologic Ingestion Event',
     description:
-      'Engine #1 ingested a flock of geese. Fan blades are shattered. The smell is... indescribable.',
+      "Engine #1 ingested… something. It’s not just birds. The fan blades are twisted like claws, and the bypass duct is coated in a slurry that shouldn't exist in local taxonomy. The smell creates a phantom taste of copper.",
     type: 'bird_strike',
     actions: [
       {
         id: 'replace_fan_blades',
-        label: 'Replace Fan Blades',
+        label: 'Harvest & Replace Blades',
         cost: { resource: 'focus', amount: 50 },
+        consequence:
+          'The damaged blades seem to fight back as you remove them. Sharp edges bite your gloves.',
       },
       {
         id: 'clean_core',
-        label: 'Clean Engine Core',
-        cost: { resource: 'sanity', amount: 10 },
-        consequence: 'You will never forget that smell.',
+        label: 'Purge Engine Core',
+        cost: { resource: 'sanity', amount: 15 },
+        consequence:
+          'The fluid hisses as you wash it away. You hear faint chittering from the compressor stage.',
       },
     ],
   },
   {
     id: 'flat_tire_remote',
-    title: 'Multiple Blown Tires',
+    title: 'Catastrophic Wheel Failure',
     description:
-      'Mains 1, 2, and 3 are shredded. Debris scattered everywhere. We have no jacks here.',
+      "Mains 1, 2, and 3 have disintegrated. The rubber hasn't just burst; it's melted and fused with the tarmac. The wheel hubs are glowing with a low, sick light.",
     type: 'flat_tire',
     actions: [
       {
         id: 'improvise_jacks',
-        label: 'Improvise Jacking Point',
+        label: 'Fabricate Jacking Point',
         cost: { resource: 'focus', amount: 40 },
-        consequence: 'Risky, but necessary.',
+        consequence:
+          'You stack cribbing towers. They feel unstable, trembling with the vibration of the earth.',
       },
       {
         id: 'change_wheels',
-        label: 'Change Wheels',
+        label: 'Mount Spare Assemblies',
         cost: { resource: 'focus', amount: 25 },
+        consequence: 'The new wheels feel heavier than they should. Dead weight.',
       },
     ],
   },
   {
     id: 'lightning_damage',
-    title: 'Severe Lightning Strike',
+    title: 'Anomalous Discharge Strike',
     description:
-      'Entry hole on the radome, exit wound on the tail. Avionics are fried. Static wick burned off.',
+      'Lightning struck the radome, but there’s no exit wound. The avionics bay hums even with power disconnected. Static electricity arcs between your fingertips and the fuselage.',
     type: 'lightning_strike',
     actions: [
       {
         id: 'mapping_damage',
-        label: 'Map Skin Damage',
+        label: 'Map Conductivity Field',
         cost: { resource: 'focus', amount: 20 },
+        consequence:
+          'The multimeter gives readings that defy Ohm’s law. Infinity and zero simultaneously.',
       },
       {
         id: 'replace_static_wicks',
         label: 'Replace Static Wicks',
         cost: { resource: 'rivets', amount: 10 },
+        consequence: 'The old wicks crumble to grey ash in your hands.',
       },
       {
         id: 'reset_computers',
         label: 'Hard Reset Avionics',
-        cost: { resource: 'sanity', amount: 5 },
-        consequence: 'Hoping the ghosts in the machine go away.',
+        cost: { resource: 'sanity', amount: 10 },
+        consequence:
+          "The screens flicker with symbols that aren't flight data. You see your own name.",
+      },
+    ],
+  },
+  {
+    id: 'unknown_interference',
+    title: 'Unidentified Signal Interference',
+    description:
+      'The aircraft is generating a carrier wave on a distress frequency. No power is applied. The sound resonates in your teeth. The skin of the aircraft feels warm to the touch.',
+    type: 'unknown_interference',
+    actions: [
+      {
+        id: 'trace_wiring',
+        label: 'Trace Wiring Harness',
+        cost: { resource: 'focus', amount: 35 },
+        consequence: 'The wire bundles look like arteries. They pulse.',
+      },
+      {
+        id: 'shield_components',
+        label: 'Apply Lead Shielding',
+        cost: { resource: 'alclad', amount: 20 },
+        consequence: "You wrap the computer. It muffles the sound, but doesn't stop it.",
       },
     ],
   },

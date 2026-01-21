@@ -1,22 +1,26 @@
 import React, { Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import AboutModal from './components/AboutModal.tsx';
+import { HelmetProvider } from 'react-helmet-async';
 import ActionPanel from './components/ActionPanel.tsx';
-import ArchiveTerminalModal from './components/ArchiveTerminalModal.tsx';
-import CalibrationMinigame from './components/CalibrationMinigame.tsx';
 import CrtOverlay from './components/CrtOverlay.tsx';
 import CursorEffect from './components/CursorEffect.tsx';
-import DashboardModal from './components/DashboardModal.tsx';
-import DevModeModal from './components/DevModeModal.tsx';
 import HazardBar from './components/HazardBar.tsx';
-import MaintenanceTerminalModal from './components/MaintenanceTerminalModal.tsx';
-import PersonalIdCardModal from './components/PersonalIdCardModal.tsx';
 import ResourceBar from './components/ResourceBar.tsx';
+import SEO from './components/SEO.tsx';
 import Sidebar from './components/Sidebar.tsx';
 import WorkInProgressModal from './components/WorkInProgressModal.tsx';
 import { DevModeProvider } from './context/DevModeContext.tsx';
 import { useDevMode } from './hooks/useDevMode.ts';
 import { useResourceSelectors } from './hooks/useGameSelectors.ts';
 import { GameState, TabType } from './types.ts';
+const AboutModal = React.lazy(() => import('./components/AboutModal.tsx'));
+const ArchiveTerminalModal = React.lazy(() => import('./components/ArchiveTerminalModal.tsx'));
+const CalibrationMinigame = React.lazy(() => import('./components/CalibrationMinigame.tsx'));
+const DashboardModal = React.lazy(() => import('./components/DashboardModal.tsx'));
+const DevModeModal = React.lazy(() => import('./components/DevModeModal.tsx'));
+const MaintenanceTerminalModal = React.lazy(
+  () => import('./components/MaintenanceTerminalModal.tsx')
+);
+const PersonalIdCardModal = React.lazy(() => import('./components/PersonalIdCardModal.tsx'));
 
 import { useAutoSave } from './hooks/useAutoSave.ts';
 import { useGameEngine } from './hooks/useGameEngine.ts';
@@ -45,9 +49,9 @@ const playShockedSound = () => {
 };
 
 const LoadingFallback = () => (
-  <div className="flex items-center justify-center p-8">
-    <div className="text-emerald-500 text-xs uppercase tracking-widest animate-pulse">
-      LOADING...
+  <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+    <div className="text-emerald-500 text-xs uppercase tracking-widest animate-pulse border border-emerald-900/50 bg-[#0a0a0a] px-6 py-4 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+      LOADING RESOURCE...
     </div>
   </div>
 );
@@ -184,6 +188,14 @@ const AppContent: React.FC = () => {
     <div className={rootClasses}>
       {showWipWarning && <WorkInProgressModal onClose={handleWipClose} />}
 
+      <h1 className="sr-only">The Hangar: An Incremental Mystery RPG</h1>
+
+      <SEO
+        title={`The Hangar - ${activeTab.replace(/_/g, ' ')}`}
+        description="Uncover a terrifying conspiracy in this text-based incremental mystery game."
+        keywords="incremental game, text rpg, mystery, horror, aviation, mechanic"
+      />
+
       {levelUpNotif && (
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] p-8 bg-black border-4 border-emerald-400 shadow-2xl shadow-emerald-500/20">
           <h2 className="text-4xl font-black text-emerald-300 flicker tracking-tighter">
@@ -249,7 +261,11 @@ const AppContent: React.FC = () => {
         </Suspense>
       )}
 
-      {isDevModeActive && <DevModeModal gameState={state} dispatch={dispatch} />}
+      {isDevModeActive && (
+        <Suspense fallback={null}>
+          <DevModeModal gameState={state} dispatch={dispatch} />
+        </Suspense>
+      )}
 
       <header className="border-b border-emerald-900 pl-4 pr-0 h-14 flex justify-between items-stretch bg-[#0a0a0a] z-50">
         <div className="flex items-stretch space-x-4">
@@ -291,7 +307,7 @@ const AppContent: React.FC = () => {
               playClick();
               setIsDashboardModalOpen(true);
             }}
-            className={`px-4 h-full border-x border-emerald-900/50 bg-[#050505] hover:bg-emerald-900/10 hover:text-emerald-400 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 flex items-center justify-center ${proficiencyGlowClass}`}
+            className={`px-4 h-full border-r border-emerald-900/50 bg-[#050505] hover:bg-emerald-900/10 hover:text-emerald-400 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 flex items-center justify-center ${proficiencyGlowClass}`}
           >
             LVL:{' '}
             <span className="text-emerald-400 ml-1">
@@ -324,7 +340,9 @@ const App: React.FC = () => {
     <DevModeProvider>
       <CrtOverlay />
       <CursorEffect />
-      <AppContent />
+      <HelmetProvider>
+        <AppContent />
+      </HelmetProvider>
     </DevModeProvider>
   );
 };

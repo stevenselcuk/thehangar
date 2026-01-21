@@ -101,6 +101,48 @@ const AogTab: React.FC<AogTabProps> = ({ state, onAction }) => {
         </div>
       </div>
 
+      {/* Field Log */}
+      <div className="p-4 border border-zinc-800 bg-black/60 font-mono">
+        <h4 className="text-[10px] text-zinc-500 uppercase mb-3 font-bold tracking-widest border-b border-zinc-800 pb-1">
+          Field Log / Comms
+        </h4>
+        <div className="space-y-1 max-h-40 overflow-y-auto flex flex-col-reverse">
+          {state.logs
+            .filter((log) => log.timestamp >= startTime)
+            .sort((a, b) => b.timestamp - a.timestamp)
+            .map((log) => (
+              <div key={log.id} className="text-[10px] flex gap-2">
+                <span className="text-zinc-600">
+                  [
+                  {new Date(log.timestamp).toLocaleTimeString([], {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  })}
+                  ]
+                </span>
+                <span
+                  className={`${
+                    log.type === 'story'
+                      ? 'text-amber-200/90 italic'
+                      : log.type === 'warning'
+                        ? 'text-orange-400'
+                        : log.type === 'error'
+                          ? 'text-red-400'
+                          : 'text-zinc-400'
+                  }`}
+                >
+                  {log.text}
+                </span>
+              </div>
+            ))}
+          {state.logs.filter((log) => log.timestamp >= startTime).length === 0 && (
+            <div className="text-[10px] text-zinc-700 italic">No signals received.</div>
+          )}
+        </div>
+      </div>
+
       {/* Completion */}
       <div className="p-4 border border-emerald-900/30 bg-emerald-950/5">
         <h4 className="text-[10px] text-emerald-700 uppercase mb-2 font-bold tracking-widest">

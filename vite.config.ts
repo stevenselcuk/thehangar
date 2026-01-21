@@ -51,5 +51,17 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
+    build: {
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-helmet-async'],
+            'utils-vendor': ['immer', 'lz-string'],
+            'sentry-vendor': ['@sentry/react'],
+          },
+        },
+      },
+    },
   };
 });

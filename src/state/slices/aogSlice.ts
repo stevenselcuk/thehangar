@@ -80,6 +80,30 @@ export const aogReducer = (
         break;
       }
 
+      case 'AOG_TICK': {
+        if (!draft.aog.active) return;
+
+        // Random passive narrative events (5% chance per tick approx, assuming 1 sec tick)
+        // Adjust probability as needed based on tick rate.
+        if (Math.random() < 0.05) {
+          const flavorTexts = [
+            'The wind howls against the fuselage.',
+            'A shadow moves in the periphery of your vision.',
+            'Static crackles over the radio.',
+            'The temperature drops noticeably.',
+            'You hear a metallic grinding sound from the darkness.',
+            'Something taps on the hull. Rhythmically.',
+            'Your breath fogs up the visor.',
+            'Distant machinery starts up, then dies.',
+            'The smell of ozone becomes overpowering.',
+            'A crow lands on the wing and stares at you.',
+          ];
+          const randomText = flavorTexts[Math.floor(Math.random() * flavorTexts.length)];
+          addLog(randomText, 'story'); // Use 'story' type for flavor text
+        }
+        break;
+      }
+
       case 'COMPLETE_AOG_DEPLOYMENT': {
         if (!draft.aog.active) return;
 
@@ -94,6 +118,7 @@ export const aogReducer = (
         draft.resources.experience += 100;
 
         addLog(`AOG DEPLOYMENT COMPLETE. Returned to base. +${reward} Credits.`, 'story');
+        addLog(`Mission Time: ${Math.floor((Date.now() - draft.aog.startTime) / 1000)}s`, 'info');
         break;
       }
     }

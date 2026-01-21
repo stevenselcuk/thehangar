@@ -60,6 +60,27 @@ export const composeTick = (
     // Cast logs to preserve Immer draft types
     draft.logs = updatedResources.logs as typeof draft.logs;
 
+    draft.logs = updatedResources.logs as typeof draft.logs;
+
+    // AOG Tick Processing
+    if (draft.aog.active) {
+      const aogState = {
+        aog: draft.aog,
+        resources: draft.resources,
+        logs: draft.logs,
+      };
+
+      const updatedAog = aogReducer(aogState, {
+        type: 'AOG_TICK',
+        payload: {},
+      });
+
+      draft.aog = updatedAog.aog;
+      // We don't update resources here as tick usually doesn't consume them,
+      // but if we added passive drain we would.
+      draft.logs = updatedAog.logs as typeof draft.logs;
+    }
+
     // Future slice integrations will be added here:
     // - Tick-based flag updates (fear timer, cooldowns)
     // - Passive income calculations
