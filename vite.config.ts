@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
           short_name: 'Hangar',
           description:
             '"An incremental mystery RPG where you play as a night-shift mechanic uncovering a terrifying conspiracy involving a lost flight and eldritch technology.',
-          theme_color: '#ffffff',
+          theme_color: '#262626',
           icons: [
             {
               src: 'pwa-192x192.png',
