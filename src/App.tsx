@@ -136,6 +136,11 @@ const AppContent: React.FC = () => {
     }
   }, [state.resources.suspicion, state.resources.sanity]);
 
+  // FIX: Force title update when tab changes
+  useEffect(() => {
+    document.title = `The Hangar - ${activeTab.replace(/_/g, ' ')}`;
+  }, [activeTab]);
+
   // Memoize onAction callback to prevent unnecessary re-renders
   const onAction = useCallback(
     (type: string, payload?: Record<string, unknown>) => {
