@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const BUILD_NUMBER = 'rev {_build_1}';
+  const BUILD_NUMBER = 'Build Number {_build_1}';
 
   const [activeSection, setActiveSection] = useState<'ABOUT' | 'HOW_TO' | 'CONTACT'>('ABOUT');
 
@@ -56,7 +56,10 @@ const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           {activeSection === 'ABOUT' && (
             <div className="space-y-6 text-emerald-300 animate-[story-reveal_1s_ease-out]">
               <h1 className="text-2xl font-bold text-emerald-400 border-b border-emerald-800 pb-2">
-                THE HANGAR {BUILD_NUMBER.replace(/\{_build_(\d+)\}/, '$1')}
+                THE HANGAR
+                <p className="text-xs uppercase text-emerald-600 tracking-widest">
+                  {BUILD_NUMBER.replace(/\{_build_(\d+)\}/, '$1')}
+                </p>
               </h1>
               <p className="text-sm leading-relaxed">
                 THE HANGAR is a text-based incremental RPG of industrial dread and eldritch mystery.

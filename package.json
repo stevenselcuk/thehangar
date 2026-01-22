@@ -17,7 +17,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
-    "prepare": "husky"
+    "prepare": "husky",
+    "bump": "vite-bumper --bump",
+    "fresh": "vite-bumper --fresh"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
