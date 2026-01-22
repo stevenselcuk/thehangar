@@ -6,6 +6,7 @@ import { GameState } from '../types';
 interface DevModeModalProps {
   gameState: GameState;
   dispatch: React.Dispatch<GameReducerAction>;
+  onReset: () => void;
 }
 
 type TabType =
@@ -18,7 +19,7 @@ type TabType =
   | 'aog'
   | 'actions';
 
-const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch }) => {
+const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onReset }) => {
   const { closeDevMode } = useDevMode();
   const [activeTab, setActiveTab] = useState<TabType>('resources');
 
@@ -485,8 +486,7 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch }) => {
                         'Are you sure you want to reset the game? This will delete your save!'
                       )
                     ) {
-                      localStorage.removeItem('the_hangar_save_hf_v26_full_hf');
-                      window.location.reload();
+                      onReset();
                     }
                   }}
                   className="bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-6 border-2 border-red-500 transition-colors"

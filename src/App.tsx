@@ -159,6 +159,13 @@ const AppContent: React.FC = () => {
     [dispatch]
   );
 
+  const handleAppReset = () => {
+    isRebootingRef.current = true;
+    localStorage.removeItem(SAVE_KEY);
+    localStorage.removeItem(`${SAVE_KEY}_tab`);
+    window.location.reload();
+  };
+
   if (state.resources.suspicion >= 100 || state.resources.sanity <= 0) {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-center text-red-500 bg-black">
@@ -263,7 +270,7 @@ const AppContent: React.FC = () => {
 
       {isDevModeActive && (
         <Suspense fallback={null}>
-          <DevModeModal gameState={state} dispatch={dispatch} />
+          <DevModeModal gameState={state} dispatch={dispatch} onReset={handleAppReset} />
         </Suspense>
       )}
 
