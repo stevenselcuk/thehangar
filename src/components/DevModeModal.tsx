@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { eventsData } from '../data/events.ts';
 import { useDevMode } from '../hooks/useDevMode';
 import { GameReducerAction } from '../state/gameReducer';
 import { GameState } from '../types';
@@ -17,6 +18,7 @@ type TabType =
   | 'proficiency'
   | 'stats'
   | 'aog'
+  | 'events'
   | 'actions';
 
 const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onReset }) => {
@@ -105,6 +107,7 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onRese
     { id: 'proficiency', label: 'Proficiency' },
     { id: 'stats', label: 'Stats' },
     { id: 'aog', label: 'AOG' },
+    { id: 'events', label: 'Events' },
     { id: 'actions', label: 'Quick Actions' },
   ] as const;
 
@@ -445,6 +448,78 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onRese
                     </p>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Events Tab */}
+          {activeTab === 'events' && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
+                Event Manager
+              </h2>
+
+              {/* Active Event Status */}
+              <div className="bg-emerald-950/50 p-4 border border-emerald-800 mb-6">
+                <h3 className="text-emerald-400 font-bold mb-2">Active Event Status</h3>
+                {gameState.activeEvent ? (
+                  <div>
+                    <div className="mb-3">
+                      <p className="text-sm font-bold text-emerald-300">
+                        {gameState.activeEvent.title}
+                      </p>
+                      <p className="text-xs text-emerald-500 italic">
+                        ID: {gameState.activeEvent.id} | Type: {gameState.activeEvent.type}
+                      </p>
+                      <p className="text-xs text-emerald-500">
+                        Time Left: {(gameState.activeEvent.timeLeft / 1000).toFixed(1)}s
+                      </p>
+                    </div>
+                    <button
+                      onClick={() =>
+                        dispatch({
+                          type: 'ACTION',
+                          payload: { type: 'RESOLVE_EVENT', payload: { forceResolve: true } },
+                        })
+                      }
+                      className="bg-red-900/50 hover:bg-red-800 text-red-200 border border-red-700 font-bold py-1 px-3 text-xs"
+                    >
+                      Force Resolve (Clear)
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-emerald-600 italic text-sm">No active event</p>
+                )}
+              </div>
+
+              {/* Event Triggers */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(eventsData).map(([category, events]) => (
+                  <div key={category} className="bg-emerald-950/50 p-3 border border-emerald-800">
+                    <h3 className="text-emerald-400 font-bold uppercase text-xs tracking-wider mb-3 border-b border-emerald-900/50 pb-1">
+                      {category.replace('_', ' ')}
+                    </h3>
+                    <div className="flex flex-col gap-2">
+                      {events.map((event) => (
+                        <button
+                          key={event.id}
+                          onClick={() =>
+                            dispatch({
+                              type: 'TRIGGER_EVENT',
+                              payload: { type: category, id: event.id },
+                            })
+                          }
+                          className="text-left text-xs bg-black/40 hover:bg-emerald-900/30 text-emerald-300 py-2 px-3 border border-emerald-900/30 hover:border-emerald-500 transition-colors flex justify-between items-center group"
+                        >
+                          <span className="font-mono">{event.id}</span>
+                          <span className="text-[10px] text-emerald-700 group-hover:text-emerald-500 uppercase">
+                            Trigger
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
