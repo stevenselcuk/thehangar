@@ -27,8 +27,8 @@ import { useGameEngine } from './hooks/useGameEngine.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
-const SAVE_KEY = 'the_hangar_save_hf_v26_full_hf';
-const WIP_WARNING_KEY = 'hasSeenWipWarning_v1';
+const SAVE_KEY = 'the_hangar_save_hf_v27_full_hf';
+const WIP_WARNING_KEY = 'hasSeenWipWarning_v2';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
