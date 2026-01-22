@@ -18,7 +18,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "prepare": "husky",
-    "bump": "vite-bumper --bump",
+    "bump": "vite-bumper --bump --pattern \"_build_(\\d+)\"",
     "fresh": "vite-bumper --fresh"
   },
   "lint-staged": {
