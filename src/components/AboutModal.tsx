@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const BUILD_NUMBER = 'Build Number {1154}';
-  //asdfasdfaasdfasdfasdfasdfasdfasdfasdfasdfsdf
+  const BUILD_NUMBER = 'Build Number {_build_1}';
+
   const [activeSection, setActiveSection] = useState<'ABOUT' | 'HOW_TO' | 'CONTACT'>('ABOUT');
 
   const playClick = () => {
