@@ -22,8 +22,9 @@ const CursorEffect: React.FC = () => {
   return (
     <div
       ref={cursorRef}
-      className="pointer-events-none fixed inset-0 z-[60] overflow-hidden"
+      className="pointer-events-none fixed inset-0 overflow-hidden"
       style={{
+        zIndex: 0,
         background: `radial-gradient(
           800px circle at var(--x, 50%) var(--y, 50%), 
           rgba(16, 185, 129, 0.02), 
