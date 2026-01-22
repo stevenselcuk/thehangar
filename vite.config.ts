@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import versionBumper from 'vite-plugin-version-bumper';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
@@ -16,6 +17,15 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
+      versionBumper({
+        // 1. Define files to scan (glob pattern)
+        files: 'src/**/*.{ts,tsx,js,jsx}',
+
+        // 2. (Optional) Custom pattern.
+        // Default is /(_v)(\d+)/g which matches "_v1", "_v10", etc.
+        // Group 1 must be the prefix, Group 2 must be the number.
+        pattern: /(_build_)(\d+)/g,
+      }),
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png'],
