@@ -1,4 +1,3 @@
 echo "🚀 Bumping version..."
 npm run bump
-git add .
 npx lint-staged
