@@ -59,7 +59,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies (if cache miss)
-        run: npm ci --prefer-offline
+        run: npm ci --legacy-peer-deps
 
       - name: Run ESLint
         run: npm run lint
@@ -86,7 +86,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies (if cache miss)
-        run: npm ci --prefer-offline
+        run: npm ci --legacy-peer-deps
 
       - name: Run unit tests with coverage
         run: npm run test:coverage
@@ -130,7 +130,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies (if cache miss)
-        run: npm ci --prefer-offline
+        run: npm ci --legacy-peer-deps
 
       - name: Build project
         run: npm run build
@@ -171,7 +171,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies (if cache miss)
-        run: npm ci --prefer-offline
+        run: npm ci --legacy-peer-deps
 
       - name: Build project
         run: npm run build
@@ -207,7 +207,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Build project for GitHub Pages
         run: npm run build
