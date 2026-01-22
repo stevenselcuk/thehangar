@@ -200,10 +200,11 @@ const processTick = (
     }
   }
 
-  draft.resources.credits += delta / 7000;
-  let baseXpGain = delta / 12000;
-  if (draft.proficiency.unlocked.includes('quickLearner')) baseXpGain *= 1.1;
-  draft.resources.experience += baseXpGain;
+  // Base passive income removed as per user request
+  // draft.resources.credits += delta / 7000;
+  // let baseXpGain = delta / 12000;
+  // if (draft.proficiency.unlocked.includes('quickLearner')) baseXpGain *= 1.1;
+  // draft.resources.experience += baseXpGain;
 
   if (draft.activeEvent && draft.activeEvent.type !== 'component_failure') {
     draft.activeEvent.timeLeft -= delta;

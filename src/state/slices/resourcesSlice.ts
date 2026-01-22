@@ -3,7 +3,6 @@ import { clampFocus, clampSanity, clampSuspicion } from '../../services/Resource
 import {
   applyRewards,
   calculateAutoSrfIncome,
-  calculateBasePassiveIncome,
   calculateFocusRegen,
   calculateNightCrewIncome,
   calculateTransitCheckIncome,
@@ -144,10 +143,10 @@ export const resourcesReducer = (
           draft.resources.experience += autoSrfIncome.xp;
         }
 
-        // Base passive income (from tick processor, lines 166-170)
-        const baseIncome = calculateBasePassiveIncome({ proficiency } as GameState, delta);
-        draft.resources.credits += baseIncome.credits;
-        draft.resources.experience += baseIncome.xp;
+        // Base passive income removed as per user request (XP/Money now tied to actions only)
+        // const baseIncome = calculateBasePassiveIncome({ proficiency } as GameState, delta);
+        // draft.resources.credits += baseIncome.credits;
+        // draft.resources.experience += baseIncome.xp;
 
         // Component failure credit drain (from tick processor, lines 109-111)
         if (flags.activeComponentFailure) {
