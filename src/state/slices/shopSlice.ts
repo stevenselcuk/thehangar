@@ -1,4 +1,5 @@
 import { produce } from 'immer';
+import { PRICE_FLUCTUATION_LOGS } from '../../data/flavor.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
 
@@ -36,7 +37,8 @@ export type ShopAction =
   | {
       type: 'BUY_VENDING';
       payload: { id: string; cost: number; sanity: number; focus: number; msg: string };
-    };
+    }
+  | { type: 'FLUCTUATE_PRICES'; payload?: Record<string, never> };
 
 // ==================== REDUCER ====================
 
@@ -62,7 +64,10 @@ export const shopReducer = (state: ShopSliceState, action: ShopAction): ShopSlic
         break;
 
       case 'BUY_VENDING': {
-        const basePrice = draft.vendingPrices[action.payload.id] || action.payload.cost;
+        const basePrice =
+          action.payload.cost === 0
+            ? 0
+            : draft.vendingPrices[action.payload.id] || action.payload.cost;
         let vPrice = basePrice;
         if (draft.resources.suspicion > 50) {
           vPrice = Math.floor(basePrice * 1.5);
@@ -83,6 +88,35 @@ export const shopReducer = (state: ShopSliceState, action: ShopAction): ShopSlic
         } else {
           addLog('INSUFFICIENT CREDITS.', 'error');
         }
+        break;
+      }
+      case 'FLUCTUATE_PRICES': {
+        // Find existing prices or default to hardcoded ones if missing
+        // We need to iterate over known items. We can't import vendingData here easily without circular dep risk?
+        // Actually shopSlice doesn't import data usually. But we need the IDs.
+        // Let's rely on the existing keys in vendingPrices if possible, or we might need to be passed the list.
+        // For now, let's assume we iterate over keys in draft.vendingPrices.
+        // But wait, initially it might be empty if lazy loaded? No, initialized in initialState.
+
+        Object.keys(draft.vendingPrices).forEach((id) => {
+          const currentPrice = draft.vendingPrices[id];
+          // If it's free, KEEP IT FREE.
+          if (currentPrice === 0) return;
+
+          // Fluctuate by +/- 20%
+          const variance = Math.random() * 0.4 - 0.2;
+          let newPrice = Math.floor(currentPrice * (1 + variance));
+
+          // Clamp price reasonable bounds (e.g. 2 - 50)
+          newPrice = Math.max(2, Math.min(50, newPrice));
+
+          draft.vendingPrices[id] = newPrice;
+        });
+
+        // Add random flavor log
+        const logMsg =
+          PRICE_FLUCTUATION_LOGS[Math.floor(Math.random() * PRICE_FLUCTUATION_LOGS.length)];
+        addLog(logMsg, 'vibration');
         break;
       }
     }

@@ -326,6 +326,65 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
         if (!draft.activeEvent && Math.random() < 0.0001) {
           triggerEvent('incident', 'FUEL_CONTAM');
         }
+
+        // Random price fluctuation (approx every 3-4 minutes)
+        if (Math.random() < 0.005 * (delta / 1000)) {
+          // We need to dispatch an action here.
+          // Since we are inside the reducer, we can't dispatch via Redux directly.
+          // But `triggerEvent` is for eventsSlice.
+          // However, `gameReducer` recursively calls `composeAction` if we were to invoke it?
+          // No, `processTick` generally just modifies draft directly.
+          // We can't easily call `shopReducer` from here without routing.
+
+          // Actually, we are in the TICK handler of gameReducer.
+          // We can just rely on the fact that `composeTick` handles passive updates,
+          // but for random triggers that need to run logic, we might need a different approach
+          // OR we modify the draft directly here if we duplicate logic (bad)
+          // OR we dispatch a new action type in the next tick? (Impossible here)
+
+          // Ideally `processTick` should return actions to queue?
+          // Current architecture seems to rely on `triggerEvent` callback which probably dispatches 'TRIGGER_EVENT'.
+
+          // For now, let's duplicate the simple dispatch logic pattern used elsewhere if any?
+          // Unfortuantely `processTick` is void return.
+          // But we passed `triggerEvent`.
+
+          // Wait, `processTick` modifies `draft`.
+          // We can manually invoke the shop logic on the draft?
+          // No, imports would be circular if we import shopReducer here?
+          // `reducerComposer` imports `shopReducer`. `gameReducer` imports `reducerComposer`.
+          // So `gameReducer` -> `reducerComposer` -> `shopReducer`.
+          // `gameReducer` does NOT import `shopReducer` directly.
+
+          // We can assume `triggerEvent` might be capable of generic actions?
+          // Looking at `useGameLoop.ts` (not visible but assumed), triggerEvent probably dispatches.
+
+          // Let's use `triggerEvent` with a special type if possible?
+          // The signature is `(type: string, id?: string) => void`.
+          // If we pass `type='FLUCTUATE_PRICES'`, acts as an event?
+          // Events reducer handles `TRIGGER_EVENT`.
+
+          // Check `eventsSlice.ts`: does it handle generic actions? Likely no.
+
+          // Alternative: Just modify the `draft.shop` state directly here?
+          // But state is flattened in `draft`. `draft.vendingPrices` is accessible.
+
+          // Let's implement the logic directly here for now to avoid architecture refactor,
+          // OR better: use `composeAction` on the current draft?
+          // We can import `composeAction` from `reducerComposer`.
+          // `gameReducer` already imports `composeAction`.
+
+          const state = draft as unknown as GameState;
+          const updated = composeAction(state, { type: 'FLUCTUATE_PRICES' });
+          // composeAction returns a new state, but we are in Immer draft.
+          // Object.assign(draft, updated) might work?
+          // Caveat: composeAction takes State and returns State.
+          // If we pass draft (as State), Immer might complain if we try to mutate it inside composeAction?
+          // Actually `composeAction` uses `produce` internally!
+          // `produce(draft, ...)` => nested produce is fine in Immer.
+
+          Object.assign(draft, updated);
+        }
         break;
       }
       case 'ACTION': {

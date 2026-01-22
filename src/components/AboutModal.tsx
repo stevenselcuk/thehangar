@@ -69,9 +69,7 @@ const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               </p>
               <div className="pt-4 border-t border-emerald-900/50">
                 <h2 className="text-xs uppercase text-emerald-600 tracking-widest">Credits</h2>
-                <p className="text-sm mt-2">
-                  Concept, Design & Development by an expert Game Designer AI.
-                </p>
+                <p className="text-sm mt-2">Me. Steve.</p>
               </div>
             </div>
           )}

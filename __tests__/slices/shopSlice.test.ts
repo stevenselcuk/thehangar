@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { shopReducer, type ShopAction, type ShopSliceState } from '@/state/slices/shopSlice.ts';
 import seedrandom from 'seedrandom';
-import { shopReducer, type ShopSliceState, type ShopAction } from '@/state/slices/shopSlice.ts';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('shopSlice', () => {
   let initialState: ShopSliceState;
@@ -262,6 +262,52 @@ describe('shopSlice', () => {
 
       expect(result.resources.sanity).toBe(80);
       expect(result.logs[0].type).toBe('warning');
+    });
+  });
+
+  describe('FLUCTUATE_PRICES', () => {
+    it('should fluctuate prices randomly', () => {
+      const stateWithPrices = {
+        ...initialState,
+        vendingPrices: {
+          coffee: 10,
+          soda: 20,
+        },
+      };
+
+      // Mock Math.random to be deterministic (0.9 -> high variance increase)
+      const originalRandom = Math.random;
+      Math.random = () => 0.9; // (0.9 * 0.4) - 0.2 = 0.16 increase
+
+      const nextState = shopReducer(stateWithPrices, { type: 'FLUCTUATE_PRICES' });
+
+      // 10 * 1.16 = 11.6 -> 11
+      // 20 * 1.16 = 23.2 -> 23
+      expect(nextState.vendingPrices['coffee']).toBe(11);
+      expect(nextState.vendingPrices['soda']).toBe(23);
+
+      Math.random = originalRandom;
+    });
+
+    it('should NOT change price of 0 cost items (tap water)', () => {
+      const stateWithFreeItem = {
+        ...initialState,
+        vendingPrices: {
+          tap_water: 0,
+          coffee: 10,
+        },
+      };
+
+      const nextState = shopReducer(stateWithFreeItem, { type: 'FLUCTUATE_PRICES' });
+
+      expect(nextState.vendingPrices['tap_water']).toBe(0);
+      // We can't guarantee coffee changes without mocking, but if logic holds 0 should be safe.
+    });
+
+    it('should add a log message when prices fluctuate', () => {
+      const nextState = shopReducer(initialState, { type: 'FLUCTUATE_PRICES' });
+      expect(nextState.logs.length).toBeGreaterThan(initialState.logs.length);
+      expect(nextState.logs[nextState.logs.length - 1].type).toBe('vibration');
     });
   });
 

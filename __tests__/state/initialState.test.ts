@@ -1,10 +1,10 @@
-import type { GameState } from '@/types';
 import {
   createInitialState,
   createJob,
   generateVendingPrices,
   loadState,
 } from '@/state/initialState';
+import type { GameState } from '@/types';
 import { mockMathRandom } from '@/utils/testHelpers';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -21,14 +21,18 @@ describe('initialState', () => {
       expect(Object.keys(prices).length).toBeGreaterThan(0);
     });
 
-    it('should generate prices in range 5-30', () => {
+    it('should generate prices in range 5-30 or 0 for free items', () => {
       const restoreRandom = mockMathRandom('vending-test');
 
       const prices = generateVendingPrices();
 
-      Object.values(prices).forEach((price) => {
-        expect(price).toBeGreaterThanOrEqual(5);
-        expect(price).toBeLessThanOrEqual(30);
+      Object.entries(prices).forEach(([id, price]) => {
+        if (id === 'tap_water') {
+          expect(price).toBe(0);
+        } else {
+          expect(price).toBeGreaterThanOrEqual(5);
+          expect(price).toBeLessThanOrEqual(30);
+        }
         expect(Number.isInteger(price)).toBe(true);
       });
 

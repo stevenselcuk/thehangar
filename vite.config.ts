@@ -13,7 +13,6 @@ export default defineConfig(({ mode }) => {
       open: true,
     },
     base: env.VITE_BASE_PATH || '/',
-
     plugins: [
       react(),
       tailwindcss(),
@@ -22,8 +21,9 @@ export default defineConfig(({ mode }) => {
         includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png'],
         manifest: {
           name: 'The Hangar',
-          short_name: 'The Hangar',
-          description: 'Aircraft maintenance management system',
+          short_name: 'Hangar',
+          description:
+            '"An incremental mystery RPG where you play as a night-shift mechanic uncovering a terrifying conspiracy involving a lost flight and eldritch technology.',
           theme_color: '#ffffff',
           icons: [
             {

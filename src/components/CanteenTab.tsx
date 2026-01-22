@@ -74,8 +74,9 @@ const CanteenTab: React.FC<{
           <div className="grid grid-cols-2 gap-4">
             <ActionButton
               label="Sleep on Table"
+              onStart={() => onAction('START_NAP_VISUAL', { duration: 2000 })}
               onClick={() => onAction('NAP_TABLE')}
-              cooldown={8000}
+              cooldown={2000}
               description="A deep, dangerous slumber on the grime-slicked tables. The vending machine's hum is your only comfort. +40 Focus, +25 Sanity, +45 Risk."
               className="h-20"
             />

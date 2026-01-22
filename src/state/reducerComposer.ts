@@ -211,7 +211,7 @@ const HANGAR_ACTIONS = [
 ] as const;
 
 // Shop action types handled by shopSlice
-const SHOP_ACTIONS = ['BUY_SHOP_ITEM', 'BUY_VENDING'] as const;
+const SHOP_ACTIONS = ['BUY_SHOP_ITEM', 'BUY_VENDING', 'FLUCTUATE_PRICES'] as const;
 
 // Encounters action types handled by encountersSlice
 const ENCOUNTERS_ACTIONS = ['OBSERVE_SEDAN', 'JANITOR_INTERACTION'] as const;

@@ -70,6 +70,17 @@ export const SYSTEM_LOGS = {
     'In the echo of the groan, you hear a faint sequence of clicks, like a transponder code being entered: 7-7-0-0. The emergency frequency.',
 };
 
+export const PRICE_FLUCTUATION_LOGS = [
+  'Vending machine prices synced via legacy dial-up connection.',
+  'Market volatility detected. Adjusting calorie-to-credit ratios.',
+  'Supply chain disruption in Sector 7. Surcharges applied.',
+  'The vending machine hums a new frequency. Prices have shifted.',
+  "Corporate policy update 93.4: 'Dynamic Subsistence Pricing enabled'.",
+  'A power surge resets the vending protocols. New numbers flicker on the display.',
+  'The machine shudders. You swear the prices just changed while you blinked.',
+  'Automatic re-calibration: Demand algorithm updated.',
+];
+
 export const ACTION_LOGS: Record<string, string> = {
   // NEW ACTIONS
   DEEP_CLEAN_VENTS_NORMAL:

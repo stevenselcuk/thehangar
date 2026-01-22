@@ -141,6 +141,8 @@ const AppContent: React.FC = () => {
     document.title = `The Hangar - ${activeTab.replace(/_/g, ' ')}`;
   }, [activeTab]);
 
+  const [isBlackout, setIsBlackout] = useState(false);
+
   // Memoize onAction callback to prevent unnecessary re-renders
   const onAction = useCallback(
     (type: string, payload?: Record<string, unknown>) => {
@@ -157,6 +159,12 @@ const AppContent: React.FC = () => {
       if (type === 'OPEN_MAINTENANCE_TERMINAL') {
         playClick();
         setIsMaintenanceTerminalOpen(true);
+        return;
+      }
+      if (type === 'START_NAP_VISUAL') {
+        setIsBlackout(true);
+        const sleepDuration = (payload?.duration as number) || 4000;
+        setTimeout(() => setIsBlackout(false), sleepDuration);
         return;
       }
       dispatch({ type: 'ACTION', payload: { type, payload } });
@@ -198,6 +206,11 @@ const AppContent: React.FC = () => {
 
   return (
     <div className={rootClasses}>
+      {/* Blackout Overlay */}
+      <div
+        className={`fixed inset-0 z-[2000] bg-black transition-opacity duration-[1500ms] ${isBlackout ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+      />
+
       {showWipWarning && <WorkInProgressModal onClose={handleWipClose} />}
 
       <h1 className="sr-only">The Hangar: An Incremental Mystery RPG</h1>

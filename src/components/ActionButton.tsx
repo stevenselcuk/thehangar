@@ -3,6 +3,7 @@ import React, { memo, useRef, useState } from 'react';
 export interface ActionButtonProps {
   label: string;
   onClick: () => void;
+  onStart?: () => void;
   cooldown?: number;
   disabled?: boolean;
   cost?: { label: string; value: number };
@@ -19,6 +20,7 @@ const playClick = () => {
 const ActionButtonComponent: React.FC<ActionButtonProps> = ({
   label,
   onClick,
+  onStart,
   cooldown = 0,
   disabled = false,
   cost,
@@ -47,6 +49,7 @@ const ActionButtonComponent: React.FC<ActionButtonProps> = ({
     if (disabled || active) return;
     playClick();
     if (cooldown > 0) {
+      if (onStart) onStart();
       setActive(true);
       setProgress(0);
       const startTime = Date.now();
@@ -117,6 +120,6 @@ export default memo(ActionButtonComponent, (prevProps, nextProps) => {
     prevProps.cost?.label === nextProps.cost?.label &&
     prevProps.description === nextProps.description &&
     prevProps.className === nextProps.className
-    // Note: onClick is intentionally not compared as it's typically a stable reference
+    // Note: onClick and onStart are intentionally not compared
   );
 });

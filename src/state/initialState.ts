@@ -6,7 +6,11 @@ import { GameState, JobCard } from '../types.ts';
 export const generateVendingPrices = (): Record<string, number> => {
   const prices: Record<string, number> = {};
   vendingData.forEach((item) => {
-    prices[item.id] = Math.floor(Math.random() * 26) + 5;
+    if (item.cost === 0) {
+      prices[item.id] = 0;
+    } else {
+      prices[item.id] = Math.floor(Math.random() * 26) + 5;
+    }
   });
   return prices;
 };
