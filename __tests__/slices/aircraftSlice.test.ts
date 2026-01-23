@@ -1,124 +1,29 @@
-import seedrandom from 'seedrandom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AircraftType } from '@/types.ts';
+import { createInitialState } from '@/state/initialState';
 import {
   aircraftReducer,
   type AircraftAction,
   type AircraftSliceState,
 } from '@/state/slices/aircraftSlice.ts';
+import { AircraftType } from '@/types.ts';
+import seedrandom from 'seedrandom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('aircraftSlice', () => {
   let initialState: AircraftSliceState;
-  let mockTriggerEvent: ReturnType<typeof vi.fn>;
+  let mockTriggerEvent: (type: string, id?: string) => void;
 
   beforeEach(() => {
     mockTriggerEvent = vi.fn();
     Math.random = seedrandom('test-aircraft-slice');
 
+    const baseState = createInitialState();
     initialState = {
       activeAircraft: null,
-      resources: {
-        alclad: 0,
-        titanium: 0,
-        fiberglass: 0,
-        rivets: 0,
-        hiloks: 0,
-        collars: 0,
-        grommets: 0,
-        steelWire: 0,
-        skydrol: 0,
-        mek: 0,
-        grease: 0,
-        sealant: 0,
-        sanity: 100,
-        suspicion: 0,
-        focus: 100,
-        experience: 0,
-        level: 1,
-        credits: 0,
-        kardexFragments: 0,
-        crystallineResonators: 0,
-        bioFilament: 0,
-        technicalLogbookHours: 0,
-      },
-      inventory: {
-        flashlight: false,
-        pencil: true,
-        ruler: false,
-        inspectionMirror: false,
-        notebook: true,
-        leatherman: false,
-        radio: false,
-        torxScrewdriver: false,
-        snapOnWrenchSet: false,
-        hammer: false,
-        atlasCopcoDrill: false,
-        rivetGun: false,
-        allenKeys: false,
-        torquemeter: false,
-        malabar: false,
-        greaseGun: false,
-        airDataTestBox: false,
-        hfecDevice: false,
-        rototestDevice: false,
-        orbitalSander: false,
-        irLamp: false,
-        sonicCleaner: false,
-        hasAPLicense: false,
-        apWrittenPassed: false,
-        apPracticalPassed: false,
-        hasAvionicsCert: false,
-        isToolboxWithPlayer: false,
-        pcAssembled: false,
-        pcGpuUpgrade: false,
-        pcHddUpgrade: false,
-        foundRetiredIDCard: false,
-        ford150: false,
-        tireKit: false,
-        mixedTouchUpPaint: 0,
-        mainboard: false,
-        graphicCard: false,
-        cdRom: false,
-        floppyDrive: false,
-        metallicSphere: false,
-        earmuffs: false,
-        hasTruckLockbox: false,
-        hasHfInitial: false,
-        hasHfRecurrent: false,
-        hasFts: false,
-        hasHdi: false,
-        hasNdtLevel1: false,
-        hasNdtLevel2: false,
-        hasNdtLevel3: false,
-        ndtCerts: [],
-        hasEasaB1_1: false,
-        hasEasaB2: false,
-        hasEasaC: false,
-        typeRating737: 0,
-        typeRatingA330: 0,
-      },
-      flags: {
-        nightCrewActive: false,
-        transitCheckDelegationActive: false,
-        autoSrfActive: false,
-        isAfraid: false,
-        fuelContaminationRisk: false,
-        ndtFinding: null,
-        venomSurgeActive: false,
-        sls3Unlocked: false,
-        janitorPresent: false,
-        onPerformanceImprovementPlan: false,
-        storyFlags: { fdrDeconstructed: false },
-      },
-      hfStats: {
-        trainingProgress: 0,
-        fearTimer: 0,
-        noiseExposure: 0,
-        efficiencyBoost: 0,
-        foundLoopholeTimer: 0,
-        scheduleCompressionTimer: 0,
-        venomSurgeTimer: 0,
-      },
+      resources: { ...baseState.resources, credits: 0, alclad: 0 },
+      inventory: baseState.inventory,
+      personalInventory: baseState.personalInventory,
+      flags: baseState.flags,
+      hfStats: baseState.hfStats,
       logs: [],
     };
   });
@@ -275,6 +180,7 @@ describe('aircraftSlice', () => {
       const lowState = {
         ...initialState,
         resources: { ...initialState.resources, sanity: 50, focus: 50 },
+        personalInventory: { winston_pack: 1 },
       };
 
       const action: AircraftAction = {
