@@ -295,6 +295,27 @@ const PersonnelFileView: React.FC<{ state: GameState }> = ({ state }) => {
             <p className="text-zinc-500">-- No active remarks on file. --</p>
           )}
         </div>
+
+        <div className="mt-6 p-4 border border-emerald-900/50 bg-black/20">
+          <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-3">
+            Personal Effects
+          </h4>
+          {Object.entries(state.personalInventory).length > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              {Object.entries(state.personalInventory).map(([key, count]) => (
+                <div
+                  key={key}
+                  className="flex justify-between text-xs text-emerald-300 border-b border-emerald-900/30 pb-1"
+                >
+                  <span className="uppercase">{key.replace(/_/g, ' ')}</span>
+                  <span className="font-bold">x{count}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-zinc-500 italic">No personal items registered.</p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -230,6 +230,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
     return produce(state, (draft) => {
       const inventoryState = {
         inventory: draft.inventory,
+        personalInventory: draft.personalInventory,
         rotables: draft.rotables,
         toolConditions: draft.toolConditions,
         flags: {
@@ -269,6 +270,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
 
       // Map updated state back to draft
       draft.inventory = updated.inventory;
+      draft.personalInventory = updated.personalInventory;
       draft.rotables = updated.rotables;
       draft.toolConditions = updated.toolConditions;
       draft.flags.toolroomMasterPissed = updated.flags.toolroomMasterPissed;
@@ -475,6 +477,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         inventory: draft.inventory,
         logs: draft.logs,
         hfStats: draft.hfStats, // Added
+        personalInventory: draft.personalInventory,
         flags: draft.flags,
       };
 
@@ -490,6 +493,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       // draft.hfStats = updated.hfStats; // Aircraft reducer doesn't modify hfStats but needs it for state shape?
       // Actually aircraftReducer CAN modify hfStats (fearTimer, venomSurgeTimer)
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
+      draft.personalInventory = updated.personalInventory;
       draft.flags = updated.flags as typeof draft.flags;
     });
   }
@@ -589,6 +593,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         resources: draft.resources,
         vendingPrices: draft.vendingPrices,
         flags: draft.flags,
+        personalInventory: draft.personalInventory,
         hfStats: draft.hfStats, // Added
         logs: draft.logs,
       };
@@ -603,6 +608,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.resources = updated.resources as typeof draft.resources;
       draft.vendingPrices = updated.vendingPrices as typeof draft.vendingPrices;
       draft.flags = updated.flags as typeof draft.flags;
+      draft.personalInventory = updated.personalInventory;
       draft.hfStats = updated.hfStats as typeof draft.hfStats; // Map back
       draft.logs = updated.logs as typeof draft.logs;
     });

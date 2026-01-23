@@ -25,6 +25,7 @@ import { GameState } from '../../types.ts';
 export interface ShopSliceState {
   resources: GameState['resources'];
   inventory: GameState['inventory'];
+  personalInventory: Record<string, number>;
   toolConditions: GameState['toolConditions'];
   flags: GameState['flags'];
   hfStats: GameState['hfStats'];
@@ -46,7 +47,7 @@ export const shopReducer = (state: ShopSliceState, action: ShopAction): ShopSlic
   return produce(state, (draft) => {
     const addLog = (
       text: string,
-      type: 'info' | 'success' | 'warning' | 'error' | 'story' | 'levelup' | 'vibration' = 'info'
+      type: 'info' | 'warning' | 'error' | 'story' | 'levelup' | 'vibration' = 'info'
     ) => {
       addLogToDraft(draft.logs, text, type, Date.now());
     };
@@ -84,6 +85,10 @@ export const shopReducer = (state: ShopSliceState, action: ShopAction): ShopSlic
           if (action.payload.id === 'venom_surge') {
             draft.flags.venomSurgeActive = true;
             draft.hfStats.venomSurgeTimer = 60000;
+          }
+          if (action.payload.id === 'winston_pack') {
+            draft.personalInventory['winston_pack'] =
+              (draft.personalInventory['winston_pack'] || 0) + 1;
           }
         } else {
           addLog('INSUFFICIENT CREDITS.', 'error');

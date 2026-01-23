@@ -29,6 +29,7 @@ export interface AircraftSliceState {
   activeAircraft: GameState['activeAircraft'];
   resources: GameState['resources'];
   inventory: GameState['inventory'];
+  personalInventory: Record<string, number>;
   flags: GameState['flags'];
   hfStats: GameState['hfStats'];
   logs: GameState['logs'];
@@ -215,13 +216,24 @@ export const aircraftReducer = (
       }
 
       case 'SMOKE_CIGARETTE': {
-        draft.resources.sanity = Math.min(100, draft.resources.sanity + 5);
-        draft.resources.focus = Math.min(100, draft.resources.focus + 5);
-        const smokeLogs = ['SMOKE_1', 'SMOKE_2', 'SMOKE_3', 'SMOKE_4', 'SMOKE_5'];
-        const logKey = smokeLogs[Math.floor(Math.random() * smokeLogs.length)];
-        addLog(ACTION_LOGS[logKey], 'info');
-        if (Math.random() < 0.05 && action.payload?.triggerEvent) {
-          action.payload.triggerEvent('incident', 'SMOKING_VIOLATION');
+        const packCount = draft.personalInventory['winston_pack'] || 0;
+        if (packCount > 0) {
+          draft.personalInventory['winston_pack'] -= 1;
+
+          // Halve stress and fatigue
+          draft.hfStats.socialStress = Math.floor(draft.hfStats.socialStress / 2);
+          draft.hfStats.fatigue = Math.floor(draft.hfStats.fatigue / 2);
+
+          draft.resources.sanity = Math.min(100, draft.resources.sanity + 5);
+          draft.resources.focus = Math.min(100, draft.resources.focus + 5);
+
+          addLog('You light up a Winston Light. The harsh smoke clears your head.', 'story');
+
+          if (Math.random() < 0.05 && action.payload?.triggerEvent) {
+            action.payload.triggerEvent('incident', 'SMOKING_VIOLATION');
+          }
+        } else {
+          addLog('You pat your pockets, but you are out of smokes.', 'warning');
         }
         break;
       }

@@ -307,6 +307,7 @@ export interface GameStats {
 export interface GameState {
   resources: ResourceState;
   inventory: Inventory;
+  personalInventory: Record<string, number>;
   rotables: RotableItem[];
   anomalies: Anomaly[];
   toolConditions: Record<string, number>;

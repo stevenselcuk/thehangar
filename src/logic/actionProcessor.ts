@@ -25,6 +25,7 @@ export const handleGameAction = (
   triggerEvent: (type: string, id?: string) => void
 ): GameState => {
   const nextRes = { ...prev.resources };
+  const nextPersonal = { ...prev.personalInventory };
   const nextInv = { ...prev.inventory };
   const nextFlg = { ...prev.flags };
   const nextHF = { ...prev.hfStats };
@@ -934,6 +935,19 @@ export const handleGameAction = (
       break;
     }
 
+    case 'SMOKE_CIGARETTE':
+      if ((nextPersonal['winston_pack'] || 0) > 0) {
+        nextPersonal['winston_pack'] -= 1;
+        nextRes.sanity = Math.min(100, nextRes.sanity + 5);
+        nextRes.focus = Math.min(100, nextRes.focus + 5);
+        nextHF.socialStress = Math.floor(nextHF.socialStress / 2);
+        nextHF.fatigue = Math.floor(nextHF.fatigue / 2);
+        addLog('You light up a Winston Light. The harsh smoke clears your head.', 'story');
+      } else {
+        addLog('You pat your pockets, but you are out of smokes.', 'warning');
+      }
+      break;
+
     case 'EAT_BURGER':
       if (nextRes.credits >= 12) {
         nextRes.credits -= 12;
@@ -1242,6 +1256,9 @@ export const handleGameAction = (
           nextFlg.venomSurgeActive = true;
           nextHF.venomSurgeTimer = 60000; // 1 minute
         }
+        if (p.id === 'winston_pack') {
+          nextPersonal['winston_pack'] = (nextPersonal['winston_pack'] || 0) + 1;
+        }
       } else {
         addLog('INSUFFICIENT CREDITS.', 'error');
       }
@@ -1253,6 +1270,7 @@ export const handleGameAction = (
     ...prev,
     resources: nextRes,
     inventory: nextInv,
+    personalInventory: nextPersonal,
     toolConditions: nextTools,
     rotables: nextRotables,
     anomalies: nextAnomalies,

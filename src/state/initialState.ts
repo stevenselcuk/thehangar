@@ -107,6 +107,7 @@ export const createInitialState = (): GameState => ({
     typeRating737: 0,
     typeRatingA330: 0,
   },
+  personalInventory: {},
   rotables: [],
   anomalies: [],
   toolConditions: {
@@ -257,6 +258,10 @@ export const createInitialState = (): GameState => ({
     stationId: null,
     scenarioId: null,
     startTime: 0,
+    completedActions: [],
+    currentProgress: 0,
+    progressRequired: 100,
+    actionInProgress: null,
   },
 });
 

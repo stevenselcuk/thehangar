@@ -549,10 +549,15 @@ const ActionPanel: React.FC<{
                   description="Tune into Line Maint. VHF 141.80. Listen for lead, A/C on ground, and... other signals."
                 />
                 <ActionButton
-                  label="Smoke A Cigarette"
+                  label={`Smoke A Cigarette ${state.personalInventory['winston_pack'] ? `(${state.personalInventory['winston_pack']})` : ''}`}
                   onClick={() => onAction('SMOKE_CIGARETTE')}
                   cooldown={120000}
-                  description="Retreat to your truck for a smoke. +5 Focus, +5 Sanity. Don't get caught."
+                  disabled={(state.personalInventory['winston_pack'] || 0) < 1}
+                  description={
+                    (state.personalInventory['winston_pack'] || 0) > 0
+                      ? 'Retreat to your truck for a smoke. +5 Focus, +5 Sanity. Reduces Stress & Fatigue.'
+                      : 'You need a pack of smokes first. Check the Canteen.'
+                  }
                 />
                 <ActionButton
                   label="Drink Galley Coffee"

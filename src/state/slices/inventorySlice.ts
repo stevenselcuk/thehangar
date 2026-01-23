@@ -20,6 +20,7 @@ import { Inventory, LogMessage, RotableItem } from '../../types.ts';
 
 export interface InventorySliceState {
   inventory: Inventory;
+  personalInventory: Record<string, number>;
   rotables: RotableItem[];
   toolConditions: Record<string, number>;
   flags: {
