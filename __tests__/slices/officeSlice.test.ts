@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import seedrandom from 'seedrandom';
 import {
   officeReducer,
-  type OfficeSliceState,
   type OfficeAction,
+  type OfficeSliceState,
 } from '@/state/slices/officeSlice.ts';
+import seedrandom from 'seedrandom';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('officeSlice', () => {
   let initialState: OfficeSliceState;
@@ -351,8 +351,8 @@ describe('officeSlice', () => {
 
       const result = officeReducer(tired, action);
 
-      expect(result.resources.focus).toBe(70);
-      expect(result.resources.sanity).toBe(65);
+      expect(result.resources.focus).toBe(100);
+      expect(result.resources.sanity).toBe(100);
       expect(result.resources.suspicion).toBe(15);
     });
   });

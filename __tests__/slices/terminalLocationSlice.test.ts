@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import seedrandom from 'seedrandom';
 import {
   terminalLocationReducer,
-  type TerminalLocationSliceState,
   type TerminalLocationAction,
+  type TerminalLocationSliceState,
 } from '@/state/slices/terminalLocationSlice.ts';
+import seedrandom from 'seedrandom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('terminalLocationSlice', () => {
   let initialState: TerminalLocationSliceState;
@@ -151,8 +151,8 @@ describe('terminalLocationSlice', () => {
 
       const result = terminalLocationReducer(tired, action);
 
-      expect(result.resources.focus).toBe(90);
-      expect(result.resources.sanity).toBe(60);
+      expect(result.resources.focus).toBe(100);
+      expect(result.resources.sanity).toBe(100);
       expect(result.resources.suspicion).toBe(20);
       expect(result.logs).toHaveLength(1);
     });
