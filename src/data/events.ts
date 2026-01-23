@@ -303,6 +303,92 @@ export const eventsData: Record<string, EventTemplates[]> = {
         effects: { sanity: -30, focus: -40 },
       },
     },
+    // KARDEX EVENTS
+    {
+      id: 'KARDEX_RECOVERY',
+      type: 'eldritch_manifestation',
+      title: 'ANOMALOUS FILE',
+      description:
+        "You find a KARDEX file card on the floor. It pulses with a faint heat. The aircraft registration listed is 'N-VOID-00'.",
+      totalTime: 45000,
+      choices: [
+        {
+          id: 'read',
+          label: 'Read the File',
+          cost: { resource: 'sanity', amount: 15 },
+          log: 'The text shifts as you read it. It describes maintenance on a vessel that flies between stars. You gain forbidden knowledge.',
+          effects: { experience: 500, sanity: -20 },
+        },
+        {
+          id: 'burn',
+          label: 'Burn It',
+          cost: { resource: 'focus', amount: 10 },
+          log: 'You light the card on fire. It screams—a high pitched digital shriek—before turning to ash. You feel lighter.',
+          effects: { sanity: 5, suspicion: 5 },
+        },
+      ],
+      failureOutcome: {
+        log: "You held the card too long. The ink seemed to seep into your skin. You can't wash it off.",
+        effects: { sanity: -25, suspicion: 10 },
+      },
+    },
+    {
+      id: 'THE_ARCHIVIST',
+      type: 'eldritch_manifestation',
+      title: 'THE ARCHIVIST',
+      description:
+        'A figure in a heavy, dust-covered coat is rifling through your filing cabinets. They move with jerky, unnatural speed.',
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'confront',
+          label: 'Confront the Intruder',
+          cost: { resource: 'focus', amount: 30 },
+          log: 'You shout. The figure snaps its head 180 degrees to look at you. Its face is a flat LCD screen displaying static. It vanishes in a burst of ozone.',
+          effects: { sanity: -30, suspicion: 10 },
+          storyFlag: { key: 'metArchivist', value: true },
+        },
+        {
+          id: 'hide',
+          label: 'Hide and Watch',
+          cost: { resource: 'sanity', amount: 5 },
+          log: "You watch as it pulls a specific file, 'eats' the paper, and then dissolves into the shadows. You check the cabinet: The '[REDACTED]' file is gone.",
+          effects: { experience: 300, suspicion: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: "The figure turns to you, placing a finger to where its mouth should be. 'Shhh.' You black out.",
+        effects: { sanity: -50 },
+      },
+    },
+    {
+      id: 'TIMELINE_CORRUPTION',
+      type: 'eldritch_manifestation',
+      title: 'TIMELINE CORRUPTION',
+      description:
+        "The maintenance logs on your terminal are updating themselves. They show work being completed on aircraft that haven't been manufactured yet.",
+      totalTime: 60000,
+      choices: [
+        {
+          id: 'sync',
+          label: 'Sync with Reality',
+          cost: { resource: 'focus', amount: 50 },
+          log: 'You frantically manually override the system, forcing it back to the current date. The terminal smokes, but the data is corrected.',
+          effects: { experience: 600, credits: 100 },
+        },
+        {
+          id: 'observe',
+          label: 'Study the Future',
+          cost: { resource: 'sanity', amount: 20 },
+          log: "You read the logs. You learn about the 'Great Silence' of 2030 and the new 'flesh-metal' alloys. Fascinating.",
+          effects: { experience: 1000, sanity: -40 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The future data overwrites your current work. You have lost hours of progress and your memories of the last shift are... wrong.',
+        effects: { sanity: -30, experience: -200 },
+      },
+    },
   ],
   canteen_incident: [],
   component_failure: [

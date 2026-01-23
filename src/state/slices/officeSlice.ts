@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { ACTION_LOGS, SYSTEM_LOGS } from '../../data/flavor.ts';
+import { ACTION_LOGS, MAGAZINE_FLAVOR_TEXTS, SYSTEM_LOGS } from '../../data/flavor.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
@@ -184,11 +184,14 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
         }
         break;
 
-      case 'READ_MAGAZINE':
-        addLog(ACTION_LOGS.READ_MAGAZINE, 'info');
+      case 'READ_MAGAZINE': {
+        const magText =
+          MAGAZINE_FLAVOR_TEXTS[Math.floor(Math.random() * MAGAZINE_FLAVOR_TEXTS.length)];
+        addLog(magText, 'info');
         draft.resources.focus = Math.min(100, draft.resources.focus + 15);
         draft.resources.sanity = Math.max(0, draft.resources.sanity - 10);
         break;
+      }
 
       case 'REVIEW_SURVEILLANCE_LOGS': {
         draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 15);

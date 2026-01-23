@@ -2,6 +2,7 @@ import { anomaliesData } from '../data/anomalies';
 import {
   ACTION_LOGS,
   BOEING_REPLIES,
+  MAGAZINE_FLAVOR_TEXTS,
   MASTER_LORE,
   STANDARD_RADIO_CHATTER,
   SYSTEM_LOGS,
@@ -407,11 +408,14 @@ export const handleGameAction = (
       }
       break;
 
-    case 'READ_MAGAZINE':
-      addLog(ACTION_LOGS.READ_MAGAZINE, 'info');
+    case 'READ_MAGAZINE': {
+      const magText =
+        MAGAZINE_FLAVOR_TEXTS[Math.floor(Math.random() * MAGAZINE_FLAVOR_TEXTS.length)];
+      addLog(magText, 'info');
       nextRes.focus = Math.min(100, nextRes.focus + 15);
       nextRes.sanity = Math.max(0, nextRes.sanity - 10);
       break;
+    }
 
     // --- HR Floor ---
     case 'REVIEW_COMPLIANCE':

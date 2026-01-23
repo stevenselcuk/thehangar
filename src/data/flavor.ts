@@ -81,6 +81,48 @@ export const PRICE_FLUCTUATION_LOGS = [
   'Automatic re-calibration: Demand algorithm updated.',
 ];
 
+export const KARDEX_INTEL_LOGS = [
+  "FILE RECOVERED: 'PROJECT KARDEX' was not an inventory system. It was a containment protocol for [REDACTED] entities found in the avionics bays.",
+  "You find a memo from 1974. 'The KARDEX cards are warm to the touch. They bleed when torn.'",
+  "A shredded document references 'The KARDEX Event' of 1999. The entire night shift vanished, but the maintenance logs were filled out in their handwriting.",
+  'An archival photo shows a KARDEX machine plugged into a human nervous system. The technician looks ecstatic.',
+  "Log entry: 'Do not file the black cards. They are not for aircraft. They are for the pilots who never came back.'",
+  "You decode a binary pattern in the KARDEX serial numbers. It's valid coordinates for a hangar that doesn't exist on any map.",
+  "A sticky note on a terminal: 'KARDEX is watching. Use the manual typewriter if you want to keep your secrets.'",
+  "Recovered audio log: 'It's eating the data. The KARDEX is eating the history of the planes. We are servicing ghosts.'",
+  "A blueprint shows the KARDEX system is wired into the building's foundation, tapping into a 'geothermal anomaly'.",
+  'You find a KARDEX card for a 747 made of bone and glass. The maintenance schedule is measured in eons.',
+  "The KARDEX user manual has a chapter on 'Ritual Cleansing of Data Ports'. It requires salt and silver.",
+  "A scrawled warning: 'The KARDEX knows your name. It knew it before you were hired.'",
+  "You find a list of 'Authorized KARDEX Operators'. All the names are crossed out with the word 'CONSUMED'.",
+  'A microfiche slide reveals the KARDEX was originally salvaged from a crashed object in the Nevada desert.',
+  "Log entry: 'The new KARDEX update allows for 4D inventory tracking. We are losing tools to yesterday.'",
+];
+
+export const MAGAZINE_FLAVOR_TEXTS = [
+  "You read a 'Safety First' issue from 2021. The tips on 'avoiding non-Euclidean geometry' seem out of place.",
+  "An old copy of 'Aviation Weekly'. A redacted article mentions a plane that landed with zero fuel and a cargo hold full of salt.",
+  'A glossy travel magazine. Every destination is a different angle of the same grey, brutalist city.',
+  "A 1999 issue of 'Mechanics Today'. The centerfold is just a high-res photo of a cracked turbine blade.",
+  "You find a crossword puzzle. All the answers are 'VOID'.",
+  "An internal newsletter celebrating 'zero accidents' in a year that hasn't happened yet.",
+  'A fashion magazine where all the models are wearing flight suits and gas masks.',
+  "An issue of 'Sky High'. The letters in the headlines rearrange themselves when you blink.",
+  'A crumpled comic book. The hero fights a cloud of sentient static and loses.',
+  "A scientific journal describing a new alloy that 'screams when perfectly calibrated'.",
+  "A catalog for duty-free items. One page sells 'bottled silence' for 5000 credits.",
+  "A tabloid with the headline: 'THEY ARE WATCHING FROM THE WIRING'. You feel a sudden itch.",
+  'A coloring book for children. The drawings are of intricate hydraulic schematics.',
+  "A horoscope column. Every sign predicts 'imminent structural failure'.",
+  'A brochure for a tropical resort. The water in the photos looks like black oil.',
+  'A vintage car magazine. The cars have no wheels, only landing gear.',
+  "3M Sanding Ad: Your face on it. 'The future is here. The future is now. The future is 3M.'. You don't remember when photo was taken.",
+  "A recipe booklet. 'How to prepare rations for the long dark'.",
+  'A sudoku book. The numbers have been replaced with strange glyphs.',
+  'A fitness magazine. The exercises are impossible for a human skeletal structure.',
+  "A sticky issue of 'Pilots Monthly'. A handwritten note in the margin reads: 'Don't trust the altimeter'.",
+];
+
 export const ACTION_LOGS: Record<string, string> = {
   // NEW ACTIONS
   DEEP_CLEAN_VENTS_NORMAL:
