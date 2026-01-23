@@ -14,6 +14,8 @@ type DashboardSection = 'MATRIX' | 'CERTS' | 'STATS' | 'FILE' | 'IMPORT_EXPORT';
 
 // --- SUB-COMPONENTS FOR EACH VIEW ---
 
+// --- SUB-COMPONENTS FOR EACH VIEW ---
+
 const SkillNode: React.FC<{
   skill: Skill;
   state: GameState;
@@ -105,85 +107,6 @@ const CheckListItem: React.FC<{ label: string; checked: boolean; details?: strin
   </div>
 );
 
-const CertificationsView: React.FC<{ state: GameState }> = ({ state }) => {
-  const { inventory, resources, proficiency } = state;
-  return (
-    <div className="space-y-6">
-      <h3 className="text-sm text-emerald-400 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-        Certifications & Licenses
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <h4 className="text-xs text-emerald-600 uppercase tracking-widest">FAA Licensing</h4>
-          <CheckListItem
-            label="1800 Logbook Hours"
-            checked={resources.technicalLogbookHours >= 1800}
-            details={`${Math.floor(resources.technicalLogbookHours)} / 1800`}
-          />
-          <CheckListItem label="A&P Written Exam" checked={inventory.apWrittenPassed} />
-          <CheckListItem label="A&P Practical Exam" checked={inventory.apPracticalPassed} />
-          <CheckListItem label="A&P License Issued" checked={inventory.hasAPLicense} />
-          <CheckListItem label="Avionics Certification" checked={inventory.hasAvionicsCert} />
-        </div>
-        <div className="space-y-4">
-          <h4 className="text-xs text-emerald-600 uppercase tracking-widest">Mandatory Training</h4>
-          <CheckListItem label="Human Factors (Initial)" checked={inventory.hasHfInitial} />
-          <CheckListItem
-            label="Human Factors (Recurrent)"
-            checked={inventory.hasHfRecurrent}
-            details={inventory.hasHfInitial ? 'Due in...' : 'Requires Initial'}
-          />
-          <CheckListItem label="Fuel Tank Safety (FTS)" checked={inventory.hasFts} />
-          <CheckListItem label="Hidden Damage Insp. (HDI)" checked={inventory.hasHdi} />
-        </div>
-        <div className="space-y-4">
-          <h4 className="text-xs text-emerald-600 uppercase tracking-widest">NDT Certifications</h4>
-          <CheckListItem label="NDT Level I" checked={inventory.hasNdtLevel1} />
-          <CheckListItem label="NDT Level II" checked={inventory.hasNdtLevel2} />
-          <CheckListItem label="NDT Level III" checked={inventory.hasNdtLevel3} />
-          {inventory.hasNdtLevel1 && (
-            <p className="text-xs text-zinc-400">
-              Qualifications: {inventory.ndtCerts.join(', ').toUpperCase() || 'None'}
-            </p>
-          )}
-        </div>
-        <div className="space-y-4">
-          <h4 className="text-xs text-emerald-600 uppercase tracking-widest">Type Ratings</h4>
-          <p className="text-sm text-emerald-300">
-            Boeing 737: <span className="font-bold">Level {inventory.typeRating737}</span>
-          </p>
-          <p className="text-sm text-emerald-300">
-            Airbus A330: <span className="font-bold">Level {inventory.typeRatingA330}</span>
-          </p>
-        </div>
-      </div>
-      <div className="space-y-4 pt-4 border-t border-emerald-900/20">
-        <h4 className="text-xs text-emerald-600 uppercase tracking-widest">EASA Part-66</h4>
-        <CheckListItem
-          label="2400 Logbook Hours (B1.1)"
-          checked={resources.technicalLogbookHours >= 2400}
-          details={`${Math.floor(resources.technicalLogbookHours)} / 2400`}
-        />
-        <p className="text-sm text-emerald-300">
-          Modules Passed: {proficiency.easaModulesPassed.length}/
-          {trainingData.easaLicense.modules.length}
-        </p>
-        <div className="grid grid-cols-9 gap-1">
-          {trainingData.easaLicense.modules.map((mod) => (
-            <div
-              key={mod.id}
-              title={mod.name}
-              className={`p-2 text-center border text-xs font-mono ${proficiency.easaModulesPassed.includes(mod.id) ? 'bg-emerald-800 border-emerald-600 text-white' : 'bg-zinc-900 border-zinc-700 text-zinc-500'}`}
-            >
-              {mod.name.split(':')[0]}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const StatDisplay: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
   <div className="p-4 border border-emerald-900/50 bg-black/30">
     <p className="text-xs text-emerald-700 uppercase tracking-widest">{label}</p>
@@ -191,32 +114,8 @@ const StatDisplay: React.FC<{ label: string; value: string | number }> = ({ labe
   </div>
 );
 
-const StatsView: React.FC<{ state: GameState }> = ({ state }) => {
-  const { stats, resources } = state;
-  return (
-    <div className="space-y-6">
-      <h3 className="text-sm text-emerald-400 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-        Career Logbook & Statistics
-      </h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatDisplay
-          label="Logbook Hours"
-          value={`${Math.floor(resources.technicalLogbookHours)}h`}
-        />
-        <StatDisplay label="Jobs Completed" value={stats.jobsCompleted} />
-        <StatDisplay label="SRFs Filed" value={stats.srfsFiled} />
-        <StatDisplay label="Events Resolved" value={stats.eventsResolved} />
-        <StatDisplay label="NDT Scans" value={stats.ndtScansPerformed} />
-        <StatDisplay label="Anomalies Analyzed" value={stats.anomaliesAnalyzed} />
-        <StatDisplay label="Rotables Repaired" value={stats.rotablesRepaired} />
-        <StatDisplay label="Rotables Scavenged" value={stats.rotablesScavenged} />
-      </div>
-    </div>
-  );
-};
-
-const PersonnelFileView: React.FC<{ state: GameState }> = ({ state }) => {
-  const { sanity } = state.resources;
+const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
+  const { sanity, resources, inventory, proficiency, stats } = state;
   const { clearanceLevel } = state.hfStats;
 
   let photoFilter = 'grayscale(1) brightness(0.7) contrast(1.3)';
@@ -239,82 +138,191 @@ const PersonnelFileView: React.FC<{ state: GameState }> = ({ state }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-sm text-emerald-400 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-        Personnel File: 770-M-9M-MRO
-      </h3>
-      <div className="w-full bg-zinc-300 p-6 rounded-lg shadow-2xl flex space-x-6">
-        <div className="flex-shrink-0 w-32 h-40 relative border-4 border-zinc-400 bg-zinc-500">
-          <img
-            src="/images/photo.png"
-            alt="Employee ID"
-            style={{ filter: photoFilter }}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="flex-grow text-zinc-800 font-mono">
-          <div className="border-b-2 border-red-700 pb-1 mb-3">
-            <h3 className="text-xs text-red-800 font-bold">PROPERTY OF [REDACTED] AEROSPACE</h3>
-          </div>
-          <div className="space-y-3">
-            <div>
-              <p className="text-[10px] uppercase text-zinc-500">NAME</p>
-              <p className="text-lg font-bold tracking-wider">[REDACTED]</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase text-zinc-500">TITLE</p>
-              <p className="text-sm font-semibold">Mechanic, Night Shift</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase text-zinc-500">CLEARANCE</p>
-              <p
-                className={`text-sm font-bold ${clearanceLevel > 1 ? 'text-red-700 animate-pulse' : ''}`}
-              >
-                {getClearanceText(clearanceLevel)}
-              </p>
-            </div>
-          </div>
+    <div className="space-y-8 h-full">
+      <div className="flex justify-between items-end border-b border-emerald-900/30 pb-2">
+        <h3 className="text-sm text-emerald-400 uppercase tracking-[0.2em]">You: 770-M-9M-MRO</h3>
+        <div className="flex space-x-4 text-xs text-emerald-600 font-mono">
+          <span>LOG_HOURS: {Math.floor(resources.technicalLogbookHours)}</span>
+          <span>JOBS: {stats.jobsCompleted}</span>
+          <span>CLR: {clearanceLevel}</span>
         </div>
       </div>
-      <div>
-        <h4 className="text-xs text-emerald-600 uppercase tracking-widest mt-4">
-          Record & Remarks
-        </h4>
-        <div className="mt-2 p-4 border border-emerald-900/50 bg-black/20 text-sm text-emerald-300 space-y-2">
-          {state.flags.onPerformanceImprovementPlan && (
-            <p className="text-amber-400">
-              [REPRIMAND] Subject is currently on a mandatory Performance Improvement Plan.
-            </p>
-          )}
-          {state.flags.suspicionEvent60Triggered && (
-            <p className="text-zinc-400">
-              [NOTE] Subject's logs show multiple discrepancies. File flagged for internal review.
-            </p>
-          )}
-          {!state.flags.onPerformanceImprovementPlan && !state.flags.suspicionEvent60Triggered && (
-            <p className="text-zinc-500">-- No active remarks on file. --</p>
-          )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* COLUMN 1: ID & PROFILE */}
+        <div className="space-y-6">
+          <div className="w-full bg-zinc-300 p-4 rounded-lg shadow-2xl space-y-4">
+            <div className="w-full aspect-[4/5] relative border-4 border-zinc-400 bg-zinc-500 overflow-hidden">
+              <img
+                src="/images/photo.png"
+                alt="Employee ID"
+                style={{ filter: photoFilter }}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute bottom-0 w-full bg-red-900/80 p-1 text-center">
+                <span className="text-[10px] text-white font-bold tracking-widest">
+                  OFFICIAL ID
+                </span>
+              </div>
+            </div>
+            <div className="text-zinc-800 font-mono space-y-2">
+              <div className="border-b-2 border-red-700 pb-1 mb-2">
+                <h3 className="text-[10px] text-red-800 font-bold uppercase">
+                  PROPERTY OF [REDACTED] AEROSPACE
+                </h3>
+              </div>
+              <div>
+                <p className="text-[9px] uppercase text-zinc-500">NAME</p>
+                <p className="text-sm font-bold tracking-wider">[REDACTED]</p>
+              </div>
+              <div>
+                <p className="text-[9px] uppercase text-zinc-500">TITLE</p>
+                <p className="text-xs font-semibold">Mechanic, Night Shift</p>
+              </div>
+              <div>
+                <p className="text-[9px] uppercase text-zinc-500">CLEARANCE</p>
+                <p
+                  className={`text-xs font-bold ${clearanceLevel > 1 ? 'text-red-700 animate-pulse' : ''}`}
+                >
+                  {getClearanceText(clearanceLevel)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-2">Remarks</h4>
+            <div className="p-3 border border-emerald-900/50 bg-black/20 text-xs text-emerald-300 space-y-2 font-mono">
+              {state.flags.onPerformanceImprovementPlan && (
+                <p className="text-amber-400">
+                  [REPRIMAND] Subject is currently on a mandatory Performance Improvement Plan.
+                </p>
+              )}
+              {state.flags.suspicionEvent60Triggered && (
+                <p className="text-zinc-400">
+                  [NOTE] Subject's logs show multiple discrepancies. File flagged for internal
+                  review.
+                </p>
+              )}
+              {!state.flags.onPerformanceImprovementPlan &&
+                !state.flags.suspicionEvent60Triggered && (
+                  <p className="text-zinc-500">-- No active remarks on file. --</p>
+                )}
+            </div>
+          </div>
         </div>
 
-        <div className="mt-6 p-4 border border-emerald-900/50 bg-black/20">
-          <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-3">
-            Personal Effects
+        {/* COLUMN 2: CERTIFICATIONS */}
+        <div className="space-y-6 lg:col-span-1 overflow-y-auto max-h-[600px] pr-2 custom-scrollbar">
+          <h4 className="text-xs text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-1">
+            Certifications & Training
           </h4>
-          {Object.entries(state.personalInventory).length > 0 ? (
-            <div className="grid grid-cols-2 gap-2">
-              {Object.entries(state.personalInventory).map(([key, count]) => (
-                <div
-                  key={key}
-                  className="flex justify-between text-xs text-emerald-300 border-b border-emerald-900/30 pb-1"
-                >
-                  <span className="uppercase">{key.replace(/_/g, ' ')}</span>
-                  <span className="font-bold">x{count}</span>
-                </div>
-              ))}
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <h4 className="text-[10px] text-emerald-700 uppercase tracking-widest">
+                FAA Licensing
+              </h4>
+              <CheckListItem
+                label="1800 Logbook Hours"
+                checked={resources.technicalLogbookHours >= 1800}
+                details={`${Math.floor(resources.technicalLogbookHours)} / 1800`}
+              />
+              <CheckListItem label="A&P Written Exam" checked={inventory.apWrittenPassed} />
+              <CheckListItem label="A&P Practical Exam" checked={inventory.apPracticalPassed} />
+              <CheckListItem label="A&P License Issued" checked={inventory.hasAPLicense} />
+              <CheckListItem label="Avionics Certification" checked={inventory.hasAvionicsCert} />
             </div>
-          ) : (
-            <p className="text-xs text-zinc-500 italic">No personal items registered.</p>
-          )}
+
+            <div className="space-y-3">
+              <h4 className="text-[10px] text-emerald-700 uppercase tracking-widest">
+                Mandatory Training
+              </h4>
+              <CheckListItem label="Human Factors (Initial)" checked={inventory.hasHfInitial} />
+              <CheckListItem
+                label="Human Factors (Recurrent)"
+                checked={inventory.hasHfRecurrent}
+                details={inventory.hasHfInitial ? 'Due in...' : 'Requires Initial'}
+              />
+              <CheckListItem label="Fuel Tank Safety (FTS)" checked={inventory.hasFts} />
+              <CheckListItem label="Hidden Damage Insp. (HDI)" checked={inventory.hasHdi} />
+            </div>
+
+            <div className="space-y-3">
+              <h4 className="text-[10px] text-emerald-700 uppercase tracking-widest">
+                EASA Part-66
+              </h4>
+              <CheckListItem
+                label="2400 Logbook Hours (B1.1)"
+                checked={resources.technicalLogbookHours >= 2400}
+                details={`${Math.floor(resources.technicalLogbookHours)} / 2400`}
+              />
+              <div className="bg-black/20 p-2 border border-emerald-900/30">
+                <p className="text-[10px] text-emerald-500 mb-1 uppercase tracking-wider">
+                  Modules Passed: {proficiency.easaModulesPassed.length}/
+                  {trainingData.easaLicense.modules.length}
+                </p>
+                <div className="grid grid-cols-6 gap-1">
+                  {trainingData.easaLicense.modules.map((mod) => (
+                    <div
+                      key={mod.id}
+                      title={mod.name}
+                      className={`p-1 text-center border text-[9px] font-mono ${proficiency.easaModulesPassed.includes(mod.id) ? 'bg-emerald-800 border-emerald-600 text-white' : 'bg-zinc-900 border-zinc-700 text-zinc-600'}`}
+                    >
+                      {mod.name.split(':')[0]}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* COLUMN 3: STATS & BELONGINGS */}
+        <div className="space-y-8 lg:col-span-1">
+          <div>
+            <h4 className="text-xs text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2 mb-4">
+              Career Statistics
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              <StatDisplay label="Jobs Completed" value={stats.jobsCompleted} />
+              <StatDisplay label="SRFs Filed" value={stats.srfsFiled} />
+              <StatDisplay label="Events Resolved" value={stats.eventsResolved} />
+              <StatDisplay label="NDT Scans" value={stats.ndtScansPerformed} />
+              <StatDisplay label="Anomalies" value={stats.anomaliesAnalyzed} />
+              <StatDisplay label="Rotables Rep." value={stats.rotablesRepaired} />
+            </div>
+            <div className="mt-2">
+              <StatDisplay
+                label="Logbook Hours"
+                value={`${Math.floor(resources.technicalLogbookHours)}h`}
+              />
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-xs text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2 mb-4">
+              Personal Belongings
+            </h4>
+            <div className="p-4 border border-emerald-900/50 bg-black/20 min-h-[100px]">
+              {Object.entries(state.personalInventory).length > 0 ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(state.personalInventory).map(([key, count]) => (
+                    <div
+                      key={key}
+                      className="flex justify-between text-xs text-emerald-300 border-b border-emerald-900/30 pb-1"
+                    >
+                      <span className="uppercase">{key.replace(/_/g, ' ')}</span>
+                      <span className="font-bold">x{count}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-zinc-500 italic text-center mt-4">
+                  No personal items registered.
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -328,7 +336,7 @@ const DashboardModal: React.FC<{
   onAction: (t: string, p?: Record<string, unknown>) => void;
   onClose: () => void;
 }> = ({ state, onAction, onClose }) => {
-  const [activeSection, setActiveSection] = useState<DashboardSection>('MATRIX');
+  const [activeSection, setActiveSection] = useState<DashboardSection>('FILE');
 
   const handleSectionClick = (section: DashboardSection) => {
     playClick();
@@ -344,14 +352,10 @@ const DashboardModal: React.FC<{
     switch (activeSection) {
       case 'MATRIX':
         return <ProficiencyMatrixView state={state} onAction={onAction} />;
-      case 'CERTS':
-        return <CertificationsView state={state} />;
-      case 'STATS':
-        return <StatsView state={state} />;
       case 'IMPORT_EXPORT':
         return <ImportExportView state={state} onImport={handleImport} />;
       case 'FILE':
-        return <PersonnelFileView state={state} />;
+        return <PlayerProfileView state={state} />;
       default:
         return null;
     }
@@ -374,6 +378,12 @@ const DashboardModal: React.FC<{
             Player Dashboard
           </h3>
           <button
+            onClick={() => handleSectionClick('FILE')}
+            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'FILE' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
+          >
+            You
+          </button>
+          <button
             onClick={() => handleSectionClick('MATRIX')}
             className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'MATRIX' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
           >
@@ -385,28 +395,10 @@ const DashboardModal: React.FC<{
             </span>
           </button>
           <button
-            onClick={() => handleSectionClick('CERTS')}
-            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'CERTS' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
-          >
-            Certifications
-          </button>
-          <button
-            onClick={() => handleSectionClick('STATS')}
-            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'STATS' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
-          >
-            Career Stats
-          </button>
-          <button
             onClick={() => handleSectionClick('IMPORT_EXPORT')}
             className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'IMPORT_EXPORT' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
           >
             Import / Export
-          </button>
-          <button
-            onClick={() => handleSectionClick('FILE')}
-            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'FILE' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
-          >
-            Personnel File
           </button>
         </div>
         <div className="w-3/4 p-8 overflow-y-auto">
