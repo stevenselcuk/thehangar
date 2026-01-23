@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { ACTION_LOGS } from '../../data/flavor.ts';
+import { ACTION_LOGS, REGULAR_TALK_LOGS } from '../../data/flavor.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
@@ -228,14 +228,22 @@ export const terminalLocationReducer = (
       case 'TALK_TO_REGULAR': {
         const roll = Math.random();
         if (roll < 0.3) {
-          addLog(ACTION_LOGS.TALK_TO_REGULAR_CLUE, 'story');
+          const clue =
+            REGULAR_TALK_LOGS.CLUES[Math.floor(Math.random() * REGULAR_TALK_LOGS.CLUES.length)];
+          addLog(clue, 'story');
           draft.resources.experience += 250;
           draft.resources.sanity -= 5;
         } else if (roll < 0.6) {
-          addLog(ACTION_LOGS.TALK_TO_REGULAR_WARNING, 'vibration');
+          const warning =
+            REGULAR_TALK_LOGS.WARNINGS[
+              Math.floor(Math.random() * REGULAR_TALK_LOGS.WARNINGS.length)
+            ];
+          addLog(warning, 'vibration');
           draft.resources.sanity -= 10;
         } else {
-          addLog(ACTION_LOGS.TALK_TO_REGULAR_RAMBLE, 'info');
+          const ramble =
+            REGULAR_TALK_LOGS.RAMBLES[Math.floor(Math.random() * REGULAR_TALK_LOGS.RAMBLES.length)];
+          addLog(ramble, 'info');
           draft.resources.focus = Math.max(0, draft.resources.focus - 10);
         }
         break;

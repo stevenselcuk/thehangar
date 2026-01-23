@@ -149,12 +149,6 @@ export const ACTION_LOGS: Record<string, string> = {
     "You try to make out the text, but the ink is too thick. You've smudged it, making it permanently unreadable.",
   CHECK_REDACTED_SUITS:
     'As you lean in close, you hear a quiet cough behind you. A tall man in a charcoal suit is standing at the other end of the hangar, watching you.',
-  TALK_TO_REGULAR_CLUE:
-    "The old pilot grabs your arm. 'They don't fly point-to-point,' he whispers, eyes wide. 'They fly along the seams. The seams of the world.'",
-  TALK_TO_REGULAR_RAMBLE:
-    'He rambles about the glory days of Pan Am and how the coffee has never been the same. You manage to escape after ten minutes.',
-  TALK_TO_REGULAR_WARNING:
-    "'They put something in the water,' he mutters, stirring his coffee. 'Makes you forget. Makes you compliant. Don't drink the tap water.'",
   RUMMAGE_LOST_FOUND_CREDITS:
     'You find a wallet with a few credits inside. The ID is completely blank.',
   RUMMAGE_LOST_FOUND_SANITY:
@@ -427,4 +421,32 @@ export const ACTION_LOGS: Record<string, string> = {
     "A monotone voice reads a sequence of numbers: 'Four... sixteen... thirty-two... four... eight... fifteen...' The pattern is hypnotic and deeply unsettling.",
   PAYPHONE_SILENCE:
     'You pick up the phone. There is no dial tone. Just a profound, listening silence.',
+};
+export const REGULAR_TALK_LOGS = {
+  CLUES: [
+    "He leans in close. 'I saw a manifest for a flight to a city that hasn't been built yet. The cargo weight was negative.'",
+    "'The rivets on the 737... they aren't holding the metal together. They're keeping something *in*.'",
+    "'I checked the star charts. The constellations over the hangar don't match any season. We're not where we think we are.'",
+    "'Ask the Toolroom Master about the missing wrench. The one that unbolts reality. He knows.'",
+    "'The birds don't land on the east runway anymore. They know. The air there is... wrong.'",
+    "'I used to fly the red-eye to London. One night, the ocean below wasn't water. It was glass. Miles of black glass.'",
+    "'You know why the janitor never blinks? He's watching the cracks in the air. If he blinks, they widen.'",
+  ],
+  WARNINGS: [
+    "'Don't look at the reflection in the cockpit windows after midnight. Sometimes, there's no pilot. Sometimes, there's *too many* pilots.'",
+    "'Stop filing those SRF forms. Every paper trail leads *them* right to your desk. Be a ghost.'",
+    "'If you hear a hum coming from the landing gear, walk away. It's not hydraulics. It's the localized gravity failing.'",
+    "'Never sleep in the break room. The dreams you have there aren't yours. They belong to the building.'",
+    "'They replaced the vending machine technician. The new guy has too many fingers. Don't eat the chocolate.'",
+    "'The shadows in the tail cone move when the lights are off. I saw one detach and walk away.'",
+    "'Keep your head down when the black sedans drive by. Eye contact is consent.'",
+  ],
+  RAMBLES: [
+    "'Back in '85, we didn't have all these digital manuals. We used intuition and a hammer. Planes flew better then.'",
+    "'The union rep says they're cutting our breaks again. Something about 'maximizing temporal efficiency'. Bunch of corporate nonsense.'",
+    "'My sandwich tastes like aluminum. Or maybe everything tastes like aluminum now. Hard to tell.'",
+    "'Used to be, you could smoke in the cockpit. Now you can't even smoke in your own truck without a drone watching you.'",
+    "'I've been trying to fix my toaster for three weeks. The wiring diagram looks exactly like a 747 electrical bus. Weird, right?'",
+    "'It's gonna rain. My knee hurts. And the barometer in the tower is spinning backwards. Probably just a glitch.'",
+  ],
 };

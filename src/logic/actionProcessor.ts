@@ -4,6 +4,7 @@ import {
   BOEING_REPLIES,
   MAGAZINE_FLAVOR_TEXTS,
   MASTER_LORE,
+  REGULAR_TALK_LOGS,
   STANDARD_RADIO_CHATTER,
   SYSTEM_LOGS,
   TOOLROOM_MASTER_DIALOUGE,
@@ -167,14 +168,23 @@ export const handleGameAction = (
     case 'TALK_TO_REGULAR': {
       const roll = Math.random();
       if (roll < 0.3) {
-        addLog(ACTION_LOGS.TALK_TO_REGULAR_CLUE, 'story');
+        // Clue
+        const clue =
+          REGULAR_TALK_LOGS.CLUES[Math.floor(Math.random() * REGULAR_TALK_LOGS.CLUES.length)];
+        addLog(clue, 'story');
         nextRes.experience += 250;
         nextRes.sanity -= 5;
       } else if (roll < 0.6) {
-        addLog(ACTION_LOGS.TALK_TO_REGULAR_WARNING, 'vibration');
+        // Warning
+        const warning =
+          REGULAR_TALK_LOGS.WARNINGS[Math.floor(Math.random() * REGULAR_TALK_LOGS.WARNINGS.length)];
+        addLog(warning, 'vibration');
         nextRes.sanity -= 10;
       } else {
-        addLog(ACTION_LOGS.TALK_TO_REGULAR_RAMBLE, 'info');
+        // Ramble
+        const ramble =
+          REGULAR_TALK_LOGS.RAMBLES[Math.floor(Math.random() * REGULAR_TALK_LOGS.RAMBLES.length)];
+        addLog(ramble, 'info');
         nextRes.focus = Math.max(0, nextRes.focus - 10); // Extra focus cost for being bored
       }
       break;
@@ -622,13 +632,14 @@ export const handleGameAction = (
     case 'START_CALIBRATION_MINIGAME':
       if (nextRes.credits >= 40) {
         nextRes.credits -= 40;
-        nextCalibration = { active: true, toolId: payload.key, toolLabel: payload.label };
+        const p = payload as { key: string; label: string };
+        nextCalibration = { active: true, toolId: p.key, toolLabel: p.label };
       }
       break;
 
     case 'FINISH_CALIBRATION_MINIGAME': {
       nextCalibration = { active: false, toolId: null, toolLabel: null };
-      const { toolId, result } = payload;
+      const { toolId, result } = payload as { toolId: string; result: string };
       if (result === 'perfect') {
         addLog(ACTION_LOGS.CALIBRATION_PERFECT, 'levelup');
         nextTools[toolId] = 100;
@@ -646,7 +657,7 @@ export const handleGameAction = (
     }
 
     case 'REPAIR_ROTABLE': {
-      const { rotableId } = payload;
+      const { rotableId } = payload as { rotableId: string };
       const rotableToRepair = nextRotables.find((r) => r.id === rotableId);
       if (rotableToRepair && nextRes.alclad >= 50 && nextRes.credits >= 25) {
         nextRes.alclad -= 50;
@@ -667,19 +678,21 @@ export const handleGameAction = (
     }
 
     case 'GET_TOOLROOM_ITEM':
-      if (payload && payload.key) {
-        (nextInv as Record<string, unknown>)[payload.key as string] = true;
-        nextTools[payload.key as string] = 100;
-        addLog(`CHECK-OUT: ${payload.label} (P/N: ${payload.pn}). Master signed the tag.`, 'info');
+      if (payload && (payload as { key: string }).key) {
+        const p = payload as { key: string; label: string; pn: string };
+        (nextInv as Record<string, unknown>)[p.key] = true;
+        nextTools[p.key] = 100;
+        addLog(`CHECK-OUT: ${p.label} (P/N: ${p.pn}). Master signed the tag.`, 'info');
       }
       break;
 
     case 'DISPENSE_CONSUMABLE': {
-      if (nextRes.credits >= payload.cost) {
-        nextRes.credits -= payload.cost;
-        (nextRes as Record<string, unknown>)[payload.id as string] =
-          (((nextRes as Record<string, unknown>)[payload.id as string] as number) || 0) + 1;
-        addLog(`DISPENSED: ${payload.label}. 1 ${payload.unit} added to kit.`, 'info');
+      const p = payload as { cost: number; id: string; label: string; unit: string };
+      if (nextRes.credits >= p.cost) {
+        nextRes.credits -= p.cost;
+        (nextRes as Record<string, unknown>)[p.id] =
+          (((nextRes as Record<string, unknown>)[p.id] as number) || 0) + 1;
+        addLog(`DISPENSED: ${p.label}. 1 ${p.unit} added to kit.`, 'info');
       } else {
         addLog('CREDIT LIMIT EXCEEDED.', 'error');
         nextRes.focus += cost;
@@ -691,10 +704,11 @@ export const handleGameAction = (
       const newSN = `SN-${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
       const isSus = Math.random() < 0.05;
       const isRed = Math.random() < 0.08;
+      const p = payload as { label: string; pn: string };
       const newRot: RotableItem = {
         id: Math.random().toString(36),
-        label: payload.label,
-        pn: payload.pn,
+        label: p.label,
+        pn: p.pn,
         sn: isSus ? 'UNTRACEABLE' : newSN,
         condition: isRed ? 0 : 100,
         isInstalled: false,
@@ -744,8 +758,9 @@ export const handleGameAction = (
     case 'REPAIR_TOOL':
       if (nextRes.alclad >= 30) {
         nextRes.alclad -= 30;
-        nextTools[payload.id] = 100;
-        addLog(`Serviced: ${payload.label}. Calibration verified.`, 'info');
+        const p = payload as { id: string; label: string };
+        nextTools[p.id] = 100;
+        addLog(`Serviced: ${p.label}. Calibration verified.`, 'info');
       }
       break;
 
@@ -1083,11 +1098,12 @@ export const handleGameAction = (
       break;
 
     case 'BUY_SHOP_ITEM': {
-      if (nextRes.alclad >= payload.cost) {
-        nextRes.alclad -= payload.cost;
-        (nextInv as Record<string, unknown>)[payload.item as string] = true;
-        nextTools[payload.item as string] = 100;
-        addLog(`PURCHASED: ${payload.item.toUpperCase()}`);
+      const p = payload as { cost: number; item: string };
+      if (nextRes.alclad >= p.cost) {
+        nextRes.alclad -= p.cost;
+        (nextInv as Record<string, unknown>)[p.item] = true;
+        nextTools[p.item] = 100;
+        addLog(`PURCHASED: ${p.item.toUpperCase()}`);
       } else {
         addLog('NOT ENOUGH ALCLAD SCRAP.', 'error');
       }
@@ -1095,7 +1111,14 @@ export const handleGameAction = (
     }
 
     case 'BUY_VENDING': {
-      let vPrice = prev.vendingPrices[payload.id] || payload.cost;
+      const p = payload as {
+        id: string;
+        cost: number;
+        sanity: number;
+        focus: number;
+        msg: string;
+      };
+      let vPrice = prev.vendingPrices[p.id] || p.cost;
       const highSuspicion = prev.resources.suspicion > 50;
       if (highSuspicion) {
         vPrice = Math.floor(vPrice * 1.5);
@@ -1109,11 +1132,11 @@ export const handleGameAction = (
           );
         }
         nextRes.credits -= vPrice;
-        nextRes.sanity = Math.min(100, nextRes.sanity + payload.sanity);
-        nextRes.focus = Math.min(100, nextRes.focus + payload.focus);
-        addLog(payload.msg, payload.sanity < 0 ? 'warning' : 'info');
+        nextRes.sanity = Math.min(100, nextRes.sanity + p.sanity);
+        nextRes.focus = Math.min(100, nextRes.focus + p.focus);
+        addLog(p.msg, p.sanity < 0 ? 'warning' : 'info');
 
-        if (payload.id === 'venom_surge') {
+        if (p.id === 'venom_surge') {
           nextFlg.venomSurgeActive = true;
           nextHF.venomSurgeTimer = 60000; // 1 minute
         }
