@@ -19,6 +19,7 @@ export interface AogScenario {
     | 'tail_strike'
     | 'engine_failure'
     | 'unknown_interference';
+  progressRequired: number;
   actions: {
     id: string;
     label: string;
@@ -26,6 +27,8 @@ export interface AogScenario {
       resource: 'focus' | 'sanity' | 'alclad' | 'rivets' | 'skydrol' | 'sealant';
       amount: number;
     };
+    progress: number;
+    duration: number;
     consequence?: string;
   }[];
 }
@@ -80,11 +83,14 @@ export const aogScenarios: AogScenario[] = [
     description:
       'The aircraft overran the threshold and settled into the unstable earth. The gear is swallowed by the mud. It looks less like an accident and more like the ground is trying to digest the machine.',
     type: 'runway_excursion',
+    progressRequired: 100,
     actions: [
       {
         id: 'dig_out_gear',
         label: 'Excavate Landing Gear',
         cost: { resource: 'focus', amount: 30 },
+        progress: 60,
+        duration: 15000,
         consequence:
           'The mud smells ancient and metallic. You find bone fragments mixed with the soil.',
       },
@@ -92,6 +98,8 @@ export const aogScenarios: AogScenario[] = [
         id: 'inspect_struts',
         label: 'Inspect Oleo Struts',
         cost: { resource: 'focus', amount: 15 },
+        progress: 40,
+        duration: 8000,
         consequence: 'Micro-fractures spiderweb across the chrome. They Pulse when you look away.',
       },
     ],
@@ -102,11 +110,14 @@ export const aogScenarios: AogScenario[] = [
     description:
       "Engine #1 ingested… something. It’s not just birds. The fan blades are twisted like claws, and the bypass duct is coated in a slurry that shouldn't exist in local taxonomy. The smell creates a phantom taste of copper.",
     type: 'bird_strike',
+    progressRequired: 100,
     actions: [
       {
         id: 'replace_fan_blades',
         label: 'Harvest & Replace Blades',
         cost: { resource: 'focus', amount: 50 },
+        progress: 70,
+        duration: 20000,
         consequence:
           'The damaged blades seem to fight back as you remove them. Sharp edges bite your gloves.',
       },
@@ -114,6 +125,8 @@ export const aogScenarios: AogScenario[] = [
         id: 'clean_core',
         label: 'Purge Engine Core',
         cost: { resource: 'sanity', amount: 15 },
+        progress: 30,
+        duration: 10000,
         consequence:
           'The fluid hisses as you wash it away. You hear faint chittering from the compressor stage.',
       },
@@ -125,11 +138,14 @@ export const aogScenarios: AogScenario[] = [
     description:
       "Mains 1, 2, and 3 have disintegrated. The rubber hasn't just burst; it's melted and fused with the tarmac. The wheel hubs are glowing with a low, sick light.",
     type: 'flat_tire',
+    progressRequired: 80,
     actions: [
       {
         id: 'improvise_jacks',
         label: 'Fabricate Jacking Point',
         cost: { resource: 'focus', amount: 40 },
+        progress: 50,
+        duration: 12000,
         consequence:
           'You stack cribbing towers. They feel unstable, trembling with the vibration of the earth.',
       },
@@ -137,6 +153,8 @@ export const aogScenarios: AogScenario[] = [
         id: 'change_wheels',
         label: 'Mount Spare Assemblies',
         cost: { resource: 'focus', amount: 25 },
+        progress: 50,
+        duration: 12000,
         consequence: 'The new wheels feel heavier than they should. Dead weight.',
       },
     ],
@@ -147,11 +165,14 @@ export const aogScenarios: AogScenario[] = [
     description:
       'Lightning struck the radome, but there’s no exit wound. The avionics bay hums even with power disconnected. Static electricity arcs between your fingertips and the fuselage.',
     type: 'lightning_strike',
+    progressRequired: 90,
     actions: [
       {
         id: 'mapping_damage',
         label: 'Map Conductivity Field',
         cost: { resource: 'focus', amount: 20 },
+        progress: 30,
+        duration: 5000,
         consequence:
           'The multimeter gives readings that defy Ohm’s law. Infinity and zero simultaneously.',
       },
@@ -159,12 +180,16 @@ export const aogScenarios: AogScenario[] = [
         id: 'replace_static_wicks',
         label: 'Replace Static Wicks',
         cost: { resource: 'rivets', amount: 10 },
+        progress: 20,
+        duration: 5000,
         consequence: 'The old wicks crumble to grey ash in your hands.',
       },
       {
         id: 'reset_computers',
         label: 'Hard Reset Avionics',
         cost: { resource: 'sanity', amount: 10 },
+        progress: 40,
+        duration: 8000,
         consequence:
           "The screens flicker with symbols that aren't flight data. You see your own name.",
       },
@@ -176,17 +201,22 @@ export const aogScenarios: AogScenario[] = [
     description:
       'The aircraft is generating a carrier wave on a distress frequency. No power is applied. The sound resonates in your teeth. The skin of the aircraft feels warm to the touch.',
     type: 'unknown_interference',
+    progressRequired: 120,
     actions: [
       {
         id: 'trace_wiring',
         label: 'Trace Wiring Harness',
         cost: { resource: 'focus', amount: 35 },
+        progress: 60,
+        duration: 18000,
         consequence: 'The wire bundles look like arteries. They pulse.',
       },
       {
         id: 'shield_components',
         label: 'Apply Lead Shielding',
         cost: { resource: 'alclad', amount: 20 },
+        progress: 60,
+        duration: 15000,
         consequence: "You wrap the computer. It muffles the sound, but doesn't stop it.",
       },
     ],

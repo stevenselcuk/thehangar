@@ -27,8 +27,8 @@ import { useGameEngine } from './hooks/useGameEngine.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_8';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_8';
+const SAVE_KEY = 'the_hangar_save__build_10';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_10';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -136,6 +136,9 @@ const AppContent: React.FC = () => {
     }
   }, [state.resources.suspicion, state.resources.sanity]);
 
+  // Auto-navigate away from AOG tab if mission is not active
+  // Removed to avoid cascading render lint error. Handled in onAction.
+
   // FIX: Force title update when tab changes
   useEffect(() => {
     document.title = `The Hangar - ${activeTab.replace(/_/g, ' ')}`;
@@ -146,6 +149,10 @@ const AppContent: React.FC = () => {
   // Memoize onAction callback to prevent unnecessary re-renders
   const onAction = useCallback(
     (type: string, payload?: Record<string, unknown>) => {
+      if (type === 'COMPLETE_AOG_DEPLOYMENT') {
+        setActiveTab(TabType.APRON_LINE);
+        // Fall through to dispatch
+      }
       if (type === 'SHOW_ID_CARD') {
         playClick();
         setIsIdCardOpen(true);

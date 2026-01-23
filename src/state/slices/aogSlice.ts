@@ -41,18 +41,35 @@ export const aogReducer = (
         draft.aog.stationId = station.id;
         draft.aog.scenarioId = scenario.id;
         draft.aog.startTime = Date.now();
+        draft.aog.completedActions = [];
+        draft.aog.currentProgress = 0;
+        draft.aog.progressRequired = scenario.progressRequired || 100;
+        draft.aog.actionInProgress = null;
 
         addLog(`DEPLOYMENT CONFIRMED: ${station.name} (${station.code}).`, 'story');
         addLog(`SITREP: ${scenario.title}. ${scenario.description}`, 'warning');
+        addLog(
+          `MISSION OBJECTIVE: Stabilize the aircraft. Required Progress: ${draft.aog.progressRequired}`,
+          'info'
+        );
         break;
       }
 
-      case 'RESOLVE_AOG_ACTION': {
+      case 'START_AOG_ACTION': {
         const { actionId } = action.payload as { actionId: string };
         const scenarioId = draft.aog.scenarioId;
         const scenario = aogScenarios.find((s) => s.id === scenarioId);
 
         if (!scenario) return;
+        if (draft.aog.actionInProgress) {
+          addLog('An action is already in progress.', 'warning');
+          return;
+        }
+
+        if (draft.aog.completedActions.includes(actionId)) {
+          addLog('Action already performed.', 'warning');
+          return;
+        }
 
         const aogAction = scenario.actions.find((a) => a.id === actionId);
         if (!aogAction) return;
@@ -63,19 +80,53 @@ export const aogReducer = (
           return;
         }
 
-        // Deduct resources
+        // Deduct resources immediately
         draft.resources[cost.resource] -= cost.amount;
 
+        // Start Timer
+        draft.aog.actionInProgress = {
+          actionId: aogAction.id,
+          startTime: Date.now(),
+          duration: aogAction.duration || 5000,
+        };
+
+        addLog(`Started: ${aogAction.label}... (${(aogAction.duration || 5000) / 1000}s)`, 'info');
+        break;
+      }
+
+      case 'RESOLVE_AOG_ACTION': {
+        const { actionId } = action.payload as { actionId: string };
+        const scenarioId = draft.aog.scenarioId;
+        const scenario = aogScenarios.find((s) => s.id === scenarioId);
+
+        if (!scenario) return;
+
+        // Validation: Verify this action is the one in progress
+        if (!draft.aog.actionInProgress || draft.aog.actionInProgress.actionId !== actionId) {
+          // Fallback for immediate resolution if something weird happens, or just ignore
+          // ideally we shouldn't hit this if UI is correct
+          return;
+        }
+
+        const aogAction = scenario.actions.find((a) => a.id === actionId);
+        if (!aogAction) return;
+
+        // Apply Results
+        draft.aog.actionInProgress = null;
+        draft.aog.completedActions.push(actionId);
+
+        const progressAmount = aogAction.progress || 25;
+        draft.aog.currentProgress += progressAmount;
+
         // Add log
-        addLog(`ACTION: ${aogAction.label} completed.`, 'info');
+        addLog(`COMPLETED: ${aogAction.label}. (+${progressAmount} Progress)`, 'info');
         if (aogAction.consequence) {
           addLog(aogAction.consequence, 'story');
         }
 
-        // Check if scenario is complete (this is a simplified logic, assuming any action progress scenario)
-        // In a more complex version, we might track progress per scenario.
-        // For now, let's say completing one "big" action or a couple of small ones might be enough,
-        // or we just rely on a 'COMPLETE_DEPLOYMENT' action that becomes available.
+        if (draft.aog.currentProgress >= draft.aog.progressRequired) {
+          addLog(`STATUS UPDATE: Aircraft stabilized. Return to base authorized.`, 'story');
+        }
 
         break;
       }
@@ -107,18 +158,33 @@ export const aogReducer = (
       case 'COMPLETE_AOG_DEPLOYMENT': {
         if (!draft.aog.active) return;
 
-        draft.aog.active = false;
-        draft.aog.stationId = null;
-        draft.aog.scenarioId = null;
-        draft.aog.startTime = 0;
+        // Calculate Time BEFORE resetting start time
+        const missionTime = Date.now() - draft.aog.startTime;
+        const formattedTime = Math.floor(missionTime / 1000);
 
-        // Reward
-        const reward = 500;
+        // Check requirement (optional enforcement, but UI should prevent it)
+        if (draft.aog.currentProgress < draft.aog.progressRequired) {
+          // For now, allow it but maybe with penalty?
+          // Or just enforce it silently.
+          addLog(`Cannot return yet. Mission incompelete.`, 'warning');
+          return;
+        }
+
+        const reward = 500; // Could scale this later
         draft.resources.credits += reward;
         draft.resources.experience += 100;
 
         addLog(`AOG DEPLOYMENT COMPLETE. Returned to base. +${reward} Credits.`, 'story');
-        addLog(`Mission Time: ${Math.floor((Date.now() - draft.aog.startTime) / 1000)}s`, 'info');
+        addLog(`Mission Time: ${formattedTime}s`, 'info');
+
+        // Reset State
+        draft.aog.active = false;
+        draft.aog.stationId = null;
+        draft.aog.scenarioId = null;
+        draft.aog.startTime = 0;
+        draft.aog.completedActions = [];
+        draft.aog.currentProgress = 0;
+        draft.aog.actionInProgress = null;
         break;
       }
     }

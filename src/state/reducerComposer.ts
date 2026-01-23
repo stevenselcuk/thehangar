@@ -634,7 +634,12 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
 
   // Route AOG actions to aogSlice
   if (
-    ['ACCEPT_AOG_DEPLOYMENT', 'RESOLVE_AOG_ACTION', 'COMPLETE_AOG_DEPLOYMENT'].includes(action.type)
+    [
+      'ACCEPT_AOG_DEPLOYMENT',
+      'START_AOG_ACTION',
+      'RESOLVE_AOG_ACTION',
+      'COMPLETE_AOG_DEPLOYMENT',
+    ].includes(action.type)
   ) {
     return produce(state, (draft) => {
       const aogState = {

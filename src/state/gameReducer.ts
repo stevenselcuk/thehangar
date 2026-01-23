@@ -508,6 +508,7 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           'TOOLROOM_MASTER_TALK',
           // AOG Actions
           'ACCEPT_AOG_DEPLOYMENT',
+          'START_AOG_ACTION',
           'RESOLVE_AOG_ACTION',
           'COMPLETE_AOG_DEPLOYMENT',
         ];

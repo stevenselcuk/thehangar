@@ -7,6 +7,10 @@ const mockState = {
     stationId: null,
     scenarioId: null,
     startTime: 0,
+    completedActions: [],
+    currentProgress: 0,
+    progressRequired: 100,
+    actionInProgress: null,
   },
   resources: {
     alclad: 100,
@@ -45,36 +49,74 @@ describe('aogReducer', () => {
     expect(nextState.aog.active).toBe(true);
     expect(nextState.aog.stationId).not.toBeNull();
     expect(nextState.aog.scenarioId).not.toBeNull();
+    expect(nextState.aog.currentProgress).toBe(0);
+    expect(nextState.aog.progressRequired).toBeGreaterThan(0);
     expect(nextState.logs.length).toBeGreaterThan(0);
   });
 
-  it('should not allow deployment if already active', () => {
+  it('should handle START_AOG_ACTION', () => {
     const initialState = JSON.parse(JSON.stringify(mockState));
     initialState.aog.active = true;
-    const action = { type: 'ACCEPT_AOG_DEPLOYMENT', payload: {} };
+    initialState.aog.scenarioId = 'runway_excursion'; // Ensure a known scenario
+    // Ensure enough resources
+    initialState.resources.focus = 100;
 
+    const action = { type: 'START_AOG_ACTION', payload: { actionId: 'dig_out_gear' } };
     const nextState = aogReducer(initialState, action);
 
-    // Should handle gracefully (log warning) but not change active state (which was already true)
-    // Actually our reducer logic just logs a warning and returns, so state should remain same except logs
-    expect(nextState.aog.active).toBe(true);
-    expect(nextState.logs.length).toBeGreaterThan(0);
-    expect(nextState.logs[0].type).toBe('warning');
+    expect(nextState.aog.actionInProgress).not.toBeNull();
+    expect(nextState.aog.actionInProgress.actionId).toBe('dig_out_gear');
+    expect(nextState.resources.focus).toBeLessThan(100);
   });
 
-  it('should handle COMPLETE_AOG_DEPLOYMENT', () => {
+  it('should handle RESOLVE_AOG_ACTION', () => {
+    const initialState = JSON.parse(JSON.stringify(mockState));
+    initialState.aog.active = true;
+    initialState.aog.scenarioId = 'runway_excursion';
+    initialState.aog.actionInProgress = {
+      actionId: 'dig_out_gear',
+      startTime: Date.now() - 20000,
+      duration: 15000,
+    };
+
+    const action = { type: 'RESOLVE_AOG_ACTION', payload: { actionId: 'dig_out_gear' } };
+    const nextState = aogReducer(initialState, action);
+
+    expect(nextState.aog.actionInProgress).toBeNull();
+    expect(nextState.aog.completedActions).toContain('dig_out_gear');
+    expect(nextState.aog.currentProgress).toBeGreaterThan(0);
+  });
+
+  it('should prevent COMPLETE_AOG_DEPLOYMENT if incomplete', () => {
     const initialState = JSON.parse(JSON.stringify(mockState));
     initialState.aog.active = true;
     initialState.aog.stationId = 'LHR';
     initialState.aog.scenarioId = 'runway_excursion';
-    const action = { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} };
+    initialState.aog.currentProgress = 0;
+    initialState.aog.progressRequired = 100;
 
+    const action = { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} };
+    const nextState = aogReducer(initialState, action);
+
+    expect(nextState.aog.active).toBe(true); // Should NOT have completed
+    expect(
+      nextState.logs.some((l: { text: string }) => l.text.includes('Mission incompelete'))
+    ).toBe(true);
+  });
+
+  it('should allow COMPLETE_AOG_DEPLOYMENT if complete', () => {
+    const initialState = JSON.parse(JSON.stringify(mockState));
+    initialState.aog.active = true;
+    initialState.aog.stationId = 'LHR';
+    initialState.aog.scenarioId = 'runway_excursion';
+    initialState.aog.currentProgress = 100;
+    initialState.aog.progressRequired = 100;
+    initialState.aog.startTime = Date.now() - 5000;
+
+    const action = { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} };
     const nextState = aogReducer(initialState, action);
 
     expect(nextState.aog.active).toBe(false);
     expect(nextState.aog.stationId).toBeNull();
-    expect(nextState.aog.scenarioId).toBeNull();
-    expect(nextState.resources.credits).toBe(mockState.resources.credits + 500); // Check reward
-    expect(nextState.logs.length).toBeGreaterThan(0);
   });
 });

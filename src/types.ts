@@ -356,6 +356,14 @@ export interface GameState {
     stationId: string | null;
     scenarioId: string | null;
     startTime: number;
+    completedActions: string[];
+    currentProgress: number;
+    progressRequired: number;
+    actionInProgress: {
+      actionId: string;
+      startTime: number;
+      duration: number;
+    } | null;
   };
 }
 
