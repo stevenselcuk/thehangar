@@ -27,6 +27,13 @@ export const createJob = (): JobCard => {
 };
 
 export const createInitialState = (): GameState => ({
+  time: {
+    totalPlayTime: 0,
+    sessionTime: 0,
+    shiftTime: 0,
+    shiftCycle: 1,
+    lastTick: Date.now(),
+  },
   resources: {
     alclad: 50,
     titanium: 0,

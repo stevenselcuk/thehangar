@@ -14,6 +14,7 @@ import { resourcesReducer } from './slices/resourcesSlice.ts';
 import { ShopAction, shopReducer } from './slices/shopSlice.ts';
 import { TerminalLocationAction, terminalLocationReducer } from './slices/terminalLocationSlice.ts';
 import { terminalReducer } from './slices/terminalSlice.ts';
+import { timeReducer } from './slices/timeSlice.ts';
 
 /**
  * Reducer Composer Pattern
@@ -79,6 +80,20 @@ export const composeTick = (
       // We don't update resources here as tick usually doesn't consume them,
       // but if we added passive drain we would.
       draft.logs = updatedAog.logs as typeof draft.logs;
+    }
+
+    // Time Tracking
+    if (draft.time) {
+      draft.time = timeReducer(draft.time, {
+        type: 'TIME_TICK',
+        payload: { delta, now: Date.now() },
+      });
+    } else {
+      // Initialize if missing (should be handled by initial state but safe guard)
+      draft.time = timeReducer(undefined, {
+        type: 'TIME_TICK',
+        payload: { delta, now: Date.now() },
+      });
     }
 
     // Future slice integrations will be added here:

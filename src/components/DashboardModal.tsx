@@ -16,6 +16,15 @@ type DashboardSection = 'MATRIX' | 'CERTS' | 'STATS' | 'FILE' | 'IMPORT_EXPORT';
 
 // --- SUB-COMPONENTS FOR EACH VIEW ---
 
+// --- SUB-COMPONENTS FOR EACH VIEW ---
+
+const formatDuration = (ms: number) => {
+  const seconds = Math.floor((ms / 1000) % 60);
+  const minutes = Math.floor((ms / (1000 * 60)) % 60);
+  const hours = Math.floor(ms / (1000 * 60 * 60));
+  return `${hours}h ${minutes}m ${seconds}s`;
+};
+
 const SkillNode: React.FC<{
   skill: Skill;
   state: GameState;
@@ -138,19 +147,11 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
   };
 
   return (
-    <div className="space-y-8 h-full">
-      <div className="flex justify-between items-end border-b border-emerald-900/30 pb-2">
-        <h3 className="text-sm text-emerald-400 uppercase tracking-[0.2em]">You: 770-M-9M-MRO</h3>
-        <div className="flex space-x-4 text-xs text-emerald-600 font-mono">
-          <span>LOG_HOURS: {Math.floor(resources.technicalLogbookHours)}</span>
-          <span>JOBS: {stats.jobsCompleted}</span>
-          <span>CLR: {clearanceLevel}</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* COLUMN 1: ID & PROFILE */}
-        <div className="space-y-6">
+    <div className="space-y-12 pb-12">
+      {/* SECTION 1: IDENTITY HERO */}
+      <div className="flex flex-col md:flex-row gap-8 items-start border-b border-emerald-900/30 pb-8">
+        {/* Photo ID Card */}
+        <div className="w-full md:w-64 flex-shrink-0">
           <div className="w-full bg-zinc-300 p-4 rounded-lg shadow-2xl space-y-4">
             <div className="w-full aspect-[4/5] relative border-4 border-zinc-400 bg-zinc-500 overflow-hidden">
               <img
@@ -165,78 +166,131 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
                 </span>
               </div>
             </div>
-            <div className="text-zinc-800 font-mono space-y-2">
-              <div className="border-b-2 border-red-700 pb-1 mb-2">
-                <h3 className="text-[10px] text-red-800 font-bold uppercase">
-                  PROPERTY OF [REDACTED] AEROSPACE
-                </h3>
-              </div>
-              <div>
-                <p className="text-[9px] uppercase text-zinc-500">NAME</p>
-                <p className="text-sm font-bold tracking-wider">[REDACTED]</p>
-              </div>
-              <div>
-                <p className="text-[9px] uppercase text-zinc-500">TITLE</p>
-                <p className="text-xs font-semibold">Mechanic, Night Shift</p>
-              </div>
-              <div>
-                <p className="text-[9px] uppercase text-zinc-500">CLEARANCE</p>
-                <p
-                  className={`text-xs font-bold ${clearanceLevel > 1 ? 'text-red-700 animate-pulse' : ''}`}
-                >
-                  {getClearanceText(clearanceLevel)}
-                </p>
-              </div>
+          </div>
+        </div>
+
+        {/* Identity Details */}
+        <div className="flex-grow space-y-6 w-full">
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="text-2xl text-emerald-400 font-bold uppercase tracking-widest mb-1">
+                [REDACTED]
+              </h3>
+              <p className="text-emerald-600 font-mono text-sm">
+                770-M-9M-MRO // NIGHT SHIFT MECHANIC
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] uppercase text-zinc-500 mb-1">SECURITY CLEARANCE</p>
+              <p
+                className={`text-lg font-bold font-mono ${clearanceLevel > 1 ? 'text-red-500 animate-pulse' : 'text-emerald-500'}`}
+              >
+                {getClearanceText(clearanceLevel)}
+              </p>
             </div>
           </div>
 
-          <div>
-            <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-2">Remarks</h4>
-            <div className="p-3 border border-emerald-900/50 bg-black/20 text-xs text-emerald-300 space-y-2 font-mono">
+          <div className="bg-black/20 border border-emerald-900/50 p-6 rounded-sm">
+            <h4 className="text-xs text-emerald-700 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
+              HR REMARKS & STATUS
+            </h4>
+            <div className="text-sm text-emerald-300 space-y-2 font-mono">
               {state.flags.onPerformanceImprovementPlan && (
-                <p className="text-amber-400">
+                <p className="text-amber-400 bg-amber-900/20 p-2 border-l-2 border-amber-500">
                   [REPRIMAND] Subject is currently on a mandatory Performance Improvement Plan.
                 </p>
               )}
               {state.flags.suspicionEvent60Triggered && (
-                <p className="text-zinc-400">
+                <p className="text-zinc-400 bg-zinc-900/40 p-2 border-l-2 border-zinc-600">
                   [NOTE] Subject's logs show multiple discrepancies. File flagged for internal
                   review.
                 </p>
               )}
               {!state.flags.onPerformanceImprovementPlan &&
                 !state.flags.suspicionEvent60Triggered && (
-                  <p className="text-zinc-500">-- No active remarks on file. --</p>
+                  <p className="text-zinc-500 italic">
+                    -- No active disciplinary remarks on file. --
+                  </p>
                 )}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* COLUMN 2: CERTIFICATIONS */}
-        <div className="space-y-6 lg:col-span-1 overflow-y-auto max-h-[600px] pr-2 custom-scrollbar">
-          <h4 className="text-xs text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-1">
-            Certifications & Training
-          </h4>
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <h4 className="text-[10px] text-emerald-700 uppercase tracking-widest">
-                FAA Licensing
-              </h4>
+      {/* SECTION 2: CAREER STATISTICS */}
+      <div className="space-y-6">
+        <h4 className="text-sm text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
+          Career Performance Metrics
+        </h4>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatDisplay
+            label="Logbook Hours"
+            value={`${Math.floor(resources.technicalLogbookHours)}H`}
+          />
+          <StatDisplay label="Jobs Completed" value={stats.jobsCompleted} />
+          <StatDisplay label="SRFs Filed" value={stats.srfsFiled} />
+          <StatDisplay label="Events Resolved" value={stats.eventsResolved} />
+          <StatDisplay label="NDT Scans" value={stats.ndtScansPerformed} />
+          <StatDisplay label="Anomalies" value={stats.anomaliesAnalyzed} />
+          <StatDisplay label="Rotables Rep." value={stats.rotablesRepaired} />
+
+          {/* New Time Stats */}
+          <StatDisplay label="Shift Cycles" value={state.time?.shiftCycle || 1} />
+          <StatDisplay label="Time Played" value={formatDuration(state.time?.totalPlayTime || 0)} />
+
+          <div className="p-4 border border-emerald-900/50 bg-black/30">
+            <p className="text-xs text-emerald-700 uppercase tracking-widest mb-1">
+              Shift Progress
+            </p>
+            <div className="flex items-end gap-2">
+              <p className="text-xl font-bold text-emerald-300">
+                {Math.floor(((state.time?.shiftTime || 0) / (8 * 60 * 60 * 1000)) * 100)}%
+              </p>
+              <div className="flex-grow h-2 bg-emerald-950 mb-1.5 overflow-hidden">
+                <div
+                  className="h-full bg-emerald-500/50"
+                  style={{
+                    width: `${Math.min(100, ((state.time?.shiftTime || 0) / (8 * 60 * 60 * 1000)) * 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 3: CERTIFICATIONS & TRAINING */}
+      <div className="space-y-6">
+        <h4 className="text-sm text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
+          Licensing & Qualifications
+        </h4>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* FAA COLUMN */}
+          <div className="space-y-4">
+            <h5 className="text-xs text-emerald-700 font-bold uppercase tracking-widest bg-emerald-900/10 p-2 border-l-2 border-emerald-600">
+              FAA 14 CFR Part 65
+            </h5>
+            <div className="space-y-2">
               <CheckListItem
                 label="1800 Logbook Hours"
                 checked={resources.technicalLogbookHours >= 1800}
-                details={`${Math.floor(resources.technicalLogbookHours)} / 1800`}
+                details={`${Math.floor(resources.technicalLogbookHours)} / 1800 Required`}
               />
               <CheckListItem label="A&P Written Exam" checked={inventory.apWrittenPassed} />
               <CheckListItem label="A&P Practical Exam" checked={inventory.apPracticalPassed} />
               <CheckListItem label="A&P License Issued" checked={inventory.hasAPLicense} />
               <CheckListItem label="Avionics Certification" checked={inventory.hasAvionicsCert} />
             </div>
+          </div>
 
-            <div className="space-y-3">
-              <h4 className="text-[10px] text-emerald-700 uppercase tracking-widest">
-                Mandatory Training
-              </h4>
+          {/* MANDATORY TRAINING COLUMN */}
+          <div className="space-y-4">
+            <h5 className="text-xs text-emerald-700 font-bold uppercase tracking-widest bg-emerald-900/10 p-2 border-l-2 border-emerald-600">
+              Mandatory Company Training
+            </h5>
+            <div className="space-y-2">
               <CheckListItem label="Human Factors (Initial)" checked={inventory.hasHfInitial} />
               <CheckListItem
                 label="Human Factors (Recurrent)"
@@ -246,27 +300,33 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
               <CheckListItem label="Fuel Tank Safety (FTS)" checked={inventory.hasFts} />
               <CheckListItem label="Hidden Damage Insp. (HDI)" checked={inventory.hasHdi} />
             </div>
+          </div>
 
-            <div className="space-y-3">
-              <h4 className="text-[10px] text-emerald-700 uppercase tracking-widest">
-                EASA Part-66
-              </h4>
+          {/* EASA COLUMN */}
+          <div className="space-y-4">
+            <h5 className="text-xs text-emerald-700 font-bold uppercase tracking-widest bg-emerald-900/10 p-2 border-l-2 border-emerald-600">
+              EASA Part-66 (B1.1)
+            </h5>
+            <div className="space-y-2">
               <CheckListItem
-                label="2400 Logbook Hours (B1.1)"
+                label="2400 Logbook Hours"
                 checked={resources.technicalLogbookHours >= 2400}
-                details={`${Math.floor(resources.technicalLogbookHours)} / 2400`}
+                details={`${Math.floor(resources.technicalLogbookHours)} / 2400 Required`}
               />
-              <div className="bg-black/20 p-2 border border-emerald-900/30">
-                <p className="text-[10px] text-emerald-500 mb-1 uppercase tracking-wider">
-                  Modules Passed: {proficiency.easaModulesPassed.length}/
-                  {trainingData.easaLicense.modules.length}
+              <div className="bg-black/20 p-3 border border-emerald-900/30">
+                <p className="text-[10px] text-emerald-500 mb-2 uppercase tracking-wider flex justify-between">
+                  <span>Modules Passed</span>
+                  <span className="text-white">
+                    {proficiency.easaModulesPassed.length} /{' '}
+                    {trainingData.easaLicense.modules.length}
+                  </span>
                 </p>
-                <div className="grid grid-cols-6 gap-1">
+                <div className="grid grid-cols-4 gap-1">
                   {trainingData.easaLicense.modules.map((mod) => (
                     <div
                       key={mod.id}
                       title={mod.name}
-                      className={`p-1 text-center border text-[9px] font-mono ${proficiency.easaModulesPassed.includes(mod.id) ? 'bg-emerald-800 border-emerald-600 text-white' : 'bg-zinc-900 border-zinc-700 text-zinc-600'}`}
+                      className={`p-1.5 text-center border text-[9px] font-mono transition-colors ${proficiency.easaModulesPassed.includes(mod.id) ? 'bg-emerald-800 border-emerald-500 text-emerald-100 shadow-[0_0_5px_rgba(16,185,129,0.4)]' : 'bg-zinc-950 border-zinc-800 text-zinc-700'}`}
                     >
                       {mod.name.split(':')[0]}
                     </div>
@@ -276,53 +336,35 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* COLUMN 3: STATS & BELONGINGS */}
-        <div className="space-y-8 lg:col-span-1">
-          <div>
-            <h4 className="text-xs text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2 mb-4">
-              Career Statistics
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
-              <StatDisplay label="Jobs Completed" value={stats.jobsCompleted} />
-              <StatDisplay label="SRFs Filed" value={stats.srfsFiled} />
-              <StatDisplay label="Events Resolved" value={stats.eventsResolved} />
-              <StatDisplay label="NDT Scans" value={stats.ndtScansPerformed} />
-              <StatDisplay label="Anomalies" value={stats.anomaliesAnalyzed} />
-              <StatDisplay label="Rotables Rep." value={stats.rotablesRepaired} />
-            </div>
-            <div className="mt-2">
-              <StatDisplay
-                label="Logbook Hours"
-                value={`${Math.floor(resources.technicalLogbookHours)}h`}
-              />
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-xs text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2 mb-4">
-              Personal Belongings
-            </h4>
-            <div className="p-4 border border-emerald-900/50 bg-black/20 min-h-[100px]">
-              {Object.entries(state.personalInventory).length > 0 ? (
-                <div className="grid grid-cols-2 gap-2">
-                  {Object.entries(state.personalInventory).map(([key, count]) => (
-                    <div
-                      key={key}
-                      className="flex justify-between text-xs text-emerald-300 border-b border-emerald-900/30 pb-1"
-                    >
-                      <span className="uppercase">{key.replace(/_/g, ' ')}</span>
-                      <span className="font-bold">x{count}</span>
-                    </div>
-                  ))}
+      {/* SECTION 4: BELONGINGS */}
+      <div className="space-y-6">
+        <h4 className="text-sm text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
+          Personal Effects
+        </h4>
+        <div className="p-6 border border-emerald-900/50 bg-black/20">
+          {Object.entries(state.personalInventory).length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {Object.entries(state.personalInventory).map(([key, count]) => (
+                <div
+                  key={key}
+                  className="flex flex-col p-3 border border-emerald-900/30 bg-black/40 text-center hover:bg-emerald-900/20 transition-colors"
+                >
+                  <span className="text-[10px] text-emerald-600 uppercase mb-1">
+                    {key.replace(/_/g, ' ')}
+                  </span>
+                  <span className="text-xl font-bold text-emerald-300">x{count}</span>
                 </div>
-              ) : (
-                <p className="text-xs text-zinc-500 italic text-center mt-4">
-                  No personal items registered.
-                </p>
-              )}
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-sm text-zinc-600 uppercase tracking-widest">
+                No personal items registered to this locker.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

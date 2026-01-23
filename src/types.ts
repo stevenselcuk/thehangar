@@ -304,7 +304,16 @@ export interface GameStats {
   eventsResolved: number;
 }
 
+export interface TimeState {
+  totalPlayTime: number; // in ms
+  sessionTime: number; // in ms
+  shiftTime: number; // in ms
+  shiftCycle: number; // integer count
+  lastTick: number; // timestamp
+}
+
 export interface GameState {
+  time: TimeState;
   resources: ResourceState;
   inventory: Inventory;
   personalInventory: Record<string, number>;
