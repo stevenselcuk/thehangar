@@ -1,4 +1,13 @@
 import { GameEvent } from '../types.ts';
+import {
+  BOEING_INSPECTOR_FLAVOR,
+  CANTEEN_INCIDENT_FLAVOR,
+  FAA_INSPECTION_FLAVOR,
+  INTERNAL_AUDIT_FLAVOR,
+  SAFA_CHECK_FLAVOR,
+  TOOLROOM_INCIDENT_FLAVOR,
+  TRAINING_DEPT_FLAVOR,
+} from './flavor';
 
 type EventTemplates = Omit<GameEvent, 'timeLeft'>;
 
@@ -100,6 +109,90 @@ export const eventsData: Record<string, EventTemplates[]> = {
       failureOutcome: {
         log: "You failed to comply in time. They found an 'unaccounted for' component on your bench. Your file has been permanently flagged.",
         effects: { sanity: -20, suspicion: 40 },
+      },
+    },
+    {
+      id: 'AUDIT_INTERNAL_SUITS_1',
+      type: 'audit',
+      suitType: 'THE_SUITS',
+      title: 'Unexpected Audit',
+      description: INTERNAL_AUDIT_FLAVOR[0],
+      totalTime: 45000,
+      choices: [
+        {
+          id: 'submit',
+          label: 'Submit to Classification',
+          cost: { resource: 'sanity', amount: 10 },
+          log: INTERNAL_AUDIT_FLAVOR[5],
+          effects: { suspicion: -5 },
+        },
+        {
+          id: 'flee',
+          label: 'Attempt to Flee',
+          cost: { resource: 'focus', amount: 20 },
+          log: 'You successfully evade them, but you can feel them watching you from the reflections in the windows.',
+          effects: { suspicion: 20, sanity: -10 },
+        },
+      ],
+      failureOutcome: {
+        log: "They caught you trying to hide a logbook. It didn't exist until they found it.",
+        effects: { suspicion: 40, sanity: -20 },
+      },
+    },
+    {
+      id: 'AUDIT_SAFA_CHECK',
+      type: 'audit',
+      suitType: 'FAA_INSPECTOR',
+      title: 'SAFA Ramp Check',
+      description: SAFA_CHECK_FLAVOR[0],
+      totalTime: 60000,
+      choices: [
+        {
+          id: 'comply_eu',
+          label: 'Present EASA Form 1',
+          cost: { resource: 'focus', amount: 15 },
+          log: SAFA_CHECK_FLAVOR[15],
+          effects: { experience: 200, suspicion: -10 },
+        },
+        {
+          id: 'distract',
+          label: 'Mention "The Grey"',
+          cost: { resource: 'sanity', amount: 15 },
+          log: "The inspector pauses. He nods slowly. 'So you know.' He leaves without checking the tires.",
+          effects: { suspicion: -10, sanity: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: SAFA_CHECK_FLAVOR[9],
+        effects: { credits: -500, suspicion: 10 },
+      },
+    },
+    {
+      id: 'AUDIT_FAA_CONSPIRACY',
+      type: 'audit',
+      suitType: 'FAA_INSPECTOR',
+      title: 'Federal Inspection',
+      description: FAA_INSPECTION_FLAVOR[2],
+      totalTime: 50000,
+      choices: [
+        {
+          id: 'show_logs',
+          label: 'Show Falsified Logs',
+          cost: { resource: 'focus', amount: 30 },
+          log: "The inspector glances at the logs. 'These are too perfect,' he says. 'But acceptable.'",
+          effects: { suspicion: 5 },
+        },
+        {
+          id: 'feign',
+          label: 'Feign Ignorance',
+          cost: { resource: 'focus', amount: 10 },
+          log: FAA_INSPECTION_FLAVOR[13],
+          effects: { suspicion: 15, sanity: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: FAA_INSPECTION_FLAVOR[19],
+        effects: { credits: -1000, suspicion: 50 },
       },
     },
   ],
@@ -246,6 +339,86 @@ export const eventsData: Record<string, EventTemplates[]> = {
         effects: { sanity: -50, suspicion: 30 },
       },
     },
+    {
+      id: 'INCIDENT_BOEING_REP',
+      type: 'incident',
+      title: 'Factory Representative',
+      description: BOEING_INSPECTOR_FLAVOR[0],
+      totalTime: 40000,
+      choices: [
+        {
+          id: 'explain',
+          label: 'Explain the Manual',
+          cost: { resource: 'focus', amount: 20 },
+          log: "You try to explain standard maintenance practices. He laughs. 'We haven't used those since the shift.'",
+          effects: { suspicion: 10, sanity: -5 },
+        },
+        {
+          id: 'risk',
+          label: 'Let Him Touch It',
+          cost: { resource: 'sanity', amount: 30 },
+          log: BOEING_INSPECTOR_FLAVOR[15],
+          effects: { experience: 500, suspicion: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: "He declares the aircraft 'unclean' and tags it for incineration.",
+        effects: { suspicion: 20, credits: -200 },
+      },
+    },
+    {
+      id: 'INCIDENT_TOOLROOM_DEMAND',
+      type: 'incident',
+      title: 'Toolroom Demand',
+      description: TOOLROOM_INCIDENT_FLAVOR[3],
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'give_tool',
+          label: 'Offer a 10mm Socket',
+          cost: { resource: 'credits', amount: 50 },
+          log: "The Master accepts the offering. 'This will feed the machine for an hour.'",
+          effects: { suspicion: -10 },
+        },
+        {
+          id: 'blood',
+          label: 'Offer Blood',
+          cost: { resource: 'sanity', amount: 20 },
+          log: TOOLROOM_INCIDENT_FLAVOR[0],
+          effects: { experience: 400, sanity: -20 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You have nothing to give. The Master takes your focus instead.',
+        effects: { focus: -50 },
+      },
+    },
+    {
+      id: 'INCIDENT_TRAINING_MODULE',
+      type: 'incident',
+      title: 'Mandatory Training',
+      description: TRAINING_DEPT_FLAVOR[0],
+      totalTime: 60000,
+      choices: [
+        {
+          id: 'learn',
+          label: 'Watch the Video',
+          cost: { resource: 'sanity', amount: 25 },
+          log: 'You watch the whole thing. You now know how to calibrate a sadness sensor.',
+          effects: { experience: 600, sanity: -25 },
+        },
+        {
+          id: 'skip',
+          label: 'Skip Training',
+          log: "You mark it as 'Complete'. The system knows you lied.",
+          effects: { suspicion: 15 },
+        },
+      ],
+      failureOutcome: {
+        log: TRAINING_DEPT_FLAVOR[14],
+        effects: { sanity: -30, experience: -100 },
+      },
+    },
   ],
   eldritch_manifestation: [
     {
@@ -390,7 +563,61 @@ export const eventsData: Record<string, EventTemplates[]> = {
       },
     },
   ],
-  canteen_incident: [],
+  canteen_incident: [
+    {
+      id: 'CANTEEN_SUITS_LUNCH',
+      type: 'canteen_incident',
+      title: 'Lunch Break Encounter',
+      description: CANTEEN_INCIDENT_FLAVOR[3],
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'sit_near',
+          label: 'Sit Nearby',
+          cost: { resource: 'sanity', amount: 10 },
+          log: "You overhear them discussing the 'expiration date' of the current timeline.",
+          effects: { experience: 300, sanity: -15 },
+        },
+        {
+          id: 'leave',
+          label: 'Leave Immediately',
+          cost: { resource: 'focus', amount: 5 },
+          log: "You leave your tray and walk out. You're hungry, but alive.",
+          effects: { focus: -10 },
+        },
+      ],
+      failureOutcome: {
+        log: "One of them beckons you over. You don't remember the rest of your break.",
+        effects: { sanity: -30, suspicion: 10 },
+      },
+    },
+    {
+      id: 'CANTEEN_VENDING_PROPHECY',
+      type: 'canteen_incident',
+      title: 'Vending Machine Glitch',
+      description: CANTEEN_INCIDENT_FLAVOR[4],
+      totalTime: 20000,
+      choices: [
+        {
+          id: 'buy_void',
+          label: 'Press the Button',
+          cost: { resource: 'credits', amount: 5 },
+          log: "The machine dispenses a can of 'Static'. It tastes like pins and needles.",
+          effects: { sanity: -10, experience: 100 },
+        },
+        {
+          id: 'ignore',
+          label: 'Walk Away',
+          log: 'You choose thirst over madness.',
+          effects: { focus: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: "The machine screams. It's a human scream.",
+        effects: { sanity: -20 },
+      },
+    },
+  ],
   component_failure: [
     {
       id: 'BASE_FAILURE',

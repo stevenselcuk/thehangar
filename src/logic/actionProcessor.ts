@@ -2,12 +2,15 @@ import { anomaliesData } from '../data/anomalies';
 import {
   ACTION_LOGS,
   BOEING_REPLIES,
+  CANTEEN_INCIDENT_FLAVOR,
   MAGAZINE_FLAVOR_TEXTS,
   MASTER_LORE,
   REGULAR_TALK_LOGS,
   STANDARD_RADIO_CHATTER,
   SYSTEM_LOGS,
+  TOOLROOM_INCIDENT_FLAVOR,
   TOOLROOM_MASTER_DIALOUGE,
+  TRAINING_DEPT_FLAVOR,
   VOID_BROADCASTS,
 } from '../data/flavor';
 import { itemsData } from '../data/items';
@@ -799,6 +802,105 @@ export const handleGameAction = (
       else if (walkRoll < 0.2) setTimeout(() => triggerEvent('incident', 'TIRE_CHANGE'), 800);
       break;
     }
+
+    // --- NEW ACTIONS (Requested) ---
+    case 'BRIBE_AUDITOR':
+      if (nextRes.credits >= 100) {
+        nextRes.credits -= 100;
+        nextRes.suspicion = Math.max(0, nextRes.suspicion - 15);
+        addLog(
+          "You slide an envelope across the table. The auditor doesn't look down, but the envelope vanishes.",
+          'story'
+        );
+      } else {
+        addLog("You don't have enough credits to make this problem go away.", 'warning');
+      }
+      break;
+
+    case 'SUBMIT_FAKE_LOGS':
+      nextRes.suspicion += 10;
+      if (Math.random() < 0.6) {
+        nextRes.experience += 150;
+        addLog('Data falsified successfully. The system accepts your reality.', 'story');
+      } else {
+        triggerEvent('audit', 'AUDIT_INTERNAL_SUITS_1');
+        addLog('The system rejected your input. Red flags are waving.', 'error');
+      }
+      break;
+
+    case 'EAT_VOID_BURGER':
+      nextRes.sanity -= 10;
+      nextRes.focus += 25;
+      addLog(CANTEEN_INCIDENT_FLAVOR[4], 'story');
+      break;
+
+    case 'LISTEN_TO_WALLS':
+      nextRes.sanity -= 5;
+      if (Math.random() < 0.3) {
+        addLog('You hear a conversation from yesterday.', 'vibration');
+        nextRes.experience += 100;
+      } else {
+        addLog('The walls are silent. Too silent.', 'info');
+      }
+      break;
+
+    case 'SACRIFICE_TOOL': {
+      // Toolroom
+      const toolToLose = Object.keys(nextTools).find((t) => nextTools[t] > 0);
+      if (toolToLose) {
+        nextTools[toolToLose] = 0;
+        nextRes.sanity += 20;
+        nextRes.suspicion -= 10;
+        addLog(TOOLROOM_INCIDENT_FLAVOR[0], 'story');
+      } else {
+        addLog('You have nothing worthy to offer.', 'warning');
+      }
+      break;
+    }
+
+    case 'ATTEND_TRAINING_MODULE':
+      nextRes.sanity -= 15;
+      nextHF.trainingProgress += 20;
+      addLog(TRAINING_DEPT_FLAVOR[Math.floor(Math.random() * TRAINING_DEPT_FLAVOR.length)], 'info');
+      break;
+
+    case 'SKIP_TRAINING':
+      nextRes.sanity += 10;
+      nextRes.suspicion += 5;
+      addLog("You skipped the module on 'Non-Euclidean Geometry'. Probably for the best.", 'info');
+      break;
+
+      break;
+
+    case 'CHECK_FOR_BUGS':
+      if (Math.random() < 0.2) {
+        addLog(ACTION_LOGS['DEEP_CLEAN_VENTS_DEVICE'] || 'Found a device.', 'story');
+        nextRes.experience += 200;
+      } else {
+        addLog('You sweep the room. Clear. For now.', 'info');
+      }
+      break;
+
+    case 'TALK_TO_SUITS':
+      nextRes.sanity -= 20;
+      if (Math.random() < 0.5) {
+        addLog('They answer in a language that makes your nose bleed.', 'vibration');
+        nextRes.experience += 500;
+      } else {
+        triggerEvent('canteen_incident', 'CANTEEN_SUITS_LUNCH');
+      }
+      break;
+
+    case 'INSPECT_SHADOWS':
+      nextRes.sanity -= 5;
+      if (Math.random() < 0.1) {
+        addLog('Your shadow detaches and walks away.', 'vibration');
+        nextFlg.isAfraid = true;
+        nextHF.fearTimer = 30000;
+      } else {
+        addLog('Just shadows. But they seem... deeper than usual.', 'info');
+      }
+      break;
 
     case 'LISTEN_RADIO': {
       const rad = Math.random();
