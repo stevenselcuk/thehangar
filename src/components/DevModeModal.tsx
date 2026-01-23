@@ -318,6 +318,71 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onRese
               <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
                 Proficiency & Skills
               </h2>
+
+              {/* Logbook Hours Section */}
+              <div className="bg-emerald-950/50 p-4 border border-emerald-800">
+                <label className="block text-emerald-400 text-sm font-medium mb-3">
+                  Logbook Experience (Hours): {gameState.resources.technicalLogbookHours}
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() =>
+                      updateResource(
+                        'technicalLogbookHours',
+                        Math.max(0, gameState.resources.technicalLogbookHours - 100)
+                      )
+                    }
+                    className="bg-red-900/40 hover:bg-red-800 text-red-200 border border-red-700/50 px-3 py-1 text-xs rounded transition-colors"
+                  >
+                    -100 Hrs
+                  </button>
+                  <button
+                    onClick={() =>
+                      updateResource(
+                        'technicalLogbookHours',
+                        Math.max(0, gameState.resources.technicalLogbookHours - 10)
+                      )
+                    }
+                    className="bg-red-900/40 hover:bg-red-800 text-red-200 border border-red-700/50 px-3 py-1 text-xs rounded transition-colors"
+                  >
+                    -10 Hrs
+                  </button>
+                  <button
+                    onClick={() =>
+                      updateResource(
+                        'technicalLogbookHours',
+                        gameState.resources.technicalLogbookHours + 10
+                      )
+                    }
+                    className="bg-emerald-900/40 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/50 px-3 py-1 text-xs rounded transition-colors"
+                  >
+                    +10 Hrs
+                  </button>
+                  <button
+                    onClick={() =>
+                      updateResource(
+                        'technicalLogbookHours',
+                        gameState.resources.technicalLogbookHours + 100
+                      )
+                    }
+                    className="bg-emerald-900/40 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/50 px-3 py-1 text-xs rounded transition-colors"
+                  >
+                    +100 Hrs
+                  </button>
+                  <button
+                    onClick={() =>
+                      updateResource(
+                        'technicalLogbookHours',
+                        gameState.resources.technicalLogbookHours + 500
+                      )
+                    }
+                    className="bg-emerald-900/40 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/50 px-3 py-1 text-xs rounded transition-colors"
+                  >
+                    +500 Hrs
+                  </button>
+                </div>
+              </div>
+
               <div className="bg-emerald-950/50 p-4 border border-emerald-800">
                 <label className="block text-emerald-400 text-sm font-medium mb-2">
                   Skill Points: {gameState.proficiency.skillPoints}

@@ -195,6 +195,64 @@ export const eventsData: Record<string, EventTemplates[]> = {
         effects: { credits: -1000, suspicion: 50 },
       },
     },
+    {
+      id: 'PAYPHONE_EASA_AUDIT',
+      type: 'audit',
+      suitType: 'EASA_AUDITOR',
+      title: 'Unexpected Call: EASA',
+      description:
+        "You pick up the payphone. It's not a relative. It's an EASA auditor who claims to be watching you from the terminal window. He wants to discuss your last signature.",
+      totalTime: 40000,
+      choices: [
+        {
+          id: 'defend',
+          label: 'Defend Your Work',
+          cost: { resource: 'focus', amount: 25 },
+          log: "You cite the specific regulation he's quoting. He goes silent, then hangs up. You passed.",
+          effects: { experience: 400, suspicion: -5 },
+        },
+        {
+          id: 'hang_up',
+          label: 'Hang Up',
+          cost: { resource: 'sanity', amount: 10 },
+          log: "You slam the phone down. The phone immediately rings again. You don't answer.",
+          effects: { suspicion: 15 },
+        },
+      ],
+      failureOutcome: {
+        log: "You stammered and couldn't explain yourself. 'We are noting this,' the voice says.",
+        effects: { suspicion: 30, credits: -200 },
+      },
+    },
+    {
+      id: 'PAYPHONE_FAA_AUDIT',
+      type: 'audit',
+      suitType: 'FAA_INSPECTOR',
+      title: 'Unexpected Call: FAA',
+      description:
+        "The phone rings. A stern voice identifies as a Federal Inspector. 'We have questions about the 737 on stand 4. Why is it bleeding?'",
+      totalTime: 45000,
+      choices: [
+        {
+          id: 'deny',
+          label: 'Deny Knowledge',
+          cost: { resource: 'focus', amount: 20 },
+          log: "'It must be hydraulic fluid,' you lie. The voice sounds unconvinced but terminates the call.",
+          effects: { suspicion: 10 },
+        },
+        {
+          id: 'truth',
+          label: 'Tell the Truth',
+          cost: { resource: 'sanity', amount: 30 },
+          log: "You whisper about the shadows. The voice sighs. 'Protocol 9 initiated. Do not leave the terminal.'",
+          effects: { experience: 600, sanity: -20 },
+        },
+      ],
+      failureOutcome: {
+        log: "You stayed silent too long. 'Silence is admission,' the voice says. A fine has been levied.",
+        effects: { credits: -500, suspicion: 20 },
+      },
+    },
   ],
   accident: [
     {
@@ -419,6 +477,62 @@ export const eventsData: Record<string, EventTemplates[]> = {
         effects: { sanity: -30, experience: -100 },
       },
     },
+    {
+      id: 'PAYPHONE_STATIC_VOICE',
+      type: 'incident',
+      title: 'Voice from the Static',
+      description:
+        "Through the static, a voice that sounds exactly like yours warns you: 'Don't go back to the hangar tonight. It's waiting.'",
+      totalTime: 25000,
+      choices: [
+        {
+          id: 'heed',
+          label: 'Heed the Warning',
+          cost: { resource: 'focus', amount: 30 },
+          log: 'You stay in the terminal for an extra hour. You hear later that a lighting rig collapsed exactly where you would have been standing.',
+          effects: { experience: 300, sanity: -5 },
+        },
+        {
+          id: 'ignore',
+          label: 'Ignore It',
+          cost: { resource: 'sanity', amount: 10 },
+          log: 'You go back to work. You feel a cold breath on your neck all night, but nothing happens. Maybe it was a prank.',
+          effects: { sanity: -15, suspicion: 5 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The voice turned into a scream that deafened you for minutes. You have a headache.',
+        effects: { focus: -20 },
+      },
+    },
+    {
+      id: 'PAYPHONE_WRONG_NUMBER',
+      type: 'incident',
+      title: 'Wrong Number',
+      description:
+        "A frantic woman asks if you've seen her husband. She describes a pilot who went missing in 1974. She says he's standing right behind you.",
+      totalTime: 20000,
+      choices: [
+        {
+          id: 'turn',
+          label: 'Turn Around',
+          cost: { resource: 'sanity', amount: 25 },
+          log: "There's no one there. But the air is freezing cold, and you smell stale tobacco smoke.",
+          effects: { experience: 200, sanity: -10 },
+        },
+        {
+          id: 'comfort',
+          label: 'Comfort Her',
+          cost: { resource: 'focus', amount: 15 },
+          log: "You tell her to keep looking. She whispers 'Thank you' and the line goes dead. You feel lighter.",
+          effects: { sanity: 10 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You dropped the phone in panic. When you picked it up, it was just a dial tone.',
+        effects: { focus: -10 },
+      },
+    },
   ],
   eldritch_manifestation: [
     {
@@ -560,6 +674,35 @@ export const eventsData: Record<string, EventTemplates[]> = {
       failureOutcome: {
         log: 'The future data overwrites your current work. You have lost hours of progress and your memories of the last shift are... wrong.',
         effects: { sanity: -30, experience: -200 },
+      },
+    },
+    {
+      id: 'PAYPHONE_SUIT_OBSERVATION',
+      type: 'eldritch_manifestation',
+      title: 'The Listener',
+      description:
+        'As you hold the receiver, you realize the dial tone is matching your heartbeat. Across the terminal, a Suit lowers a newspaper and looks directly at you.',
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'stare',
+          label: 'Stare Back',
+          cost: { resource: 'sanity', amount: 20 },
+          log: 'You lock eyes. You hear a high-pitched whine in the earpiece until your nose bleeds. The Suit nods and vanishes behind a pillar.',
+          effects: { experience: 500, sanity: -10 },
+          storyFlag: { key: 'payphoneSuit', value: true },
+        },
+        {
+          id: 'look_away',
+          label: 'Look Away',
+          cost: { resource: 'focus', amount: 10 },
+          log: 'You drop the phone and pretend to tie your shoe. When you look up, the seat is empty.',
+          effects: { suspicion: 5 },
+        },
+      ],
+      failureOutcome: {
+        log: "You were frozen in fear. The Suit walked right up to the glass and fogged it with his breath. It said 'RUN'.",
+        effects: { sanity: -40 },
       },
     },
   ],

@@ -1,5 +1,10 @@
 import { produce } from 'immer';
-import { ACTION_LOGS, REGULAR_TALK_LOGS, SMALL_TALK_PERSONNEL_LOGS } from '../../data/flavor.ts';
+import {
+  ACTION_LOGS,
+  PAYPHONE_FLAVOR_TEXTS,
+  REGULAR_TALK_LOGS,
+  SMALL_TALK_PERSONNEL_LOGS,
+} from '../../data/flavor.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
@@ -52,7 +57,7 @@ export type TerminalLocationAction =
       payload?: { triggerEvent?: (type: string, id?: string) => void };
     }
   | { type: 'OFFER_ASSISTANCE'; payload?: { triggerEvent?: (type: string, id?: string) => void } }
-  | { type: 'USE_PAYPHONE'; payload?: Record<string, unknown> }
+  | { type: 'USE_PAYPHONE'; payload?: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'TALK_TO_REGULAR'; payload?: Record<string, unknown> }
   | { type: 'RUMMAGE_LOST_FOUND'; payload?: Record<string, unknown> }
   | { type: 'CHECK_DELAYED_GATE'; payload?: Record<string, unknown> }
@@ -246,21 +251,47 @@ export const terminalLocationReducer = (
           break;
         }
         draft.resources.credits -= 5;
-        const phoneRoll = Math.random();
-        if (phoneRoll < 0.15) {
-          addLog(ACTION_LOGS.PAYPHONE_NUMBERS, 'vibration');
-          draft.resources.sanity -= 10;
-          draft.resources.experience += 200;
-        } else if (phoneRoll < 0.4) {
-          addLog(ACTION_LOGS.PAYPHONE_CROSSED_LINE, 'story');
-          draft.resources.suspicion += 5;
-          draft.resources.sanity -= 5;
-        } else if (phoneRoll < 0.7) {
-          addLog(ACTION_LOGS.PAYPHONE_DIAL_TONE, 'info');
-          draft.resources.sanity = Math.min(100, draft.resources.sanity + 10);
-        } else {
-          addLog(ACTION_LOGS.PAYPHONE_SILENCE, 'vibration');
-          draft.resources.sanity -= 8;
+
+        // NEW LOGIC: Sanity 100%, Focus +20, Suspicion +10, Stress +20
+        draft.resources.sanity = 100;
+        draft.resources.focus = Math.min(100, draft.resources.focus + 20);
+        draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 10);
+
+        if (typeof draft.hfStats.socialStress === 'number') {
+          draft.hfStats.socialStress = (draft.hfStats.socialStress || 0) + 20;
+        }
+
+        // Flavor Text
+        const randomLog =
+          PAYPHONE_FLAVOR_TEXTS[Math.floor(Math.random() * PAYPHONE_FLAVOR_TEXTS.length)];
+        // 30% chance for spooky/vibration text, else story
+        const isSpooky = Math.random() < 0.3;
+        addLog(randomLog, isSpooky ? 'vibration' : 'story');
+
+        // Event Triggers
+        if (action.payload?.triggerEvent) {
+          const roll = Math.random();
+
+          // 10% Chance: EASA/FAA Audit
+          if (roll < 0.1) {
+            if (Math.random() < 0.5) {
+              action.payload.triggerEvent('audit', 'PAYPHONE_EASA_AUDIT');
+            } else {
+              action.payload.triggerEvent('audit', 'PAYPHONE_FAA_AUDIT');
+            }
+          }
+          // 10% Chance: Suit Encounter (0.1 to 0.2)
+          else if (roll < 0.2) {
+            action.payload.triggerEvent('eldritch_manifestation', 'PAYPHONE_SUIT_OBSERVATION');
+          }
+          // 10% Chance: Other Incidents (0.2 to 0.3)
+          else if (roll < 0.3) {
+            if (Math.random() < 0.5) {
+              action.payload.triggerEvent('incident', 'PAYPHONE_STATIC_VOICE');
+            } else {
+              action.payload.triggerEvent('incident', 'PAYPHONE_WRONG_NUMBER');
+            }
+          }
         }
         break;
       }

@@ -634,3 +634,26 @@ export const TRAINING_DEPT_FLAVOR = [
   'You are taught how to weld flesh to aluminum.',
   'The training manual breathes.',
 ];
+
+export const PAYPHONE_FLAVOR_TEXTS = [
+  "You dial 0. The operator asks for your name. You say it, but she says, 'No, the other one.'",
+  'The dial tone sounds like a choir holding a single, dissonant note.',
+  "You call your childhood home. A child answers. It's you.",
+  "Someone has scratched 'THEY LISTEN' into the receiver. You can hear breathing on the line.",
+  'You dial a random number. A voice whispers coordinates for a location in the middle of the ocean.',
+  "The phone rings before you touch it. You pick up. It's the sound of earth being shoveled onto a box.",
+  'You hear a recording of yourself sleeping.',
+  'The automated voice reads out a list of your fears in alphabetical order.',
+  "You try to call for a taxi. The dispatcher asks if you need a 'corporeal or ethereal' pickup.",
+  'The coin return slot is filled with human teeth.',
+  "You hear the sound of a large machine starting up. It sounds like it's miles underground.",
+  "A voice on the line says, 'We have adjusted the timeline. Do not panic.'",
+  "You dial the time lady. She screams, 'IT'S TOO LATE.'",
+  "The buttons stick. When you pull your finger away, it's covered in black oil.",
+  "You hear a conversation between two pilots. They are discussing how to 'land the simulation'.",
+  'The phone cord wraps around your arm. It feels warm, like a snake.',
+  "You call the weather service. They forecast 'ash and silence' for the weekend.",
+  "A man's voice reads a sequence of numbers that makes your nose bleed.",
+  'You hear the ocean. Someone is drowning. They say your name.',
+  'You hang up, but the voice keeps talking from the receiver.',
+];

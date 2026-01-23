@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const BUILD_NUMBER = 'Build Number {_build_18}';
+  const BUILD_NUMBER = 'Build Number {_build_19}';
 
   const [activeSection, setActiveSection] = useState<'ABOUT' | 'HOW_TO' | 'CONTACT'>('ABOUT');
 
