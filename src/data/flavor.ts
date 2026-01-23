@@ -451,6 +451,29 @@ export const REGULAR_TALK_LOGS = {
   ],
 };
 
+export const SMALL_TALK_PERSONNEL_LOGS = [
+  "A gate agent whispers that the passenger count for Flight 990 is negative. 'We're owing souls to the destination,' she says.",
+  "You chat with a baggage handler. He swears he saw a suitcase that was breathing. 'I didn't load it,' he mumbles.",
+  "The coffee shop barista hands you a cup. 'It's on the house,' she says. 'The register is afraid of your reflection.'",
+  "A pilot asks if you've seen his co-pilot. 'He went to the restroom in 1994 and never came back.'",
+  "Security guard mentions a new protocol: 'If you see a passenger with no face, check their boarding pass for a prime number.'",
+  "A cleaner is scrubbing a spot on the floor that looks like a shadow. 'It keeps coming back,' they tell you.",
+  "You overhear a flight attendant: 'The galley carts are getting heavier. I think they're filling up with memories.'",
+  "A dispatcher tells you the weather radar is showing a storm made of static. 'It's only raining on the odd-numbered gates.'",
+  "The shuttle bus driver says he's been driving the same loop for eternity. 'The terminal never ends,' he laughs.",
+  "A mechanic from the night shift asks if you can hear the hangar humming. 'It's singing to the planes,' he says.",
+  "The check-in agent is typing on a keyboard that isn't plugged in. 'The system responds better to intent than keystrokes.'",
+  "You meet a lost passenger who claims to be from a city that doesn't exist on any map. 'The layover is forever,' they cry.",
+  "A duty-free clerk offers you a perfume called 'Ozone & Dread'. 'It's our best seller among the night crew.'",
+  "The janitor warns you about the water fountain near Gate B. 'It dispenses liquid time. Don't drink too much.'",
+  "A frantic parent asks if you've seen a child who 'looks like static'. You walk away quickly.",
+  "You see a crew member talking to a wall. 'The architecture is listening,' they explain when you pass.",
+  "A ramp agent indicates a plane with no markings. 'That one landed yesterday, but the logs say it arrives tomorrow.'",
+  "The girl at the information desk hands you a brochure for 'The Void'. 'It's lovely this time of year,' she smiles.",
+  "An older mechanic tells you: 'I replaced a part on a 747 once. The old part screamed when I took it out.'",
+  'You share a nod with a security officer. His badge is a mirror. You see your own frightened eyes reflecting back.',
+];
+
 export const INTERNAL_AUDIT_FLAVOR = [
   "The auditor measures the distance between your tools with a laser caliper. 'Variance detected,' he mumbles.",
   "You catch the auditor staring at a blank wall, taking notes. He doesn't blink.",

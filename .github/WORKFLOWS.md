@@ -1,6 +1,16 @@
-# GitHub Actions Workflows
+# GitHub Actions Workflows - The Hangar
 
-This project uses GitHub Actions for continuous integration and deployment. Below are the configured workflows:
+Complete CI/CD pipeline for The Hangar incremental game. All workflows run automatically and deploy to both staging (GitHub Pages) and production (custom domain).
+
+## Overview
+
+- **Auto-deploy:** Every push to `main` triggers build → test → deploy
+- **Parallel jobs:** Tests run simultaneously for speed
+- **Smart caching:** node_modules cached, saves ~30 seconds/run
+- **Security:** CodeQL scanning, dependency review, health checks
+- **Coverage:** Automatic upload to Codecov with unittests flag
+
+---
 
 ## 🔧 CI/CD Pipeline (`ci.yml`)
 
@@ -42,13 +52,30 @@ This project uses GitHub Actions for continuous integration and deployment. Belo
 
 ## 🚀 Setup Instructions
 
-### 1. Enable GitHub Pages
+### 1. Deployment Environments
 
-To enable the deployment workflow:
+The project deploys to two environments:
 
-1. Go to your repository **Settings** → **Pages**
+**Staging (GitHub Pages):**
+
+- URL: `https://stevenselcuk.github.io/thehangar/`
+- Trigger: Every push to `main`
+- Setup: Settings → Pages → Source: GitHub Actions
+- Base path: `/thehangar/`
+
+**Production (Custom Domain):**
+
+- URL: `https://hangar.tabbythecat.com`
+- Trigger: Manual approval or tag-based release
+- DNS: CNAME pointing to GitHub Pages
+- SSL: Automatic via GitHub Pages
+
+**To enable GitHub Pages:**
+
+1. Go to repository **Settings** → **Pages**
 2. Under "Build and deployment", select **Source: GitHub Actions**
-3. The site will be deployed automatically on push to `main`
+3. The site will auto-deploy on push to `main`
+4. For custom domain: Add CNAME file with domain name
 
 ### 2. Optional: Enable Codecov (for coverage reports)
 

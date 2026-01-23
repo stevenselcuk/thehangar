@@ -617,6 +617,147 @@ export const eventsData: Record<string, EventTemplates[]> = {
         effects: { sanity: -20 },
       },
     },
+    {
+      id: 'CASUAL_CHAT_GONE_WRONG',
+      type: 'canteen_incident',
+      title: 'Loose Lips',
+      description:
+        "You're chatting with a ground crew member, but he's asking oddly specific questions about the hangar's security protocols.",
+      totalTime: 25000,
+      choices: [
+        {
+          id: 'deflect',
+          label: 'Change Subject',
+          cost: { resource: 'focus', amount: 10 },
+          log: 'You smoothly steer the conversation to the terrible weather. He frowns but drops it.',
+          effects: { suspicion: -2 },
+        },
+        {
+          id: 'answer',
+          label: 'Answer Vaguely',
+          cost: { resource: 'sanity', amount: 5 },
+          log: 'You give non-committal answers. He takes out a notebook and writes something down.',
+          effects: { suspicion: 10 },
+        },
+      ],
+      failureOutcome: {
+        log: "You let something slip. He smiles, a cold, predatory smile. 'Noted,' he says.",
+        effects: { suspicion: 25, sanity: -10 },
+      },
+    },
+    {
+      id: 'UNMARKED_OFFICER',
+      type: 'canteen_incident',
+      title: 'Undercover',
+      description:
+        "The 'janitor' you were talking to suddenly straightens up, revealing a hidden earpiece. It's a sting operation.",
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'act_dumb',
+          label: 'Act Dumb',
+          cost: { resource: 'focus', amount: 15 },
+          log: 'You pretend you were just complaining about the coffee. He buys it, barely.',
+          effects: { suspicion: 5 },
+        },
+        {
+          id: 'run',
+          label: 'Excuse Yourself',
+          cost: { resource: 'focus', amount: 10 },
+          log: 'You mutter an excuse and speed-walk away. You can feel his eyes on your back.',
+          effects: { suspicion: 15 },
+        },
+      ],
+      failureOutcome: {
+        log: "He flashes a badge. 'We've been watching you.' You are detained for questioning.",
+        effects: { credits: -100, suspicion: 30 },
+      },
+    },
+    {
+      id: 'CRYPTIC_WARNING',
+      type: 'canteen_incident',
+      title: "A Pilot's Warning",
+      description:
+        "A pilot grabs your arm. His eyes are wide. 'Don't sign the log for tail number 709,' he hisses. 'It's not a plane.'",
+      totalTime: 20000,
+      choices: [
+        {
+          id: 'listen',
+          label: 'Ask for Details',
+          cost: { resource: 'sanity', amount: 10 },
+          log: "He tells you about the 'passengers' he saw. They had no faces. You wish you hadn't asked.",
+          effects: { experience: 400, sanity: -15 },
+        },
+        {
+          id: 'shake_off',
+          label: 'Shake Him Off',
+          cost: { resource: 'focus', amount: 5 },
+          log: "You pull away. 'You're drunk,' you say. But you check the schedule for 709 anyway.",
+          effects: { suspicion: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: 'He starts screaming. Security tackles him. As they drag him away, he locks eyes with you.',
+        effects: { sanity: -20 },
+      },
+    },
+    {
+      id: 'LOST_ITEM_RETURN',
+      type: 'canteen_incident',
+      title: 'Lost Property',
+      description:
+        "You find a briefcase left at a table. It has no tag, but it feels... heavy. And it's vibrating.",
+      totalTime: 25000,
+      choices: [
+        {
+          id: 'open',
+          label: 'Open It',
+          cost: { resource: 'sanity', amount: 20 },
+          log: 'Inside is a single, glowing geometric shape. It shifts as you look at it. You close the case, heart pounding.',
+          effects: { experience: 500, sanity: -30 },
+        },
+        {
+          id: 'turn_in',
+          label: 'Give to Security',
+          cost: { resource: 'focus', amount: 10 },
+          log: "The guard takes it with a pale face. 'We've been looking for this.' He hands you a reward.",
+          effects: { credits: 200, suspicion: -10 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The briefcase vanishes when you look away. You feel a sudden sense of loss.',
+        effects: { sanity: -10 },
+      },
+    },
+    {
+      id: 'EASA_AUDIT_SURPRISE',
+      type: 'audit',
+      suitType: 'EASA_AUDITOR',
+      title: 'EASA Spot Check',
+      description:
+        'An EASA auditor was posing as a passenger. You just bumped into him. He wants to see your license. Now.',
+      totalTime: 40000,
+      choices: [
+        {
+          id: 'show_license',
+          label: 'Show EASA Part-66',
+          cost: { resource: 'focus', amount: 20 },
+          log: "You produce your license. He inspects it with a magnifying glass. 'Acceptable.'",
+          effects: { experience: 300, suspicion: -5 },
+        },
+        {
+          id: 'fumble',
+          label: 'Fumble',
+          cost: { resource: 'sanity', amount: 15 },
+          log: "You drop your papers. He sighs, noting your clumsiness. 'Unprofessional,' he mutters.",
+          effects: { suspicion: 10 },
+        },
+      ],
+      failureOutcome: {
+        log: "You couldn't produce your license in time. 'Grounded,' he says. A formal complaint is filed.",
+        effects: { credits: -300, suspicion: 40 },
+      },
+    },
   ],
   component_failure: [
     {

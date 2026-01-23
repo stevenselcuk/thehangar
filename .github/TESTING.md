@@ -140,8 +140,11 @@ Pure functions and isolated logic:
 - ✅ `utils/gameHelpers.ts` - Log management, cost checking, clamping
 - ✅ `logic/levels.ts` - XP formulas, level-up messages
 - ✅ `state/initialState.ts` - State factory, localStorage loading
+- ✅ `services/CostCalculator.ts` - Resource cost calculations
+- ✅ `services/RewardCalculator.ts` - XP/credit rewards
+- ✅ `services/logService.ts` - Log creation utilities
 
-**Example:**
+**Example - Pure Function Test:**
 
 ```typescript
 import { clamp } from '@/utils/gameHelpers';
@@ -153,15 +156,70 @@ it('should clamp values to range', () => {
 });
 ```
 
+**Example - Service Test:**
+
+```typescript
+import { calculateAircraftRewards } from '@/services/RewardCalculator';
+import { AircraftType } from '@/types';
+
+it('should calculate rewards with proficiency multiplier', () => {
+  const state = { proficiency: { unlocked: ['skill1', 'skill2'] } };
+  const rewards = calculateAircraftRewards(AircraftType.MD_80, 'TRANSIT_CHECK', state);
+
+  expect(rewards.experience).toBeGreaterThan(0);
+  expect(rewards.credits).toBeGreaterThan(0);
+});
+```
+
 ### Integration Tests (80%+ Coverage Target)
 
 Complex systems with state mutations:
 
-- ✅ `logic/tickProcessor.ts` - Game loop, time-based effects, automation
-- 🚧 `logic/actionProcessor.ts` - Action handling, resource calculations (TODO)
-- 🚧 `state/gameReducer.ts` - State transitions, immutability checks (TODO)
+- ✅ `state/slices/aircraftSlice.ts` - Aircraft servicing logic
+- ✅ `state/slices/inventorySlice.ts` - Toolroom, rotables
+- ✅ `state/slices/eventsSlice.ts` - Event resolution
+- ✅ `state/slices/aogSlice.ts` - AOG deployment system
+- ✅ `logic/tickProcessor.ts` - Game loop, passive effects
 
-**Example:**
+**Example - Slice Test with Seeded Random:**
+
+```typescript
+import seedrandom from 'seedrandom';
+import { aircraftReducer, type AircraftAction } from '@/state/slices/aircraftSlice';
+
+beforeEach(() => {
+  Math.random = seedrandom('test-aircraft-slice'); // Deterministic
+  initialState = {
+    activeAircraft: null,
+    resources: { sanity: 100, focus: 100 },
+    inventory: { pencil: true, notebook: true },
+    flags: {},
+  };
+});
+
+it('should get new aircraft task', () => {
+  const action: AircraftAction = {
+    type: 'GET_NEW_AIRCRAFT_TASK',
+    payload: {},
+  };
+  const newState = aircraftReducer(initialState, action);
+
+  expect(newState.activeAircraft).not.toBeNull();
+  expect(newState.activeAircraft?.id).toBe(AircraftType.MD_80);
+  expect(newState.logs).toHaveLength(1);
+});
+
+it('should not mutate original state', () => {
+  const action = { type: 'SOME_ACTION', payload: {} };
+  const originalRef = initialState;
+
+  aircraftReducer(initialState, action);
+
+  expect(initialState).toBe(originalRef); // Immer preserves reference
+});
+```
+
+**Example - Game Loop Test:**
 
 ```typescript
 import { processTick } from '@/logic/tickProcessor';
@@ -170,6 +228,14 @@ it('should regenerate focus over time', () => {
   const state = { ...initialGameState, resources: { focus: 50 } };
   const updated = processTick(state, 1000, onLevelUp, triggerEvent, TabType.SHOP);
   expect(updated.resources.focus).toBeGreaterThan(50);
+});
+
+it('should apply location-based noise effects', () => {
+  const state = { resources: { focus: 100 }, hfStats: { socialStress: 0 } };
+  const updated = processTick(state, 1000, noop, noop, TabType.HANGAR); // EXTREME_HIGH noise
+
+  expect(updated.resources.focus).toBeLessThan(100); // Focus drained
+  expect(updated.hfStats.socialStress).toBeGreaterThan(0); // Stress increased
 });
 ```
 

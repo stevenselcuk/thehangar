@@ -1,25 +1,93 @@
-# GitHub Actions Quick Reference
+# The Hangar - Quick Reference Guide
 
-## 🚀 Quick Commands
+## 🎮 Game Development Commands
 
 ```bash
-# Push changes and trigger CI/CD
+# Development
+npm run dev                    # Start dev server (http://localhost:5173)
+window.enableDevMode()         # In browser console for dev panel
+
+# Testing
+npm test                       # Run tests in watch mode
+npm run test:run               # Run tests once (CI mode)
+npm run test:coverage          # Generate coverage report
+npm run test:e2e               # Run Playwright E2E tests
+npm run test:e2e:ui            # E2E with interactive UI
+
+# Code Quality
+npm run lint                   # Check code with ESLint
+npm run lint:fix               # Auto-fix linting issues
+npm run format                 # Format with Prettier
+
+# Build & Version
+npm run build                  # Production build
+npm run bump                   # Increment _build_N version markers
+npm run fresh                  # Reset build version to 0
+
+# Git Workflow
 git add .
 git commit -m "Your commit message"
-git push origin main          # Triggers CI + Deploy
-git push origin develop       # Triggers CI only
+git push origin main           # Triggers CI + Deploy
+git push origin develop        # Triggers CI only
 
-# Create a pull request
+# Create feature branch
 git checkout -b feature/new-feature
 git push origin feature/new-feature
 # Then create PR on GitHub → Triggers CI + Dependency Review
 ```
 
+## 🏗️ Architecture Quick Reference
+
+### State Management Pattern
+
+```typescript
+// Custom reducer with Immer - NOT Redux/Zuzu
+import { produce } from 'immer';
+
+export const mySliceReducer = produce((draft: State, action: Action) => {
+  draft.someValue += 1; // Mutate draft directly
+});
+```
+
+### Service Layer Pattern
+
+```typescript
+// Pure functions - no side effects
+export const calculateRewards = (state: GameState): Partial<ResourceState> => {
+  return { experience: 100, credits: 50 };
+};
+
+// In reducer, call service then apply
+const rewards = calculateRewards(draftAsState);
+draft.resources.credits += rewards.credits;
+```
+
+### Event Template Pattern
+
+```typescript
+// events.ts - Templates use Omit<GameEvent, 'timeLeft'>
+type EventTemplates = Omit<GameEvent, 'timeLeft'>;
+
+// timeLeft added at spawn time, never hardcoded
+```
+
+### Testing Pattern
+
+```typescript
+import seedrandom from 'seedrandom';
+
+beforeEach(() => {
+  Math.random = seedrandom('test-seed'); // Deterministic
+});
+```
+
 ## 📊 Monitoring URLs
 
 - **Actions Dashboard**: `https://github.com/stevenselcuk/thehangar/actions`
-- **Live Site**: `https://stevenselcuk.github.io/thehangar/` (after first deploy)
+- **Staging**: `https://stevenselcuk.github.io/thehangar/`
+- **Production**: `https://hangar.tabbythecat.com`
 - **Security Alerts**: `https://github.com/stevenselcuk/thehangar/security`
+- **Coverage**: Codecov integration (unittests flag)
 - **Dependency Graph**: `https://github.com/stevenselcuk/thehangar/network/dependencies`
 
 ## ⚡ Workflow Triggers
@@ -65,24 +133,53 @@ After workflow runs, download artifacts:
 3. Scroll to "Artifacts" section
 4. Download: coverage-report, playwright-report, dist
 
-## 🐛 Debugging Failed Workflows
+## 🐛 Debugging Guide
+
+### Workflow Failures
 
 ```bash
-# Check logs in Actions tab
-# Or run locally:
+# Run the same checks as CI
+npm ci --legacy-peer-deps       # Clean install
+npm run lint                    # ESLint
+npm run test:run                # Unit tests
+npm run test:coverage           # With coverage
+npm run test:e2e                # E2E tests
+npm run build                   # Production build
 
-# Lint
-npm run lint
-
-# Tests with verbose output
+# Verbose testing
 npm run test:run -- --reporter=verbose
-
-# E2E with UI
-npm run test:e2e:ui
-
-# Check build
-npm run build
+npm run test:e2e:ui             # Interactive E2E
+npm run test:e2e:debug          # Debug mode
 ```
+
+### Game State Debugging
+
+```javascript
+// In browser console
+window.enableDevMode(); // Enable dev panel
+localStorage.getItem('the_hangar_save__build_12'); // View save
+localStorage.clear(); // Reset game
+
+// Check state in React DevTools
+// Find GameProvider context
+```
+
+### Common Issues
+
+**Issue:** Slice not updating state  
+**Fix:** Ensure using `produce()` from Immer
+
+**Issue:** Event not spawning with timeLeft  
+**Fix:** Events are templates; spawn logic adds timeLeft
+
+**Issue:** Service function mutating state  
+**Fix:** Services must be pure; return values, don't mutate
+
+**Issue:** Tests non-deterministic  
+**Fix:** Use seeded random: `Math.random = seedrandom('seed')`
+
+**Issue:** Immer draft type errors  
+**Fix:** Cast with `as typeof draft.logs`
 
 ## 🔐 Secrets Setup
 
@@ -93,6 +190,31 @@ Add secrets in: Settings → Secrets and variables → Actions
 | `CODECOV_TOKEN` | Optional | Coverage reporting        |
 | `DEPLOY_KEY`    | No       | (Handled by GitHub Pages) |
 
+## 📁 Critical File Paths
+
+### State Management
+
+- `src/state/gameReducer.ts` (665 lines) - Main coordinator
+- `src/state/reducerComposer.ts` (687 lines) - Event router
+- `src/state/slices/` - 12+ domain slices (~2,700 lines)
+
+### Game Data (NEVER MUTATE)
+
+- `src/data/events.ts` - Event templates (Omit<GameEvent, 'timeLeft'>)
+- `src/data/flavor.ts` - VOID_BROADCASTS, KARDEX_INTEL_LOGS
+- `src/data/aircraftScenarios.ts` - Branching scenarios
+- `src/data/anomalies.ts` - Eldritch components
+
+### Services (Pure Functions)
+
+- `src/services/RewardCalculator.ts` - XP/credit calculations
+- `src/services/CostCalculator.ts` - Resource cost logic
+- `src/services/logService.ts` - Log creation utilities
+
+### Type Definitions
+
+- `src/types.ts` (394 lines) - All interfaces
+
 ## ⚙️ Configuration Files
 
 | File                                      | Purpose                       |
@@ -101,6 +223,10 @@ Add secrets in: Settings → Secrets and variables → Actions
 | `.github/workflows/dependency-review.yml` | Dependency security           |
 | `.github/workflows/health-check.yml`      | Weekly health checks          |
 | `.github/workflows/codeql.yml`            | Security scanning             |
+| `eslint.config.js`                        | Flat config, no-explicit-any  |
+| `vitest.config.ts`                        | Vitest settings, jsdom env    |
+| `playwright.config.ts`                    | E2E config, chromium only     |
+| `vite.config.ts`                          | Vite build, PWA, bumper       |
 | `.env.example`                            | Environment variable template |
 
 ## 📈 Performance Tips

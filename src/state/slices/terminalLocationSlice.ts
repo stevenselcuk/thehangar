@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { ACTION_LOGS, REGULAR_TALK_LOGS } from '../../data/flavor.ts';
+import { ACTION_LOGS, REGULAR_TALK_LOGS, SMALL_TALK_PERSONNEL_LOGS } from '../../data/flavor.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
@@ -152,20 +152,51 @@ export const terminalLocationReducer = (
 
       case 'SMALL_TALK_PERSONNEL': {
         draft.resources.sanity = Math.min(100, draft.resources.sanity + 8);
-        const talkRoll = Math.random();
-        if (talkRoll < 0.15) {
-          addLog(ACTION_LOGS.SMALL_TALK_PERSONNEL_1, 'story');
-        } else if (talkRoll < 0.3) {
-          addLog(ACTION_LOGS.SMALL_TALK_PERSONNEL_2, 'story');
-          draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 2);
-        } else {
-          addLog(
-            'You exchange pleasantries with a tired-looking gate agent. Nothing out of the ordinary.',
-            'info'
-          );
-        }
-        if (Math.random() < 0.1 && action.payload?.triggerEvent) {
-          action.payload.triggerEvent('incident', 'RAMP_DELAY');
+
+        // Pick a random line from the new personnel logs
+        const randomLog =
+          SMALL_TALK_PERSONNEL_LOGS[Math.floor(Math.random() * SMALL_TALK_PERSONNEL_LOGS.length)];
+        // 20% chance to also get a specific "story" log for vibration/lore if needed, but the new logs are all flavor.
+        // Let's just use the new logs as 'story' or 'info' depending on content?
+        // For simplicity, we'll treat them all as 'story' flavor for now,
+        // or maybe mix them with existing mechanical feedback.
+
+        addLog(randomLog, 'story');
+
+        // EVENT TRIGGERS
+        if (action.payload?.triggerEvent) {
+          const roll = Math.random();
+
+          // 5% Chance: EASA Audit
+          if (roll < 0.05) {
+            action.payload.triggerEvent('audit', 'EASA_AUDIT_SURPRISE');
+          }
+          // 5% Chance: Suit Encounter (using existing or new)
+          else if (roll < 0.1) {
+            // 50/50 split between observation and undercover
+            if (Math.random() < 0.5) {
+              action.payload.triggerEvent('eldritch_manifestation', 'MEZZANINE_OBSERVATION');
+            } else {
+              action.payload.triggerEvent('canteen_incident', 'UNMARKED_OFFICER');
+            }
+          }
+          // 5% Chance: New Incident
+          else if (roll < 0.15) {
+            const incidentRoll = Math.random();
+            if (incidentRoll < 0.33) {
+              action.payload.triggerEvent('canteen_incident', 'CASUAL_CHAT_GONE_WRONG');
+            } else if (incidentRoll < 0.66) {
+              action.payload.triggerEvent('canteen_incident', 'CRYPTIC_WARNING');
+            } else {
+              action.payload.triggerEvent('canteen_incident', 'LOST_ITEM_RETURN');
+            }
+          }
+          // Retain original small chance for Ramp Delay? Or maybe replace it.
+          // The user asked for specific new things, so let's keep the old one as a fallback or remove if it feels too cluttered.
+          // Let's keep it but slightly lower chance to avoid constant events.
+          else if (roll < 0.2) {
+            action.payload.triggerEvent('incident', 'RAMP_DELAY');
+          }
         }
         break;
       }

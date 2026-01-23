@@ -1,8 +1,17 @@
-# GitHub Actions Setup Complete! 🎉
+# The Hangar - Setup Complete! 🎉
 
-## What Was Created
+## What You Have
 
-I've set up a complete CI/CD pipeline with 4 automated workflows:
+**The Hangar** is a Lovecraftian incremental game with:
+
+- Custom state management (Immer-based reducers, NOT Redux)
+- 15 FPS game loop with delta-time calculations
+- 12+ domain slices handling aircraft, events, inventory, etc.
+- Pure service layer for calculations
+- Comprehensive testing (Vitest + Playwright)
+- Full CI/CD pipeline with auto-deploy
+
+## CI/CD Pipeline (4 Workflows)
 
 ### 1. **Main CI/CD Pipeline** (`.github/workflows/ci.yml`)
 
@@ -59,7 +68,28 @@ README.md                         # (updated with badges)
 2. Click **Settings** → **Pages**
 3. Under "Build and deployment":
    - Source: **GitHub Actions**
-4. Your app will auto-deploy at: `https://stevenselcuk.github.io/thehangar/`
+4. Your app will auto-deploy at:
+   - Staging: `https://stevenselcuk.github.io/thehangar/`
+   - Production: `https://hangar.tabbythecat.com` (custom domain)
+
+### Game Development Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev  # http://localhost:5173
+
+# Enable dev mode (in browser console)
+window.enableDevMode()
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+```
 
 ### Optional: Enable Coverage Reports
 
