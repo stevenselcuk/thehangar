@@ -17,7 +17,6 @@ type TabType =
   | 'hfstats'
   | 'proficiency'
   | 'stats'
-  | 'aog'
   | 'events'
   | 'actions';
 
@@ -106,7 +105,6 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onRese
     { id: 'hfstats', label: 'HF Stats' },
     { id: 'proficiency', label: 'Proficiency' },
     { id: 'stats', label: 'Stats' },
-    { id: 'aog', label: 'AOG' },
     { id: 'events', label: 'Events' },
     { id: 'actions', label: 'Quick Actions' },
   ] as const;
@@ -384,80 +382,77 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onRese
             </div>
           )}
 
-          {/* AOG Tab */}
-          {activeTab === 'aog' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
-                AOG Deployment
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-emerald-950/50 p-4 border border-emerald-800">
-                  <h3 className="text-emerald-400 font-bold mb-2">Status</h3>
-                  <div className="mb-4">
-                    <span className="text-emerald-200">
-                      Active: {gameState.aog.active ? 'YES' : 'NO'}
-                    </span>
-                  </div>
-                  {!gameState.aog.active ? (
-                    <button
-                      onClick={() =>
-                        dispatch({
-                          type: 'ACTION',
-                          payload: { type: 'ACCEPT_AOG_DEPLOYMENT', payload: {} },
-                        })
-                      }
-                      className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2 px-4 border border-emerald-500 mb-2"
-                    >
-                      🚀 Trigger Random Deployment
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() =>
-                        dispatch({
-                          type: 'ACTION',
-                          payload: { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} },
-                        })
-                      }
-                      className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-2 px-4 border border-red-500"
-                    >
-                      ❌ Force Complete Deployment
-                    </button>
-                  )}
-                  <button
-                    onClick={() => {
-                      // Force clear logic - dispatch complete just in case, but really we want to wipe it
-                      dispatch({
-                        type: 'ACTION',
-                        payload: { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} },
-                      });
-                    }}
-                    className="w-full mt-2 bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-1 px-4 border border-zinc-500 text-xs"
-                  >
-                    🗑️ Reset AOG State (Fix Corruption)
-                  </button>
-                </div>
-
-                {gameState.aog.active && (
-                  <div className="bg-emerald-950/50 p-4 border border-emerald-800">
-                    <h3 className="text-emerald-400 font-bold mb-2">Current Mission</h3>
-                    <p className="text-xs text-emerald-300 mb-1">
-                      Station ID: {gameState.aog.stationId}
-                    </p>
-                    <p className="text-xs text-emerald-300">
-                      Scenario ID: {gameState.aog.scenarioId}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Events Tab */}
           {activeTab === 'events' && (
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
                 Event Manager
               </h2>
+
+              {/* AOG Deployment Section */}
+              <div className="mb-6 border-b border-emerald-800/50 pb-6">
+                <h3 className="text-emerald-400 font-bold mb-3 text-sm uppercase tracking-wider">
+                  AOG Deployment
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-emerald-950/50 p-4 border border-emerald-800">
+                    <h3 className="text-emerald-400 font-bold mb-2 text-xs">AOG Status</h3>
+                    <div className="mb-4">
+                      <span className="text-emerald-200 text-sm">
+                        Active: {gameState.aog.active ? 'YES' : 'NO'}
+                      </span>
+                    </div>
+                    {!gameState.aog.active ? (
+                      <button
+                        onClick={() =>
+                          dispatch({
+                            type: 'ACTION',
+                            payload: { type: 'ACCEPT_AOG_DEPLOYMENT', payload: {} },
+                          })
+                        }
+                        className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2 px-4 border border-emerald-500 mb-2 text-xs"
+                      >
+                        🚀 Trigger Random Deployment
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() =>
+                          dispatch({
+                            type: 'ACTION',
+                            payload: { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} },
+                          })
+                        }
+                        className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-2 px-4 border border-red-500 text-xs"
+                      >
+                        ❌ Force Complete Deployment
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        dispatch({
+                          type: 'ACTION',
+                          payload: { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} },
+                        });
+                      }}
+                      className="w-full mt-2 bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-1 px-4 border border-zinc-500 text-[10px]"
+                    >
+                      🗑️ Reset AOG State
+                    </button>
+                  </div>
+
+                  {gameState.aog.active && (
+                    <div className="bg-emerald-950/50 p-4 border border-emerald-800">
+                      <h3 className="text-emerald-400 font-bold mb-2 text-xs">Current Mission</h3>
+                      <p className="text-xs text-emerald-300 mb-1">
+                        Station ID: {gameState.aog.stationId}
+                      </p>
+                      <p className="text-xs text-emerald-300">
+                        Scenario ID: {gameState.aog.scenarioId}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
 
               {/* Active Event Status */}
               <div className="bg-emerald-950/50 p-4 border border-emerald-800 mb-6">
