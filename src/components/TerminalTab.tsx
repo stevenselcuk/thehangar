@@ -73,7 +73,8 @@ const TerminalTab: React.FC<{
           <ActionButton
             label="Sleep at Gate"
             onClick={() => onAction('SLEEP_AT_GATE')}
-            cooldown={120000}
+            cooldown={2000}
+            onStart={() => onAction('START_NAP_VISUAL', { duration: 2000 })}
             description="Find an empty row of seats and drift off. Restores Focus and Sanity, but increases Suspicion."
             className="border-amber-800 text-amber-500"
           />

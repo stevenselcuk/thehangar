@@ -124,19 +124,28 @@ export const terminalLocationReducer = (
 
       case 'SLEEP_AT_GATE': {
         addLog(ACTION_LOGS.SLEEP_GATE_1, 'info');
-        draft.resources.focus = Math.min(100, draft.resources.focus + 60);
-        draft.resources.sanity = Math.min(100, draft.resources.sanity + 10);
+        draft.resources.focus = 100;
+        draft.resources.sanity = 100;
+        draft.hfStats.socialStress = 0;
         draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 20);
+
+        if (Math.random() < 0.33) {
+          const incidentRoll = Math.random();
+          if (incidentRoll < 0.5 && action.payload?.triggerEvent) {
+            addLog(ACTION_LOGS.SLEEP_GATE_3, 'warning');
+            action.payload.triggerEvent('incident', 'SECURITY_WAKEUP');
+          } else if (action.payload?.triggerEvent) {
+            addLog('A suit-clad figure watches you from the boarding bridge.', 'warning');
+            action.payload.triggerEvent('audit', 'AUDIT_INTERNAL');
+          }
+        }
+
         if (
           hasSkill({ proficiency: draft.proficiency } as GameState, 'dreamJournal') &&
           Math.random() < 0.35
         ) {
           addLog(ACTION_LOGS.SLEEP_GATE_2, 'vibration');
           draft.resources.experience += 600;
-        }
-        if (Math.random() < 0.2 && action.payload?.triggerEvent) {
-          addLog(ACTION_LOGS.SLEEP_GATE_3, 'warning');
-          action.payload.triggerEvent('incident', 'SECURITY_WAKEUP');
         }
         break;
       }

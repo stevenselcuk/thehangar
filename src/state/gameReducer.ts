@@ -7,6 +7,12 @@ import { GameState, Inventory, JobCard, LogMessage, MailMessage, TabType } from 
 import { createJob } from './initialState.ts';
 
 // Service layer imports
+import {
+  FatigueLevel,
+  LOCATION_PROPERTIES,
+  NoiseLevel,
+  TemperatureLevel,
+} from '../data/locationProperties.ts';
 import { addLogToDraft } from '../services/logService.ts';
 import { composeAction, composeTick } from './reducerComposer.ts';
 
@@ -18,6 +24,84 @@ const processTick = (
   activeTab: TabType
 ): void => {
   const now = Date.now();
+
+  // --- Location-Based Property Updates ---
+  const locationProps = LOCATION_PROPERTIES[activeTab] || LOCATION_PROPERTIES[TabType.HANGAR];
+
+  // 1. Noise Logic
+  // Map Noise Level to numeric value (0-100 scale) for display/logic if needed,
+  // but we store the raw level or a numeric represention in hfStats.noiseExposure.
+  // The user asked for "change noise by tab". So we set it.
+
+  // Mapping Noise Enum to Numeric Value for hfStats.noiseExposure
+  const noiseMap: Record<NoiseLevel, number> = {
+    [NoiseLevel.LOW]: 10,
+    [NoiseLevel.MEDIUM]: 40,
+    [NoiseLevel.HIGH]: 70,
+    [NoiseLevel.EXTREME_HIGH]: 90,
+  };
+  draft.hfStats.noiseExposure = noiseMap[locationProps.noise];
+
+  // Noise Effects
+  if (locationProps.noise === NoiseLevel.LOW) {
+    // Low noise increases suspicion (too quiet, people notice you)
+    draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 0.5 * (delta / 1000));
+  } else if (
+    locationProps.noise === NoiseLevel.HIGH ||
+    locationProps.noise === NoiseLevel.EXTREME_HIGH
+  ) {
+    // High/Extreme noise increases stress and decreases focus
+    const stressMultiplier = locationProps.noise === NoiseLevel.EXTREME_HIGH ? 1.5 : 0.8;
+    draft.hfStats.socialStress = Math.min(
+      100,
+      draft.hfStats.socialStress + stressMultiplier * (delta / 1000)
+    );
+
+    // Decrease focus (Overcome base regen of ~3.0)
+    const focusDrain = locationProps.noise === NoiseLevel.EXTREME_HIGH ? 5.0 : 3.5;
+    draft.resources.focus = Math.max(0, draft.resources.focus - focusDrain * (delta / 1000));
+  }
+
+  // 2. Event Stress Logic
+  // "increase stress while an event happening"
+  if (draft.activeEvent) {
+    draft.hfStats.socialStress = Math.min(100, draft.hfStats.socialStress + 2.0 * (delta / 1000));
+  }
+
+  // 3. Fatigue Logic
+  // Mapping Fatigue Enum to Rate
+  // "fatique by tabs / Places" (Use accumulated fatigue or set level? Usually fatigue accumulates).
+  // I will interpret "Structure Shop -> High" as High Rate of Fatigue accumulation.
+  const fatigueRateMap: Record<FatigueLevel, number> = {
+    [FatigueLevel.LOW]: 0.1,
+    [FatigueLevel.MEDIUM]: 0.5,
+    [FatigueLevel.HIGH]: 1.2,
+    [FatigueLevel.EXTREME_HIGH]: 2.0,
+  };
+  const fatigueRate = fatigueRateMap[locationProps.fatigue];
+  draft.hfStats.fatigue = Math.min(100, draft.hfStats.fatigue + fatigueRate * (delta / 1000));
+
+  // 4. Temperature Logic
+  // Mapping Temp Enum to degrees (C)
+  const tempMap: Record<TemperatureLevel, number> = {
+    [TemperatureLevel.EXTREME_LOW]: -10, // Freezer/Winter Tarmac
+    [TemperatureLevel.LOW]: 10, // Chilly
+    [TemperatureLevel.COMFORT]: 22, // Office/Ideal
+    [TemperatureLevel.MEDIUM]: 28, // Warm
+    [TemperatureLevel.HIGH]: 35, // Hot Shop
+  };
+  // Smoothly interpolate current temp to target location temp? Or just set it?
+  // User said "temp by tabs", implying the value correlates to the tab.
+  // Let's interpolate for realism (moves towards target).
+  const targetTemp = tempMap[locationProps.temperature];
+  const tempDiff = targetTemp - draft.hfStats.temperature;
+  const tempChangeRate = 0.5 * (delta / 1000); // 0.5 deg per sec
+
+  if (Math.abs(tempDiff) < tempChangeRate) {
+    draft.hfStats.temperature = targetTemp;
+  } else {
+    draft.hfStats.temperature += Math.sign(tempDiff) * tempChangeRate;
+  }
 
   // Helper function - uses centralized log service
   const addLog = (text: string, type: LogMessage['type'] = 'info') => {

@@ -51,7 +51,10 @@ export type OfficeAction =
   | { type: 'ASSEMBLE_PC'; payload: { cost: number } }
   | { type: 'UPGRADE_PC_GPU'; payload: Record<string, unknown> }
   | { type: 'UPGRADE_PC_HDD'; payload: Record<string, unknown> }
-  | { type: 'NAP_TABLE'; payload: Record<string, unknown> }
+  | {
+      type: 'NAP_TABLE';
+      payload?: { triggerEvent?: (type: string, id?: string) => void };
+    }
   | { type: 'READ_MAGAZINE'; payload: Record<string, unknown> }
   | {
       type: 'REVIEW_SURVEILLANCE_LOGS';
@@ -169,9 +172,22 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
 
       case 'NAP_TABLE':
         addLog(ACTION_LOGS.NAP_TABLE, 'info');
-        draft.resources.focus = Math.min(100, draft.resources.focus + 40);
-        draft.resources.sanity = Math.min(100, draft.resources.sanity + 25);
+        draft.resources.focus = 100;
+        draft.resources.sanity = 100;
+        draft.hfStats.socialStress = 0;
         draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 15);
+
+        if (Math.random() < 0.33) {
+          const incidentRoll = Math.random();
+          if (incidentRoll < 0.5 && action.payload?.triggerEvent) {
+            addLog('A suit-clad figure watches you from the shadows.', 'warning');
+            action.payload.triggerEvent('incident', 'SUIT_SIGHTING_CANTEEN');
+          } else if (action.payload?.triggerEvent) {
+            addLog('You wake up to an urgent notification.', 'warning');
+            action.payload.triggerEvent('audit', 'AUDIT_INTERNAL');
+          }
+        }
+
         if (
           hasSkill({ proficiency: draft.proficiency } as GameState, 'dreamJournal') &&
           Math.random() < 0.25

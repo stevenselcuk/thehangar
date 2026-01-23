@@ -27,8 +27,8 @@ import { useGameEngine } from './hooks/useGameEngine.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_10';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_10';
+const SAVE_KEY = 'the_hangar_save__build_11';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_11';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -174,7 +174,19 @@ const AppContent: React.FC = () => {
         setTimeout(() => setIsBlackout(false), sleepDuration);
         return;
       }
-      dispatch({ type: 'ACTION', payload: { type, payload } });
+
+      // Inject triggerEvent so reducers can trigger side effects
+      dispatch({
+        type: 'ACTION',
+        payload: {
+          type,
+          payload: {
+            ...payload,
+            triggerEvent: (t: string, id?: string) =>
+              dispatch({ type: 'TRIGGER_EVENT', payload: { type: t, id } }),
+          },
+        },
+      });
     },
     [dispatch]
   );
