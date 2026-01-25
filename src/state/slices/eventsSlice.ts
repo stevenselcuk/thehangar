@@ -40,6 +40,7 @@ export interface EventsSliceState {
   hfStats: GameState['hfStats'];
   logs: GameState['logs'];
   rotables: GameState['rotables'];
+  proficiency: GameState['proficiency'];
 }
 
 export type EventsAction =

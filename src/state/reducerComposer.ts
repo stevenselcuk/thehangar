@@ -406,6 +406,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         hfStats: draft.hfStats, // Pass entire hfStats object
         logs: draft.logs,
         rotables: draft.rotables,
+        proficiency: draft.proficiency,
       };
 
       const updated = eventsReducer(eventsState, {

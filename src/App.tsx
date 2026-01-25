@@ -10,6 +10,7 @@ import Sidebar from './components/Sidebar.tsx';
 import { DevModeProvider } from './context/DevModeContext.tsx';
 import { useDevMode } from './hooks/useDevMode.ts';
 
+import { useMobileNotifications } from './hooks/useMobileNotifications.ts';
 import { checkLocationRequirements } from './logic/locationRequirements.ts';
 import { GameState, TabType } from './types.ts';
 
@@ -31,8 +32,8 @@ import { loadState } from './state/initialState.ts';
 import NotificationContainer from './components/common/NotificationContainer.tsx';
 import { NotificationProvider, useNotification } from './context/NotificationContext.tsx';
 
-const SAVE_KEY = 'the_hangar_save__build_32';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_32';
+const SAVE_KEY = 'the_hangar_save__build_34';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_34';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -107,6 +108,9 @@ const AppContent: React.FC = () => {
     () => setIsSaving(false),
     isRebootingRef
   );
+
+  // Mobile Notifications Hook
+  useMobileNotifications(state.logs, addNotification);
 
   // WIP Warning Effect
   useEffect(() => {
