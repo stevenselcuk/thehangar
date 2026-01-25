@@ -20,14 +20,14 @@ import Sidebar from './components/Sidebar.tsx';
 import WorkInProgressModal from './components/WorkInProgressModal.tsx';
 import { DevModeProvider } from './context/DevModeContext.tsx';
 import { useDevMode } from './hooks/useDevMode.ts';
-import { useResourceSelectors } from './hooks/useGameSelectors.ts';
+
 import { checkLocationRequirements } from './logic/locationRequirements.ts'; // NEW
 import { GameState, TabType } from './types.ts';
 
 const AboutModal = React.lazy(() => import('./components/AboutModal.tsx'));
 const ArchiveTerminalModal = React.lazy(() => import('./components/ArchiveTerminalModal.tsx'));
 const CalibrationMinigame = React.lazy(() => import('./components/CalibrationMinigame.tsx'));
-const DashboardModal = React.lazy(() => import('./components/DashboardModal.tsx'));
+
 const DevModeModal = React.lazy(() => import('./components/DevModeModal.tsx'));
 const MaintenanceTerminalModal = React.lazy(
   () => import('./components/MaintenanceTerminalModal.tsx')
@@ -39,8 +39,8 @@ import { useGameEngine } from './hooks/useGameEngine.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_24';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_24';
+const SAVE_KEY = 'the_hangar_save__build_25';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_25';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -94,7 +94,7 @@ const AppContent: React.FC = () => {
   const [showWipWarning, setShowWipWarning] = useState(
     () => !localStorage.getItem(WIP_WARNING_KEY)
   );
-  const [isDashboardModalOpen, setIsDashboardModalOpen] = useState(false);
+
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isIdCardOpen, setIsIdCardOpen] = useState(false);
   const [isArchiveTerminalOpen, setIsArchiveTerminalOpen] = useState(false);
@@ -108,9 +108,6 @@ const AppContent: React.FC = () => {
     localStorage.setItem(WIP_WARNING_KEY, 'true');
     setShowWipWarning(false);
   };
-
-  // Use selectors for derived state
-  const { xpProgress } = useResourceSelectors(state);
 
   // Custom hook for game loop
   useGameEngine(state, dispatch as React.Dispatch<GameReducerAction>, activeTab);
@@ -255,7 +252,6 @@ const AppContent: React.FC = () => {
   }
 
   const rootClasses = `flex flex-col h-screen select-none bg-black text-emerald-500 overflow-hidden ${state.flags.isHallucinating ? 'hallucination' : ''} ${state.flags.isAfraid ? 'fear-state' : ''}`;
-  const proficiencyGlowClass = state.proficiency.skillPoints > 0 ? 'glow-pulse-border' : '';
 
   return (
     <div className={rootClasses}>
@@ -286,7 +282,11 @@ const AppContent: React.FC = () => {
 
       {isAboutModalOpen && (
         <Suspense fallback={<LoadingFallback />}>
-          <AboutModal onClose={() => setIsAboutModalOpen(false)} />
+          <AboutModal
+            state={state}
+            onAction={onAction}
+            onClose={() => setIsAboutModalOpen(false)}
+          />
         </Suspense>
       )}
       {isIdCardOpen && (
@@ -309,16 +309,6 @@ const AppContent: React.FC = () => {
             state={state}
             onAction={onAction}
             onClose={() => setIsMaintenanceTerminalOpen(false)}
-          />
-        </Suspense>
-      )}
-
-      {isDashboardModalOpen && (
-        <Suspense fallback={<LoadingFallback />}>
-          <DashboardModal
-            state={state}
-            onAction={onAction}
-            onClose={() => setIsDashboardModalOpen(false)}
           />
         </Suspense>
       )}
@@ -374,15 +364,6 @@ const AppContent: React.FC = () => {
             {isSaving && (
               <div className="text-emerald-400 animate-pulse text-[8px] tracking-[0.2em]">SYNC</div>
             )}
-            <button
-              onClick={() => {
-                playClick();
-                setIsDashboardModalOpen(true);
-              }}
-              className={`px-2 py-1 border border-emerald-900/50 bg-[#050505] rounded text-xs ${proficiencyGlowClass}`}
-            >
-              <span className="text-emerald-400">LVL {state.resources.level}</span>
-            </button>
           </div>
 
           <div className="hidden md:flex bg-[#050505] border-l border-emerald-900/50 h-full">
@@ -434,18 +415,6 @@ const AppContent: React.FC = () => {
               SYNCING...
             </div>
           )}
-          <button
-            onClick={() => {
-              playClick();
-              setIsDashboardModalOpen(true);
-            }}
-            className={`px-4 h-full border-l border-emerald-900/50 bg-[#050505] hover:bg-emerald-900/10 hover:text-emerald-400 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 flex items-center justify-center ${proficiencyGlowClass}`}
-          >
-            LVL:{' '}
-            <span className="text-emerald-400 ml-1">
-              {state.resources.level} | XP: {Math.floor(xpProgress.current)} / {xpProgress.needed}
-            </span>
-          </button>
         </div>
       </header>
       <HazardBar hazards={state.activeHazards} />

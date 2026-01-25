@@ -188,6 +188,16 @@ const ResourceBarComponent: React.FC<Props> = ({
           style={{ width: `${xpProgress}%` }}
         />
         <div className="px-4 py-2 flex items-center flex-wrap gap-x-6 bg-[#050505]/80 text-[9px] font-mono relative">
+          <SmartTooltip
+            text={`Next Level: ${Math.floor(resources.experience)} / ${xpForNextLevel} XP`}
+          >
+            <div className="flex items-center space-x-2 border-r border-emerald-900/30 pr-4">
+              <span className="text-emerald-500 font-bold uppercase text-[10px]">
+                LVL {resources.level}
+              </span>
+            </div>
+          </SmartTooltip>
+
           <SmartTooltip text={resourceTooltips.credits}>
             <div className="flex items-center space-x-2">
               <span className="text-emerald-950 font-bold uppercase">CR:</span>
