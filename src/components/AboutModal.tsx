@@ -67,11 +67,13 @@ const ProficiencyMatrixView: React.FC<{
 }> = ({ state, onAction }) => (
   <div className="space-y-8">
     <h3 className="text-sm text-emerald-400 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-      Proficiency Matrix
+      Field Competencies
     </h3>
     <div className="grid grid-cols-2 gap-8">
       <div>
-        <h4 className="text-sm text-emerald-400 mb-4 uppercase tracking-[0.2em]">Mechanic</h4>
+        <h4 className="text-sm text-emerald-400 mb-4 uppercase tracking-[0.2em]">
+          Industrial Operations
+        </h4>
         <div className="space-y-4">
           {skillsData.mechanic.map((skill) => (
             <SkillNode key={skill.id} skill={skill} state={state} onAction={onAction} />
@@ -79,7 +81,9 @@ const ProficiencyMatrixView: React.FC<{
         </div>
       </div>
       <div>
-        <h4 className="text-sm text-purple-400 mb-4 uppercase tracking-[0.2em]">Watcher</h4>
+        <h4 className="text-sm text-purple-400 mb-4 uppercase tracking-[0.2em]">
+          Anomaly Observation
+        </h4>
         <div className="space-y-4">
           {skillsData.watcher.map((skill) => (
             <SkillNode key={skill.id} skill={skill} state={state} onAction={onAction} />
@@ -423,7 +427,7 @@ interface AboutModalProps {
 }
 
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
-  const BUILD_NUMBER = 'Build Number {_build_31}';
+  const BUILD_NUMBER = 'Build Number {_build_32}';
 
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
 
@@ -466,7 +470,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => 
             onClick={() => handleSectionClick('MATRIX')}
             className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'MATRIX' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
           >
-            Proficiency Matrix{' '}
+            Field Competencies{' '}
             <span
               className={`ml-2 text-xs px-2 py-0.5 rounded-full ${state.proficiency.skillPoints > 0 ? 'bg-amber-400 text-black' : 'bg-emerald-900 text-emerald-400'}`}
             >
@@ -602,7 +606,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => 
                   </li>
                   <li>
                     Spend Skill Points in the{' '}
-                    <strong className="text-emerald-400">PROFICIENCY MATRIX</strong> (click your
+                    <strong className="text-emerald-400">FIELD COMPETENCIES</strong> (click your
                     Level/XP bar in the header) to unlock new abilities.
                   </li>
                 </ul>
