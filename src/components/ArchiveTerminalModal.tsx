@@ -94,6 +94,23 @@ const ArchiveTerminalModal: React.FC<{
       >
         <div className="flex-grow overflow-y-auto text-sm" ref={outputRef}>
           <pre className="whitespace-pre-wrap font-mono">
+            <div className="text-emerald-600 mb-6 font-bold leading-none tracking-tighter select-none opacity-80">
+              {`
+▄▄▄▄  ▄▄▄  ▄▄▄▄   ▄▄▄▄   ▄▄▄      ▄▄▄   ▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄   
+▀███  ███  ███▀ ▄██▀▀██▄ ███      ███ ▄███▀ ███▀▀▀▀▀ ███▀▀███▄ 
+ ███  ███  ███  ███  ███ ███      ███████   ███▄▄    ███▄▄███▀ 
+ ███▄▄███▄▄███  ███▀▀███ ███      ███▀███▄  ███      ███▀▀██▄  
+  ▀████▀████▀   ███  ███ ████████ ███  ▀███ ▀███████ ███  ▀███ 
+                                                               
+                                                               
+                                                               
+▄▄▄      ▄▄▄   ▄▄▄▄▄   ▄▄▄▄▄▄▄   ▄▄▄       ▄▄▄▄▄▄▄ ▄▄▄   ▄▄▄   
+████▄  ▄████ ▄███████▄ ███▀▀███▄ ███      ███▀▀▀▀▀ ███   ███   
+███▀████▀███ ███   ███ ███▄▄███▀ ███      ███▄▄    ▀███▄███▀   
+███  ▀▀  ███ ███▄▄▄███ ███▀▀██▄  ███      ███        ▀███▀     
+███      ███  ▀█████▀  ███  ▀███ ████████ ▀███████    ███      
+`}
+            </div>
             {state.archiveTerminal.output.map(renderLine)}
           </pre>
         </div>

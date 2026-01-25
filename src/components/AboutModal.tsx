@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const BUILD_NUMBER = 'Build Number {_build_28}';
+  const BUILD_NUMBER = 'Build Number {_build_29}';
 
   const [activeSection, setActiveSection] = useState<'ABOUT' | 'HOW_TO' | 'CONTACT'>('ABOUT');
 
@@ -61,9 +61,6 @@ const AboutModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   {BUILD_NUMBER.replace(/\{_build_(\d+)\}/, '$1')}
                 </p>
               </h1>
-              <p className="text-sm leading-relaxed">
-                Welcome to WALKER & MORLEY. "Maintaining the Unseen."
-              </p>
               <p className="text-sm leading-relaxed">
                 THE HANGAR is a text-based incremental RPG of industrial dread and eldritch mystery.
                 You are a night-shift aircraft mechanic at a remote international airport. What

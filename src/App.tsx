@@ -39,8 +39,8 @@ import { useGameEngine } from './hooks/useGameEngine.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_23';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_23';
+const SAVE_KEY = 'the_hangar_save__build_24';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_24';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
