@@ -31,8 +31,8 @@ import { loadState } from './state/initialState.ts';
 import NotificationContainer from './components/common/NotificationContainer.tsx';
 import { NotificationProvider, useNotification } from './context/NotificationContext.tsx';
 
-const SAVE_KEY = 'the_hangar_save__build_28';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_28';
+const SAVE_KEY = 'the_hangar_save__build_29';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_29';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -80,6 +80,9 @@ const AppContent: React.FC = () => {
       return savedTab as TabType;
     return TabType.APRON_LINE;
   });
+
+  const [mobileView, setMobileView] = useState<'ACTIONS' | 'LOGS'>('ACTIONS');
+  const [isResourceDrawerOpen, setIsResourceDrawerOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const { addNotification, removeNotification } = useNotification();
@@ -382,6 +385,15 @@ const AppContent: React.FC = () => {
             {isSaving && (
               <div className="text-emerald-400 animate-pulse text-[8px] tracking-[0.2em]">SYNC</div>
             )}
+            <button
+              onClick={() => {
+                playClick();
+                setIsResourceDrawerOpen(!isResourceDrawerOpen);
+              }}
+              className={`ml-2 px-2 py-1 border ${isResourceDrawerOpen ? 'border-emerald-500 text-emerald-500 bg-emerald-900/20' : 'border-emerald-900/50 text-emerald-700'} rounded transition-colors`}
+            >
+              RESOURCES {isResourceDrawerOpen ? '▲' : '▼'}
+            </button>
           </div>
 
           <div className="hidden md:flex bg-[#050505] border-l border-emerald-900/50 h-full">
@@ -436,17 +448,50 @@ const AppContent: React.FC = () => {
         </div>
       </header>
       <HazardBar hazards={state.activeHazards} />
-      <ResourceBar
-        resources={state.resources}
-        inventory={state.inventory}
-        hfStats={state.hfStats}
-        flags={state.flags}
-      />
+
+      {/* Resource Bar - Sliding Drawer on Mobile */}
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${isResourceDrawerOpen ? 'max-h-[500px] border-b border-emerald-900/50' : 'max-h-0 md:max-h-none'} md:block`}
+      >
+        <ResourceBar
+          resources={state.resources}
+          inventory={state.inventory}
+          hfStats={state.hfStats}
+          flags={state.flags}
+        />
+      </div>
+
+      {/* Mobile View Toggle (Actions / Logs) */}
+      <div className="md:hidden flex border-b border-emerald-900/30 bg-[#080808]">
+        <button
+          onClick={() => {
+            playClick();
+            setMobileView('ACTIONS');
+          }}
+          className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-wider ${mobileView === 'ACTIONS' ? 'text-emerald-400 bg-emerald-900/20 border-b-2 border-emerald-500' : 'text-emerald-800 hover:bg-emerald-900/10'}`}
+        >
+          Active Panel
+        </button>
+        <button
+          onClick={() => {
+            playClick();
+            setMobileView('LOGS');
+          }}
+          className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-wider ${mobileView === 'LOGS' ? 'text-emerald-400 bg-emerald-900/20 border-b-2 border-emerald-500' : 'text-emerald-800 hover:bg-emerald-900/10'}`}
+        >
+          System Logs
+        </button>
+      </div>
+
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-1/2 p-6 overflow-y-auto border-r border-emerald-900/20 bg-[#0d0d0d]">
+        <div
+          className={`w-full md:w-1/2 p-4 md:p-6 overflow-y-auto border-r border-emerald-900/20 bg-[#0d0d0d] ${mobileView === 'ACTIONS' ? 'block' : 'hidden md:block'}`}
+        >
           <ActionPanel activeTab={activeTab} state={state} onAction={onAction} />
         </div>
-        <div className="w-1/2 p-6 bg-[#0a0a0a] overflow-y-auto">
+        <div
+          className={`w-full md:w-1/2 p-4 md:p-6 bg-[#0a0a0a] overflow-y-auto ${mobileView === 'LOGS' ? 'block' : 'hidden md:block'}`}
+        >
           <Sidebar logs={state.logs} />
         </div>
       </div>
