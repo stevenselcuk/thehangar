@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface TooltipProps {
@@ -20,7 +20,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
     left: 0,
     position: 'top',
   });
+  const [xAdjustment, setXAdjustment] = useState(0);
+
   const triggerRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const updatePosition = () => {
@@ -62,6 +65,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const handleMouseLeave = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
     setIsVisible(false);
+    setXAdjustment(0); // Reset adjustment on close
   };
 
   // Update position on scroll/resize while visible
@@ -75,6 +79,30 @@ export const Tooltip: React.FC<TooltipProps> = ({
       window.removeEventListener('resize', updatePosition);
     };
   }, [isVisible]);
+
+  // Handle edge detection and adjustment
+  useLayoutEffect(() => {
+    if (isVisible && tooltipRef.current) {
+      const rect = tooltipRef.current.getBoundingClientRect();
+      const padding = 12; // Safety margin from screen edge
+      const windowWidth = window.innerWidth;
+
+      let adjustment = 0;
+
+      // Check left overflow
+      if (rect.left < padding) {
+        adjustment = padding - rect.left;
+      }
+      // Check right overflow
+      else if (rect.right > windowWidth - padding) {
+        adjustment = windowWidth - padding - rect.right;
+      }
+
+      if (adjustment !== 0) {
+        setXAdjustment((prev) => prev + adjustment);
+      }
+    }
+  }, [isVisible, coords]); // Re-run when visible or coords change
 
   return (
     <>
@@ -91,11 +119,12 @@ export const Tooltip: React.FC<TooltipProps> = ({
         content &&
         createPortal(
           <div
+            ref={tooltipRef}
             className={`fixed pointer-events-none z-[9999] px-3 py-2 bg-[#050505] border border-emerald-900 rounded-sm shadow-lg text-center whitespace-normal w-max max-w-xs transition-opacity duration-200 animate-in fade-in zoom-in-95`}
             style={{
               top: coords.top,
               left: coords.left,
-              transform: `translate(-50%, ${coords.position === 'top' ? '-100%' : '0'})`,
+              transform: `translate(calc(-50% + ${xAdjustment}px), ${coords.position === 'top' ? '-100%' : '0'})`,
             }}
           >
             {typeof content === 'string' ? (
