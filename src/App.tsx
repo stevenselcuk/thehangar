@@ -39,8 +39,8 @@ import { useGameEngine } from './hooks/useGameEngine.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_21';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_21';
+const SAVE_KEY = 'the_hangar_save__build_22';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_22';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -57,6 +57,12 @@ const playLevelUpSound = () => {
 const playShockedSound = () => {
   const audio = new Audio('/sounds/shocked.mp3');
   audio.volume = 0.6;
+  audio.play().catch(() => {});
+};
+
+const playAlarmSound = () => {
+  const audio = new Audio('/sounds/alarm_siren.mp3');
+  audio.volume = 0.4;
   audio.play().catch(() => {});
 };
 
@@ -162,6 +168,17 @@ const AppContent: React.FC = () => {
   }, [activeTab]);
 
   const [isBlackout, setIsBlackout] = useState(false);
+  const prevEventIdRef = useRef<string | null>(null);
+
+  // Effect to play alarm on new event
+  useEffect(() => {
+    if (state.activeEvent && state.activeEvent.id !== prevEventIdRef.current) {
+      playAlarmSound();
+      prevEventIdRef.current = state.activeEvent.id;
+    } else if (!state.activeEvent) {
+      prevEventIdRef.current = null;
+    }
+  }, [state.activeEvent]);
 
   // Memoize onAction callback to prevent unnecessary re-renders
   const onAction = useCallback(
@@ -327,18 +344,40 @@ const AppContent: React.FC = () => {
         </Suspense>
       )}
 
-      <header className="border-b border-emerald-900 pl-4 pr-0 h-14 flex justify-between items-stretch bg-[#0a0a0a] z-50">
-        <div className="flex items-stretch space-x-4">
+      <header className="border-b border-emerald-900 bg-[#0a0a0a] z-50 flex flex-col md:flex-row md:items-stretch md:h-14 shrink-0 transition-all duration-300">
+        {/* Top Row (Mobile): Logo + Status / Left Side (Desktop): Logo + Tabs */}
+        <div className="flex items-center justify-between md:justify-start w-full md:w-auto border-b md:border-b-0 border-emerald-900/50 md:border-r h-12 md:h-auto px-4 md:px-0">
           <button
             onClick={() => {
               playClick();
               setIsAboutModalOpen(true);
             }}
-            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm self-center"
+            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm flex-shrink-0 md:ml-4 md:mr-4"
           >
-            <img src="/images/logo.png" alt="THE HANGAR logo" className="h-8 w-8" />
+            <img
+              src="/images/logo.png"
+              alt="THE HANGAR logo"
+              className="h-6 w-6 md:h-8 md:w-8 transition-all duration-300"
+            />
           </button>
-          <div className="flex bg-[#050505] border-x border-emerald-900/50">
+
+          {/* Mobile Status Display (Hidden on Desktop) */}
+          <div className="md:hidden flex items-center space-x-2 text-[10px] uppercase font-bold text-emerald-900">
+            {isSaving && (
+              <div className="text-emerald-400 animate-pulse text-[8px] tracking-[0.2em]">SYNC</div>
+            )}
+            <button
+              onClick={() => {
+                playClick();
+                setIsDashboardModalOpen(true);
+              }}
+              className={`px-2 py-1 border border-emerald-900/50 bg-[#050505] rounded text-xs ${proficiencyGlowClass}`}
+            >
+              <span className="text-emerald-400">LVL {state.resources.level}</span>
+            </button>
+          </div>
+
+          <div className="hidden md:flex bg-[#050505] border-l border-emerald-900/50 h-full">
             {Object.values(TabType)
               .filter((t) => t !== TabType.AOG_DEPLOYMENT || state.aog.active)
               .map((t) => (
@@ -348,7 +387,7 @@ const AppContent: React.FC = () => {
                     playClick();
                     setActiveTab(t);
                   }}
-                  className={`px-4 min-w-[120px] h-full border-r border-emerald-900/50 last:border-r-0 text-[10px] uppercase transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-inset
+                  className={`px-4 min-w-[120px] h-full border-r border-emerald-900/50 last:border-r-0 text-[10px] uppercase transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-inset whitespace-nowrap
                   ${activeTab === t ? 'bg-emerald-900/20 text-emerald-400 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]' : 'text-emerald-800 hover:text-emerald-400 hover:bg-emerald-900/10'}`}
                 >
                   {t.replace(/_/g, ' ')}
@@ -356,7 +395,32 @@ const AppContent: React.FC = () => {
               ))}
           </div>
         </div>
-        <div className="flex items-stretch space-x-6 text-[10px] uppercase font-bold text-emerald-900">
+
+        {/* Mobile Tabs Row (Scrollable) */}
+        <div className="md:hidden flex overflow-x-auto scrollbar-hide bg-[#050505] border-b border-emerald-900/50 h-10 w-full">
+          {Object.values(TabType)
+            .filter((t) => t !== TabType.AOG_DEPLOYMENT || state.aog.active)
+            .map((t) => (
+              <button
+                key={t}
+                onClick={() => {
+                  // Center the clicked tab if possible - simple smooth scroll to view
+                  const btn = document.getElementById(`tab-btn-${t}`);
+                  btn?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                  playClick();
+                  setActiveTab(t);
+                }}
+                id={`tab-btn-${t}`}
+                className={`flex-shrink-0 px-4 h-full border-r border-emerald-900/50 text-[10px] uppercase transition-all duration-200 focus:outline-none whitespace-nowrap flex items-center
+                  ${activeTab === t ? 'bg-emerald-900/20 text-emerald-400 shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]' : 'text-emerald-800 hover:text-emerald-400 hover:bg-emerald-900/10'}`}
+              >
+                {t.replace(/_/g, ' ')}
+              </button>
+            ))}
+        </div>
+
+        {/* Desktop Status (Hidden on Mobile) */}
+        <div className="hidden md:flex items-stretch space-x-6 text-[10px] uppercase font-bold text-emerald-900 ml-auto">
           {isSaving && (
             <div className="text-emerald-400 animate-pulse text-[8px] tracking-[0.2em] self-center">
               SYNCING...
@@ -367,7 +431,7 @@ const AppContent: React.FC = () => {
               playClick();
               setIsDashboardModalOpen(true);
             }}
-            className={`px-4 h-full border-r border-emerald-900/50 bg-[#050505] hover:bg-emerald-900/10 hover:text-emerald-400 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 flex items-center justify-center ${proficiencyGlowClass}`}
+            className={`px-4 h-full border-l border-emerald-900/50 bg-[#050505] hover:bg-emerald-900/10 hover:text-emerald-400 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 flex items-center justify-center ${proficiencyGlowClass}`}
           >
             LVL:{' '}
             <span className="text-emerald-400 ml-1">
