@@ -1,9 +1,19 @@
-import React, { Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import ActionPanel from './components/ActionPanel.tsx';
 import CrtOverlay from './components/CrtOverlay.tsx';
 import CursorEffect from './components/CursorEffect.tsx';
+import GameNotification from './components/GameNotification.tsx'; // NEW
 import HazardBar from './components/HazardBar.tsx';
+import LocationWarningOverlay from './components/LocationWarningOverlay.tsx'; // NEW
 import ResourceBar from './components/ResourceBar.tsx';
 import SEO from './components/SEO.tsx';
 import Sidebar from './components/Sidebar.tsx';
@@ -11,7 +21,9 @@ import WorkInProgressModal from './components/WorkInProgressModal.tsx';
 import { DevModeProvider } from './context/DevModeContext.tsx';
 import { useDevMode } from './hooks/useDevMode.ts';
 import { useResourceSelectors } from './hooks/useGameSelectors.ts';
+import { checkLocationRequirements } from './logic/locationRequirements.ts'; // NEW
 import { GameState, TabType } from './types.ts';
+
 const AboutModal = React.lazy(() => import('./components/AboutModal.tsx'));
 const ArchiveTerminalModal = React.lazy(() => import('./components/ArchiveTerminalModal.tsx'));
 const CalibrationMinigame = React.lazy(() => import('./components/CalibrationMinigame.tsx'));
@@ -27,8 +39,8 @@ import { useGameEngine } from './hooks/useGameEngine.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_20';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_20';
+const SAVE_KEY = 'the_hangar_save__build_21';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_21';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -96,6 +108,11 @@ const AppContent: React.FC = () => {
 
   // Custom hook for game loop
   useGameEngine(state, dispatch as React.Dispatch<GameReducerAction>, activeTab);
+
+  const locationCheckResult = useMemo(
+    () => checkLocationRequirements(activeTab, state.inventory),
+    [activeTab, state.inventory]
+  );
 
   // Custom hook for auto-saving
   useAutoSave(
@@ -230,6 +247,8 @@ const AppContent: React.FC = () => {
         className={`fixed inset-0 z-[2000] bg-black transition-opacity duration-[1500ms] ${isBlackout ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
       />
 
+      <LocationWarningOverlay checkResult={locationCheckResult} />
+
       {showWipWarning && <WorkInProgressModal onClose={handleWipClose} />}
 
       <h1 className="sr-only">The Hangar: An Incremental Mystery RPG</h1>
@@ -240,16 +259,13 @@ const AppContent: React.FC = () => {
         keywords="incremental game, text rpg, mystery, horror, aviation, mechanic"
       />
 
-      {levelUpNotif && (
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] p-8 bg-black border-4 border-emerald-400 shadow-2xl shadow-emerald-500/20">
-          <h2 className="text-4xl font-black text-emerald-300 flicker tracking-tighter">
-            LEVEL UP
-          </h2>
-          <p className="text-center text-emerald-500 mt-2 text-xs uppercase tracking-[0.3em]">
-            +1 SKILL POINT
-          </p>
-        </div>
-      )}
+      <GameNotification
+        type="levelup"
+        title="LEVEL UP"
+        message="+1 SKILL POINT"
+        visible={levelUpNotif}
+        onClose={() => setLevelUpNotif(false)}
+      />
 
       {isAboutModalOpen && (
         <Suspense fallback={<LoadingFallback />}>

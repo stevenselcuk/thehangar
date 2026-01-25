@@ -198,7 +198,7 @@ const ActionPanel: React.FC<{
               </h4>
               <div className="grid grid-cols-1 gap-2">
                 {itemsData.shop
-                  .filter((i) => i.category === 'structures')
+                  .filter((i) => i.category === 'tool')
                   .map(
                     (item) =>
                       !state.inventory[item.id as keyof Inventory] && (

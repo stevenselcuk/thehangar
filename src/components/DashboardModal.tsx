@@ -341,6 +341,57 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
       {/* SECTION 4: BELONGINGS */}
       <div className="space-y-6">
         <h4 className="text-sm text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
+          Tools & Equipment
+        </h4>
+        <div className="p-6 border border-emerald-900/50 bg-black/20">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Filter inventory for tools (excluding licenses/certs/upgrades) */}
+            {Object.entries(inventory)
+              .filter(([key, hasItem]) => {
+                if (!hasItem) return false;
+                // Exclude non-physical items or specialized flags
+                const excluded = [
+                  'hasAPLicense',
+                  'apWrittenPassed',
+                  'apPracticalPassed',
+                  'hasAvionicsCert',
+                  'isToolboxWithPlayer', // Status flag, not item itself? Or maybe show it?
+                  'pcAssembled',
+                  'pcGpuUpgrade',
+                  'pcHddUpgrade',
+                  'hasTruckLockbox',
+                  'hasHfInitial',
+                  'hasHfRecurrent',
+                  'hasFts',
+                  'hasHdi',
+                  'hasNdtLevel1',
+                  'hasNdtLevel2',
+                  'hasNdtLevel3',
+                  'ndtCerts',
+                  'hasEasaB1_1',
+                  'hasEasaB2',
+                  'hasEasaC',
+                  'typeRating737',
+                  'typeRatingA330',
+                  'mixedTouchUpPaint', // Handle separately if needed
+                ];
+                return !excluded.includes(key);
+              })
+              .map(([key]) => (
+                <div
+                  key={key}
+                  className="flex flex-col p-3 border border-emerald-900/30 bg-black/40 text-center hover:bg-emerald-900/20 transition-colors"
+                >
+                  <span className="text-[10px] text-emerald-500 uppercase font-bold">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                  </span>
+                  <span className="text-xs text-emerald-700 uppercase">[ EQUIP ]</span>
+                </div>
+              ))}
+          </div>
+        </div>
+
+        <h4 className="text-sm text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
           Personal Effects
         </h4>
         <div className="p-6 border border-emerald-900/50 bg-black/20">

@@ -66,6 +66,7 @@ export const createInitialState = (): GameState => ({
     notebook: true,
     leatherman: false,
     radio: false,
+    technicianToolbox: false,
     torxScrewdriver: false,
     snapOnWrenchSet: false,
     hammer: false,

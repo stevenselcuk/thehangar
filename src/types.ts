@@ -109,6 +109,7 @@ export interface Inventory {
   notebook: boolean;
   leatherman: boolean;
   radio: boolean;
+  technicianToolbox: boolean;
   torxScrewdriver: boolean;
   snapOnWrenchSet: boolean;
   hammer: boolean;
