@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+:root {
+  color-scheme: dark;
+}
+
 body {
   font-family: 'Fira Code', monospace;
   background-color: #1a1a1a;
