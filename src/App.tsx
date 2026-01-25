@@ -32,8 +32,8 @@ import { loadState } from './state/initialState.ts';
 import NotificationContainer from './components/common/NotificationContainer.tsx';
 import { NotificationProvider, useNotification } from './context/NotificationContext.tsx';
 
-const SAVE_KEY = 'the_hangar_save__build_36';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_36';
+const SAVE_KEY = 'the_hangar_save__build_37';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_37';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');

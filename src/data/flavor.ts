@@ -100,7 +100,7 @@ export const KARDEX_INTEL_LOGS = [
 ];
 
 export const MAGAZINE_FLAVOR_TEXTS = [
-  "You read a 'Safety First' issue from 2021. The tips on 'avoiding non-Euclidean geometry' seem out of place.",
+  "You read a 'Safety First' issue from 1997. The tips on 'avoiding non-Euclidean geometry' seem out of place.",
   "An old copy of 'Aviation Weekly'. A redacted article mentions a plane that landed with zero fuel and a cargo hold full of salt.",
   'A glossy travel magazine. Every destination is a different angle of the same grey, brutalist city.',
   "A 1999 issue of 'Mechanics Today'. The centerfold is just a high-res photo of a cracked turbine blade.",
@@ -296,7 +296,7 @@ export const ACTION_LOGS: Record<string, string> = {
   PC_ASSEMBLED: 'The Windows XP startup chime echoes through the office. It sounds... distorted.',
   NAP_TABLE:
     'You drift off on the sticky Formica table. The hum of the vending machine sounds like a beating heart.',
-  READ_MAGAZINE: 'You read a magazine from 2021. The ink stains your fingers black.',
+  READ_MAGAZINE: 'You read a magazine from 1998. The ink stains your fingers black.',
   EXAM_PASS:
     'EXAM PASSED. Your credentials have been updated in the master database. You are now officially authorized.',
   EXAM_FAIL:
