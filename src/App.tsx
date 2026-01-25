@@ -39,8 +39,8 @@ import { useGameEngine } from './hooks/useGameEngine.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_22';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_22';
+const SAVE_KEY = 'the_hangar_save__build_23';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_23';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -352,13 +352,21 @@ const AppContent: React.FC = () => {
               playClick();
               setIsAboutModalOpen(true);
             }}
-            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm flex-shrink-0 md:ml-4 md:mr-4"
+            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm flex-shrink-0 md:ml-4 md:mr-4 flex items-center text-left"
           >
             <img
               src="/images/logo.png"
               alt="THE HANGAR logo"
               className="h-6 w-6 md:h-8 md:w-8 transition-all duration-300"
             />
+            <div className="hidden md:flex flex-col ml-3 justify-center">
+              <span className="text-emerald-500 font-bold uppercase tracking-widest text-xs leading-none">
+                WALKER & MORLEY
+              </span>
+              <span className="text-emerald-800 text-[9px] uppercase tracking-[0.2em] leading-none mt-1">
+                Maintaining the Unseen
+              </span>
+            </div>
           </button>
 
           {/* Mobile Status Display (Hidden on Desktop) */}

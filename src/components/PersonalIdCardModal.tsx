@@ -57,7 +57,7 @@ const PersonalIdCardModal: React.FC<{ state: GameState; onClose: () => void }> =
           {/* Details */}
           <div className="flex-grow text-zinc-800 font-mono">
             <div className="border-b-2 border-red-700 pb-1 mb-3">
-              <h3 className="text-xs text-red-800 font-bold">PROPERTY OF [REDACTED] AEROSPACE</h3>
+              <h3 className="text-xs text-red-800 font-bold">PROPERTY OF WALKER & MORLEY</h3>
             </div>
             <div className="space-y-3">
               <div>
