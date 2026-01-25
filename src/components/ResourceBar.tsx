@@ -94,9 +94,9 @@ const ResourceBarComponent: React.FC<Props> = ({
     <div className="bg-[#080808] border-b border-emerald-900 flex flex-col divide-y divide-emerald-900/10">
       {/* Vitals Row */}
       <div className="px-4 py-3 flex items-center justify-between bg-[#0a0a0a]">
-        <div className="flex space-x-12">
+        <div className="flex space-x-12 overflow-x-auto scrollbar-hide w-full md:w-auto pb-2 md:pb-0">
           {/* Sanity */}
-          <div className="flex flex-col space-y-1 w-48">
+          <div className="flex flex-col space-y-1 w-48 flex-shrink-0">
             <div className="flex justify-between items-center px-1">
               <span className="text-emerald-700 text-[7px] font-bold uppercase tracking-widest">
                 Sanity
@@ -116,7 +116,7 @@ const ResourceBarComponent: React.FC<Props> = ({
           </div>
 
           {/* Suspicion */}
-          <div className="flex flex-col space-y-1 w-48">
+          <div className="flex flex-col space-y-1 w-48 flex-shrink-0">
             <div className="flex justify-between items-center px-1">
               <span
                 className={`text-red-900 text-[7px] font-bold uppercase tracking-widest ${isHighSuspicion ? 'animate-pulse' : ''}`}
@@ -138,7 +138,7 @@ const ResourceBarComponent: React.FC<Props> = ({
           </div>
 
           {/* Focus */}
-          <div className="flex flex-col space-y-1 w-48">
+          <div className="flex flex-col space-y-1 w-48 flex-shrink-0">
             <div className="flex justify-between items-center px-1">
               <span className="text-blue-900 text-[7px] font-bold uppercase tracking-widest">
                 Focus
@@ -187,11 +187,11 @@ const ResourceBarComponent: React.FC<Props> = ({
           className="absolute top-0 left-0 h-full bg-emerald-950/20 transition-all"
           style={{ width: `${xpProgress}%` }}
         />
-        <div className="px-4 py-2 flex items-center flex-wrap gap-x-6 bg-[#050505]/80 text-[9px] font-mono relative">
+        <div className="px-4 py-2 flex items-center md:flex-wrap flex-nowrap overflow-x-auto scrollbar-hide gap-x-6 bg-[#050505]/80 text-[9px] font-mono relative">
           <SmartTooltip
             text={`Next Level: ${Math.floor(resources.experience)} / ${xpForNextLevel} XP`}
           >
-            <div className="flex items-center space-x-2 border-r border-emerald-900/30 pr-4">
+            <div className="flex items-center space-x-2 border-r border-emerald-900/30 pr-4 flex-shrink-0">
               <span className="text-emerald-500 font-bold uppercase text-[10px]">
                 LVL {resources.level}
               </span>
@@ -199,28 +199,28 @@ const ResourceBarComponent: React.FC<Props> = ({
           </SmartTooltip>
 
           <SmartTooltip text={resourceTooltips.credits}>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <span className="text-emerald-950 font-bold uppercase">CR:</span>
               <span className="text-emerald-400">${formatNum(resources.credits)}</span>
             </div>
           </SmartTooltip>
 
           <SmartTooltip text={resourceTooltips.technicalLogbookHours}>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <span className="text-emerald-950 font-bold uppercase">LOG:</span>
               <span className="text-blue-400">{formatNum(resources.technicalLogbookHours)}h</span>
             </div>
           </SmartTooltip>
 
           <SmartTooltip text={resourceTooltips.alclad}>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <span className="text-emerald-950 font-bold">AL:</span>
               <span className="text-emerald-500">{formatNum(resources.alclad)}</span>
             </div>
           </SmartTooltip>
 
           <SmartTooltip text={resourceTooltips.rivets}>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <span className="text-emerald-950 font-bold">RIV:</span>
               <span className="text-emerald-600">{formatNum(resources.rivets)}</span>
             </div>
@@ -228,7 +228,7 @@ const ResourceBarComponent: React.FC<Props> = ({
 
           {resources.crystallineResonators > 0 && (
             <SmartTooltip text={resourceTooltips.crystallineResonators}>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 flex-shrink-0">
                 <span className="text-blue-900 font-bold">C-RES:</span>
                 <span className="text-blue-400">{formatNum(resources.crystallineResonators)}</span>
               </div>
@@ -237,14 +237,14 @@ const ResourceBarComponent: React.FC<Props> = ({
 
           {resources.bioFilament > 0 && (
             <SmartTooltip text={resourceTooltips.bioFilament}>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 flex-shrink-0">
                 <span className="text-purple-900 font-bold">B-FIL:</span>
                 <span className="text-purple-400">{formatNum(resources.bioFilament)}</span>
               </div>
             </SmartTooltip>
           )}
 
-          <div className="ml-auto flex items-center space-x-4 border-l border-emerald-900/20 pl-4">
+          <div className="md:ml-auto flex items-center space-x-4 md:border-l border-emerald-900/20 md:pl-4 flex-shrink-0">
             <SmartTooltip text={resourceTooltips.fatigue}>
               <div className="flex items-center space-x-2">
                 <span className="text-emerald-950 uppercase font-bold text-[7px]">Fatigue:</span>
