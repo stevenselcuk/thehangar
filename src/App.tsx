@@ -1,27 +1,16 @@
-import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react';
+import React, { Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import ActionPanel from './components/ActionPanel.tsx';
 import CrtOverlay from './components/CrtOverlay.tsx';
 import CursorEffect from './components/CursorEffect.tsx';
-import GameNotification from './components/GameNotification.tsx'; // NEW
 import HazardBar from './components/HazardBar.tsx';
-import LocationWarningOverlay from './components/LocationWarningOverlay.tsx'; // NEW
 import ResourceBar from './components/ResourceBar.tsx';
 import SEO from './components/SEO.tsx';
 import Sidebar from './components/Sidebar.tsx';
-import WorkInProgressModal from './components/WorkInProgressModal.tsx';
 import { DevModeProvider } from './context/DevModeContext.tsx';
 import { useDevMode } from './hooks/useDevMode.ts';
 
-import { checkLocationRequirements } from './logic/locationRequirements.ts'; // NEW
+import { checkLocationRequirements } from './logic/locationRequirements.ts';
 import { GameState, TabType } from './types.ts';
 
 const AboutModal = React.lazy(() => import('./components/AboutModal.tsx'));
@@ -39,8 +28,11 @@ import { useGameEngine } from './hooks/useGameEngine.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_25';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_25';
+import NotificationContainer from './components/common/NotificationContainer.tsx';
+import { NotificationProvider, useNotification } from './context/NotificationContext.tsx';
+
+const SAVE_KEY = 'the_hangar_save__build_26';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_26';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -90,10 +82,7 @@ const AppContent: React.FC = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
-  const [levelUpNotif, setLevelUpNotif] = useState(false);
-  const [showWipWarning, setShowWipWarning] = useState(
-    () => !localStorage.getItem(WIP_WARNING_KEY)
-  );
+  const { addNotification, removeNotification } = useNotification();
 
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isIdCardOpen, setIsIdCardOpen] = useState(false);
@@ -103,19 +92,8 @@ const AppContent: React.FC = () => {
   const hasPlayedGameOverSoundRef = useRef(false);
   const { isDevModeActive } = useDevMode();
 
-  const handleWipClose = () => {
-    playClick();
-    localStorage.setItem(WIP_WARNING_KEY, 'true');
-    setShowWipWarning(false);
-  };
-
   // Custom hook for game loop
   useGameEngine(state, dispatch as React.Dispatch<GameReducerAction>, activeTab);
-
-  const locationCheckResult = useMemo(
-    () => checkLocationRequirements(activeTab, state.inventory),
-    [activeTab, state.inventory]
-  );
 
   // Custom hook for auto-saving
   useAutoSave(
@@ -127,23 +105,78 @@ const AppContent: React.FC = () => {
     isRebootingRef
   );
 
+  // WIP Warning Effect
+  useEffect(() => {
+    const hasSeenWip = localStorage.getItem(WIP_WARNING_KEY);
+    if (!hasSeenWip) {
+      addNotification({
+        id: 'system-wip-notice', // Fixed ID
+        title: 'SYSTEM NOTICE',
+        message:
+          'Active Development In Progress. Expect frequent updates, visual glitches, and potential instability.',
+        variant: 'system',
+        duration: 8000, // Auto-hide after 8 seconds
+        actions: [
+          {
+            label: 'Initialize',
+            onClick: () => {
+              localStorage.setItem(WIP_WARNING_KEY, 'true');
+              removeNotification('system-wip-notice');
+            },
+          },
+        ],
+      });
+    }
+  }, [addNotification, removeNotification]);
+
+  // Location Warnings Effect
+  useEffect(() => {
+    // Use the imported checkLocationRequirements logic
+    const checkResult = checkLocationRequirements(activeTab, state.inventory);
+    const isBlocking = !checkResult.satisfied;
+    const hasIssues = isBlocking || checkResult.missingSoft.length > 0;
+    const warningId = 'location-warning';
+
+    if (hasIssues) {
+      const missingItems = [
+        ...checkResult.missingRequired.map((r) => r.label),
+        ...checkResult.missingSoft.map((r) => r.label),
+      ].join(', ');
+
+      addNotification({
+        id: warningId,
+        title: isBlocking ? 'HAZARD: UNSAFE CONDITIONS' : 'CAUTION: ADVISORY',
+        message: `Missing: ${missingItems}`,
+        variant: isBlocking ? 'hazard' : 'warning',
+        duration: 5000, // Auto-hide after 5 seconds
+      });
+    }
+    // Note: We don't removeNotification(warningId) in the else block anymore because
+    // the notification auto-hides. If the condition clears, it's fine.
+    // If the condition persists, it won't re-trigger unless deps change (tab/inventory).
+  }, [activeTab, state.inventory, addNotification]); // Removed removeNotification form dep as we don't use it in else
+
   // Effect to handle one-off events like level ups
   useEffect(() => {
     const currentLevel = state.resources.level;
     const lastNotifiedLevel = state.eventTimestamps.lastLevelUpNotif || 0;
     if (currentLevel > lastNotifiedLevel) {
-      // Use setTimeout to defer state updates
       setTimeout(() => {
         playLevelUpSound();
-        setLevelUpNotif(true);
-        setTimeout(() => setLevelUpNotif(false), 4000);
+        addNotification({
+          id: `levelup-${currentLevel}`, // Deterministic ID to prevent duplicates
+          title: 'LEVEL UP',
+          message: '+1 SKILL POINT',
+          variant: 'levelup',
+          duration: 4000,
+        });
       }, 0);
       dispatch({
         type: 'ACTION',
         payload: { type: 'ACKNOWLEDGE_LEVEL_UP', payload: { level: currentLevel } },
       });
     }
-  }, [state.resources.level, state.eventTimestamps.lastLevelUpNotif, dispatch]);
+  }, [state.resources.level, state.eventTimestamps.lastLevelUpNotif, dispatch, addNotification]);
 
   // Effect for Game Over sound
   useEffect(() => {
@@ -155,9 +188,6 @@ const AppContent: React.FC = () => {
       hasPlayedGameOverSoundRef.current = true;
     }
   }, [state.resources.suspicion, state.resources.sanity]);
-
-  // Auto-navigate away from AOG tab if mission is not active
-  // Removed to avoid cascading render lint error. Handled in onAction.
 
   // FIX: Force title update when tab changes
   useEffect(() => {
@@ -260,24 +290,12 @@ const AppContent: React.FC = () => {
         className={`fixed inset-0 z-[2000] bg-black transition-opacity duration-[1500ms] ${isBlackout ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
       />
 
-      <LocationWarningOverlay checkResult={locationCheckResult} />
-
-      {showWipWarning && <WorkInProgressModal onClose={handleWipClose} />}
-
       <h1 className="sr-only">The Hangar: An Incremental Mystery RPG</h1>
 
       <SEO
         title={`The Hangar - ${activeTab.replace(/_/g, ' ')}`}
         description="Uncover a terrifying conspiracy in this text-based incremental mystery game."
         keywords="incremental game, text rpg, mystery, horror, aviation, mechanic"
-      />
-
-      <GameNotification
-        type="levelup"
-        title="LEVEL UP"
-        message="+1 SKILL POINT"
-        visible={levelUpNotif}
-        onClose={() => setLevelUpNotif(false)}
       />
 
       {isAboutModalOpen && (
@@ -439,11 +457,14 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <DevModeProvider>
-      <CrtOverlay />
-      <CursorEffect />
-      <HelmetProvider>
-        <AppContent />
-      </HelmetProvider>
+      <NotificationProvider>
+        <CrtOverlay />
+        <CursorEffect />
+        <HelmetProvider>
+          <AppContent />
+          <NotificationContainer />
+        </HelmetProvider>
+      </NotificationProvider>
     </DevModeProvider>
   );
 };

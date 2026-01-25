@@ -423,7 +423,7 @@ interface AboutModalProps {
 }
 
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
-  const BUILD_NUMBER = 'Build Number {_build_30}';
+  const BUILD_NUMBER = 'Build Number {_build_31}';
 
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
 
