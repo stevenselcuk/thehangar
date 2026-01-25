@@ -21,14 +21,14 @@ describe('AboutModal', () => {
     expect(screen.getAllByText(/120H/i).length).toBeGreaterThan(0); // 120 from midGameState
   });
 
-  it('navigates to Proficiency Matrix', () => {
+  it('navigates to Field Competencies', () => {
     render(<AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />);
 
-    const matrixButton = screen.getByRole('button', { name: /Proficiency Matrix/i });
+    const matrixButton = screen.getByRole('button', { name: /Field Competencies/i });
     fireEvent.click(matrixButton);
 
-    expect(screen.getByText('Mechanic')).toBeInTheDocument();
-    expect(screen.getByText('Watcher')).toBeInTheDocument();
+    expect(screen.getByText('Industrial Operations')).toBeInTheDocument();
+    expect(screen.getByText('Anomaly Observation')).toBeInTheDocument();
   });
 
   it('navigates to Import/Export', () => {
