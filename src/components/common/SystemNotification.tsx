@@ -66,7 +66,7 @@ const SystemNotification: React.FC<Props> = ({ notification, onClose }) => {
   return (
     <div
       className={`
-        relative w-[380px] pointer-events-auto
+        relative w-full max-w-[380px] md:w-[380px] pointer-events-auto
         transition-all duration-300 ease-in-out transform
         ${transitionClass}
         mb-3 last:mb-0
