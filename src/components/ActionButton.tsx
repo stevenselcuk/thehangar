@@ -1,4 +1,5 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useState } from 'react';
+import { Tooltip } from './common/Tooltip';
 
 export interface ActionButtonProps {
   label: string;
@@ -27,42 +28,21 @@ const ActionButtonComponent: React.FC<ActionButtonProps> = ({
   description,
   className = '',
 }) => {
-  const [progress, setProgress] = useState(100);
   const [active, setActive] = useState(false);
-  const [tooltipPosition, setTooltipPosition] = useState<'top' | 'bottom'>('top');
-  const buttonRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseEnter = () => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      // If the button's top is too close to the viewport top, show the tooltip below.
-      // The threshold (80px) is an estimate for tooltip height plus margin.
-      if (rect.top < 80) {
-        setTooltipPosition('bottom');
-      } else {
-        setTooltipPosition('top');
-      }
-    }
-  };
 
   const handleClick = () => {
     if (disabled || active) return;
     playClick();
+
     if (cooldown > 0) {
       if (onStart) onStart();
       setActive(true);
-      setProgress(0);
-      const startTime = Date.now();
-      const interval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const p = Math.min(100, (elapsed / cooldown) * 100);
-        setProgress(p);
-        if (p >= 100) {
-          clearInterval(interval);
-          setActive(false);
-          onClick();
-        }
-      }, 50);
+
+      // Use setTimeout to trigger completion, while CSS handles the visual animation
+      setTimeout(() => {
+        setActive(false);
+        onClick();
+      }, cooldown);
     } else {
       onClick();
     }
@@ -70,43 +50,46 @@ const ActionButtonComponent: React.FC<ActionButtonProps> = ({
 
   const costDescription = cost ? `[COST: ${cost.value} ${cost.label}] ` : '';
   const fullDescription = description || '';
+  const tooltipContent =
+    costDescription || fullDescription ? (
+      <p className="text-[10px] text-emerald-700 uppercase tracking-tighter">
+        {cost && <span className="text-amber-500 font-bold">{costDescription}</span>}
+        {fullDescription}
+      </p>
+    ) : null;
 
-  return (
-    <div
-      ref={buttonRef}
-      onMouseEnter={handleMouseEnter}
-      className={`group relative mb-4 ${className}`}
-    >
+  const buttonContent = (
+    <div className={`group relative mb-4 ${className}`}>
       <button
         onClick={handleClick}
         disabled={disabled || active}
-        className={`w-full relative h-12 border border-emerald-900 bg-transparent transition-all overflow-hidden 
-          ${disabled ? 'opacity-30 cursor-not-allowed' : 'hover:border-emerald-400 hover:bg-emerald-950/20 active:translate-y-0.5'}
-        `}
+        className={`w-full relative h-12 border border-emerald-900 bg-transparent overflow-hidden 
+            ${disabled ? 'opacity-30 cursor-not-allowed' : 'hover:border-emerald-400 hover:bg-emerald-950/20 active:translate-y-0.5'}
+          `}
       >
         <div
-          className="absolute left-0 top-0 h-full bg-emerald-900/40 transition-all duration-75"
-          style={{ width: `${progress}%` }}
+          className="absolute left-0 top-0 h-full bg-emerald-900/40"
+          style={{
+            width: active ? '100%' : '0%',
+            transition: active ? `width ${cooldown}ms linear` : 'none',
+          }}
         />
         <span className="relative z-10 font-bold uppercase tracking-widest text-sm">
           {active ? '...' : label}
         </span>
       </button>
-      {(costDescription || fullDescription) && (
-        <div
-          className={`absolute left-1/2 -translate-x-1/2 px-3 py-2 bg-[#050505] border border-emerald-900 rounded-sm shadow-lg 
-                       opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20 
-                       w-64 text-center whitespace-normal 
-                       ${tooltipPosition === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'}`}
-        >
-          <p className="text-[10px] text-emerald-700 uppercase tracking-tighter">
-            {cost && <span className="text-amber-500 font-bold">{costDescription}</span>}
-            {fullDescription}
-          </p>
-        </div>
-      )}
     </div>
   );
+
+  if (tooltipContent) {
+    return (
+      <Tooltip content={tooltipContent} className="block w-full">
+        {buttonContent}
+      </Tooltip>
+    );
+  }
+
+  return buttonContent;
 };
 
 // Memoize to prevent re-render when props haven't meaningfully changed
