@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { exportGameData, getExportMetadata, importGameData } from '../services/importExportService';
-import { GameState } from '../types';
-
-const playClick = () => {
-  const audio = new Audio('/sounds/ui_click.mp3');
-  audio.volume = 0.3;
-  audio.play().catch(() => {});
-};
+import { useSound } from '../context/SoundContext.tsx';
+import {
+  exportGameData,
+  getExportMetadata,
+  importGameData,
+} from '../services/importExportService.ts';
+import { GameState } from '../types.ts';
 
 interface ImportExportViewProps {
   state: GameState;
@@ -16,6 +15,7 @@ interface ImportExportViewProps {
 type StatusType = 'idle' | 'success' | 'error';
 
 const ImportExportView: React.FC<ImportExportViewProps> = ({ state, onImport }) => {
+  const { play } = useSound();
   const [exportString, setExportString] = useState<string>('');
   const [importString, setImportString] = useState<string>('');
   const [copyStatus, setCopyStatus] = useState<StatusType>('idle');
@@ -24,42 +24,36 @@ const ImportExportView: React.FC<ImportExportViewProps> = ({ state, onImport }) 
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
   const handleExport = () => {
-    playClick();
+    play('CLICK');
     try {
       const exported = exportGameData(state);
       setExportString(exported);
-      setStatusMessage('Export code generated successfully!');
+      setStatusMessage('>> Export sequence complete. Data serialized.');
       setImportStatus('success');
-      setTimeout(() => setImportStatus('idle'), 3000);
+      // setTimeout(() => setImportStatus('idle'), 3000);
     } catch {
-      setStatusMessage('Export failed. Please try again.');
+      setStatusMessage('>> ERROR: Serialization failed. Check integrity.');
       setImportStatus('error');
-      setTimeout(() => setImportStatus('idle'), 3000);
     }
   };
 
   const handleCopyToClipboard = async () => {
-    playClick();
+    play('CLICK');
     try {
       await navigator.clipboard.writeText(exportString);
       setCopyStatus('success');
-      setStatusMessage('Copied to clipboard!');
+      setStatusMessage('>> DATA COPIED TO BUFFER.');
       setTimeout(() => {
         setCopyStatus('idle');
-        setStatusMessage('');
       }, 2000);
     } catch {
       setCopyStatus('error');
-      setStatusMessage('Failed to copy. Please select and copy manually.');
-      setTimeout(() => {
-        setCopyStatus('idle');
-        setStatusMessage('');
-      }, 3000);
+      setStatusMessage('>> ERROR: Buffer write failed. Manual copy required.');
     }
   };
 
   const handleImportClick = () => {
-    playClick();
+    play('CLICK');
     if (!importString.trim()) {
       return;
     }
@@ -67,19 +61,15 @@ const ImportExportView: React.FC<ImportExportViewProps> = ({ state, onImport }) 
   };
 
   const handleConfirmImport = () => {
-    playClick();
+    play('CLICK');
     setShowConfirmModal(false);
 
     try {
       const importedState = importGameData(importString);
 
       if (!importedState) {
-        setStatusMessage('Invalid import code. Please check and try again.');
+        setStatusMessage('>> ERROR: Invalid checksum. Data corrupted.');
         setImportStatus('error');
-        setTimeout(() => {
-          setImportStatus('idle');
-          setStatusMessage('');
-        }, 4000);
         return;
       }
 
@@ -87,159 +77,158 @@ const ImportExportView: React.FC<ImportExportViewProps> = ({ state, onImport }) 
       const metadata = getExportMetadata(importString);
       if (metadata) {
         console.log(
-          `Import successful! Data from ${new Date(metadata.exportedAt).toLocaleString()}`
+          `[SYSTEM] Restore point identified: ${new Date(metadata.exportedAt).toLocaleString()}`
         );
       }
 
       onImport(importedState);
-      setStatusMessage('Import successful! Game state has been restored.');
+      setStatusMessage('>> SYSTEM RESTORE SUCCESSFUL. REBOOTING...');
       setImportStatus('success');
       setImportString('');
-      setTimeout(() => {
-        setImportStatus('idle');
-        setStatusMessage('');
-      }, 3000);
     } catch {
-      setStatusMessage('Import failed. The code may be corrupted or invalid.');
+      setStatusMessage('>> FATAL ERROR: Parse exception. Aborting.');
       setImportStatus('error');
-      setTimeout(() => {
-        setImportStatus('idle');
-        setStatusMessage('');
-      }, 4000);
     }
   };
 
   const handleCancelImport = () => {
-    playClick();
+    play('CLICK');
     setShowConfirmModal(false);
   };
 
   return (
-    <div className="space-y-8">
-      <h3 className="text-sm text-emerald-400 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-        Import / Export Game Data
-      </h3>
+    <div className="space-y-6 font-mono text-xs">
+      <div className="border-b border-emerald-900/50 pb-2 mb-6">
+        <h3 className="text-sm text-emerald-500 uppercase tracking-[0.2em] font-bold">
+          [//] DATA MIGRATION PROTOCOLS
+        </h3>
+      </div>
 
-      {/* Export Section */}
-      <div className="space-y-4">
-        <h4 className="text-xs text-emerald-600 uppercase tracking-widest">Export Save Data</h4>
-        <p className="text-xs text-zinc-400 leading-relaxed">
-          Generate an export code for your current game progress. Use this to backup your save or
-          transfer it to another device.
-        </p>
-
-        <button
-          onClick={handleExport}
-          className="w-full text-sm font-bold uppercase py-3 border border-emerald-600 bg-black/40 text-emerald-500 hover:bg-emerald-900/40 transition-all"
-        >
-          [ Generate Export Code ]
-        </button>
-
-        {exportString && (
-          <div className="space-y-2">
-            <div className="relative">
-              <textarea
-                readOnly
-                value={exportString}
-                className="w-full h-32 p-3 bg-black/60 border border-emerald-900/50 text-emerald-300 font-mono text-xs resize-none focus:outline-none focus:border-emerald-600"
-              />
-              <p className="text-[10px] text-zinc-500 mt-1">{exportString.length} characters</p>
-            </div>
-
-            <button
-              onClick={handleCopyToClipboard}
-              className={`w-full text-sm font-bold uppercase py-2 border transition-all ${
-                copyStatus === 'success'
-                  ? 'border-emerald-400 bg-emerald-900/50 text-emerald-300'
-                  : 'border-emerald-700 bg-black/40 text-emerald-500 hover:bg-emerald-900/30'
-              }`}
-            >
-              {copyStatus === 'success' ? '[ ✓ Copied! ]' : '[ Copy to Clipboard ]'}
-            </button>
-          </div>
+      {/* Status Output Console */}
+      <div className="bg-black border border-emerald-900/50 p-4 h-24 mb-6 overflow-y-auto font-mono text-[10px]">
+        {statusMessage ? (
+          <p
+            className={`${
+              importStatus === 'error'
+                ? 'text-red-500'
+                : importStatus === 'success'
+                  ? 'text-emerald-400'
+                  : 'text-emerald-600'
+            }`}
+          >
+            {statusMessage}
+            <span className="animate-pulse">_</span>
+          </p>
+        ) : (
+          <p className="text-emerald-800 italic">&gt;&gt; Awaiting command input...</p>
         )}
       </div>
 
-      {/* Divider */}
-      <div className="border-t border-emerald-900/20" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Export Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs text-emerald-600 uppercase tracking-widest bg-emerald-900/20 px-2 py-1">
+              &gt; EXPORT_DATA
+            </h4>
+          </div>
 
-      {/* Import Section */}
-      <div className="space-y-4">
-        <h4 className="text-xs text-emerald-600 uppercase tracking-widest">Import Save Data</h4>
-        <p className="text-xs text-zinc-400 leading-relaxed">
-          Paste an export code below to restore a previously exported save. This will{' '}
-          <span className="text-amber-400 font-bold">overwrite your current progress</span>.
-        </p>
+          <button
+            onClick={handleExport}
+            className="w-full text-left px-4 py-3 border border-emerald-700 bg-black hover:bg-emerald-900/30 text-emerald-500 hover:text-emerald-400 transition-all uppercase font-bold tracking-wider group"
+          >
+            <span className="mr-2 group-hover:text-emerald-300">&gt; EXECUTE DUMP</span>
+          </button>
 
-        <div className="p-3 border border-amber-900/50 bg-amber-950/20">
-          <p className="text-xs text-amber-400 uppercase tracking-wider">⚠ Warning</p>
-          <p className="text-[10px] text-amber-300/80 mt-1">
-            Importing will replace your current save. Make sure to export your current progress
-            first if you want to keep it!
-          </p>
+          {exportString && (
+            <div className="space-y-2 animate-[fadeIn_0.3s_ease-out]">
+              <div className="relative group">
+                <textarea
+                  readOnly
+                  value={exportString}
+                  className="w-full h-32 p-3 bg-black border border-emerald-900/50 text-emerald-500/70 font-mono text-[10px] resize-none focus:outline-none focus:border-emerald-500 selection:bg-emerald-900 selection:text-white"
+                />
+                <div className="absolute top-0 right-0 p-1 text-[8px] text-emerald-800 bg-black border-l border-b border-emerald-900/50">
+                  {exportString.length} BYTES
+                </div>
+              </div>
+
+              <button
+                onClick={handleCopyToClipboard}
+                className={`w-full text-center py-2 border text-[10px] uppercase tracking-widest transition-all ${
+                  copyStatus === 'success'
+                    ? 'border-emerald-500 bg-emerald-900/50 text-emerald-300'
+                    : 'border-emerald-800 bg-black text-emerald-600 hover:border-emerald-600 hover:text-emerald-400'
+                }`}
+              >
+                {copyStatus === 'success' ? '[ BUFFER COPIED ]' : '[ COPY TO BUFFER ]'}
+              </button>
+            </div>
+          )}
         </div>
 
-        <textarea
-          value={importString}
-          onChange={(e) => setImportString(e.target.value)}
-          placeholder="Paste export code here..."
-          className="w-full h-32 p-3 bg-black/60 border border-emerald-900/50 text-emerald-300 font-mono text-xs resize-none focus:outline-none focus:border-emerald-600 placeholder-zinc-600"
-        />
+        {/* Import Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs text-amber-700/80 uppercase tracking-widest bg-amber-900/10 px-2 py-1">
+              &gt; IMPORT_DATA
+            </h4>
+          </div>
 
-        <button
-          onClick={handleImportClick}
-          disabled={!importString.trim()}
-          className="w-full text-sm font-bold uppercase py-3 border transition-all disabled:opacity-50 disabled:cursor-not-allowed border-amber-600 bg-black/40 text-amber-500 hover:bg-amber-900/40 disabled:hover:bg-black/40"
-        >
-          [ Import Game Data ]
-        </button>
+          <div className="relative">
+            <textarea
+              value={importString}
+              onChange={(e) => setImportString(e.target.value)}
+              placeholder="// PASTE HEX DUMP HERE..."
+              className="w-full h-32 p-3 bg-black border border-amber-900/30 text-amber-500/80 font-mono text-[10px] resize-none focus:outline-none focus:border-amber-600 placeholder-amber-900/30 selection:bg-amber-900 selection:text-white"
+            />
+          </div>
+
+          <button
+            onClick={handleImportClick}
+            disabled={!importString.trim()}
+            className="w-full text-left px-4 py-3 border border-amber-900/50 bg-black hover:bg-amber-900/20 text-amber-700 hover:text-amber-500 transition-all uppercase font-bold tracking-wider disabled:opacity-30 disabled:cursor-not-allowed group"
+          >
+            <span className="mr-2 group-hover:text-amber-400">&gt; INITIATE RESTORE</span>
+          </button>
+        </div>
       </div>
-
-      {/* Status Message */}
-      {statusMessage && (
-        <div
-          className={`p-3 border ${
-            importStatus === 'success'
-              ? 'border-emerald-700 bg-emerald-950/20 text-emerald-300'
-              : importStatus === 'error'
-                ? 'border-red-700 bg-red-950/20 text-red-300'
-                : 'border-zinc-700 bg-black/20 text-zinc-300'
-          }`}
-        >
-          <p className="text-xs uppercase tracking-wider">
-            {importStatus === 'success' ? '✓ ' : importStatus === 'error' ? '✗ ' : ''}
-            {statusMessage}
-          </p>
-        </div>
-      )}
 
       {/* Confirmation Modal */}
       {showConfirmModal && (
-        <div className="modal-overlay" onClick={handleCancelImport}>
-          <div className="modal-content max-w-md" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg text-amber-400 uppercase tracking-wider mb-4 border-b border-amber-900/30 pb-2">
-              Confirm Import
-            </h3>
-            <p className="text-sm text-zinc-300 mb-6 leading-relaxed">
-              This will <span className="text-amber-400 font-bold">permanently overwrite</span> your
-              current game progress with the imported save data. This action cannot be undone.
-            </p>
-            <p className="text-xs text-zinc-400 mb-6">
-              Make sure you have exported your current save if you want to keep it!
-            </p>
-            <div className="flex space-x-4">
-              <button
-                onClick={handleCancelImport}
-                className="flex-1 text-sm font-bold uppercase py-2 border border-zinc-700 bg-black/40 text-zinc-400 hover:bg-zinc-900/40 transition-all"
-              >
-                [ Cancel ]
-              </button>
-              <button
-                onClick={handleConfirmImport}
-                className="flex-1 text-sm font-bold uppercase py-2 border border-amber-600 bg-amber-900/40 text-amber-300 hover:bg-amber-900/60 transition-all"
-              >
-                [ Confirm Import ]
-              </button>
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm"
+          onClick={handleCancelImport}
+        >
+          <div
+            className="w-[400px] border-2 border-red-900 bg-black p-1 shadow-[0_0_50px_rgba(127,29,29,0.5)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-red-950/20 p-6">
+              <h3 className="text-lg text-red-500 uppercase tracking-widest font-bold mb-4 flex items-center">
+                <span className="animate-pulse mr-2">⚠</span> CRITICAL WARNING
+              </h3>
+
+              <div className="space-y-4 text-xs font-mono text-red-400/80 leading-relaxed border-t border-b border-red-900/30 py-4 mb-6">
+                <p>OVERWRITE SEQUENCE INITIATED.</p>
+                <p>CURRENT SESSION DATA WILL BE PERMANENTLY ERASED.</p>
+                <p>ARE YOU SURE YOU WISH TO PROCEED?</p>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  onClick={handleCancelImport}
+                  className="flex-1 py-3 border border-red-900/50 text-red-700 hover:bg-red-950/30 hover:text-red-500 uppercase tracking-widest transition-all"
+                >
+                  [ ABORT ]
+                </button>
+                <button
+                  onClick={handleConfirmImport}
+                  className="flex-1 py-3 border border-red-600 bg-red-900/20 text-red-500 hover:bg-red-900/50 hover:text-red-200 uppercase tracking-widest font-bold transition-all shadow-[0_0_15px_rgba(220,38,38,0.2)]"
+                >
+                  [ PROCEED ]
+                </button>
+              </div>
             </div>
           </div>
         </div>

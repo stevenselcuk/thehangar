@@ -266,7 +266,15 @@ export const createInitialState = (): GameState => ({
   vendingPrices: generateVendingPrices(),
   calibrationMinigame: { active: false, toolId: null, toolLabel: null },
   logs: [{ id: '1', text: SYSTEM_LOGS.BOOT, type: 'info', timestamp: Date.now() }],
-  mail: [],
+  mail: [
+    {
+      id: 'welcome-msg',
+      from: 'IT_ADMIN',
+      subject: 'System Migration Complete',
+      body: 'Welcome to the new [REDACTED] Maintenance System. Your credentials have been transferred. \n\nREMINDER: Unauthorized access to Archive files is strictly monitored. Report any anomalies to your Supervisor immediately.',
+      read: false,
+    },
+  ],
   lastUpdate: Date.now(),
   eventTimestamps: {},
   aog: {

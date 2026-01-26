@@ -1,4 +1,6 @@
 import React, { Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { SoundProvider, useSound } from './context/SoundContext.tsx';
+
 import { HelmetProvider } from 'react-helmet-async';
 import ActionPanel from './components/ActionPanel.tsx';
 import CrtOverlay from './components/CrtOverlay.tsx';
@@ -33,32 +35,8 @@ import NotificationContainer from './components/common/NotificationContainer.tsx
 import { NotificationProvider } from './context/NotificationContext.tsx';
 import { useNotification } from './hooks/useNotification.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_38';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_38';
-
-const playClick = () => {
-  const audio = new Audio('/sounds/ui_click.mp3');
-  audio.volume = 0.3;
-  audio.play().catch(() => {});
-};
-
-const playLevelUpSound = () => {
-  const audio = new Audio('/sounds/level_up.mp3');
-  audio.volume = 0.5;
-  audio.play().catch(() => {});
-};
-
-const playShockedSound = () => {
-  const audio = new Audio('/sounds/shocked.mp3');
-  audio.volume = 0.6;
-  audio.play().catch(() => {});
-};
-
-const playAlarmSound = () => {
-  const audio = new Audio('/sounds/alarm_siren.mp3');
-  audio.volume = 0.4;
-  audio.play().catch(() => {});
-};
+const SAVE_KEY = 'the_hangar_save__build_39';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_39';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -83,6 +61,7 @@ const AppContent: React.FC = () => {
     return TabType.APRON_LINE;
   });
 
+  const { play } = useSound();
   const [mobileView, setMobileView] = useState<'ACTIONS' | 'LOGS'>('ACTIONS');
   const [isResourceDrawerOpen, setIsResourceDrawerOpen] = useState(false);
 
@@ -135,7 +114,7 @@ const AppContent: React.FC = () => {
         ],
       });
     }
-  }, [addNotification, removeNotification]);
+  }, [addNotification, removeNotification, play]);
 
   // Notification Queue Consumer
   useEffect(() => {
@@ -151,15 +130,15 @@ const AppContent: React.FC = () => {
         });
 
         // Sound Effects
-        if (notif.variant === 'levelup') playLevelUpSound();
-        if (notif.variant === 'hazard' || notif.variant === 'error') playAlarmSound();
-        if (notif.variant === 'system') playClick(); // Use generic for system?
+        if (notif.variant === 'levelup') play('LEVEL_UP');
+        if (notif.variant === 'hazard' || notif.variant === 'error') play('ALARM');
+        if (notif.variant === 'system') play('CLICK');
       });
 
       // Clear queue to prevent reprocessing
       dispatch({ type: 'CLEAR_NOTIFICATIONS' });
     }
-  }, [state.notificationQueue, addNotification, dispatch]);
+  }, [state.notificationQueue, addNotification, dispatch, play]);
 
   // Effect for Game Over sound
   useEffect(() => {
@@ -167,10 +146,10 @@ const AppContent: React.FC = () => {
       (state.resources.suspicion >= 100 || state.resources.sanity <= 0) &&
       !hasPlayedGameOverSoundRef.current
     ) {
-      playShockedSound();
+      play('SHOCKED');
       hasPlayedGameOverSoundRef.current = true;
     }
-  }, [state.resources.suspicion, state.resources.sanity]);
+  }, [state.resources.suspicion, state.resources.sanity, play]);
 
   // FIX: Force title update when tab changes
   useEffect(() => {
@@ -183,12 +162,12 @@ const AppContent: React.FC = () => {
   // Effect to play alarm on new event
   useEffect(() => {
     if (state.activeEvent && state.activeEvent.id !== prevEventIdRef.current) {
-      playAlarmSound();
+      play('ALARM');
       prevEventIdRef.current = state.activeEvent.id;
     } else if (!state.activeEvent) {
       prevEventIdRef.current = null;
     }
-  }, [state.activeEvent]);
+  }, [state.activeEvent, play]);
 
   // Memoize onAction callback to prevent unnecessary re-renders
   const onAction = useCallback(
@@ -198,17 +177,17 @@ const AppContent: React.FC = () => {
         // Fall through to dispatch
       }
       if (type === 'SHOW_ID_CARD') {
-        playClick();
+        play('CLICK');
         setIsIdCardOpen(true);
         return;
       }
       if (type === 'OPEN_ARCHIVE_TERMINAL') {
-        playClick();
+        play('CLICK');
         setIsArchiveTerminalOpen(true);
         return;
       }
       if (type === 'OPEN_MAINTENANCE_TERMINAL') {
-        playClick();
+        play('CLICK');
         setIsMaintenanceTerminalOpen(true);
         return;
       }
@@ -232,7 +211,7 @@ const AppContent: React.FC = () => {
         },
       });
     },
-    [dispatch]
+    [dispatch, play]
   );
 
   const handleAppReset = () => {
@@ -348,7 +327,7 @@ const AppContent: React.FC = () => {
         <div className="flex items-center justify-between md:justify-start w-full md:w-auto border-b md:border-b-0 border-emerald-900/50 md:border-r h-12 md:h-auto px-4 md:px-0">
           <button
             onClick={() => {
-              playClick();
+              play('CLICK');
               setIsAboutModalOpen(true);
             }}
             className="focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm flex-shrink-0 md:ml-4 md:mr-4 flex items-center text-left"
@@ -375,7 +354,7 @@ const AppContent: React.FC = () => {
             )}
             <button
               onClick={() => {
-                playClick();
+                play('CLICK');
                 setIsResourceDrawerOpen(!isResourceDrawerOpen);
               }}
               className={`ml-2 px-2 py-1 border ${isResourceDrawerOpen ? 'border-emerald-500 text-emerald-500 bg-emerald-900/20' : 'border-emerald-900/50 text-emerald-700'} rounded transition-colors`}
@@ -391,7 +370,7 @@ const AppContent: React.FC = () => {
                 <button
                   key={t}
                   onClick={() => {
-                    playClick();
+                    play('CLICK');
                     setActiveTab(t);
                   }}
                   className={`px-4 min-w-[120px] h-full border-r border-emerald-900/50 last:border-r-0 text-[10px] uppercase transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-inset whitespace-nowrap
@@ -414,7 +393,7 @@ const AppContent: React.FC = () => {
                   // Center the clicked tab if possible - simple smooth scroll to view
                   const btn = document.getElementById(`tab-btn-${t}`);
                   btn?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                  playClick();
+                  play('CLICK');
                   setActiveTab(t);
                 }}
                 id={`tab-btn-${t}`}
@@ -453,7 +432,7 @@ const AppContent: React.FC = () => {
       <div className="md:hidden flex border-b border-emerald-900/30 bg-[#080808]">
         <button
           onClick={() => {
-            playClick();
+            play('CLICK');
             setMobileView('ACTIONS');
           }}
           className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-wider ${mobileView === 'ACTIONS' ? 'text-emerald-400 bg-emerald-900/20 border-b-2 border-emerald-500' : 'text-emerald-800 hover:bg-emerald-900/10'}`}
@@ -462,7 +441,7 @@ const AppContent: React.FC = () => {
         </button>
         <button
           onClick={() => {
-            playClick();
+            play('CLICK');
             setMobileView('LOGS');
           }}
           className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-wider ${mobileView === 'LOGS' ? 'text-emerald-400 bg-emerald-900/20 border-b-2 border-emerald-500' : 'text-emerald-800 hover:bg-emerald-900/10'}`}
@@ -490,14 +469,16 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <DevModeProvider>
-      <NotificationProvider>
-        <CrtOverlay />
-        <CursorEffect />
-        <HelmetProvider>
-          <AppContent />
-          <NotificationContainer />
-        </HelmetProvider>
-      </NotificationProvider>
+      <SoundProvider>
+        <NotificationProvider>
+          <CrtOverlay />
+          <CursorEffect />
+          <HelmetProvider>
+            <AppContent />
+            <NotificationContainer />
+          </HelmetProvider>
+        </NotificationProvider>
+      </SoundProvider>
     </DevModeProvider>
   );
 };

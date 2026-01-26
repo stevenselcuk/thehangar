@@ -7,7 +7,7 @@ import {
   calculateNightCrewIncome,
   calculateTransitCheckIncome,
 } from '../../services/RewardCalculator.ts';
-import { GameState, ResourceState } from '../../types.ts';
+import { GameState, LogMessage, ResourceState } from '../../types.ts';
 
 /**
  * Resources Slice - Manages all resource state mutations
@@ -19,7 +19,7 @@ import { GameState, ResourceState } from '../../types.ts';
 
 export interface ResourcesSliceState {
   resources: ResourceState;
-  logs: Array<{ id: string; text: string; type: string; timestamp: number }>;
+  logs: LogMessage[];
 }
 
 type ResourcesAction =

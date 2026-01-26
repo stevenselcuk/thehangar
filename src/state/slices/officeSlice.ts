@@ -39,6 +39,7 @@ export interface OfficeSliceState {
   stats: GameState['stats'];
   proficiency: GameState['proficiency'];
   logs: GameState['logs'];
+  mail: GameState['mail'];
 }
 
 export type OfficeAction =
@@ -60,7 +61,8 @@ export type OfficeAction =
       type: 'REVIEW_SURVEILLANCE_LOGS';
       payload?: { triggerEvent?: (type: string, id?: string) => void };
     }
-  | { type: 'DEEP_CLEAN_VENTS'; payload: Record<string, unknown> };
+  | { type: 'DEEP_CLEAN_VENTS'; payload: Record<string, unknown> }
+  | { type: 'READ_EMAIL'; payload: { id: string } };
 
 // ==================== REDUCER ====================
 
@@ -84,8 +86,35 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
         break;
 
       case 'CHECK_INTERNAL_MAIL':
-        addLog(ACTION_LOGS.MAIL_NONE, 'info');
+        // UI handle in component
+        // Typically this action toggles the view, but reducer logic might just log access?
+        // We'll leave it logging for now, component logic handles view state.
+        if (draft.logs[draft.logs.length - 1].text !== ACTION_LOGS.MAIL_ACCESS) {
+          // Avoid spamming log if clicking repeatedly
+          // Actually, we remove the log or customize it.
+        }
         break;
+
+      case 'READ_EMAIL': {
+        const { id } = action.payload;
+        const email = draft.mail?.find((m) => m.id === id); // Guard in case mail is undefined yet
+        if (email && !email.read) {
+          email.read = true;
+          // Apply effects if any
+          if (email.effects) {
+            if (email.effects.sanity)
+              draft.resources.sanity = Math.max(0, draft.resources.sanity - email.effects.sanity);
+            if (email.effects.suspicion)
+              draft.resources.suspicion = Math.min(
+                100,
+                draft.resources.suspicion + email.effects.suspicion
+              );
+            if (email.effects.focus)
+              draft.resources.focus = Math.min(100, draft.resources.focus + email.effects.focus);
+          }
+        }
+        break;
+      }
 
       case 'CROSS_REFERENCE_MANIFESTS':
         addLog(ACTION_LOGS.MANIFEST_CROSS_REF_SUCCESS, 'vibration');

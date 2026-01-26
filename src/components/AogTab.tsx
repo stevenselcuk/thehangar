@@ -21,24 +21,12 @@ const AogTab: React.FC<AogTabProps> = ({ state, onAction }) => {
   const [now, setNow] = React.useState(() => Date.now());
 
   React.useEffect(() => {
-    setNow(Date.now()); // Update immediately on mount
+    // Only update local time for progress bar visual smoothness
     const timer = setInterval(() => {
-      const currentTime = Date.now();
-      setNow(currentTime);
-
-      // Check for active action completion
-      if (actionInProgress) {
-        const endTime = actionInProgress.startTime + actionInProgress.duration;
-        if (currentTime >= endTime) {
-          // Dispatch resolve only if not already resolved (the interval might fire a few times)
-          // We trust the reducer to handle idempotency or we check locally?
-          // It's safer to just fire it, the reducer checks if actionInProgress matches.
-          onAction('RESOLVE_AOG_ACTION', { actionId: actionInProgress.actionId });
-        }
-      }
-    }, 200); // 5Hz check for responsiveness
+      setNow(Date.now());
+    }, 100);
     return () => clearInterval(timer);
-  }, [actionInProgress, onAction]);
+  }, []);
 
   const station = aogStations.find((s) => s.id === stationId);
   const scenario = aogScenarios.find((s) => s.id === scenarioId);

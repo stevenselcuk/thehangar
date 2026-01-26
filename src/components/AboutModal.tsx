@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
+import { useSound } from '../context/SoundContext.tsx';
 import { Skill, skillsData } from '../data/skills.ts';
-import { trainingData } from '../data/training.ts';
 import { GameState } from '../types.ts';
-import ImportExportView from './ImportExportView';
+import ImportExportView from './ImportExportView.tsx';
 
-const playClick = () => {
-  const audio = new Audio('/sounds/ui_click.mp3');
-  audio.volume = 0.3;
-  audio.play().catch(() => {});
-};
-
+// ================= CONSTANTS & HELPERS =================
 const formatDuration = (ms: number) => {
   const seconds = Math.floor((ms / 1000) % 60);
   const minutes = Math.floor((ms / (1000 * 60)) % 60);
@@ -17,74 +12,119 @@ const formatDuration = (ms: number) => {
   return `${hours}h ${minutes}m ${seconds}s`;
 };
 
+const AvatarDisplay: React.FC = () => {
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div
+      className={`w-16 h-20 bg-zinc-400 border border-zinc-500 overflow-hidden relative grayscale contrast-125 ${hasError ? 'flex items-center justify-center' : ''}`}
+    >
+      {!hasError ? (
+        <img
+          src="/placeholder_avatar.png"
+          className="w-full h-full object-cover opacity-80"
+          alt="SUBJECT"
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        <span className="text-[10px] text-zinc-700 font-bold">NO IMG</span>
+      )}
+    </div>
+  );
+};
+
+// ================= SKILL TECH TREE NODE =================
 const SkillNode: React.FC<{
   skill: Skill;
   state: GameState;
   onAction: (t: string, p?: Record<string, unknown>) => void;
 }> = ({ skill, state, onAction }) => {
+  const { play } = useSound();
   const isUnlocked = state.proficiency.unlocked.includes(skill.id);
-  const canUnlock =
-    state.proficiency.skillPoints > 0 &&
-    (!skill.prereq || state.proficiency.unlocked.includes(skill.prereq));
   const isPrereqMet = !skill.prereq || state.proficiency.unlocked.includes(skill.prereq);
+  const canUnlock = state.proficiency.skillPoints > 0 && !isUnlocked && isPrereqMet;
 
   const handleClick = () => {
-    if (!isUnlocked && canUnlock) {
-      playClick();
+    if (canUnlock) {
+      play('CLICK');
       onAction('UNLOCK_SKILL', { id: skill.id });
     }
   };
 
-  let buttonClass = 'border-emerald-900 bg-black/40 text-emerald-800';
+  let containerClass = 'relative group p-4 border transition-all duration-300 ';
+  let textClass = '';
+
   if (isUnlocked) {
-    buttonClass =
-      'border-emerald-400 bg-emerald-900/50 text-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.4)]';
+    containerClass += 'border-emerald-500 bg-emerald-900/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]';
+    textClass = 'text-emerald-300';
   } else if (canUnlock) {
-    buttonClass =
-      'border-emerald-600 bg-black/40 text-emerald-500 hover:bg-emerald-900/40 animate-pulse';
-  } else if (!isPrereqMet) {
-    buttonClass = 'border-zinc-800 bg-black/20 text-zinc-700 opacity-50 cursor-not-allowed';
+    containerClass +=
+      'border-amber-500 bg-amber-900/10 hover:bg-amber-900/30 cursor-pointer animate-pulse-slow';
+    textClass = 'text-amber-400';
+  } else {
+    containerClass += 'border-zinc-800 bg-black/40 opacity-50 grayscale';
+    textClass = 'text-zinc-500';
   }
 
   return (
-    <div className={`p-4 border ${buttonClass} transition-all duration-300`}>
-      <h5 className="font-bold uppercase tracking-wider text-sm">{skill.name}</h5>
-      <p className="text-[10px] mt-2 leading-relaxed opacity-80">{skill.description}</p>
-      <button
-        onClick={handleClick}
-        disabled={isUnlocked || !canUnlock}
-        className="mt-4 w-full text-xs font-bold uppercase py-2 border transition-all disabled:opacity-50"
-      >
-        {isUnlocked ? '[ ACQUIRED ]' : canUnlock ? '[ UNLOCK (1 SP) ]' : '[ LOCKED ]'}
-      </button>
+    <div onClick={canUnlock ? handleClick : undefined} className={containerClass}>
+      {/* Connector Line Logic (Visual only, ideally SVG lines for real tree) */}
+      {skill.prereq && (
+        <div className="absolute -top-4 left-1/2 w-0.5 h-4 bg-zinc-800 -translate-x-1/2"></div>
+      )}
+
+      <div className="flex justify-between items-start mb-2">
+        <h5 className={`font-bold uppercase tracking-widest text-xs ${textClass}`}>{skill.name}</h5>
+        {isUnlocked && <span className="text-[9px] text-emerald-500">[ ACTIVE ]</span>}
+        {canUnlock && <span className="text-[9px] text-amber-500 blink">[ 1 SP ]</span>}
+        {!isUnlocked && !canUnlock && <span className="text-[9px] text-zinc-600">[ LOCKED ]</span>}
+      </div>
+
+      <p className="text-[10px] leading-relaxed opacity-80 font-mono text-zinc-400">
+        {skill.description}
+      </p>
     </div>
   );
 };
 
+// ================= MATRIX VIEW (TECH TREE) =================
 const ProficiencyMatrixView: React.FC<{
   state: GameState;
   onAction: (t: string, p?: Record<string, unknown>) => void;
 }> = ({ state, onAction }) => (
-  <div className="space-y-8">
-    <h3 className="text-sm text-emerald-400 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-      Field Competencies
-    </h3>
-    <div className="grid grid-cols-2 gap-8">
-      <div>
-        <h4 className="text-sm text-emerald-400 mb-4 uppercase tracking-[0.2em]">
-          Industrial Operations
+  <div className="space-y-8 h-full overflow-y-auto pr-2">
+    <div className="flex justify-between items-end border-b border-emerald-900/50 pb-2">
+      <h3 className="text-sm text-emerald-400 uppercase tracking-[0.2em]">Competency Matrix</h3>
+      <div className="text-[10px] uppercase text-emerald-700">
+        AVAILABLE POINTS ::{' '}
+        <span
+          className={`text-lg font-bold ${state.proficiency.skillPoints > 0 ? 'text-amber-400 animate-pulse' : 'text-emerald-500'}`}
+        >
+          {state.proficiency.skillPoints}
+        </span>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      {/* Mechanic Tree */}
+      <div className="relative">
+        <h4 className="text-xs text-emerald-600 mb-6 uppercase tracking-widest border-l-2 border-emerald-600 pl-3">
+          Ops // Industrial
         </h4>
-        <div className="space-y-4">
+        <div className="space-y-6 relative border-l border-dashed border-emerald-900/30 ml-4 pl-8">
+          {/* Simple linear rendering for now, but styled as nodes */}
           {skillsData.mechanic.map((skill) => (
             <SkillNode key={skill.id} skill={skill} state={state} onAction={onAction} />
           ))}
         </div>
       </div>
-      <div>
-        <h4 className="text-sm text-purple-400 mb-4 uppercase tracking-[0.2em]">
-          Anomaly Observation
+
+      {/* Watcher Tree */}
+      <div className="relative">
+        <h4 className="text-xs text-purple-500 mb-6 uppercase tracking-widest border-l-2 border-purple-900 pl-3">
+          Ops // Analysis
         </h4>
-        <div className="space-y-4">
+        <div className="space-y-6 relative border-l border-dashed border-purple-900/30 ml-4 pl-8">
           {skillsData.watcher.map((skill) => (
             <SkillNode key={skill.id} skill={skill} state={state} onAction={onAction} />
           ))}
@@ -94,331 +134,198 @@ const ProficiencyMatrixView: React.FC<{
   </div>
 );
 
-const CheckListItem: React.FC<{ label: string; checked: boolean; details?: string }> = ({
+// ================= STAT DISPLAY COMPONENT =================
+const StatDisplay: React.FC<{ label: string; value: string | number; sub?: string }> = ({
   label,
-  checked,
-  details,
+  value,
+  sub,
 }) => (
-  <div
-    className={`p-3 border transition-all ${checked ? 'border-emerald-700 bg-emerald-950/20 text-emerald-300' : 'border-zinc-800 bg-black/20 text-zinc-500'}`}
-  >
-    <div className="flex items-center">
-      <div
-        className={`w-4 h-4 mr-3 border-2 ${checked ? 'bg-emerald-500 border-emerald-400' : 'border-zinc-600'}`}
-      />
-      <span className="text-sm uppercase tracking-wider">{label}</span>
+  <div className="p-3 border border-emerald-900/30 bg-black/40 flex flex-col justify-between group hover:bg-emerald-900/10 transition-colors">
+    <p className="text-[9px] text-emerald-700 uppercase tracking-widest mb-1 group-hover:text-emerald-500 transition-colors">
+      {label}
+    </p>
+    <div>
+      <p className="text-xl font-bold text-emerald-200 font-mono leading-none">{value}</p>
+      {sub && <p className="text-[9px] text-emerald-800 mt-1 font-mono">{sub}</p>}
     </div>
-    {details && <p className="text-xs text-zinc-400 mt-1 pl-7">{details}</p>}
   </div>
 );
 
-const StatDisplay: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
-  <div className="p-4 border border-emerald-900/50 bg-black/30">
-    <p className="text-xs text-emerald-700 uppercase tracking-widest">{label}</p>
-    <p className="text-2xl font-bold text-emerald-300 mt-1">{value}</p>
-  </div>
-);
-
+// ================= PLAYER PROFILE (PERSONNEL FILE) =================
 const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
-  const { sanity, resources, inventory, proficiency, stats } = state;
+  const { sanity, resources, inventory, stats } = state;
   const { clearanceLevel } = state.hfStats;
 
-  let photoFilter = 'grayscale(1) brightness(0.7) contrast(1.3)';
-  if (sanity < 50) photoFilter += ' blur(0.5px) opacity(0.9)';
-  if (sanity < 20) photoFilter += ' blur(1.5px) contrast(2)';
+  const getClearanceBadge = (level: number) => {
+    const colors = {
+      1: 'border-emerald-700 text-emerald-500',
+      2: 'border-amber-700 text-amber-500',
+      3: 'border-red-700 text-red-500',
+      4: 'border-black text-white bg-red-600',
+      0: 'border-zinc-700 text-zinc-600 decoration-line-through',
+    };
+    const label =
+      level === 4
+        ? 'TOP SECRET'
+        : level === 3
+          ? 'SECRET'
+          : level === 2
+            ? 'CONFIDENTIAL'
+            : level === 1
+              ? 'UNCLASSIFIED'
+              : 'REVOKED';
+    const style = colors[level as keyof typeof colors] || colors[1];
 
-  const getClearanceText = (level: number) => {
-    switch (level) {
-      case 1:
-        return 'LEVEL 1 (General)';
-      case 2:
-        return 'LEVEL 2 (Restricted)';
-      case 3:
-        return 'LEVEL 3 (Classified)';
-      case 4:
-        return 'LEVEL 4 (Redacted)';
-      default:
-        return 'LEVEL 0 (Revoked)';
-    }
+    return (
+      <div
+        className={`border-2 ${style} px-3 py-1 text-[10px] font-bold tracking-[0.2em] uppercase inline-block`}
+      >
+        {label} // LVL {level}
+      </div>
+    );
   };
 
   return (
-    <div className="space-y-12 pb-12">
-      {/* SECTION 1: IDENTITY HERO */}
-      <div className="flex flex-col md:flex-row gap-8 items-start border-b border-emerald-900/30 pb-8">
-        {/* Photo ID Card */}
-        <div className="w-full md:w-64 flex-shrink-0">
-          <div className="w-full bg-zinc-300 p-4 rounded-lg shadow-2xl space-y-4">
-            <div className="w-full aspect-[4/5] relative border-4 border-zinc-400 bg-zinc-500 overflow-hidden">
-              <img
-                src="/images/photo.png"
-                alt="Employee ID"
-                style={{ filter: photoFilter }}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute bottom-0 w-full bg-red-900/80 p-1 text-center">
-                <span className="text-[10px] text-white font-bold tracking-widest">
-                  OFFICIAL ID
-                </span>
+    <div className="space-y-10 font-mono text-sm max-h-full overflow-y-auto pr-2 pb-10">
+      {/* HEADER DOSSIER */}
+      <div className="flex flex-col md:flex-row gap-6 pb-8 border-b border-emerald-900/50">
+        {/* ID CARD VISUALIZATION */}
+        <div className="flex-shrink-0 w-full md:w-56">
+          <div className="bg-zinc-200 p-3 rounded shadow-lg transform -rotate-1 border border-zinc-400 relative">
+            <div className="absolute top-2 right-2 w-3 h-3 rounded-full border border-zinc-400 bg-emerald-500/20"></div>
+            <div className="flex space-x-3 mb-4">
+              <AvatarDisplay />
+              <div className="space-y-1">
+                <h2 className="text-black font-bold text-xs leading-none uppercase">[REDACTED]</h2>
+                <p className="text-[8px] text-zinc-600 uppercase leading-none">
+                  Mechanic // Night Shift
+                </p>
+                <p className="text-[8px] text-zinc-600 uppercase leading-none mt-1">ID: 770-M-9M</p>
+              </div>
+            </div>
+            <div className="h-4 bg-black w-full mb-1"></div>
+            <div className="flex justify-between items-end">
+              <div className="text-[6px] text-zinc-500 uppercase leading-tight">
+                Prop. of [REDACTED] Aerospace.
+                <br />
+                Return to Security if found.
+              </div>
+              <div className="text-xs font-bold text-red-900 border-2 border-red-900 px-1 transform -rotate-6 opacity-70">
+                VALID
               </div>
             </div>
           </div>
         </div>
 
-        {/* Identity Details */}
-        <div className="flex-grow space-y-6 w-full">
+        {/* TEXT DETAILS */}
+        <div className="flex-grow space-y-4 pt-2">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-2xl text-emerald-400 font-bold uppercase tracking-widest mb-1">
-                [REDACTED]
-              </h3>
-              <p className="text-emerald-600 font-mono text-sm">
-                770-M-9M-MRO // NIGHT SHIFT MECHANIC
+              <h1 className="text-2xl text-emerald-400 font-bold uppercase tracking-widest mb-1 font-sans">
+                Personnel File
+              </h1>
+              <p className="text-emerald-700 text-xs uppercase tracking-wider">
+                Subject: 770-M-9M-MRO
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-[10px] uppercase text-zinc-500 mb-1">SECURITY CLEARANCE</p>
-              <p
-                className={`text-lg font-bold font-mono ${clearanceLevel > 1 ? 'text-red-500 animate-pulse' : 'text-emerald-500'}`}
-              >
-                {getClearanceText(clearanceLevel)}
-              </p>
-            </div>
+            <div className="text-right">{getClearanceBadge(clearanceLevel)}</div>
           </div>
 
-          <div className="bg-black/20 border border-emerald-900/50 p-6 rounded-sm">
-            <h4 className="text-xs text-emerald-700 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
-              HR REMARKS & STATUS
-            </h4>
-            <div className="text-sm text-emerald-300 space-y-2 font-mono">
-              {state.flags.onPerformanceImprovementPlan && (
-                <p className="text-amber-400 bg-amber-900/20 p-2 border-l-2 border-amber-500">
-                  [REPRIMAND] Subject is currently on a mandatory Performance Improvement Plan.
-                </p>
-              )}
-              {state.flags.suspicionEvent60Triggered && (
-                <p className="text-zinc-400 bg-zinc-900/40 p-2 border-l-2 border-zinc-600">
-                  [NOTE] Subject's logs show multiple discrepancies. File flagged for internal
-                  review.
-                </p>
-              )}
-              {!state.flags.onPerformanceImprovementPlan &&
-                !state.flags.suspicionEvent60Triggered && (
-                  <p className="text-zinc-500 italic">
-                    -- No active disciplinary remarks on file. --
-                  </p>
-                )}
+          <div className="grid grid-cols-2 gap-4 mt-4 bg-black/40 p-4 border border-emerald-900/30">
+            <div>
+              <p className="text-[9px] text-emerald-800 uppercase">Current Assignment</p>
+              <p className="text-emerald-300">Hangar Bay 4 (Night Shift)</p>
+            </div>
+            <div>
+              <p className="text-[9px] text-emerald-800 uppercase">Tenure</p>
+              <p className="text-emerald-300">{formatDuration(state.time.totalPlayTime)} Logged</p>
+            </div>
+            <div>
+              <p className="text-[9px] text-emerald-800 uppercase">Psych Eval</p>
+              <p className={`${sanity < 40 ? 'text-red-500 animate-pulse' : 'text-emerald-300'}`}>
+                {sanity > 80 ? 'STABLE' : sanity > 40 ? 'COMPROMISED' : 'CRITICAL'} // {sanity}%
+              </p>
+            </div>
+            <div>
+              <p className="text-[9px] text-emerald-800 uppercase">Security Flag</p>
+              <p className="text-emerald-300">
+                LEVEL {Math.floor(state.resources.suspicion / 20)} THREAT
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* SECTION 2: CAREER STATISTICS */}
-      <div className="space-y-6">
-        <h4 className="text-sm text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-          Career Performance Metrics
+      {/* METRICS GRID */}
+      <div>
+        <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
+          Performance Metrics
         </h4>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
           <StatDisplay
             label="Logbook Hours"
-            value={`${Math.floor(resources.technicalLogbookHours)}H`}
+            value={Math.floor(resources.technicalLogbookHours)}
+            sub="FAA Req: 1800"
           />
-          <StatDisplay label="Jobs Completed" value={stats.jobsCompleted} />
+          <StatDisplay label="Jobs Closed" value={stats.jobsCompleted} />
           <StatDisplay label="SRFs Filed" value={stats.srfsFiled} />
-          <StatDisplay label="Events Resolved" value={stats.eventsResolved} />
-          <StatDisplay label="NDT Scans" value={stats.ndtScansPerformed} />
           <StatDisplay label="Anomalies" value={stats.anomaliesAnalyzed} />
-          <StatDisplay label="Rotables Rep." value={stats.rotablesRepaired} />
-
-          {/* New Time Stats */}
+          <StatDisplay label="NDT Scans" value={stats.ndtScansPerformed} />
+          <StatDisplay label="Rotables" value={stats.rotablesRepaired} />
           <StatDisplay label="Shift Cycles" value={state.time?.shiftCycle || 1} />
-          <StatDisplay label="Time Played" value={formatDuration(state.time?.totalPlayTime || 0)} />
-
-          <div className="p-4 border border-emerald-900/50 bg-black/30">
-            <p className="text-xs text-emerald-700 uppercase tracking-widest mb-1">
-              Shift Progress
-            </p>
-            <div className="flex items-end gap-2">
-              <p className="text-xl font-bold text-emerald-300">
-                {Math.floor(((state.time?.shiftTime || 0) / (8 * 60 * 60 * 1000)) * 100)}%
-              </p>
-              <div className="flex-grow h-2 bg-emerald-950 mb-1.5 overflow-hidden">
-                <div
-                  className="h-full bg-emerald-500/50"
-                  style={{
-                    width: `${Math.min(100, ((state.time?.shiftTime || 0) / (8 * 60 * 60 * 1000)) * 100)}%`,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* SECTION 3: CERTIFICATIONS & TRAINING */}
-      <div className="space-y-6">
-        <h4 className="text-sm text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-          Licensing & Qualifications
+      {/* CERTIFICATIONS */}
+      <div>
+        <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
+          Qualifications & Licenses
         </h4>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* FAA COLUMN */}
-          <div className="space-y-4">
-            <h5 className="text-xs text-emerald-700 font-bold uppercase tracking-widest bg-emerald-900/10 p-2 border-l-2 border-emerald-600">
-              FAA 14 CFR Part 65
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-emerald-900/10 border border-emerald-900/30 p-3">
+            <h5 className="text-[10px] text-emerald-500 font-bold uppercase mb-3">FAA Ratings</h5>
+            <ul className="space-y-1 text-xs text-emerald-400/80">
+              <li className="flex justify-between">
+                <span>Airframe & Powerplant (A&P)</span>{' '}
+                <span>{inventory.hasAPLicense ? '[ ACTIVE ]' : '[ PENDING ]'}</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Avionics Certification</span>{' '}
+                <span>{inventory.hasAvionicsCert ? '[ ACTIVE ]' : '[ --- ]'}</span>
+              </li>
+              <li className="flex justify-between">
+                <span>Written Exam</span>{' '}
+                <span>{inventory.apWrittenPassed ? '[ PASS ]' : '[ --- ]'}</span>
+              </li>
+            </ul>
+          </div>
+          <div className="bg-emerald-900/10 border border-emerald-900/30 p-3">
+            <h5 className="text-[10px] text-emerald-500 font-bold uppercase mb-3">
+              Company Mandates
             </h5>
-            <div className="space-y-2">
-              <CheckListItem
-                label="1800 Logbook Hours"
-                checked={resources.technicalLogbookHours >= 1800}
-                details={`${Math.floor(resources.technicalLogbookHours)} / 1800 Required`}
-              />
-              <CheckListItem label="A&P Written Exam" checked={inventory.apWrittenPassed} />
-              <CheckListItem label="A&P Practical Exam" checked={inventory.apPracticalPassed} />
-              <CheckListItem label="A&P License Issued" checked={inventory.hasAPLicense} />
-              <CheckListItem label="Avionics Certification" checked={inventory.hasAvionicsCert} />
-            </div>
+            <ul className="space-y-1 text-xs text-emerald-400/80">
+              <li className="flex justify-between">
+                <span>Human Factors (Initial)</span>{' '}
+                <span>{inventory.hasHfInitial ? '[ COMPLETED ]' : '[ REQUIRED ]'}</span>
+              </li>
+              <li className="flex justify-between">
+                <span>FTS (Fuel Tank Safety)</span>{' '}
+                <span>{inventory.hasFts ? '[ COMPLETED ]' : '[ REQUIRED ]'}</span>
+              </li>
+              <li className="flex justify-between">
+                <span>EWIS (Wiring)</span>{' '}
+                <span>{inventory.hasHdi ? '[ COMPLETED ]' : '[ REQUIRED ]'}</span>
+              </li>
+            </ul>
           </div>
-
-          {/* MANDATORY TRAINING COLUMN */}
-          <div className="space-y-4">
-            <h5 className="text-xs text-emerald-700 font-bold uppercase tracking-widest bg-emerald-900/10 p-2 border-l-2 border-emerald-600">
-              Mandatory Company Training
-            </h5>
-            <div className="space-y-2">
-              <CheckListItem label="Human Factors (Initial)" checked={inventory.hasHfInitial} />
-              <CheckListItem
-                label="Human Factors (Recurrent)"
-                checked={inventory.hasHfRecurrent}
-                details={inventory.hasHfInitial ? 'Due in...' : 'Requires Initial'}
-              />
-              <CheckListItem label="Fuel Tank Safety (FTS)" checked={inventory.hasFts} />
-              <CheckListItem label="Hidden Damage Insp. (HDI)" checked={inventory.hasHdi} />
-            </div>
-          </div>
-
-          {/* EASA COLUMN */}
-          <div className="space-y-4">
-            <h5 className="text-xs text-emerald-700 font-bold uppercase tracking-widest bg-emerald-900/10 p-2 border-l-2 border-emerald-600">
-              EASA Part-66 (B1.1)
-            </h5>
-            <div className="space-y-2">
-              <CheckListItem
-                label="2400 Logbook Hours"
-                checked={resources.technicalLogbookHours >= 2400}
-                details={`${Math.floor(resources.technicalLogbookHours)} / 2400 Required`}
-              />
-              <div className="bg-black/20 p-3 border border-emerald-900/30">
-                <p className="text-[10px] text-emerald-500 mb-2 uppercase tracking-wider flex justify-between">
-                  <span>Modules Passed</span>
-                  <span className="text-white">
-                    {proficiency.easaModulesPassed.length} /{' '}
-                    {trainingData.easaLicense.modules.length}
-                  </span>
-                </p>
-                <div className="grid grid-cols-4 gap-1">
-                  {trainingData.easaLicense.modules.map((mod) => (
-                    <div
-                      key={mod.id}
-                      title={mod.name}
-                      className={`p-1.5 text-center border text-[9px] font-mono transition-colors ${proficiency.easaModulesPassed.includes(mod.id) ? 'bg-emerald-800 border-emerald-500 text-emerald-100 shadow-[0_0_5px_rgba(16,185,129,0.4)]' : 'bg-zinc-950 border-zinc-800 text-zinc-700'}`}
-                    >
-                      {mod.name.split(':')[0]}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION 4: BELONGINGS */}
-      <div className="space-y-6">
-        <h4 className="text-sm text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-          Tools & Equipment
-        </h4>
-        <div className="p-6 border border-emerald-900/50 bg-black/20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Filter inventory for tools (excluding licenses/certs/upgrades) */}
-            {Object.entries(inventory)
-              .filter(([key, hasItem]) => {
-                if (!hasItem) return false;
-                // Exclude non-physical items or specialized flags
-                const excluded = [
-                  'hasAPLicense',
-                  'apWrittenPassed',
-                  'apPracticalPassed',
-                  'hasAvionicsCert',
-                  'isToolboxWithPlayer', // Status flag, not item itself? Or maybe show it?
-                  'pcAssembled',
-                  'pcGpuUpgrade',
-                  'pcHddUpgrade',
-                  'hasTruckLockbox',
-                  'hasHfInitial',
-                  'hasHfRecurrent',
-                  'hasFts',
-                  'hasHdi',
-                  'hasNdtLevel1',
-                  'hasNdtLevel2',
-                  'hasNdtLevel3',
-                  'ndtCerts',
-                  'hasEasaB1_1',
-                  'hasEasaB2',
-                  'hasEasaC',
-                  'typeRating737',
-                  'typeRatingA330',
-                  'mixedTouchUpPaint', // Handle separately if needed
-                ];
-                return !excluded.includes(key);
-              })
-              .map(([key]) => (
-                <div
-                  key={key}
-                  className="flex flex-col p-3 border border-emerald-900/30 bg-black/40 text-center hover:bg-emerald-900/20 transition-colors"
-                >
-                  <span className="text-[10px] text-emerald-500 uppercase font-bold">
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </span>
-                  <span className="text-xs text-emerald-700 uppercase">[ EQUIP ]</span>
-                </div>
-              ))}
-          </div>
-        </div>
-
-        <h4 className="text-sm text-emerald-500 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-2">
-          Personal Effects
-        </h4>
-        <div className="p-6 border border-emerald-900/50 bg-black/20">
-          {Object.entries(state.personalInventory).length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {Object.entries(state.personalInventory).map(([key, count]) => (
-                <div
-                  key={key}
-                  className="flex flex-col p-3 border border-emerald-900/30 bg-black/40 text-center hover:bg-emerald-900/20 transition-colors"
-                >
-                  <span className="text-[10px] text-emerald-600 uppercase mb-1">
-                    {key.replace(/_/g, ' ')}
-                  </span>
-                  <span className="text-xl font-bold text-emerald-300">x{count}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-sm text-zinc-600 uppercase tracking-widest">
-                No personal items registered to this locker.
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </div>
   );
 };
 
-type ModalSection = 'FILE' | 'MATRIX' | 'IMPORT_EXPORT' | 'ABOUT' | 'HOW_TO' | 'CONTACT';
+// ================= MAIN MODAL COMPONENT =================
+type ModalSection = 'FILE' | 'MATRIX' | 'IMPORT_EXPORT' | 'ABOUT' | 'HOW_TO';
 
 interface AboutModalProps {
   state: GameState;
@@ -427,250 +334,158 @@ interface AboutModalProps {
 }
 
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
-  const BUILD_NUMBER = 'Build Number {_build_43}';
-
+  const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
+  const BUILD_NUMBER = 'Build v.{_build_2}';
 
   const handleSectionClick = (section: ModalSection) => {
-    playClick();
+    play('CLICK');
     setActiveSection(section);
   };
 
-  const handleImport = (newState: GameState) => {
-    playClick();
-    onAction('IMPORT_STATE', { state: newState });
-  };
+  const menuItems: { id: ModalSection; label: string }[] = [
+    { id: 'FILE', label: 'PERS. FILE' },
+    { id: 'MATRIX', label: 'COMPETENCY' },
+    { id: 'IMPORT_EXPORT', label: 'SYS. MIGRATION' },
+    { id: 'HOW_TO', label: 'MANUAL' },
+    { id: 'ABOUT', label: 'CREDITS' },
+  ];
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-content !p-0 flex h-[80vh] w-[95%] max-w-[1200px]"
+        className="modal-content !p-0 flex h-[85vh] w-[95%] max-w-[1100px] border-2 border-emerald-900 bg-[#050905] shadow-[0_0_50px_rgba(0,0,0,0.8)]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-xs uppercase px-3 py-1 border border-red-800 text-red-500 hover:bg-red-900 transition-all z-10"
+          className="absolute top-0 right-0 m-4 z-50 text-emerald-600 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest border border-emerald-900/50 px-3 py-1 bg-black hover:bg-emerald-900/20 transition-all"
         >
-          [ CLOSE ]
+          [ CLOSE TERMINAL ]
         </button>
 
-        {/* Sidebar */}
-        <div className="w-1/4 bg-black/20 border-r border-emerald-900/50 p-6 flex flex-col space-y-2">
-          {/* Dashboard Section */}
-          <h3 className="text-sm text-emerald-600 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-4 mb-2">
-            Dashboard
-          </h3>
-          <button
-            onClick={() => handleSectionClick('FILE')}
-            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'FILE' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
-          >
-            You
-          </button>
-          <button
-            onClick={() => handleSectionClick('MATRIX')}
-            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'MATRIX' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
-          >
-            Field Competencies{' '}
-            <span
-              className={`ml-2 text-xs px-2 py-0.5 rounded-full ${state.proficiency.skillPoints > 0 ? 'bg-amber-400 text-black' : 'bg-emerald-900 text-emerald-400'}`}
-            >
-              {state.proficiency.skillPoints}
-            </span>
-          </button>
-          <button
-            onClick={() => handleSectionClick('IMPORT_EXPORT')}
-            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'IMPORT_EXPORT' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
-          >
-            Import / Export
-          </button>
+        {/* SIDEBAR */}
+        <div className="w-64 bg-black/60 border-r border-emerald-900/50 flex flex-col">
+          <div className="p-6 border-b border-emerald-900/30 bg-emerald-950/20">
+            <h2 className="text-xl font-bold text-emerald-500 tracking-tighter">RAS-TERM</h2>
+            <p className="text-[9px] text-emerald-800 uppercase tracking-[0.3em]">
+              Personnel Admin
+            </p>
+          </div>
 
-          {/* Info Section */}
-          <h3 className="text-sm text-emerald-600 uppercase tracking-[0.2em] border-b border-emerald-900/30 pb-4 mb-2 mt-6">
-            Information
-          </h3>
-          <button
-            onClick={() => handleSectionClick('ABOUT')}
-            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'ABOUT' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
-          >
-            About
-          </button>
-          <button
-            onClick={() => handleSectionClick('HOW_TO')}
-            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'HOW_TO' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
-          >
-            How to Play
-          </button>
-          <button
-            onClick={() => handleSectionClick('CONTACT')}
-            className={`w-full text-left px-4 py-2 text-sm uppercase transition-all rounded-sm ${activeSection === 'CONTACT' ? 'bg-emerald-800 text-white shadow-lg' : 'hover:bg-emerald-950/50 text-emerald-400'}`}
-          >
-            Contact
-          </button>
+          <nav className="flex-grow p-4 space-y-1">
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleSectionClick(item.id)}
+                className={`w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-l-2 ${
+                  activeSection === item.id
+                    ? 'bg-emerald-900/30 text-emerald-300 border-emerald-500'
+                    : 'text-emerald-700 border-transparent hover:bg-emerald-900/10 hover:text-emerald-500'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="p-4 border-t border-emerald-900/30 text-center">
+            <p className="text-[9px] text-emerald-800 font-mono">
+              {BUILD_NUMBER.replace(/\{_build_(\d+)\}/, '$1')}
+            </p>
+          </div>
         </div>
 
-        {/* Content */}
-        <div className="w-3/4 p-8 overflow-y-auto">
-          {activeSection === 'FILE' && (
-            <div className="animate-[story-reveal_1s_ease-out]">
-              <PlayerProfileView state={state} />
-            </div>
-          )}
-          {activeSection === 'MATRIX' && (
-            <div className="animate-[story-reveal_1s_ease-out]">
-              <ProficiencyMatrixView state={state} onAction={onAction} />
-            </div>
-          )}
-          {activeSection === 'IMPORT_EXPORT' && (
-            <div className="animate-[story-reveal_1s_ease-out]">
-              <ImportExportView state={state} onImport={handleImport} />
-            </div>
-          )}
+        {/* MAIN CONTENT AREA */}
+        <div className="flex-grow p-8 overflow-hidden relative bg-[url('/scanline.png')] bg-repeat">
+          {/* CRT Scanline Overlay Effect (CSS only) */}
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] z-10 bg-[length:100%_2px,3px_100%]"></div>
 
-          {activeSection === 'ABOUT' && (
-            <div className="space-y-6 text-emerald-300 animate-[story-reveal_1s_ease-out]">
-              <h1 className="text-2xl font-bold text-emerald-400 border-b border-emerald-800 pb-2">
-                THE HANGAR
-                <p className="text-xs uppercase text-emerald-600 tracking-widest">
-                  {BUILD_NUMBER.replace(/\{_build_(\d+)\}/, '$1')}
+          <div className="h-full relative z-20">
+            {activeSection === 'FILE' && <PlayerProfileView state={state} />}
+            {activeSection === 'MATRIX' && (
+              <ProficiencyMatrixView state={state} onAction={onAction} />
+            )}
+            {activeSection === 'IMPORT_EXPORT' && (
+              <ImportExportView
+                state={state}
+                onImport={(s) => {
+                  onAction('IMPORT_STATE', { state: s });
+                  onClose();
+                }}
+              />
+            )}
+
+            {activeSection === 'HOW_TO' && (
+              <div className="space-y-6 text-emerald-400 font-mono text-xs max-h-full overflow-y-auto pr-2">
+                <h1 className="text-xl text-emerald-300 font-bold border-b border-emerald-800 pb-2 mb-4">
+                  Field Manual
+                </h1>
+                <p className="leading-relaxed opacity-90">
+                  Welcome to the Night Shift. Your primary objective is to maintain aircraft
+                  airworthiness while managing your own physical and mental resources.
                 </p>
-              </h1>
-              <p className="text-sm leading-relaxed">
-                THE HANGAR is a text-based incremental RPG of industrial dread and eldritch mystery.
-                You are a night-shift aircraft mechanic at a remote international airport. What
-                begins as a mundane routine of repairs and paperwork slowly unravels into a
-                terrifying conspiracy surrounding the disappearance of flight MH370 and the strange,
-                untraceable components that have started appearing in your bay.
-              </p>
-              <p className="text-sm leading-relaxed">
-                This game saves your progress automatically in your browser's local storage. There
-                is no server, and no data is collected.
-              </p>
-              <div className="pt-4 border-t border-emerald-900/50">
-                <h2 className="text-xs uppercase text-emerald-600 tracking-widest">Credits</h2>
-                <p className="text-sm mt-2">Me. Steve.</p>
+
+                <div className="space-y-4">
+                  <div className="border-l-2 border-emerald-700 pl-4">
+                    <h3 className="font-bold text-emerald-200">RESOURCES</h3>
+                    <ul className="list-disc list-inside mt-2 space-y-1 opacity-80">
+                      <li>
+                        <span className="text-amber-400">SANITY</span>: Mental stability. Depletes
+                        upon witnessing anomalies. Zero events are fatal.
+                      </li>
+                      <li>
+                        <span className="text-red-400">SUSPICION</span>: Management oversight.
+                        Increases with illicit actions. 100% results in termination.
+                      </li>
+                      <li>
+                        <span className="text-blue-400">FOCUS</span>: Action points. Regenerates
+                        over time. Required for complex tasks.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="border-l-2 border-emerald-700 pl-4">
+                    <h3 className="font-bold text-emerald-200">PROTOCOL</h3>
+                    <p className="mt-2 opacity-80">
+                      1. Accept jobs from Hanger/Apron tabs.
+                      <br />
+                      2. Utilize Backshops for component repair.
+                      <br />
+                      3. Log hours to qualify for Licensing exams.
+                      <br />
+                      4. Report anomalies immediately. (Or don't. We watch regardless.)
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
-          {activeSection === 'HOW_TO' && (
-            <div className="space-y-6 text-emerald-300 animate-[story-reveal_1s_ease-out]">
-              <h1 className="text-2xl font-bold text-emerald-400 border-b border-emerald-800 pb-2">
-                How to Play
-              </h1>
-              <div>
-                <h2 className="text-lg font-semibold text-emerald-400 mb-2">The Goal</h2>
-                <p className="text-sm leading-relaxed">
-                  Survive your shift, maintain your sanity, and uncover the truth without drawing
-                  too much attention. Every action has consequences.
+            )}
+
+            {activeSection === 'ABOUT' && (
+              <div className="flex flex-col items-center justify-center h-full text-center space-y-6 font-mono">
+                <h1 className="text-4xl font-bold text-emerald-500 tracking-tighter shimmer-text">
+                  THE HANGAR
+                </h1>
+                <p className="text-emerald-700 text-xs w-2/3 leading-relaxed">
+                  An incremental narrative experiment dealing with industrial isolation, cosmic
+                  horror, and the crushing weight of bureaucratic aviation maintenance.
                 </p>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-emerald-400 mb-2">Core Stats</h2>
-                <ul className="space-y-3 text-sm list-disc list-inside">
-                  <li>
-                    <strong className="text-emerald-400">Sanity:</strong> Your mental stability.
-                    Drops when you witness strange events. If it reaches zero, you lose.
-                  </li>
-                  <li>
-                    <strong className="text-red-400">Suspicion:</strong> How much attention you've
-                    drawn from management and other forces. If it reaches 100, you are... removed.
-                  </li>
-                  <li>
-                    <strong className="text-blue-400">Focus:</strong> Your ability to perform tasks.
-                    Consumed by most actions, but regenerates over time. Keep it high to be
-                    effective.
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-emerald-400 mb-2">Gameplay Loop</h2>
-                <ul className="space-y-3 text-sm list-disc list-inside">
-                  <li>
-                    Take on jobs and assignments from the{' '}
-                    <strong className="text-emerald-400">APRON</strong> and{' '}
-                    <strong className="text-emerald-400">HANGAR</strong> to earn Credits and
-                    Experience (XP).
-                  </li>
-                  <li>Use resources like Alclad and Rivets to complete jobs.</li>
-                  <li>
-                    Manage your tools in the <strong className="text-emerald-400">TOOLROOM</strong>.
-                    Broken tools are useless and the Master gets angry.
-                  </li>
-                  <li>
-                    Visit the <strong className="text-emerald-400">CANTEEN</strong> and{' '}
-                    <strong className="text-emerald-400">TERMINAL</strong> to manage your Sanity and
-                    Focus.
-                  </li>
-                  <li>
-                    Use the <strong className="text-emerald-400">OFFICE</strong> to manage your
-                    career, study for licenses, and investigate leads.
-                  </li>
-                  <li>
-                    Spend Skill Points in the{' '}
-                    <strong className="text-emerald-400">FIELD COMPETENCIES</strong> (click your
-                    Level/XP bar in the header) to unlock new abilities.
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-emerald-400 mb-2">The Mystery</h2>
-                <p className="text-sm leading-relaxed">
-                  Pay attention to the logs, radio chatter, and emails. The truth is hidden in the
-                  details. Some choices will open new paths, while others will lead to a dead end.
-                  Good luck.
-                </p>
-              </div>
-            </div>
-          )}
-          {activeSection === 'CONTACT' && (
-            <div className="space-y-6 text-emerald-300 animate-[story-reveal_1s_ease-out]">
-              <h1 className="text-2xl font-bold text-emerald-400 border-b border-emerald-800 pb-2">
-                Contact
-              </h1>
-              <div>
-                <h2 className="text-lg font-semibold text-emerald-400 mb-2">
-                  Feedback & Inquiries
-                </h2>
-                <p className="text-sm leading-relaxed">
-                  For feedback, bug reports, or any other inquiries, you can reach out via email:
-                </p>
-                <a
-                  href="mailto:steven@tabbythecat.com"
-                  className="text-lg text-amber-400 font-mono my-2 inline-block hover:underline"
-                >
-                  steven@tabbythecat.com
-                </a>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-emerald-400 mb-2">Public Repository</h2>
-                <p className="text-sm leading-relaxed mb-4">
-                  The Hangar is open source. Issue or feature request? Go to the GitHub repo. PR's
-                  welcome.
-                </p>
+                <div className="border-t border-b border-emerald-900/50 py-4 w-1/2">
+                  <p className="text-[10px] text-emerald-600 uppercase tracking-widest">
+                    Created by Steven Selcuk
+                  </p>
+                </div>
                 <a
                   href="https://github.com/stevenselcuk/thehangar"
                   target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-6 py-3 border border-emerald-700 bg-emerald-950/20 text-emerald-300 uppercase text-sm font-bold tracking-widest hover:bg-emerald-900/40 hover:border-emerald-500 transition-all"
+                  rel="noreferrer"
+                  className="text-xs text-emerald-400 hover:text-emerald-200 underline decoration-emerald-800 hover:decoration-emerald-400 underline-offset-4 transition-all"
                 >
-                  Go GitHub Repo
+                  github.com/stevenselcuk/thehangar
                 </a>
               </div>
-              <div>
-                <h2 className="text-lg font-semibold text-emerald-400 mb-2">Developer Profile</h2>
-                <p className="text-sm leading-relaxed mb-4">
-                  Check out the developer's other projects on GitHub.
-                </p>
-                <a
-                  href="https://github.com/stevenselcuk"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-6 py-3 border border-emerald-700 bg-emerald-950/20 text-emerald-300 uppercase text-sm font-bold tracking-widest hover:bg-emerald-900/40 hover:border-emerald-500 transition-all"
-                >
-                  Visit GitHub Profile
-                </a>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

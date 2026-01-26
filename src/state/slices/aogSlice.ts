@@ -26,6 +26,38 @@ export const aogReducer = (
       addLogToDraft(draft.logs, text, type, Date.now());
     };
 
+    const resolveAction = (actionId: string) => {
+      const scenarioId = draft.aog.scenarioId;
+      const scenario = aogScenarios.find((s) => s.id === scenarioId);
+
+      if (!scenario) return;
+
+      // Validation: Verify this action is the one in progress
+      if (!draft.aog.actionInProgress || draft.aog.actionInProgress.actionId !== actionId) {
+        return;
+      }
+
+      const aogAction = scenario.actions.find((a) => a.id === actionId);
+      if (!aogAction) return;
+
+      // Apply Results
+      draft.aog.actionInProgress = null;
+      draft.aog.completedActions.push(actionId);
+
+      const progressAmount = aogAction.progress || 25;
+      draft.aog.currentProgress += progressAmount;
+
+      // Add log
+      addLog(`COMPLETED: ${aogAction.label}. (+${progressAmount} Progress)`, 'info');
+      if (aogAction.consequence) {
+        addLog(aogAction.consequence, 'story');
+      }
+
+      if (draft.aog.currentProgress >= draft.aog.progressRequired) {
+        addLog(`STATUS UPDATE: Aircraft stabilized. Return to base authorized.`, 'story');
+      }
+    };
+
     switch (action.type) {
       case 'ACCEPT_AOG_DEPLOYMENT': {
         if (draft.aog.active) {
@@ -96,43 +128,23 @@ export const aogReducer = (
 
       case 'RESOLVE_AOG_ACTION': {
         const { actionId } = action.payload as { actionId: string };
-        const scenarioId = draft.aog.scenarioId;
-        const scenario = aogScenarios.find((s) => s.id === scenarioId);
-
-        if (!scenario) return;
-
-        // Validation: Verify this action is the one in progress
-        if (!draft.aog.actionInProgress || draft.aog.actionInProgress.actionId !== actionId) {
-          // Fallback for immediate resolution if something weird happens, or just ignore
-          // ideally we shouldn't hit this if UI is correct
-          return;
-        }
-
-        const aogAction = scenario.actions.find((a) => a.id === actionId);
-        if (!aogAction) return;
-
-        // Apply Results
-        draft.aog.actionInProgress = null;
-        draft.aog.completedActions.push(actionId);
-
-        const progressAmount = aogAction.progress || 25;
-        draft.aog.currentProgress += progressAmount;
-
-        // Add log
-        addLog(`COMPLETED: ${aogAction.label}. (+${progressAmount} Progress)`, 'info');
-        if (aogAction.consequence) {
-          addLog(aogAction.consequence, 'story');
-        }
-
-        if (draft.aog.currentProgress >= draft.aog.progressRequired) {
-          addLog(`STATUS UPDATE: Aircraft stabilized. Return to base authorized.`, 'story');
-        }
-
+        resolveAction(actionId);
         break;
       }
 
       case 'AOG_TICK': {
         if (!draft.aog.active) return;
+
+        const { now } = action.payload as { now: number };
+
+        // Check for active action completion
+        if (draft.aog.actionInProgress && now) {
+          const endTime =
+            draft.aog.actionInProgress.startTime + draft.aog.actionInProgress.duration;
+          if (now >= endTime) {
+            resolveAction(draft.aog.actionInProgress.actionId);
+          }
+        }
 
         // Random passive narrative events (5% chance per tick approx, assuming 1 sec tick)
         // Adjust probability as needed based on tick rate.
