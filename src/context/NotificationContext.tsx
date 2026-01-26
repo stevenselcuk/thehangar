@@ -1,40 +1,6 @@
-import React, { createContext, useCallback, useContext, useReducer } from 'react';
-
-export type NotificationVariant =
-  | 'default'
-  | 'info'
-  | 'warning'
-  | 'danger'
-  | 'hazard'
-  | 'success'
-  | 'levelup'
-  | 'system';
-
-export interface NotificationAction {
-  label: string;
-  onClick: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
-}
-
-export interface Notification {
-  id: string;
-  title: string;
-  message?: React.ReactNode;
-  variant?: NotificationVariant;
-  duration?: number; // 0 for persistent
-  actions?: NotificationAction[];
-  isExiting?: boolean;
-}
-
-interface NotificationContextType {
-  notifications: Notification[];
-  addNotification: (
-    notification: Omit<Notification, 'id' | 'isExiting'> & { id?: string }
-  ) => string;
-  removeNotification: (id: string) => void;
-}
-
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+import React, { useCallback, useReducer } from 'react';
+import { Notification } from '../types.ts';
+import { NotificationContext } from './NotificationContextDefinition.ts';
 
 type Action =
   | { type: 'ADD'; payload: Notification }
@@ -100,12 +66,4 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       {children}
     </NotificationContext.Provider>
   );
-};
-
-export const useNotification = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotification must be used within a NotificationProvider');
-  }
-  return context;
 };

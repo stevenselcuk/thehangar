@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Notification } from '../context/NotificationContext';
-import { LogMessage } from '../types';
+import { LogMessage, Notification } from '../types';
 import { getNotificationVariantForLogType } from '../utils/logUtils';
 import { useWindowSize } from './useWindowSize';
 

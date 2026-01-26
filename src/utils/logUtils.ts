@@ -1,5 +1,4 @@
-import { NotificationVariant } from '../context/NotificationContext';
-import { LogMessage } from '../types';
+import { LogMessage, NotificationVariant } from '../types';
 
 export const getLogStyles = (type: LogMessage['type']) => {
   switch (type) {

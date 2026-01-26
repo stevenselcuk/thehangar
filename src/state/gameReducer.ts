@@ -1,352 +1,16 @@
 import { produce } from 'immer';
 
-import { SYSTEM_LOGS } from '../data/flavor.ts';
-import { mailData } from '../data/mail.ts';
-import { getLevelUpLog, getXpForNextLevel } from '../logic/levels.ts';
-import { GameState, Inventory, JobCard, LogMessage, MailMessage, TabType } from '../types.ts';
+import { GameState } from '../types.ts';
 import { createJob } from './initialState.ts';
 
 // Service layer imports
-import {
-  FatigueLevel,
-  LOCATION_PROPERTIES,
-  NoiseLevel,
-  TemperatureLevel,
-} from '../data/locationProperties.ts';
-import { addLogToDraft } from '../services/logService.ts';
 import { composeAction, composeTick } from './reducerComposer.ts';
 
 // --- Logic from tickProcessor.ts ---
-const processTick = (
-  draft: GameState,
-  delta: number,
-  triggerEvent: (type: string, id?: string) => void,
-  activeTab: TabType
-): void => {
-  const now = Date.now();
+// --- Logic from tickProcessor.ts ---
+import { processTick } from '../logic/tickLogic.ts';
+import { JobCard, TabType } from '../types.ts';
 
-  // --- Location-Based Property Updates ---
-  const locationProps = LOCATION_PROPERTIES[activeTab] || LOCATION_PROPERTIES[TabType.HANGAR];
-
-  // 1. Noise Logic
-  // Map Noise Level to numeric value (0-100 scale) for display/logic if needed,
-  // but we store the raw level or a numeric represention in hfStats.noiseExposure.
-  // The user asked for "change noise by tab". So we set it.
-
-  // Mapping Noise Enum to Numeric Value for hfStats.noiseExposure
-  const noiseMap: Record<NoiseLevel, number> = {
-    [NoiseLevel.LOW]: 10,
-    [NoiseLevel.MEDIUM]: 40,
-    [NoiseLevel.HIGH]: 70,
-    [NoiseLevel.EXTREME_HIGH]: 90,
-  };
-  draft.hfStats.noiseExposure = noiseMap[locationProps.noise];
-
-  // Noise Effects
-  if (locationProps.noise === NoiseLevel.LOW) {
-    // Low noise increases suspicion (too quiet, people notice you)
-    draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 0.5 * (delta / 1000));
-  } else if (
-    locationProps.noise === NoiseLevel.HIGH ||
-    locationProps.noise === NoiseLevel.EXTREME_HIGH
-  ) {
-    // High/Extreme noise increases stress and decreases focus
-    const stressMultiplier = locationProps.noise === NoiseLevel.EXTREME_HIGH ? 1.5 : 0.8;
-    draft.hfStats.socialStress = Math.min(
-      100,
-      draft.hfStats.socialStress + stressMultiplier * (delta / 1000)
-    );
-
-    // Decrease focus (Overcome base regen of ~3.0)
-    const focusDrain = locationProps.noise === NoiseLevel.EXTREME_HIGH ? 5.0 : 3.5;
-    draft.resources.focus = Math.max(0, draft.resources.focus - focusDrain * (delta / 1000));
-  }
-
-  // 2. Event Stress Logic
-  // "increase stress while an event happening"
-  if (draft.activeEvent) {
-    draft.hfStats.socialStress = Math.min(100, draft.hfStats.socialStress + 2.0 * (delta / 1000));
-  }
-
-  // 3. Fatigue Logic
-  // Mapping Fatigue Enum to Rate
-  // "fatique by tabs / Places" (Use accumulated fatigue or set level? Usually fatigue accumulates).
-  // I will interpret "Structure Shop -> High" as High Rate of Fatigue accumulation.
-  const fatigueRateMap: Record<FatigueLevel, number> = {
-    [FatigueLevel.LOW]: 0.1,
-    [FatigueLevel.MEDIUM]: 0.5,
-    [FatigueLevel.HIGH]: 1.2,
-    [FatigueLevel.EXTREME_HIGH]: 2.0,
-  };
-  const fatigueRate = fatigueRateMap[locationProps.fatigue];
-  draft.hfStats.fatigue = Math.min(100, draft.hfStats.fatigue + fatigueRate * (delta / 1000));
-
-  // 4. Temperature Logic
-  // Mapping Temp Enum to degrees (C)
-  const tempMap: Record<TemperatureLevel, number> = {
-    [TemperatureLevel.EXTREME_LOW]: -10, // Freezer/Winter Tarmac
-    [TemperatureLevel.LOW]: 10, // Chilly
-    [TemperatureLevel.COMFORT]: 22, // Office/Ideal
-    [TemperatureLevel.MEDIUM]: 28, // Warm
-    [TemperatureLevel.HIGH]: 35, // Hot Shop
-  };
-  // Smoothly interpolate current temp to target location temp? Or just set it?
-  // User said "temp by tabs", implying the value correlates to the tab.
-  // Let's interpolate for realism (moves towards target).
-  const targetTemp = tempMap[locationProps.temperature];
-  const tempDiff = targetTemp - draft.hfStats.temperature;
-  const tempChangeRate = 0.5 * (delta / 1000); // 0.5 deg per sec
-
-  if (Math.abs(tempDiff) < tempChangeRate) {
-    draft.hfStats.temperature = targetTemp;
-  } else {
-    draft.hfStats.temperature += Math.sign(tempDiff) * tempChangeRate;
-  }
-
-  // Helper function - uses centralized log service
-  const addLog = (text: string, type: LogMessage['type'] = 'info') => {
-    addLogToDraft(draft.logs, text, type, now);
-  };
-
-  const xpForNextLevel = getXpForNextLevel(draft.resources.level);
-  if (draft.resources.experience >= xpForNextLevel) {
-    draft.resources.level += 1;
-    draft.resources.experience -= xpForNextLevel;
-    draft.proficiency.skillPoints += 1;
-    addLog(getLevelUpLog(draft.resources.level), 'levelup');
-    // FIX: The onLevelUp callback is obsolete, side effects are handled in App.tsx
-  }
-
-  if (activeTab === TabType.BACKSHOPS) {
-    draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 0.02 * (delta / 1000));
-    if (Math.random() < 0.0005 * (delta / 1000)) {
-      triggerEvent('eldritch_manifestation', 'THE_HUM');
-    }
-    if (Math.random() < 0.0003 * (delta / 1000) && draft.resources.suspicion > 40) {
-      triggerEvent('audit', 'BACKSHOP_AUDIT_SUITS');
-    }
-    if (Math.random() < 0.0001 * (delta / 1000)) {
-      triggerEvent('incident', 'CONTAINMENT_BREACH_ALERT');
-    }
-  }
-
-  // Update rotables condition
-  draft.rotables.forEach((r) => {
-    r.condition = Math.max(0, r.condition - (0.005 * delta) / 1000);
-  });
-
-  const precisionTools = ['torquemeter', 'airDataTestBox', 'hfecDevice', 'rototestDevice'];
-  precisionTools.forEach((t) => {
-    if (draft.inventory[t as keyof Inventory] && draft.toolConditions[t] > 0) {
-      draft.toolConditions[t] = Math.max(0, draft.toolConditions[t] - 0.05 * (delta / 1000));
-    }
-  });
-
-  if (!draft.activeEvent) {
-    if (draft.resources.suspicion > 30 && !draft.flags.suspicionEvent30Triggered) {
-      triggerEvent('incident', 'SUS_MEMO');
-      draft.flags.suspicionEvent30Triggered = true;
-    } else if (draft.resources.suspicion > 60 && !draft.flags.suspicionEvent60Triggered) {
-      triggerEvent('audit', 'AUDIT_INTERNAL');
-      draft.flags.suspicionEvent60Triggered = true;
-    } else if (draft.resources.suspicion > 90 && !draft.flags.suspicionEvent90Triggered) {
-      triggerEvent('audit', 'AUDIT_SUITS');
-      draft.flags.suspicionEvent90Triggered = true;
-    }
-    if (draft.resources.suspicion > 70 && Math.random() < 0.001 * (delta / 1000)) {
-      triggerEvent('audit');
-    }
-    if (draft.resources.suspicion > 40 && Math.random() < 0.0001 * (delta / 1000)) {
-      triggerEvent('audit', 'RANDOM_DRUG_TEST');
-    }
-    if (Math.random() < 0.00015 * (delta / 1000)) {
-      triggerEvent('incident', 'OVERDUE_NDT_INSPECTION');
-    }
-    if (!draft.flags.activeComponentFailure) {
-      for (const rotable of draft.rotables) {
-        if (rotable.condition < 25 && Math.random() < 0.0005 * (delta / 1000)) {
-          triggerEvent('component_failure', rotable.id);
-          break;
-        }
-      }
-    }
-  }
-
-  if (draft.flags.activeComponentFailure) {
-    draft.resources.credits = Math.max(0, draft.resources.credits - 1.5 * (delta / 1000));
-  }
-
-  if (draft.flags.fuelContaminationRisk && Math.random() < 0.0002 * (delta / 1000)) {
-    triggerEvent('accident', 'CATASTROPHIC_FAILURE');
-    draft.flags.fuelContaminationRisk = false;
-  }
-
-  if (draft.hfStats.fearTimer > 0) {
-    draft.hfStats.fearTimer -= delta;
-    if (draft.hfStats.fearTimer <= 0) {
-      draft.hfStats.fearTimer = 0;
-      draft.flags.isAfraid = false;
-      addLog(SYSTEM_LOGS.FEAR_RECEDE, 'info');
-    }
-  }
-
-  if (draft.hfStats.scheduleCompressionTimer > 0) {
-    draft.hfStats.scheduleCompressionTimer -= delta;
-  }
-  if (draft.hfStats.sanityShieldTimer > 0) {
-    draft.hfStats.sanityShieldTimer -= delta;
-  }
-  if (draft.hfStats.foundLoopholeTimer > 0) {
-    draft.hfStats.foundLoopholeTimer -= delta;
-  }
-
-  if (draft.hfStats.toolroomMasterCooldown > 0) {
-    draft.hfStats.toolroomMasterCooldown -= delta;
-    if (draft.hfStats.toolroomMasterCooldown <= 0) {
-      draft.hfStats.toolroomMasterCooldown = 0;
-      draft.flags.toolroomMasterPissed = false;
-      addLog(SYSTEM_LOGS.MASTER_CALM, 'info');
-    }
-  }
-
-  if (draft.hfStats.efficiencyBoost > 0) {
-    draft.hfStats.efficiencyBoost -= delta;
-    if (draft.hfStats.efficiencyBoost <= 0) {
-      draft.hfStats.efficiencyBoost = 0;
-      addLog('The efficiency boost from your precise calibration has worn off.', 'info');
-    }
-  }
-
-  if (draft.hfStats.venomSurgeTimer > 0) {
-    draft.hfStats.venomSurgeTimer -= delta;
-    if (draft.hfStats.venomSurgeTimer <= 0) {
-      draft.hfStats.venomSurgeTimer = 0;
-      draft.flags.venomSurgeActive = false;
-      addLog('The chemical enhancement from the Venom Surge has faded.', 'info');
-    }
-  }
-
-  if (draft.flags.isHallucinating) {
-    draft.resources.focus = Math.max(0, draft.resources.focus - 5.0 * (delta / 1000));
-  }
-
-  let sanityDrain = 0;
-  if (draft.flags.isAfraid) sanityDrain += 0.5;
-  if (draft.proficiency.unlocked.includes('steadyNerves')) sanityDrain *= 0.9;
-  if (draft.hfStats.sanityShieldTimer > 0) sanityDrain = 0; // Sanity shield active
-  draft.resources.sanity = Math.max(0, draft.resources.sanity - sanityDrain * (delta / 1000));
-
-  if (draft.hfStats.janitorCooldown > 0) {
-    draft.hfStats.janitorCooldown -= delta;
-  } else if (!draft.flags.janitorPresent && Math.random() < 0.0002 * (delta / 1000)) {
-    draft.flags.janitorPresent = true;
-    addLog(SYSTEM_LOGS.JANITOR_APPEARS, 'story');
-    draft.hfStats.janitorCooldown = 10 * 60 * 1000;
-  }
-
-  let focusRegen = (draft.flags.nightCrewActive ? 0.8 : 3.0) * (delta / 1000);
-  if (draft.flags.isAfraid) focusRegen *= 0.5;
-  if (draft.hfStats.efficiencyBoost > 0) focusRegen *= 1.2;
-  draft.resources.focus = Math.min(100, draft.resources.focus + focusRegen);
-
-  if (draft.flags.nightCrewActive) {
-    let alcladGain = 4.0;
-    let rivetGain = 9.0;
-    let suspicionGain = 0.18;
-    if (draft.proficiency.unlocked.includes('nightShiftSupervisor')) {
-      alcladGain *= 1.1;
-      rivetGain *= 1.1;
-      suspicionGain *= 0.85;
-    }
-    draft.resources.alclad += alcladGain * (delta / 1000);
-    draft.resources.rivets += rivetGain * (delta / 1000);
-    draft.resources.suspicion = Math.min(
-      100,
-      draft.resources.suspicion + suspicionGain * (delta / 1000)
-    );
-  }
-
-  if (draft.flags.transitCheckDelegationActive) {
-    draft.resources.credits += 1.5 * (delta / 1000);
-    draft.resources.experience += 5 * (delta / 1000);
-    draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 0.05 * (delta / 1000));
-  }
-
-  if (draft.flags.autoSrfActive) {
-    draft.resources.credits += 0.8 * (delta / 1000);
-    draft.resources.experience += 2 * (delta / 1000);
-    if (Math.random() < 0.0001 * (delta / 1000)) {
-      addLog(
-        'AUTOMATION ALERT: SRF form filed with a data discrepancy. An internal review has been triggered.',
-        'warning'
-      );
-      triggerEvent('audit', 'AUDIT_INTERNAL');
-    }
-  }
-
-  // Base passive income removed as per user request
-  // draft.resources.credits += delta / 7000;
-  // let baseXpGain = delta / 12000;
-  // if (draft.proficiency.unlocked.includes('quickLearner')) baseXpGain *= 1.1;
-  // draft.resources.experience += baseXpGain;
-
-  if (draft.activeEvent && draft.activeEvent.type !== 'component_failure') {
-    draft.activeEvent.timeLeft -= delta;
-    if (draft.activeEvent.timeLeft <= 0) {
-      if (draft.activeEvent.id === 'FUEL_CONTAM') {
-        draft.flags.fuelContaminationRisk = true;
-        addLog("You flushed the contaminated sample. Let's hope nobody finds out.", 'warning');
-      }
-      draft.resources.sanity -=
-        draft.activeEvent.type === 'accident'
-          ? 40
-          : draft.activeEvent.suitType === 'THE_SUITS'
-            ? 35
-            : draft.activeEvent.type === 'eldritch_manifestation'
-              ? 45
-              : draft.activeEvent.type === 'canteen_incident'
-                ? 25
-                : 5;
-      draft.resources.suspicion += draft.activeEvent.type === 'audit' ? 30 : 5;
-      addLog(`SITUATION FAILED: ${draft.activeEvent.title}`, 'error');
-      draft.activeEvent = null;
-    }
-  }
-
-  if (draft.activeJob) {
-    let timeDeduction = delta;
-    if (draft.hfStats.scheduleCompressionTimer > 0) {
-      timeDeduction *= 1.25; // Timer goes 25% faster
-    }
-    draft.activeJob.timeLeft -= timeDeduction;
-    if (draft.activeJob.timeLeft <= 0) {
-      addLog(`JOB EXPIRED: ${draft.activeJob.title}`, 'warning');
-    }
-  }
-
-  const mailCooldown = 3 * 60 * 1000;
-  if (
-    draft.inventory.pcAssembled &&
-    (!draft.eventTimestamps.lastMail || now - draft.eventTimestamps.lastMail > mailCooldown)
-  ) {
-    if (Math.random() < 0.05 * (delta / 1000)) {
-      const unreadMailCount = draft.mail.filter((m) => !m.read).length;
-      const availableMail = mailData.filter(
-        (m) => !draft.mail.some((existing) => existing.subject === m.subject)
-      );
-      if (unreadMailCount < 5 && availableMail.length > 0) {
-        const newMailTemplate = availableMail[Math.floor(Math.random() * availableMail.length)];
-        const newMail: MailMessage = { ...newMailTemplate, id: `mail_${now}`, read: false };
-        draft.mail.push(newMail);
-        draft.eventTimestamps.lastMail = now;
-      }
-    }
-  }
-
-  draft.lastUpdate = now;
-};
-
-// --- Logic from actionProcessor.ts ---
 // Legacy action handler - all actions now routed through domain slices
 // This function remains as a fallback but should not be called in normal operation
 const handleGameAction = (
@@ -361,7 +25,6 @@ const handleGameAction = (
   );
 };
 
-// --- Reducer ---
 export type GameReducerAction =
   | {
       type: 'TICK';
@@ -381,27 +44,30 @@ export type GameReducerAction =
   | { type: 'UPDATE_PROFICIENCY'; payload: Partial<GameState['proficiency']> }
   | { type: 'UPDATE_STATS'; payload: Partial<GameState['stats']> }
   // Import/Export Actions
-  | { type: 'IMPORT_STATE'; payload: { state: GameState } };
+  | { type: 'IMPORT_STATE'; payload: { state: GameState } }
+  | { type: 'CLEAR_NOTIFICATIONS' };
 
 export const gameReducer = (state: GameState, action: GameReducerAction): GameState => {
   return produce(state, (draft) => {
-    const triggerEvent = (_type: string, _id?: string) => {
-      // This is a placeholder; actual dispatch happens in the hook/component
-    };
+    // ...
 
     switch (action.type) {
+      case 'CLEAR_NOTIFICATIONS': {
+        draft.notificationQueue = [];
+        break;
+      }
       case 'TICK': {
         const { delta, triggerEvent, activeTab } = action.payload;
 
-        // Route tick to resource slice for passive updates (focus regen, passive income, etc.)
-        // This is done before processTick to update resources first
         const updatedState = composeTick(draft as unknown as GameState, delta, activeTab);
         Object.assign(draft, updatedState);
 
+        // Delegate to extracted logic
         processTick(draft, delta, triggerEvent, activeTab);
 
         if (draft.activeJob && draft.activeJob.timeLeft <= 0) {
-          draft.activeJob = createJob();
+          // Already handled in processTick, but legacy safety?
+          // processTick handles job replacement now.
         }
         if (!draft.activeEvent && Math.random() < 0.0003) {
           const eventTypes = ['accident', 'incident', 'eldritch_manifestation'];
@@ -411,66 +77,11 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           triggerEvent('incident', 'FUEL_CONTAM');
         }
 
-        // Random price fluctuation (approx every 3-4 minutes)
-        if (Math.random() < 0.005 * (delta / 1000)) {
-          // We need to dispatch an action here.
-          // Since we are inside the reducer, we can't dispatch via Redux directly.
-          // But `triggerEvent` is for eventsSlice.
-          // However, `gameReducer` recursively calls `composeAction` if we were to invoke it?
-          // No, `processTick` generally just modifies draft directly.
-          // We can't easily call `shopReducer` from here without routing.
+        // Random price fluctuation logic removed (handled in processTick)
 
-          // Actually, we are in the TICK handler of gameReducer.
-          // We can just rely on the fact that `composeTick` handles passive updates,
-          // but for random triggers that need to run logic, we might need a different approach
-          // OR we modify the draft directly here if we duplicate logic (bad)
-          // OR we dispatch a new action type in the next tick? (Impossible here)
-
-          // Ideally `processTick` should return actions to queue?
-          // Current architecture seems to rely on `triggerEvent` callback which probably dispatches 'TRIGGER_EVENT'.
-
-          // For now, let's duplicate the simple dispatch logic pattern used elsewhere if any?
-          // Unfortuantely `processTick` is void return.
-          // But we passed `triggerEvent`.
-
-          // Wait, `processTick` modifies `draft`.
-          // We can manually invoke the shop logic on the draft?
-          // No, imports would be circular if we import shopReducer here?
-          // `reducerComposer` imports `shopReducer`. `gameReducer` imports `reducerComposer`.
-          // So `gameReducer` -> `reducerComposer` -> `shopReducer`.
-          // `gameReducer` does NOT import `shopReducer` directly.
-
-          // We can assume `triggerEvent` might be capable of generic actions?
-          // Looking at `useGameLoop.ts` (not visible but assumed), triggerEvent probably dispatches.
-
-          // Let's use `triggerEvent` with a special type if possible?
-          // The signature is `(type: string, id?: string) => void`.
-          // If we pass `type='FLUCTUATE_PRICES'`, acts as an event?
-          // Events reducer handles `TRIGGER_EVENT`.
-
-          // Check `eventsSlice.ts`: does it handle generic actions? Likely no.
-
-          // Alternative: Just modify the `draft.shop` state directly here?
-          // But state is flattened in `draft`. `draft.vendingPrices` is accessible.
-
-          // Let's implement the logic directly here for now to avoid architecture refactor,
-          // OR better: use `composeAction` on the current draft?
-          // We can import `composeAction` from `reducerComposer`.
-          // `gameReducer` already imports `composeAction`.
-
-          const state = draft as unknown as GameState;
-          const updated = composeAction(state, { type: 'FLUCTUATE_PRICES' });
-          // composeAction returns a new state, but we are in Immer draft.
-          // Object.assign(draft, updated) might work?
-          // Caveat: composeAction takes State and returns State.
-          // If we pass draft (as State), Immer might complain if we try to mutate it inside composeAction?
-          // Actually `composeAction` uses `produce` internally!
-          // `produce(draft, ...)` => nested produce is fine in Immer.
-
-          Object.assign(draft, updated);
-        }
         break;
       }
+
       case 'ACTION': {
         const { type, payload } = action.payload;
 
@@ -604,7 +215,9 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
         }
 
         // Route all other actions through handleGameAction
-        handleGameAction(draft, type, payload || {}, createJob, triggerEvent);
+        // triggerEvent is passed via payload from App.tsx onAction wrapper
+        const triggerFn = (payload?.triggerEvent as (t: string, id?: string) => void) || (() => {});
+        handleGameAction(draft, type, payload || {}, createJob, triggerFn);
         break;
       }
       case 'TRIGGER_EVENT': {

@@ -101,6 +101,38 @@ const ActionPanel: React.FC<{
     );
   };
 
+  const renderActiveScenario = () => {
+    if (!state.activeScenario) return null;
+    const scenario = state.activeScenario;
+
+    return (
+      <div className="mb-8 p-6 border-2 border-blue-500/50 bg-blue-950/40 relative shadow-[0_0_30px_rgba(59,130,246,0.2)] transition-all animate-[fadeIn_0.5s] backdrop-blur-sm z-50">
+        <div className="flex justify-between items-start mb-4 border-b border-blue-500/30 pb-2">
+          <h4 className="text-sm text-blue-400 font-bold uppercase tracking-[0.2em] animate-pulse">
+            Unforeseen Situation
+          </h4>
+          <span className="text-[9px] text-blue-300/50 font-mono tracking-tighter">
+            REF: {scenario.id}
+          </span>
+        </div>
+        <div className="text-sm text-blue-100 mb-6 leading-relaxed border-l-4 border-blue-600 pl-4 font-serif italic bg-black/20 p-4">
+          "{scenario.description}"
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 mt-4">
+          {scenario.choices.map((choice, idx) => (
+            <ActionButton
+              key={idx}
+              label={choice.text}
+              onClick={() => onAction('RESOLVE_SCENARIO', { choiceIndex: idx })}
+              className="border-blue-800 hover:bg-blue-900/60 text-left justify-start pl-4 py-4 text-blue-200"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const renderJobCard = () => {
     if (!state.activeJob || state.activeEvent) return null;
     const req = state.activeJob.requirements;
@@ -811,6 +843,7 @@ const ActionPanel: React.FC<{
   return (
     <div className="w-full">
       {renderActiveEvent()}
+      {renderActiveScenario()}
       {renderContent()}
     </div>
   );

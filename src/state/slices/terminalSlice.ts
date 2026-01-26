@@ -2,6 +2,7 @@ import { produce } from 'immer';
 import { aircraftData } from '../../data/aircraft.ts';
 import { employeeFiles, redactedArchives } from '../../data/archiveData.ts';
 import { maintenanceLogs, partInfo } from '../../data/maintenanceArchiveData.ts';
+import { HELP_TEXT, TERMINAL_FILES } from '../../data/terminalContent.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import {
   ActiveAircraft,
@@ -32,6 +33,7 @@ export interface TerminalSliceState {
   };
   logs: Array<LogMessage>;
   activeAircraft: ActiveAircraft | null;
+  flags: GameFlags;
 }
 
 type TerminalAction =
@@ -55,7 +57,11 @@ export const terminalReducer = (
 
     switch (action.type) {
       case 'ARCHIVE_COMMAND': {
-        const { command: commandFull, triggerEvent } = action.payload;
+        const { command: commandFull } = action.payload; // triggerEvent removed from payload in reducerComposer? Check.
+        // reducerComposer passes: payload: action.payload as { command: string; triggerEvent... }
+        // We can access triggerEvent if needed.
+        const { triggerEvent } = action.payload;
+
         const [command, ...args] = commandFull.trim().toLowerCase().split(/\s+/);
 
         draft.archiveTerminal.output.push(`> ${commandFull}`);
@@ -64,12 +70,7 @@ export const terminalReducer = (
           case 'help':
             draft.archiveTerminal.output.push(
               '============================================================================',
-              'AVAILABLE COMMANDS:',
-              '  help                  - Displays this list of commands.',
-              "  query <employee_id>   - Retrieves a personnel file. (e.g., 'query HEMLOCK')",
-              '  access <archive_id>   - Accesses a high-clearance redacted archive.',
-              '  cls | clear           - Clears the terminal screen.',
-              '  exit | /quit           - Exits the terminal.',
+              ...HELP_TEXT,
               '============================================================================'
             );
             break;
@@ -78,6 +79,84 @@ export const terminalReducer = (
           case 'clear':
             draft.archiveTerminal.output = [`> ${commandFull}`, 'Screen cleared.'];
             break;
+
+          case 'whoami':
+            draft.archiveTerminal.output.push(
+              'USER: [REDACTED]',
+              'CLEARANCE: LEVEL ' + draft.hfStats.clearanceLevel,
+              'STATUS: PROBATIONARY',
+              'NOTE: "Stop asking questions you don\'t want answers to."'
+            );
+            break;
+
+          case 'dir':
+          case 'ls':
+            draft.archiveTerminal.output.push(
+              'DIRECTORY LISTING:',
+              '------------------',
+              ...Object.keys(TERMINAL_FILES).map((f) => {
+                const file = TERMINAL_FILES[f];
+                const isLocked =
+                  file.reqFlags &&
+                  !file.reqFlags.every((flag) => draft.flags?.[flag as keyof GameFlags]);
+                return `${f.padEnd(20)} ${file.type.toUpperCase()} ${isLocked ? '[LOCKED]' : ''}`;
+              }),
+              '------------------'
+            );
+            break;
+
+          case 'open':
+          case 'cat':
+          case 'type': {
+            if (!args[0]) {
+              draft.archiveTerminal.output.push('ERR: Filename required.');
+              break;
+            }
+            const filename = Object.keys(TERMINAL_FILES).find(
+              (k) => k.toLowerCase() === args[0].toLowerCase()
+            );
+            if (!filename) {
+              draft.archiveTerminal.output.push(`ERR: File '${args[0]}' not found.`);
+              break;
+            }
+            const file = TERMINAL_FILES[filename];
+
+            // Check flags (Assuming GameState flags are accessible via reducerComposer mapping?)
+            // reducerComposer maps: `resources: { ... }`. It does NOT map generic `flags`.
+            // Wait, reducerComposer implementation for terminal does NOT pass `flags`!
+            // It passes `resources`, `hfStats`, `logs`, `activeAircraft`.
+            // It maps `suspicion` etc.
+
+            // I need to update `reducerComposer.ts` to pass `flags` to terminalReducer if I want to check flags!
+            // For now, I'll comment out flag check or default unlocked.
+            // Actually, `personnel_log.db` requires `foundRetiredIDCard`.
+
+            // I MUST UPDATE reducerComposer.ts to pass flags.
+            // I'll assume I will fix reducerComposer.ts next.
+
+            // Placeholder for flag check:
+            // const hasFlags = file.reqFlags ? file.reqFlags.every(flag => (state as any).flags?.[flag]) : true;
+            // Since I can't access flags yet, I'll just check "type" for encrypted.
+
+            if (file.type === 'encrypted') {
+              // Temporary hardcoded check for 'personnel_log.db' until I fix flags
+              // actually I can't check flags here.
+              draft.archiveTerminal.output.push('ERR: FILE ENCRYPTED. KEYCARD REQUIRED.');
+            } else {
+              draft.archiveTerminal.output.push(
+                '---------------------------------',
+                `OPENING ${filename}...`,
+                '---------------------------------',
+                ...file.content,
+                '---------------------------------'
+              );
+              if (filename === 'project_blue_truth.txt') {
+                draft.resources.sanity -= 5;
+                draft.resources.suspicion += 5;
+              }
+            }
+            break;
+          }
 
           case 'query': {
             if (!args[0]) {

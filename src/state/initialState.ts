@@ -130,6 +130,8 @@ export const createInitialState = (): GameState => ({
     hfecDevice: 100,
     rototestDevice: 100,
   },
+
+  notificationQueue: [],
   flags: {
     foundNote: false,
     lightsFlickered: false,
@@ -160,7 +162,13 @@ export const createInitialState = (): GameState => ({
     ndtFinding: null,
     sls3Unlocked: false,
     storyFlags: {},
+    janitorArcStage: 0,
+    toolroomMasterArcStage: 0,
+    endingAlienConspiracyProgress: 0,
+    endingGovtConspiracyProgress: 0,
+    endingTriggered: null,
   },
+
   hfStats: {
     fatigue: 0,
     noiseExposure: 0,
@@ -305,7 +313,8 @@ export const loadState = (saveKey: string): GameState => {
         calibrationMinigame: defaults.calibrationMinigame,
         resources: { ...defaults.resources, ...parsed.resources },
         inventory: { ...defaults.inventory, ...parsed.inventory },
-        flags: loadedFlags,
+        flags: { ...defaults.flags, ...parsed.flags, ...loadedFlags }, // Ensure defaults (new fields) are present
+        notificationQueue: [], // Always start with empty queue
         hfStats: {
           ...defaults.hfStats,
           ...parsed.hfStats,

@@ -177,6 +177,7 @@ const AIRCRAFT_ACTIONS = [
   'DRINK_GALLEY_COFFEE',
   'SCAVENGE_GALLEYS',
   'WATCH_RUNWAY',
+  'RESOLVE_SCENARIO', // Added
 ] as const;
 
 // Terminal location action types handled by terminalLocationSlice
@@ -330,6 +331,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         },
         logs: draft.logs,
         activeAircraft: draft.activeAircraft,
+        flags: draft.flags, // Added
       };
 
       const terminalAction =
@@ -495,6 +497,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         hfStats: draft.hfStats, // Added
         personalInventory: draft.personalInventory,
         flags: draft.flags,
+        activeScenario: draft.activeScenario, // Added
       };
 
       const updated = aircraftReducer(aircraftState, {
@@ -511,6 +514,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.personalInventory = updated.personalInventory;
       draft.flags = updated.flags as typeof draft.flags;
+      draft.activeScenario = updated.activeScenario; // Map back
     });
   }
 
@@ -693,16 +697,23 @@ export const composeReducers = (
   action: ReducerAction,
   activeTab: TabType
 ): GameState => {
+  let nextState = state;
+
   if (action.type === 'TICK') {
     const { delta } = action.payload as { delta: number };
-    return composeTick(state, delta, activeTab);
+    nextState = composeTick(state, delta, activeTab);
+  } else if (action.type === 'ACTION') {
+    nextState = composeAction(state, action);
   }
 
-  if (action.type === 'ACTION') {
-    return composeAction(state, action);
-  }
-
-  // For non-composed actions, return state unchanged
-  // (they will be handled by the main gameReducer)
-  return state;
+  // Check ending conditions
+  return produce(nextState, (draft) => {
+    if (!draft.flags.endingTriggered) {
+      if (draft.flags.endingAlienConspiracyProgress >= 100) {
+        draft.flags.endingTriggered = 'ALIEN';
+      } else if (draft.flags.endingGovtConspiracyProgress >= 100) {
+        draft.flags.endingTriggered = 'GOVT';
+      }
+    }
+  });
 };

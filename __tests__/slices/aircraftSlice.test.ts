@@ -25,6 +25,7 @@ describe('aircraftSlice', () => {
       flags: baseState.flags,
       hfStats: baseState.hfStats,
       logs: [],
+      activeScenario: null,
     };
   });
 
@@ -255,6 +256,75 @@ describe('aircraftSlice', () => {
       aircraftReducer(initialState, action);
 
       expect(initialState.resources.sanity).toBe(originalSanity);
+    });
+  });
+
+  describe('SCENARIOS', () => {
+    it('should trigger a scenario on check (random seeded)', () => {
+      // Seed for success (need to find a seed that triggers 15% chance)
+      // With seed 'scenario-trigger', Math.random() might result in < 0.15
+      const restoreRandom = Math.random;
+      Math.random = () => 0.1; // Force trigger
+
+      const state = {
+        ...initialState,
+        activeAircraft: { id: AircraftType.B737_700, task: 'DAILY_CHECK' as const },
+      };
+
+      const action: AircraftAction = {
+        type: 'AIRCRAFT_ACTION',
+        payload: {
+          aircraftId: AircraftType.B737_700,
+          actionType: 'DAILY_CHECK',
+        },
+      };
+
+      const result = aircraftReducer(state, action);
+
+      // Should have activeScenario
+      expect(result.activeScenario).toBeDefined();
+      expect(result.activeScenario?.id).toBeDefined();
+      // Task should NOT be null yet (waiting for resolution)
+      // Wait, my implementation said:
+      // "Lets keep activeAircraft active until scenario resolves or task completes."
+
+      expect(result.activeAircraft).not.toBeNull();
+      expect(result.logs.some((l) => l.text.includes('Wait... something is wrong'))).toBe(true);
+
+      Math.random = restoreRandom;
+    });
+
+    it('should resolve scenario outcomes', () => {
+      const scenarioState = {
+        ...initialState,
+        activeAircraft: { id: AircraftType.B737_700, task: 'DAILY_CHECK' as const },
+        activeScenario: {
+          id: 'TEST_SCENARIO',
+          title: 'Test Scenario',
+          description: 'Desc',
+          choices: [
+            {
+              text: 'Choice 1',
+              outcome: {
+                log: 'Outcome 1',
+                effects: { credits: 100 },
+              },
+            },
+          ],
+        },
+      };
+
+      const action: AircraftAction = {
+        type: 'RESOLVE_SCENARIO',
+        payload: { choiceIndex: 0, triggerEvent: mockTriggerEvent },
+      };
+
+      const result = aircraftReducer(scenarioState, action);
+
+      expect(result.activeScenario).toBeNull();
+      expect(result.activeAircraft).toBeNull(); // Should clear aircraft too
+      expect(result.resources.credits).toBe(100);
+      expect(result.logs.some((l) => l.text === 'Outcome 1')).toBe(true);
     });
   });
 });

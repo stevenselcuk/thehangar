@@ -20,30 +20,23 @@ export type ProficiencyAction =
       type: 'TAKE_MANDATORY_COURSE';
       payload: {
         id: string;
-        label: string;
-        costCredits: number;
-        rewardXp: number;
-        inventoryFlag: string;
       };
     }
   | {
       type: 'TAKE_AP_EXAM';
-      payload: { id: string; label?: string; costCredits: number; rewardXp: number };
+      payload: { id: string };
     }
   | { type: 'TAKE_AVIONICS_EXAM'; payload: Record<string, never> }
   | { type: 'TAKE_EASA_EXAM'; payload: Record<string, never> }
   | { type: 'CERTIFY_EASA_LICENSE'; payload: Record<string, never> }
   | {
       type: 'TAKE_NDT_EXAM';
-      payload: { id: string; label: string; costCredits: number; rewardXp: number };
+      payload: { id: string };
     }
   | {
       type: 'TAKE_NDT_SUBTASK_EXAM';
       payload: {
         id: 'eddy' | 'hfec' | 'tap' | 'borescope' | 'dye';
-        label: string;
-        costCredits: number;
-        rewardXp: number;
       };
     }
   | {
@@ -51,9 +44,6 @@ export type ProficiencyAction =
       payload: {
         id: number;
         family: '737' | 'A330';
-        label: string;
-        costCredits: number;
-        rewardXp: number;
       };
     }
   | { type: 'UNLOCK_SKILL'; payload: { id: string } }
@@ -102,11 +92,20 @@ export const proficiencyReducer = produce(
 
     switch (action.type) {
       case 'TAKE_MANDATORY_COURSE': {
-        const { costCredits, rewardXp, inventoryFlag, label, id } = action.payload;
-        draft.resources.credits -= costCredits;
-        draft.resources.experience += rewardXp;
-        (draft.inventory as unknown as Record<string, unknown>)[inventoryFlag] = true;
-        addLog(`TRAINING COMPLETE: ${label}. Your file has been updated.`, 'story');
+        const { id } = action.payload as { id: string }; // We only expect ID now, but support legacy for a moment if needed? No, refactoring both.
+        // Actually the action type definition above needs update too if we change payload shape!
+        // But for now let's just implement logic.
+
+        const course = trainingData.mandatoryCourses.find((c) => c.id === id);
+        if (!course) {
+          addLog(`System Error: Course ${id} not found.`, 'error');
+          break;
+        }
+
+        draft.resources.credits -= course.costCredits;
+        draft.resources.experience += course.rewardXp;
+        (draft.inventory as unknown as Record<string, unknown>)[course.inventoryFlag] = true;
+        addLog(`TRAINING COMPLETE: ${course.label}. Your file has been updated.`, 'story');
 
         // Special handling for HF initial/recurrent courses
         if (id === 'hfInitial' || id === 'hfRecurrent') {
@@ -116,19 +115,34 @@ export const proficiencyReducer = produce(
       }
 
       case 'TAKE_AP_EXAM': {
-        const { id, costCredits, rewardXp } = action.payload;
+        const { id } = action.payload;
+        // Logic for lookup
+        let examData;
+        if (id === 'apWritten') examData = trainingData.faaLicense.written;
+        else if (id === 'apPractical') examData = trainingData.faaLicense.practical;
+        else if (id === 'hasAPLicense') examData = trainingData.faaLicense.license; // Wait, license has no cost usually?
+
+        if (!examData) {
+          // Fallback or error
+          break;
+        }
+
+        if ('costCredits' in examData) {
+          const data = examData as { costCredits: number };
+          draft.resources.credits -= data.costCredits;
+        }
+        if ('rewardXp' in examData) {
+          const data = examData as { rewardXp: number };
+          draft.resources.experience += data.rewardXp;
+        }
 
         if (id === 'apWritten') {
-          draft.resources.credits -= costCredits;
-          draft.resources.experience += rewardXp;
           draft.inventory.apWrittenPassed = true;
           addLog(
             'FAA EXAM PASSED: You have successfully passed the A&P Written Examination.',
             'levelup'
           );
         } else if (id === 'apPractical') {
-          draft.resources.credits -= costCredits;
-          draft.resources.experience += rewardXp;
           draft.inventory.apPracticalPassed = true;
           addLog(
             "FAA EXAM PASSED: The inspector signs off on your practical exam. You're one step closer.",
@@ -178,27 +192,47 @@ export const proficiencyReducer = produce(
       }
 
       case 'TAKE_NDT_EXAM': {
-        const { id, label, costCredits, rewardXp } = action.payload;
-        draft.resources.credits -= costCredits;
-        draft.resources.experience += rewardXp;
+        const { id } = action.payload;
+
+        const ndtLevel = trainingData.ndtCerts.levels.find((l) => l.id === id);
+        if (!ndtLevel) {
+          addLog(`Error: NDT Exam ${id} not found.`, 'error');
+          break;
+        }
+
+        draft.resources.credits -= ndtLevel.costCredits;
+        draft.resources.experience += ndtLevel.rewardXp;
         (draft.inventory as unknown as Record<string, unknown>)[id] = true;
-        addLog(`NDT CERTIFICATION: You have achieved ${label}.`, 'story');
+        addLog(`NDT CERTIFICATION: You have achieved ${ndtLevel.label}.`, 'story');
         break;
       }
 
       case 'TAKE_NDT_SUBTASK_EXAM': {
-        const { id, label, costCredits, rewardXp } = action.payload;
-        draft.resources.credits -= costCredits;
-        draft.resources.experience += rewardXp;
+        // Added for completeness, though unused in UI yet?
+        const { id } = action.payload;
+        const subtask = trainingData.ndtCerts.subtasks.find((s) => s.id === id);
+        if (!subtask) break;
+
+        draft.resources.credits -= subtask.costCredits;
+        draft.resources.experience += subtask.rewardXp;
         draft.inventory.ndtCerts.push(id);
-        addLog(`NDT QUALIFICATION: You are now certified for ${label}.`, 'info');
+        addLog(`NDT QUALIFICATION: You are now certified for ${subtask.label}.`, 'info');
         break;
       }
 
       case 'TAKE_TYPE_RATING': {
-        const { id, family, label, costCredits, rewardXp } = action.payload;
-        draft.resources.credits -= costCredits;
-        draft.resources.experience += rewardXp;
+        const { family, id } = action.payload; // id here is the Level (1, 2, 3...)
+
+        // Lookup
+        let ratingData;
+        if (family === '737') ratingData = trainingData.typeRatings['737'].find((r) => r.id === id);
+        else if (family === 'A330')
+          ratingData = trainingData.typeRatings['A330'].find((r) => r.id === id);
+
+        if (!ratingData) break;
+
+        draft.resources.credits -= ratingData.costCredits;
+        draft.resources.experience += ratingData.rewardXp;
 
         if (family === '737') {
           draft.inventory.typeRating737 = id;
@@ -206,7 +240,7 @@ export const proficiencyReducer = produce(
           draft.inventory.typeRatingA330 = id;
         }
 
-        addLog(`TYPE RATING ACHIEVED: ${label}.`, 'story');
+        addLog(`TYPE RATING ACHIEVED: ${ratingData.label}.`, 'story');
         break;
       }
 

@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
-import { AircraftType } from '@/types.ts';
 import { terminalReducer, TerminalSliceState } from '@/state/slices/terminalSlice.ts';
+import { AircraftType } from '@/types.ts';
+import { describe, expect, it, vi } from 'vitest';
 
 /**
  * Terminal Slice Tests
@@ -35,6 +35,35 @@ describe('terminalSlice', () => {
     },
     logs: [],
     activeAircraft: null,
+    flags: {
+      foundNote: false,
+      lightsFlickered: false,
+      officeUnlocked: false,
+      hangarUnlocked: true,
+      tarmacUnlocked: true,
+      foundManifest: false,
+      revealedTruth: false,
+      kardexActive: false,
+      suitsVisiting: false,
+      underSurveillance: false,
+      nightCrewActive: false,
+      isHallucinating: false,
+      isAfraid: false,
+      toolroomMasterPissed: false,
+      activeComponentFailure: false,
+      fuelContaminationRisk: false,
+      suspicionEvent30Triggered: false,
+      suspicionEvent60Triggered: false,
+      suspicionEvent90Triggered: false,
+      janitorPresent: false,
+      transitCheckDelegationActive: false,
+      autoSrfActive: false,
+      ndtFinding: null,
+      venomSurgeActive: false,
+      endingTriggered: null,
+      endingAlienConspiracyProgress: 0,
+      endingGovtConspiracyProgress: 0,
+    },
   });
 
   describe('ARCHIVE_COMMAND', () => {
@@ -53,7 +82,10 @@ describe('terminalSlice', () => {
           '  help                  - Displays this list of commands.'
         );
         expect(result.archiveTerminal.output).toContain(
-          "  query <employee_id>   - Retrieves a personnel file. (e.g., 'query HEMLOCK')"
+          '  dir / ls              - List files in current directory'
+        );
+        expect(result.archiveTerminal.output).toContain(
+          '  query <employee_id>   - Retrieves a personnel file. (e.g., query HEMLOCK)'
         );
         expect(result.archiveTerminal.lastCommand).toBe('help');
       });

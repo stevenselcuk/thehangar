@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { ACTION_LOGS } from '@/data/flavor.ts';
 import { trainingData } from '@/data/training.ts';
 import {
@@ -9,6 +8,7 @@ import {
   type ProficiencySliceState,
 } from '@/state/slices/proficiencySlice.ts';
 import { createMinimalGameState, mockMathRandom } from '@/utils/testHelpers.ts';
+import { describe, expect, it } from 'vitest';
 
 // Helper to create a minimal proficiency state
 const createProficiencyState = (
@@ -448,13 +448,13 @@ describe('proficiencySlice', () => {
           id: 2,
           family: 'A330',
           label: 'A330 Level I',
-          costCredits: 600,
-          rewardXp: 1000,
+          costCredits: 800,
+          rewardXp: 1200,
         },
       });
 
-      expect(result.resources.credits).toBe(1400);
-      expect(result.resources.experience).toBe(1000);
+      expect(result.resources.credits).toBe(1200);
+      expect(result.resources.experience).toBe(1200);
       expect(result.inventory.typeRatingA330).toBe(2);
     });
 

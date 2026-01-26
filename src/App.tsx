@@ -11,7 +11,6 @@ import { DevModeProvider } from './context/DevModeContext.tsx';
 import { useDevMode } from './hooks/useDevMode.ts';
 
 import { useMobileNotifications } from './hooks/useMobileNotifications.ts';
-import { checkLocationRequirements } from './logic/locationRequirements.ts';
 import { GameState, TabType } from './types.ts';
 
 const AboutModal = React.lazy(() => import('./components/AboutModal.tsx'));
@@ -23,6 +22,7 @@ const MaintenanceTerminalModal = React.lazy(
   () => import('./components/MaintenanceTerminalModal.tsx')
 );
 const PersonalIdCardModal = React.lazy(() => import('./components/PersonalIdCardModal.tsx'));
+const EndingScreen = React.lazy(() => import('./components/EndingScreen.tsx')); // Added
 
 import { useAutoSave } from './hooks/useAutoSave.ts';
 import { useGameEngine } from './hooks/useGameEngine.ts';
@@ -30,10 +30,11 @@ import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
 import NotificationContainer from './components/common/NotificationContainer.tsx';
-import { NotificationProvider, useNotification } from './context/NotificationContext.tsx';
+import { NotificationProvider } from './context/NotificationContext.tsx';
+import { useNotification } from './hooks/useNotification.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_37';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_37';
+const SAVE_KEY = 'the_hangar_save__build_38';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_38';
 
 const playClick = () => {
   const audio = new Audio('/sounds/ui_click.mp3');
@@ -136,54 +137,29 @@ const AppContent: React.FC = () => {
     }
   }, [addNotification, removeNotification]);
 
-  // Location Warnings Effect
+  // Notification Queue Consumer
   useEffect(() => {
-    // Use the imported checkLocationRequirements logic
-    const checkResult = checkLocationRequirements(activeTab, state.inventory);
-    const isBlocking = !checkResult.satisfied;
-    const hasIssues = isBlocking || checkResult.missingSoft.length > 0;
-    const warningId = 'location-warning';
-
-    if (hasIssues) {
-      const missingItems = [
-        ...checkResult.missingRequired.map((r) => r.label),
-        ...checkResult.missingSoft.map((r) => r.label),
-      ].join(', ');
-
-      addNotification({
-        id: warningId,
-        title: isBlocking ? 'HAZARD: UNSAFE CONDITIONS' : 'CAUTION: ADVISORY',
-        message: `Missing: ${missingItems}`,
-        variant: isBlocking ? 'hazard' : 'warning',
-        duration: 5000, // Auto-hide after 5 seconds
-      });
-    }
-    // Note: We don't removeNotification(warningId) in the else block anymore because
-    // the notification auto-hides. If the condition clears, it's fine.
-    // If the condition persists, it won't re-trigger unless deps change (tab/inventory).
-  }, [activeTab, state.inventory, addNotification]); // Removed removeNotification form dep as we don't use it in else
-
-  // Effect to handle one-off events like level ups
-  useEffect(() => {
-    const currentLevel = state.resources.level;
-    const lastNotifiedLevel = state.eventTimestamps.lastLevelUpNotif || 0;
-    if (currentLevel > lastNotifiedLevel) {
-      setTimeout(() => {
-        playLevelUpSound();
+    if (state.notificationQueue.length > 0) {
+      state.notificationQueue.forEach((notif) => {
         addNotification({
-          id: `levelup-${currentLevel}`, // Deterministic ID to prevent duplicates
-          title: 'LEVEL UP',
-          message: '+1 SKILL POINT',
-          variant: 'levelup',
-          duration: 4000,
+          id: notif.id,
+          title: notif.title,
+          message: notif.message,
+          variant: notif.variant,
+          duration: notif.duration,
+          actions: notif.actions,
         });
-      }, 0);
-      dispatch({
-        type: 'ACTION',
-        payload: { type: 'ACKNOWLEDGE_LEVEL_UP', payload: { level: currentLevel } },
+
+        // Sound Effects
+        if (notif.variant === 'levelup') playLevelUpSound();
+        if (notif.variant === 'hazard' || notif.variant === 'error') playAlarmSound();
+        if (notif.variant === 'system') playClick(); // Use generic for system?
       });
+
+      // Clear queue to prevent reprocessing
+      dispatch({ type: 'CLEAR_NOTIFICATIONS' });
     }
-  }, [state.resources.level, state.eventTimestamps.lastLevelUpNotif, dispatch, addNotification]);
+  }, [state.notificationQueue, addNotification, dispatch]);
 
   // Effect for Game Over sound
   useEffect(() => {
@@ -265,6 +241,14 @@ const AppContent: React.FC = () => {
     localStorage.removeItem(`${SAVE_KEY}_tab`);
     window.location.reload();
   };
+
+  if (state.flags.endingTriggered) {
+    return (
+      <Suspense fallback={<div className="bg-black h-screen w-screen" />}>
+        <EndingScreen endingType={state.flags.endingTriggered} onReset={handleAppReset} />
+      </Suspense>
+    );
+  }
 
   if (state.resources.suspicion >= 100 || state.resources.sanity <= 0) {
     return (

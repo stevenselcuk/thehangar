@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface ResourceState {
   alclad: number;
   titanium: number;
@@ -193,6 +195,13 @@ export interface GameFlags {
   } | null;
   sls3Unlocked: boolean;
   storyFlags: Record<string, boolean>;
+  // Character Arcs
+  janitorArcStage: number;
+  toolroomMasterArcStage: number;
+  // Endings
+  endingAlienConspiracyProgress: number;
+  endingGovtConspiracyProgress: number;
+  endingTriggered: 'ALIEN' | 'GOVT' | 'CRAZY' | 'TRY_AGAIN' | null;
 }
 
 export interface JobCard {
@@ -221,6 +230,41 @@ export interface LogMessage {
   text: string;
   type: 'info' | 'warning' | 'error' | 'story' | 'vibration' | 'levelup';
   timestamp: number;
+}
+
+export type NotificationVariant =
+  | 'default'
+  | 'info'
+  | 'warning'
+  | 'danger'
+  | 'hazard'
+  | 'success'
+  | 'levelup'
+  | 'system';
+
+export interface NotificationAction {
+  label: string;
+  onClick: () => void;
+  variant?: 'primary' | 'secondary' | 'danger';
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message?: React.ReactNode;
+  variant?: NotificationVariant;
+  duration?: number; // 0 for persistent
+  actions?: NotificationAction[];
+  isExiting?: boolean;
+}
+
+export interface NotificationRequest {
+  id: string;
+  title: string;
+  message: string;
+  variant: NotificationVariant;
+  duration?: number;
+  actions?: { label: string; onClick: () => void }[];
 }
 
 export interface MailMessage {
@@ -376,6 +420,7 @@ export interface GameState {
       duration: number;
     } | null;
   };
+  notificationQueue: NotificationRequest[];
 }
 
 export enum TabType {

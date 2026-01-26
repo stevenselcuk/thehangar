@@ -1,27 +1,9 @@
 import { produce } from 'immer';
 import { aircraftData } from '../../data/aircraft.ts';
+import { aircraftScenarios } from '../../data/aircraftScenarios.ts'; // Added import
 import { ACTION_LOGS } from '../../data/flavor.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { ActiveAircraft, AircraftType, GameState } from '../../types.ts';
-
-/**
- * aircraftSlice.ts - Aircraft Operations Domain
- *
- * Handles:
- * - Aircraft task assignment (TRANSIT_CHECK, DAILY_CHECK, ETOPS_CHECK)
- * - Aircraft-specific actions (checks, log reading)
- * - Lavatory servicing
- * - Cabin interactions (small talk, smoking, coffee, scavenging)
- * - Runway observation
- *
- * State mutations:
- * - activeAircraft (assign/clear tasks)
- * - resources (credits, experience, sanity, technicalLogbookHours, suspicion, focus)
- * - inventory (foundRetiredIDCard, metallicSphere)
- * - flags (ndtFinding, venomSurgeActive, isAfraid)
- * - hfStats (fearTimer, venomSurgeTimer)
- * - logs array
- */
 
 // ==================== TYPE DEFINITIONS ====================
 
@@ -33,6 +15,7 @@ export interface AircraftSliceState {
   flags: GameState['flags'];
   hfStats: GameState['hfStats'];
   logs: GameState['logs'];
+  activeScenario: GameState['activeScenario']; // Added
 }
 
 export type AircraftAction =
@@ -45,6 +28,10 @@ export type AircraftAction =
         triggerEvent?: (type: string, id?: string) => void;
       };
     }
+  | {
+      type: 'RESOLVE_SCENARIO';
+      payload: { choiceIndex: number; triggerEvent?: (type: string, id?: string) => void };
+    } // Added
   | { type: 'SERVICE_LAVATORY'; payload: Record<string, unknown> }
   | { type: 'SMALL_TALK_CABIN'; payload: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'SMOKE_CIGARETTE'; payload: { triggerEvent?: (type: string, id?: string) => void } }
@@ -95,6 +82,9 @@ export const aircraftReducer = (
         const aircraft = aircraftData.find((a) => a.id === aircraftId);
         if (!aircraft) break;
 
+        // Skip standard logic if scenario active (though UI should prevent this)
+        if (draft.activeScenario) break;
+
         const baseRewards = {
           TRANSIT_CHECK: { xp: 120, credits: 25, alclad: 5, hours: 1 },
           DAILY_CHECK: { xp: 250, credits: 60, alclad: 10, hours: 2 },
@@ -138,36 +128,59 @@ export const aircraftReducer = (
         }
 
         if (['TRANSIT_CHECK', 'DAILY_CHECK', 'ETOPS_CHECK'].includes(actionType)) {
-          const findingRoll = Math.random();
-          // 10% chance for a special finding on a daily check of a composite aircraft
+          // Scenario Trigger Logic
+          const SCENARIO_CHANCE = 0.15; // 15% chance
+          const acType = aircraft.id as AircraftType;
           if (
-            actionType === 'DAILY_CHECK' &&
-            (aircraft.id === AircraftType.A330 || aircraft.id === AircraftType.B777_200ER) &&
-            findingRoll < 0.1 &&
-            !draft.flags.ndtFinding
+            !draft.activeScenario &&
+            Math.random() < SCENARIO_CHANCE &&
+            aircraftScenarios[acType] &&
+            aircraftScenarios[acType].length > 0
           ) {
-            addLog(ACTION_LOGS.DAILY_CHECK_FINDING_DELAMINATION, 'vibration');
-            draft.flags.ndtFinding = {
-              type: 'Visual',
-              severity: 'suspicious',
-              description:
-                "Carbon-fibre aircraft don't fail like metal. On composite aircraft like this one, damage doesn't appear as sudden cracks. Instead, composites delaminate — individual layers separate internally under stress. This is detectable through NDT. Metal often fails by crack growth you can't see until it's critical. Composites fail by layer degradation you can track. This needs to be reported.",
-            };
-            draft.resources.sanity -= 10;
-            draft.resources.experience += 200;
-          } else if (Math.random() < 0.25 && triggerEvent) {
-            // 25% chance of an event on a check
-            const eventChoice =
-              aircraft.eventPool[Math.floor(Math.random() * aircraft.eventPool.length)];
-            if (eventChoice) {
-              triggerEvent(eventChoice.type, eventChoice.id);
+            const possibleScenarios = aircraftScenarios[acType];
+            const chosenScenario =
+              possibleScenarios[Math.floor(Math.random() * possibleScenarios.length)];
+
+            // Check story flags? For now, no prerequisites on scenarios in data.
+            draft.activeScenario = chosenScenario;
+            // Don't clear activeAircraft yet inside scenario (wait for resolution? No, concurrent?)
+            // Actually, scenario usually INTERRUPTS the flow.
+            // But we already awarded rewards.
+            // The scenario might happen "during" the check.
+            // Let's keep activeAircraft active until scenario resolves or task completes.
+            addLog('Wait... something is wrong.', 'vibration');
+          } else {
+            // Standard events
+            const findingRoll = Math.random();
+            if (
+              actionType === 'DAILY_CHECK' &&
+              (aircraft.id === AircraftType.A330 || aircraft.id === AircraftType.B777_200ER) &&
+              findingRoll < 0.1 &&
+              !draft.flags.ndtFinding
+            ) {
+              addLog(ACTION_LOGS.DAILY_CHECK_FINDING_DELAMINATION, 'vibration');
+              draft.flags.ndtFinding = {
+                type: 'Visual',
+                severity: 'suspicious',
+                description:
+                  "Carbon-fibre aircraft don't fail like metal. On composite aircraft like this one, damage doesn't appear as sudden cracks. Instead, composites delaminate — individual layers separate internally under stress. This is detectable through NDT. Metal often fails by crack growth you can't see until it's critical. Composites fail by layer degradation you can track. This needs to be reported.",
+              };
+              draft.resources.sanity -= 10;
+              draft.resources.experience += 200;
+            } else if (Math.random() < 0.25 && triggerEvent) {
+              // 25% chance of an event on a check
+              const eventChoice =
+                aircraft.eventPool[Math.floor(Math.random() * aircraft.eventPool.length)];
+              if (eventChoice) {
+                triggerEvent(eventChoice.type, eventChoice.id);
+              }
             }
+            draft.activeAircraft = null; // Task finishes if NO scenario
+            addLog(
+              `Task complete. The ${aircraft.name} is released. Report back for your next assignment.`,
+              'story'
+            );
           }
-          draft.activeAircraft = null;
-          addLog(
-            `Task complete. The ${aircraft.name} is released. Report back for your next assignment.`,
-            'story'
-          );
         }
 
         if (aircraft.isSuspicious) {
@@ -178,6 +191,44 @@ export const aircraftReducer = (
           );
         }
 
+        break;
+      }
+
+      case 'RESOLVE_SCENARIO': {
+        const { choiceIndex, triggerEvent } = action.payload;
+        if (!draft.activeScenario) break;
+
+        const choice = draft.activeScenario.choices[choiceIndex];
+        if (!choice) break;
+
+        const outcome = choice.outcome;
+
+        // Apply effects
+        if (outcome.effects) {
+          Object.entries(outcome.effects).forEach(([key, val]) => {
+            const resourceKey = key as keyof GameState['resources'];
+            if (resourceKey in draft.resources && typeof val === 'number') {
+              draft.resources[resourceKey] += val;
+            }
+          });
+        }
+
+        // Log
+        addLog(outcome.log, 'story');
+
+        // Trigger event
+        if (outcome.event && triggerEvent) {
+          triggerEvent(outcome.event.type, outcome.event.id);
+        }
+
+        // Clear scenario and aircraft task
+        draft.activeScenario = null;
+        if (draft.activeAircraft) {
+          // Assuming scenario happened during task, task is now effectively done or interrupted.
+          // Let's release the aircraft.
+          draft.activeAircraft = null;
+          addLog('With the situation handled, you clear the aircraft for release.', 'info');
+        }
         break;
       }
 
