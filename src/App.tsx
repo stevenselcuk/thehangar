@@ -35,8 +35,8 @@ import NotificationContainer from './components/common/NotificationContainer.tsx
 import { NotificationProvider } from './context/NotificationContext.tsx';
 import { useNotification } from './hooks/useNotification.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_39';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_39';
+const SAVE_KEY = 'the_hangar_save__build_40';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_40';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">

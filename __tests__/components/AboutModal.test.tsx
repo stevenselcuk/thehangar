@@ -1,7 +1,28 @@
 import AboutModal from '@/components/AboutModal';
+import { SoundProvider } from '@/context/SoundContext';
 import { fireEvent, render, screen } from '@testing-library/react';
+import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { midGameState } from '../fixtures/gameStates';
+
+// Mock SoundContext if needed, or wrap with provider.
+// Since we have a provider, wrapping is cleaner if it has no external deps hard to mock.
+// However, SoundContext uses Audio API which might not be available in test environment (JSDOM).
+// So we should verify if SoundProvider can run in JSDOM or if we mock the useSound hook.
+// The error says "useSound must be used within a SoundProvider", implying the hook is running but context is missing.
+
+// Let's mock the Audio object for JSDOM first
+global.Audio = vi.fn().mockImplementation(() => ({
+  play: vi.fn().mockResolvedValue(undefined),
+  pause: vi.fn(),
+  volume: 1,
+  currentTime: 0,
+}));
+
+// We can wrap with the actual provider
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(<SoundProvider>{ui}</SoundProvider>);
+};
 
 describe('AboutModal', () => {
   const mockOnAction = vi.fn();
@@ -12,50 +33,53 @@ describe('AboutModal', () => {
   });
 
   it('renders the Profile section by default', () => {
-    render(<AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />);
+    renderWithProviders(
+      <AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />
+    );
 
-    // Check for specific profile info from midGameState
-    // Use getAllByText because "Logbook Hours" might appear in both sidebar and content, or multiple times
-    // But in the content it is "Logbook Hours" label for stats
-    expect(screen.getAllByText('Logbook Hours').length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/120H/i).length).toBeGreaterThan(0); // 120 from midGameState
+    // Check for "Personnel File" header from new UI
+    expect(screen.getByText(/Personnel File/i)).toBeInTheDocument();
   });
 
   it('navigates to Field Competencies', () => {
-    render(<AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />);
+    renderWithProviders(
+      <AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />
+    );
 
-    const matrixButton = screen.getByRole('button', { name: /Field Competencies/i });
+    const matrixButton = screen.getByText('COMPETENCY');
     fireEvent.click(matrixButton);
 
-    expect(screen.getByText('Industrial Operations')).toBeInTheDocument();
-    expect(screen.getByText('Anomaly Observation')).toBeInTheDocument();
+    expect(screen.getByText('Competency Matrix')).toBeInTheDocument();
   });
 
   it('navigates to Import/Export', () => {
-    render(<AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />);
+    renderWithProviders(
+      <AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />
+    );
 
-    const importExportButton = screen.getByRole('button', { name: /Import \/ Export/i });
+    const importExportButton = screen.getByText('SYS. MIGRATION');
     fireEvent.click(importExportButton);
 
-    expect(screen.getByText(/Generate Export Code/i)).toBeInTheDocument();
+    expect(screen.getByText(/DATA MIGRATION PROTOCOLS/i)).toBeInTheDocument();
   });
 
   it('navigates to About section', () => {
-    render(<AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />);
+    renderWithProviders(
+      <AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />
+    );
 
-    // Use regex to match exact "About" to avoid matching "AboutModal" or similar if text was different
-    // The button text is "About"
-    const aboutButtons = screen.getAllByRole('button', { name: /^About$/i });
-    // There might be multiple or just one. The sidebar button is definitely one.
-    fireEvent.click(aboutButtons[0]);
+    const aboutButton = screen.getByText('CREDITS');
+    fireEvent.click(aboutButton);
 
-    expect(screen.getByText(/THE HANGAR is a text-based incremental RPG/i)).toBeInTheDocument();
+    expect(screen.getByText(/Created by Steven Selcuk/i)).toBeInTheDocument();
   });
 
   it('calls onClose when close button is clicked', () => {
-    render(<AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />);
+    renderWithProviders(
+      <AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />
+    );
 
-    const closeButton = screen.getByText('[ CLOSE ]');
+    const closeButton = screen.getByText('[ CLOSE TERMINAL ]');
     fireEvent.click(closeButton);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);

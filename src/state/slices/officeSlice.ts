@@ -86,12 +86,11 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
         break;
 
       case 'CHECK_INTERNAL_MAIL':
-        // UI handle in component
-        // Typically this action toggles the view, but reducer logic might just log access?
-        // We'll leave it logging for now, component logic handles view state.
-        if (draft.logs[draft.logs.length - 1].text !== ACTION_LOGS.MAIL_ACCESS) {
-          // Avoid spamming log if clicking repeatedly
-          // Actually, we remove the log or customize it.
+        if (
+          draft.logs.length === 0 ||
+          draft.logs[draft.logs.length - 1].text !== ACTION_LOGS.MAIL_ACCESS
+        ) {
+          addLog(ACTION_LOGS.MAIL_ACCESS, 'info');
         }
         break;
 
