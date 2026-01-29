@@ -336,7 +336,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_4}';
+  const BUILD_NUMBER = 'Build v.{_build_5}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');
@@ -397,7 +397,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => 
         </div>
 
         {/* MAIN CONTENT AREA */}
-        <div className="flex-grow p-8 overflow-hidden relative bg-[url('/scanline.png')] bg-repeat">
+        <div className="flex-grow p-8 overflow-hidden relative">
           {/* CRT Scanline Overlay Effect (CSS only) */}
           <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] z-10 bg-[length:100%_2px,3px_100%]"></div>
 

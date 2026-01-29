@@ -175,7 +175,7 @@ const SystemModal: React.FC<SystemModalProps> = ({
         `}
         >
           {/* Scanline effect overlay */}
-          <div className="absolute inset-0 bg-[url('/scanlines.png')] opacity-10 pointer-events-none mix-blend-overlay"></div>
+          <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay"></div>
 
           {title && (
             <h2

@@ -83,7 +83,7 @@ const SystemNotification: React.FC<Props> = ({ notification, onClose }) => {
         `}
       >
         {/* Scanline effect */}
-        <div className="absolute inset-0 bg-[url('/scanlines.png')] opacity-5 pointer-events-none mix-blend-overlay"></div>
+        <div className="absolute inset-0 opacity-5 pointer-events-none mix-blend-overlay"></div>
 
         {/* Close Button */}
         <button
