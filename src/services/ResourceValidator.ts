@@ -98,3 +98,17 @@ export const clampFocus = (resources: ResourceState): void => {
 export const clampSuspicion = (resources: ResourceState): void => {
   clampResource(resources, 'suspicion', 0, 100);
 };
+
+/**
+ * Clamp syndicate reputation between 0-100 (mutates draft)
+ */
+export const clampSyndicateReputation = (resources: ResourceState): void => {
+  clampResource(resources, 'syndicateReputation', 0, 100);
+};
+
+/**
+ * Clamp union reputation between 0-100 (mutates draft)
+ */
+export const clampUnionReputation = (resources: ResourceState): void => {
+  clampResource(resources, 'unionReputation', 0, 100);
+};

@@ -11,6 +11,7 @@ import OfficeTab from './OfficeTab.tsx';
 import TerminalTab from './TerminalTab.tsx';
 import TrainingTab from './TrainingTab.tsx';
 
+import { locationTriggers } from '../data/locationTriggers';
 import BackroomModal from './BackroomModal';
 import ProcurementModal from './ProcurementModal';
 import ToolroomStatusWidget from './ToolroomStatusWidget';
@@ -31,7 +32,22 @@ const ActionPanel: React.FC<{
   React.useEffect(() => {
     setIsBackroomOpen(false);
     setIsProcurementOpen(false);
-  }, [activeTab]);
+
+    // Check for location triggers
+    if (Math.random() > 0.3) return;
+
+    let loc = '';
+    if (activeTab === TabType.HANGAR) loc = 'HANGAR';
+    if (activeTab === TabType.APRON_LINE) loc = 'APRON';
+
+    if (loc) {
+      const relevantTriggers = locationTriggers.filter((t) => t.location === loc);
+      const trigger = relevantTriggers.find((t) => Math.random() < t.chance);
+      if (trigger) {
+        onAction('LOG_FLAVOR', { text: trigger.text });
+      }
+    }
+  }, [activeTab, onAction]);
 
   const renderActiveEvent = () => {
     if (!state.activeEvent) return null;

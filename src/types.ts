@@ -23,6 +23,8 @@ export interface ResourceState {
   crystallineResonators: number;
   bioFilament: number;
   technicalLogbookHours: number;
+  syndicateReputation: number;
+  unionReputation: number;
 }
 
 export enum SuitType {
@@ -230,7 +232,7 @@ export interface JobCard {
 export interface LogMessage {
   id: string;
   text: string;
-  type: 'info' | 'warning' | 'error' | 'story' | 'vibration' | 'levelup';
+  type: 'info' | 'warning' | 'error' | 'story' | 'vibration' | 'levelup' | 'flavor';
   timestamp: number;
 }
 

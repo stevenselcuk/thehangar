@@ -2,10 +2,24 @@ import React from 'react';
 import { GameState } from '../types.ts';
 import ActionButton from './ActionButton.tsx';
 
+import { locationTriggers } from '../data/locationTriggers';
+
 const TerminalTab: React.FC<{
   state: GameState;
   onAction: (t: string, p?: Record<string, unknown>) => void;
 }> = ({ onAction }) => {
+  React.useEffect(() => {
+    // 30% chance to check for triggers on mount to avoid spam
+    if (Math.random() > 0.3) return;
+
+    const relevantTriggers = locationTriggers.filter((t) => t.location === 'TERMINAL');
+    const trigger = relevantTriggers.find((t) => Math.random() < t.chance);
+
+    if (trigger) {
+      onAction('LOG_FLAVOR', { text: trigger.text });
+    }
+  }, [onAction]);
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center border-b border-emerald-900/30 pb-2">
@@ -53,7 +67,7 @@ const TerminalTab: React.FC<{
             onClick={() => onAction('USE_PAYPHONE')}
             cost={{ label: 'CR', value: 5 }}
             cooldown={45000}
-            description="An old, dusty payphone. Who would you even call? Maybe just listening to the dial tone will help."
+            description="The dial tone changes sometimes. If you listen long enough, you might hear a meeting location."
           />
           <ActionButton
             label="Check 'Delayed' Gate"

@@ -12,7 +12,7 @@ import { InventoryAction, inventoryReducer } from './slices/inventorySlice.ts';
 import { OfficeAction, officeReducer } from './slices/officeSlice.ts';
 import { ProcurementAction, procurementReducer } from './slices/procurementSlice.ts'; // Added
 import { ProficiencyAction, proficiencyReducer } from './slices/proficiencySlice.ts';
-import { resourcesReducer } from './slices/resourcesSlice.ts';
+import { ResourcesAction, resourcesReducer } from './slices/resourcesSlice.ts';
 import { ShopAction, shopReducer } from './slices/shopSlice.ts';
 import { TerminalLocationAction, terminalLocationReducer } from './slices/terminalLocationSlice.ts';
 import { terminalReducer } from './slices/terminalSlice.ts';
@@ -303,6 +303,7 @@ const OFFICE_ACTIONS = [
   'READ_MAGAZINE',
   'REVIEW_SURVEILLANCE_LOGS',
   'DEEP_CLEAN_VENTS',
+  'INSPECT_PRINTER',
 ] as const;
 
 // Hangar action types handled by hangarSlice
@@ -344,6 +345,9 @@ const PROCUREMENT_ACTIONS = [
 // Bulletin Board action types handled by bulletinBoardSlice
 const BULLETIN_BOARD_ACTIONS = ['ROTATE_BULLETIN'] as const;
 
+// Resource action types handled by resourcesSlice
+const RESOURCE_ACTIONS = ['LOG_FLAVOR'] as const;
+
 /**
  * Compose reducers for ACTION events
  * Routes specific actions to appropriate domain slices
@@ -353,6 +357,23 @@ const BULLETIN_BOARD_ACTIONS = ['ROTATE_BULLETIN'] as const;
  * @returns Updated game state
  */
 export const composeAction = (state: GameState, action: ReducerAction): GameState => {
+  // Route resource actions to resourcesSlice
+  if (RESOURCE_ACTIONS.includes(action.type as (typeof RESOURCE_ACTIONS)[number])) {
+    return produce(state, (draft) => {
+      const resourcesState = {
+        resources: draft.resources,
+        logs: draft.logs,
+      };
+
+      const updated = resourcesReducer(resourcesState, {
+        type: action.type,
+        payload: action.payload,
+      } as ResourcesAction); // Cast because we know it's a valid action in our slice due to the includes check
+
+      draft.resources = updated.resources;
+      draft.logs = updated.logs;
+    });
+  }
   // Route inventory actions to inventorySlice
   if (INVENTORY_ACTIONS.includes(action.type as (typeof INVENTORY_ACTIONS)[number])) {
     return produce(state, (draft) => {

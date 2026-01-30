@@ -7,6 +7,7 @@ import { addLogToDraft } from '../../services/logService.ts';
 import {
   ActiveAircraft,
   ArchiveTerminalState,
+  GameFlags,
   LogMessage,
   MaintenanceTerminalState,
 } from '../../types.ts';

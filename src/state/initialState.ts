@@ -57,6 +57,8 @@ export const createInitialState = (): GameState => ({
     crystallineResonators: 0,
     bioFilament: 0,
     technicalLogbookHours: 0,
+    syndicateReputation: 0,
+    unionReputation: 0,
   },
   inventory: {
     flashlight: true,

@@ -63,6 +63,7 @@ export type OfficeAction =
       payload?: { triggerEvent?: (type: string, id?: string) => void };
     }
   | { type: 'DEEP_CLEAN_VENTS'; payload: Record<string, unknown> }
+  | { type: 'INSPECT_PRINTER'; payload: Record<string, unknown> }
   | { type: 'READ_EMAIL'; payload: { id: string } };
 
 // ==================== REDUCER ====================
@@ -71,7 +72,7 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
   return produce(state, (draft) => {
     const addLog = (
       text: string,
-      type: 'info' | 'warning' | 'error' | 'story' | 'levelup' | 'vibration' = 'info'
+      type: 'info' | 'warning' | 'error' | 'story' | 'levelup' | 'vibration' | 'flavor' = 'info'
     ) => {
       addLogToDraft(draft.logs, text, type, Date.now());
     };
@@ -266,6 +267,35 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
         } else {
           addLog(ACTION_LOGS.DEEP_CLEAN_VENTS_NORMAL, 'info');
           draft.resources.experience += 50;
+        }
+        break;
+      }
+
+      case 'INSPECT_PRINTER': {
+        const roll = Math.random();
+        addLog('The laser printer hums, warming up...', 'info');
+
+        if (roll < 0.3) {
+          addLog('ERROR: PC LOAD LETTER.', 'error');
+          draft.resources.sanity -= 2;
+        } else if (roll < 0.7) {
+          addLog('Printed a mundane memo regarding lunch theft policy.', 'info');
+          draft.resources.focus += 5;
+        } else if (roll < 0.9) {
+          addLog('FOUND: A crumpled flyer demanding "WORKER SOLIDARITY".', 'flavor');
+          draft.resources.unionReputation = Math.min(
+            100,
+            (draft.resources.unionReputation || 0) + 2
+          );
+          draft.resources.suspicion += 2;
+        } else {
+          addLog('FOUND: A printout of binary code that hurts your eyes.', 'flavor');
+          draft.resources.syndicateReputation = Math.min(
+            100,
+            (draft.resources.syndicateReputation || 0) + 2
+          );
+          draft.resources.sanity -= 5;
+          draft.resources.experience += 100;
         }
         break;
       }

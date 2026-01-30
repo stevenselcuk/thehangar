@@ -8,6 +8,8 @@ import {
   TOOLROOM_INCIDENT_FLAVOR,
   TRAINING_DEPT_FLAVOR,
 } from './flavor';
+import { syndicateEvents } from './syndicateEvents';
+import { unionEvents } from './unionEvents';
 
 type EventTemplates = Omit<GameEvent, 'timeLeft'>;
 
@@ -916,4 +918,6 @@ export const eventsData: Record<string, EventTemplates[]> = {
       },
     },
   ],
+  syndicate: syndicateEvents,
+  union: unionEvents,
 };

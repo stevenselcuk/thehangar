@@ -2,10 +2,19 @@ import React from 'react';
 import { GameState } from '../types.ts';
 import ActionButton from './ActionButton.tsx';
 
+import { locationTriggers } from '../data/locationTriggers';
+
 const BackshopsTab: React.FC<{
   state: GameState;
   onAction: (t: string, p?: Record<string, unknown>) => void;
 }> = ({ state, onAction }) => {
+  React.useEffect(() => {
+    if (Math.random() > 0.3) return;
+    const relevantTriggers = locationTriggers.filter((t) => t.location === 'BACKSHOPS');
+    const trigger = relevantTriggers.find((t) => Math.random() < t.chance);
+    if (trigger) onAction('LOG_FLAVOR', { text: trigger.text });
+  }, [onAction]);
+
   const hasBrokenIdg = state.rotables.some((r) => r.pn === 'IDG-757-A' && r.isRedTagged);
   const hasBrokenHpValve = state.rotables.some((r) => r.pn === 'PRV-ENG-HP1' && r.isRedTagged);
   const hasBrokenAdirs = state.rotables.some((r) => r.pn === 'ADIRS-HG2030' && r.isRedTagged);

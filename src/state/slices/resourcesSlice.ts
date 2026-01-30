@@ -1,5 +1,11 @@
 import { produce } from 'immer';
-import { clampFocus, clampSanity, clampSuspicion } from '../../services/ResourceValidator.ts';
+import {
+  clampFocus,
+  clampSanity,
+  clampSuspicion,
+  clampSyndicateReputation,
+  clampUnionReputation,
+} from '../../services/ResourceValidator.ts';
 import {
   applyRewards,
   calculateAutoSrfIncome,
@@ -22,7 +28,7 @@ export interface ResourcesSliceState {
   logs: LogMessage[];
 }
 
-type ResourcesAction =
+export type ResourcesAction =
   | { type: 'RESOURCES_ADD'; payload: Partial<ResourceState> }
   | { type: 'RESOURCES_DEDUCT'; payload: Partial<ResourceState> }
   | { type: 'RESOURCES_SET'; payload: Partial<ResourceState> }
@@ -35,7 +41,8 @@ type ResourcesAction =
         hfStats: GameState['hfStats'];
         proficiency: GameState['proficiency'];
       };
-    };
+    }
+  | { type: 'LOG_FLAVOR'; payload: { text: string; type?: LogMessage['type'] } };
 
 /**
  * Resources reducer - handles all resource mutations
@@ -82,6 +89,8 @@ export const resourcesReducer = (
         clampSanity(draft.resources);
         clampFocus(draft.resources);
         clampSuspicion(draft.resources);
+        clampSyndicateReputation(draft.resources);
+        clampUnionReputation(draft.resources);
         break;
       }
 
@@ -158,6 +167,19 @@ export const resourcesReducer = (
         clampFocus(draft.resources);
         clampSuspicion(draft.resources);
 
+        break;
+      }
+
+      case 'LOG_FLAVOR': {
+        draft.logs.unshift({
+          id: crypto.randomUUID(),
+          text: action.payload.text,
+          type: action.payload.type || 'flavor',
+          timestamp: Date.now(),
+        });
+        if (draft.logs.length > 50) {
+          draft.logs.pop();
+        }
         break;
       }
     }

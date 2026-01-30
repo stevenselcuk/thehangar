@@ -41,7 +41,7 @@ export const encountersReducer = (
   return produce(state, (draft) => {
     const addLog = (
       text: string,
-      type: 'info' | 'success' | 'warning' | 'error' | 'story' | 'levelup' | 'vibration' = 'info'
+      type: 'info' | 'warning' | 'error' | 'story' | 'levelup' | 'vibration' | 'flavor' = 'info'
     ) => {
       addLogToDraft(draft.logs, text, type, Date.now());
     };

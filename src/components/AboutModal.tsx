@@ -276,6 +276,37 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
         </div>
       </div>
 
+      {/* AFFILIATIONS */}
+      <div>
+        <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
+          Faction Alignment
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <StatDisplay
+            label="Syndicate"
+            value={`${state.resources.syndicateReputation}%`}
+            sub={
+              state.resources.syndicateReputation > 50
+                ? 'COMPROMISED'
+                : state.resources.syndicateReputation > 20
+                  ? 'CONTACT'
+                  : 'UNKNOWN'
+            }
+          />
+          <StatDisplay
+            label="The Union"
+            value={`${state.resources.unionReputation}%`}
+            sub={
+              state.resources.unionReputation > 50
+                ? 'MEMBER CODE'
+                : state.resources.unionReputation > 20
+                  ? 'SYMPATHIZER'
+                  : 'IGNORANT'
+            }
+          />
+        </div>
+      </div>
+
       {/* CERTIFICATIONS */}
       <div>
         <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
@@ -336,7 +367,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_14}';
+  const BUILD_NUMBER = 'Build v.{_build_16}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');

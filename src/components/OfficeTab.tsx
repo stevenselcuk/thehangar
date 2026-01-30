@@ -5,12 +5,22 @@ import { GameState } from '../types.ts';
 import ActionButton from './ActionButton.tsx';
 import MailClient from './MailClient.tsx';
 
+import { locationTriggers } from '../data/locationTriggers';
+
 const OfficeTab: React.FC<{
   state: GameState;
   onAction: (t: string, p?: Record<string, unknown>) => void;
 }> = ({ state, onAction }) => {
   const { play } = useSound();
   const [isMailOpen, setIsMailOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    if (Math.random() > 0.3) return;
+    const relevantTriggers = locationTriggers.filter((t) => t.location === 'OFFICE');
+    const trigger = relevantTriggers.find((t) => Math.random() < t.chance);
+    if (trigger) onAction('LOG_FLAVOR', { text: trigger.text });
+  }, [onAction]);
+
   const inv = state.inventory;
   const pcPartsCount = [inv.mainboard, inv.graphicCard, inv.cdRom, inv.floppyDrive].filter(
     Boolean
@@ -101,6 +111,20 @@ const OfficeTab: React.FC<{
               label="Access Maintenance Logs"
               onClick={() => onAction('OPEN_MAINTENANCE_TERMINAL')}
               description="Log into the Maintenance Log & Archive (MLA) to search for technical documents and past repair records."
+            />
+          </div>
+
+          {/* Networked Printer */}
+          <div className="p-5 border border-emerald-900/60 bg-black/40">
+            <h4 className="text-[10px] text-emerald-500 uppercase mb-4 font-bold tracking-widest border-l-2 border-emerald-600 pl-3">
+              Networked Laser Printer
+            </h4>
+            <ActionButton
+              label="Inspect Output Tray"
+              onClick={() => onAction('INSPECT_PRINTER')}
+              cost={{ label: 'FOCUS', value: 2 }}
+              cooldown={30000}
+              description="It's been printing random pages all night. Sometimes it prints things that weren't sent."
             />
           </div>
 
