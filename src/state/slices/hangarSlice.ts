@@ -6,8 +6,8 @@ import {
   SYSTEM_LOGS,
   VOID_BROADCASTS,
 } from '../../data/flavor.ts';
-import { addLogToDraft } from '../../services/logService.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
+import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
 
 /**
@@ -44,6 +44,7 @@ export interface HangarSliceState {
   inventory: GameState['inventory'];
   proficiency: GameState['proficiency'];
   logs: GameState['logs'];
+  activeEvent: GameState['activeEvent'];
 }
 
 export type HangarAction =
@@ -64,7 +65,7 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
   return produce(state, (draft) => {
     const addLog = (
       text: string,
-      type: 'info' | 'success' | 'warning' | 'error' | 'story' | 'levelup' | 'vibration' = 'info'
+      type: 'info' | 'warning' | 'error' | 'story' | 'levelup' | 'vibration' = 'info'
     ) => {
       addLogToDraft(draft.logs, text, type, Date.now());
     };
@@ -143,6 +144,26 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
         if (hasSkill({ proficiency: draft.proficiency } as GameState, 'unseenPresence'))
           susGain *= 0.8;
         draft.resources.suspicion += susGain;
+        if (
+          !draft.flags.foundPhoto &&
+          Math.random() < 0.25 && // 25% chance
+          !draft.activeEvent
+        ) {
+          draft.flags.foundPhoto = true;
+          draft.activeEvent = {
+            id: 'FOUND_PHOTO_EVENT',
+            title: 'Anomalous Signal',
+            description:
+              "The line goes dead, but a dot-matrix printer in the corner starts screaming. It spits out a single page before jamming. It's a photograph.",
+            type: 'story_event',
+            timeLeft: 0,
+            totalTime: 0,
+            choices: [],
+            failureOutcome: { log: 'The photo crumbles to dust.' },
+          };
+          addLog('The support line disconnects with a sound like tearing metal.', 'warning');
+          addLog('PRINTER ERROR: UNKNOWN FORMAT. SEE OUTPUT.', 'story');
+        }
         break;
       }
 

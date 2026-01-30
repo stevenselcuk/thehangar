@@ -360,27 +360,31 @@ export const processTick = (
 
   // Active Event Logic
   if (draft.activeEvent && draft.activeEvent.type !== 'component_failure') {
-    draft.activeEvent.timeLeft -= delta;
-    if (draft.activeEvent.timeLeft <= 0) {
-      if (draft.activeEvent.id === 'FUEL_CONTAM') {
-        draft.flags.fuelContaminationRisk = true;
-        addLog("You flushed the contaminated sample. Let's hope nobody finds out.", 'warning');
+    // Story events do not expire
+    if (draft.activeEvent.type !== 'story_event') {
+      draft.activeEvent.timeLeft -= delta;
+      if (draft.activeEvent.timeLeft <= 0) {
+        if (draft.activeEvent.id === 'FUEL_CONTAM') {
+          draft.flags.fuelContaminationRisk = true;
+          addLog("You flushed the contaminated sample. Let's hope nobody finds out.", 'warning');
+        }
+
+        const sanityLossMap: Partial<Record<string, number>> = {
+          accident: 40,
+          eldritch_manifestation: 45,
+          canteen_incident: 25,
+        };
+        // Custom generic fallback
+        let loss = 5;
+        if (draft.activeEvent.suitType === 'THE_SUITS') loss = 35;
+        else if (sanityLossMap[draft.activeEvent.type])
+          loss = sanityLossMap[draft.activeEvent.type]!;
+
+        draft.resources.sanity -= loss;
+        draft.resources.suspicion += draft.activeEvent.type === 'audit' ? 30 : 5;
+        addLog(`SITUATION FAILED: ${draft.activeEvent.title}`, 'error');
+        draft.activeEvent = null;
       }
-
-      const sanityLossMap: Partial<Record<string, number>> = {
-        accident: 40,
-        eldritch_manifestation: 45,
-        canteen_incident: 25,
-      };
-      // Custom generic fallback
-      let loss = 5;
-      if (draft.activeEvent.suitType === 'THE_SUITS') loss = 35;
-      else if (sanityLossMap[draft.activeEvent.type]) loss = sanityLossMap[draft.activeEvent.type]!;
-
-      draft.resources.sanity -= loss;
-      draft.resources.suspicion += draft.activeEvent.type === 'audit' ? 30 : 5;
-      addLog(`SITUATION FAILED: ${draft.activeEvent.title}`, 'error');
-      draft.activeEvent = null;
     }
   }
 

@@ -11,15 +11,20 @@ import OfficeTab from './OfficeTab.tsx';
 import TerminalTab from './TerminalTab.tsx';
 import TrainingTab from './TrainingTab.tsx';
 
+const PhotoModal = React.lazy(() => import('./PhotoModal.tsx'));
+
 const ActionPanel: React.FC<{
   activeTab: TabType;
   state: GameState;
   onAction: (t: string, p?: Record<string, unknown>) => void;
 }> = ({ activeTab, state, onAction }) => {
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
+
   const renderActiveEvent = () => {
     if (!state.activeEvent) return null;
     const event = state.activeEvent;
-    const progress = (event.timeLeft / event.totalTime) * 100;
+    const isStoryEvent = event.type === 'story_event';
+    const progress = event.totalTime > 0 ? (event.timeLeft / event.totalTime) * 100 : 0;
 
     let borderColor = 'border-amber-600';
     let textColor = 'text-amber-500';
@@ -43,21 +48,27 @@ const ActionPanel: React.FC<{
         event.type === 'canteen_incident'
           ? 'bg-emerald-950/10 flicker'
           : 'bg-purple-950/20 vibrate';
+    } else if (event.type === 'story_event') {
+      borderColor = 'border-amber-600/60';
+      textColor = 'text-amber-400';
+      bgColor = 'bg-amber-950/10';
     }
 
     return (
       <div
         className={`mb-8 p-5 border-2 ${borderColor} ${bgColor} relative shadow-[0_0_20px_rgba(0,0,0,0.5)] transition-all`}
       >
-        <div
-          className={`absolute top-0 left-0 h-1.5 ${borderColor.replace('border', 'bg')}`}
-          style={{ width: `${progress}%` }}
-        />
+        {!isStoryEvent && (
+          <div
+            className={`absolute top-0 left-0 h-1.5 ${borderColor.replace('border', 'bg')}`}
+            style={{ width: `${progress}%` }}
+          />
+        )}
         <div className="flex justify-between items-start mb-3">
           <h4 className={`text-xs ${textColor} font-bold uppercase tracking-[0.2em] flicker`}>
             {event.title}
           </h4>
-          {event.type !== 'component_failure' && (
+          {event.type !== 'component_failure' && !isStoryEvent && (
             <span className="text-[8px] opacity-50 font-mono tracking-tighter">
               {Math.ceil(event.timeLeft / 1000)}s TO COMPLY
             </span>
@@ -89,6 +100,21 @@ const ActionPanel: React.FC<{
                 />
               );
             })}
+          </div>
+        ) : event.id === 'FOUND_PHOTO_EVENT' ? (
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <ActionButton
+              label="EXAMINE"
+              onClick={() => setIsPhotoModalOpen(true)}
+              className="border-amber-600/50 hover:bg-amber-900/20 text-amber-500"
+              description="Analyze the recovered material."
+            />
+            <ActionButton
+              label="DISCARD"
+              onClick={() => onAction('RESOLVE_EVENT')}
+              className="border-zinc-700 hover:bg-zinc-900/20 text-zinc-500"
+              description="Ignore the anomaly and return to work."
+            />
           </div>
         ) : event.requiredAction ? (
           <ActionButton
@@ -845,6 +871,17 @@ const ActionPanel: React.FC<{
       {renderActiveEvent()}
       {renderActiveScenario()}
       {renderContent()}
+      {state.activeEvent?.id === 'FOUND_PHOTO_EVENT' && (
+        <React.Suspense fallback={null}>
+          <PhotoModal
+            isOpen={isPhotoModalOpen}
+            onClose={() => setIsPhotoModalOpen(false)}
+            imagePath="/images/found_photo.png"
+            title="RECOVERED ARCHIVE #770"
+            description="DATE: UNKNOWN // SUBJECT: UNKNOWN // STATUS: CLASSIFIED"
+          />
+        </React.Suspense>
+      )}
     </div>
   );
 };

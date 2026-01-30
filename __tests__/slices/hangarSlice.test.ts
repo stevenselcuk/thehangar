@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import seedrandom from 'seedrandom';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   hangarReducer,
-  type HangarSliceState,
   type HangarAction,
+  type HangarSliceState,
 } from '@/state/slices/hangarSlice.ts';
+import seedrandom from 'seedrandom';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('hangarSlice', () => {
   let initialState: HangarSliceState;
@@ -49,7 +50,8 @@ describe('hangarSlice', () => {
         janitorPresent: false,
         onPerformanceImprovementPlan: false,
         storyFlags: { fdrDeconstructed: false },
-      },
+        foundPhoto: false,
+      } as any,
       hfStats: {
         trainingProgress: 0,
         fearTimer: 0,
@@ -58,14 +60,14 @@ describe('hangarSlice', () => {
         foundLoopholeTimer: 0,
         scheduleCompressionTimer: 0,
         venomSurgeTimer: 0,
-      },
+      } as any,
       stats: {
         anomaliesAnalyzed: 0,
         rotablesScavenged: 0,
         ndtScansPerformed: 0,
         srfsFiled: 0,
         shiftsCompleted: 0,
-      },
+      } as any,
       toolConditions: {},
       inventory: {
         flashlight: false,
@@ -122,13 +124,14 @@ describe('hangarSlice', () => {
         hasEasaC: false,
         typeRating737: 0,
         typeRatingA330: 0,
-      },
+      } as any,
       proficiency: {
         unlocked: [],
         available: [],
         points: 0,
-      },
+      } as any,
       logs: [],
+      activeEvent: undefined,
     };
   });
 
@@ -271,6 +274,47 @@ describe('hangarSlice', () => {
       expect(result.resources.suspicion).toBeGreaterThan(0);
       expect(result.logs[0].text).toContain('BOEING SUPPORT');
       expect(result.logs[0].type).toBe('vibration');
+    });
+
+    it('should trigger FOUND_PHOTO_EVENT when roll < 0.25 and not found yet', () => {
+      // Mock random to trigger event (needs to be < 0.25)
+      // We set it to a low value so it satisfies both the message selection and the event trigger
+      (Math.random as any) = () => 0.001;
+
+      const action: HangarAction = {
+        type: 'BOEING_SUPPORT',
+        payload: {},
+      };
+
+      const result = hangarReducer(initialState, action);
+
+      expect(result.flags.foundPhoto).toBe(true);
+      expect(result.activeEvent).toBeDefined();
+      expect(result.activeEvent?.id).toBe('FOUND_PHOTO_EVENT');
+      expect(result.logs[0].text).toContain('PRINTER ERROR');
+      expect(result.logs[1].text).toContain('The support line disconnects');
+    });
+
+    it('should NOT trigger event if already found', () => {
+      // Mock random to be low enough to trigger, but flag prevents it
+      (Math.random as any) = () => 0.001;
+
+      const stateWithPhoto = {
+        ...initialState,
+        flags: { ...initialState.flags, foundPhoto: true },
+      };
+
+      const action: HangarAction = {
+        type: 'BOEING_SUPPORT',
+        payload: {},
+      };
+
+      const result = hangarReducer(stateWithPhoto, action);
+
+      expect(result.activeEvent).toBeUndefined();
+      // Should have logs but not the specific event logs
+      // The exact count depends on other logic, but ensuring activeEvent is undefined is key
+      expect(result.activeEvent).toBeUndefined();
     });
   });
 

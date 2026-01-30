@@ -167,6 +167,7 @@ export const createInitialState = (): GameState => ({
     endingAlienConspiracyProgress: 0,
     endingGovtConspiracyProgress: 0,
     endingTriggered: null,
+    foundPhoto: false,
   },
 
   hfStats: {

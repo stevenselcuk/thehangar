@@ -40,6 +40,7 @@ export interface OfficeSliceState {
   proficiency: GameState['proficiency'];
   logs: GameState['logs'];
   mail: GameState['mail'];
+  activeEvent: GameState['activeEvent'];
 }
 
 export type OfficeAction =

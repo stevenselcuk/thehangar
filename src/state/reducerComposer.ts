@@ -554,6 +554,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         logs: draft.logs,
         proficiency: draft.proficiency,
         stats: draft.stats,
+        activeEvent: draft.activeEvent,
       };
 
       const updated = officeReducer(officeState, {
@@ -567,8 +568,12 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.flags = updated.flags as typeof draft.flags;
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs;
+      draft.logs = updated.logs;
       draft.proficiency = updated.proficiency as typeof draft.proficiency;
       draft.stats = updated.stats as typeof draft.stats;
+      if (updated.activeEvent !== undefined) {
+        draft.activeEvent = updated.activeEvent as typeof draft.activeEvent;
+      }
     });
   }
 
@@ -584,6 +589,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         logs: draft.logs,
         stats: draft.stats,
         proficiency: draft.proficiency,
+        activeEvent: draft.activeEvent,
       };
 
       const updated = hangarReducer(hangarState, {
@@ -599,6 +605,9 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.logs = updated.logs;
       draft.stats = updated.stats as typeof draft.stats;
       draft.proficiency = updated.proficiency as typeof draft.proficiency;
+      if (updated.activeEvent !== undefined) {
+        draft.activeEvent = updated.activeEvent as typeof draft.activeEvent;
+      }
     });
   }
 

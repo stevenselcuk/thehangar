@@ -78,7 +78,8 @@ export interface GameEvent {
     | 'audit'
     | 'eldritch_manifestation'
     | 'canteen_incident'
-    | 'component_failure';
+    | 'component_failure'
+    | 'story_event';
   suitType?: SuitType | string;
   timeLeft: number;
   totalTime: number;
@@ -202,6 +203,7 @@ export interface GameFlags {
   endingAlienConspiracyProgress: number;
   endingGovtConspiracyProgress: number;
   endingTriggered: 'ALIEN' | 'GOVT' | 'CRAZY' | 'TRY_AGAIN' | null;
+  foundPhoto: boolean;
 }
 
 export interface JobCard {
