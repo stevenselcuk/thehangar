@@ -5,7 +5,7 @@
 [![Health Check](https://github.com/stevenselcuk/thehangar/actions/workflows/health-check.yml/badge.svg)](https://github.com/stevenselcuk/thehangar/actions/workflows/health-check.yml)
 [![CodeQL](https://github.com/stevenselcuk/thehangar/actions/workflows/codeql.yml/badge.svg)](https://github.com/stevenselcuk/thehangar/actions/workflows/codeql.yml)
 
-[Staging](https://stevenselcuk.github.io/thehangar/) | [Production](https://hangar.tabbythecat.com)
+I'm pulling changes to [Production](https://hangar.tabbythecat.com) weekly, but if you don't want to wait, [staging](https://stevenselcuk.github.io/thehangar/) updates nightly. 
 
 ![screenshot](https://i.imgur.com/kqBEnaP.png)
 
