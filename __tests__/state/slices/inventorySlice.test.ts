@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { RotableItem } from '@/types.ts';
 import {
   calculateFiberglassYield,
   calculateTitaniumYield,
@@ -12,6 +11,7 @@ import {
   isRedTaggedRotable,
   isUntraceableRotable,
 } from '@/state/slices/inventorySlice.ts';
+import { RotableItem } from '@/types.ts';
 import { createMinimalGameState, mockMathRandom } from '@/utils/testHelpers.ts';
 
 // ===== TEST FIXTURES =====
@@ -22,6 +22,7 @@ const createInventoryState = (
   const baseState = createMinimalGameState();
   return {
     inventory: baseState.inventory,
+    personalInventory: {},
     rotables: baseState.rotables,
     toolConditions: baseState.toolConditions,
     flags: {
@@ -56,6 +57,11 @@ const createInventoryState = (
       rotablesRepaired: 0,
     },
     logs: [],
+    toolroom: {
+      status: 'OPEN',
+      unavailableTools: [],
+      nextStatusChange: 0,
+    },
     ...overrides,
   };
 };
