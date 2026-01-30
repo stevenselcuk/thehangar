@@ -336,7 +336,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_7}';
+  const BUILD_NUMBER = 'Build v.{_build_8}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');
@@ -354,31 +354,42 @@ const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-content !p-0 flex h-[85vh] w-[95%] max-w-[1100px] border-2 border-emerald-900 bg-[#050905] shadow-[0_0_50px_rgba(0,0,0,0.8)]"
+        className="modal-content !p-0 flex flex-col md:flex-row h-[85vh] w-[95%] max-w-[1100px] border-2 border-emerald-900 bg-[#050905] shadow-[0_0_50px_rgba(0,0,0,0.8)]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-0 right-0 m-4 z-50 text-emerald-600 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest border border-emerald-900/50 px-3 py-1 bg-black hover:bg-emerald-900/20 transition-all"
+          className="absolute top-0 right-0 m-4 z-50 text-emerald-600 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest border border-emerald-900/50 px-3 py-1 bg-black hover:bg-emerald-900/20 transition-all hidden md:block"
         >
           [ CLOSE TERMINAL ]
         </button>
 
-        {/* SIDEBAR */}
-        <div className="w-64 bg-black/60 border-r border-emerald-900/50 flex flex-col">
-          <div className="p-6 border-b border-emerald-900/30 bg-emerald-950/20">
-            <h2 className="text-xl font-bold text-emerald-500 tracking-tighter">RAS-TERM</h2>
-            <p className="text-[9px] text-emerald-800 uppercase tracking-[0.3em]">
-              Personnel Admin
-            </p>
+        {/* SIDEBAR (Top Nav on Mobile) */}
+        <div className="w-full md:w-64 bg-black/60 border-b md:border-b-0 md:border-r border-emerald-900/50 flex flex-col shrink-0">
+          <div className="p-4 md:p-6 border-b border-emerald-900/30 bg-emerald-950/20 flex justify-between items-center md:block">
+            <div>
+              <h2 className="text-lg md:text-xl font-bold text-emerald-500 tracking-tighter">
+                RAS-TERM
+              </h2>
+              <p className="text-[9px] text-emerald-800 uppercase tracking-[0.3em]">
+                Personnel Admin
+              </p>
+            </div>
+            {/* Mobile Close Button */}
+            <button
+              onClick={onClose}
+              className="md:hidden text-emerald-600 hover:text-emerald-400 font-bold text-xs border border-emerald-900/50 px-2 py-1 bg-black"
+            >
+              [X]
+            </button>
           </div>
 
-          <nav className="flex-grow p-4 space-y-1">
+          <nav className="flex overflow-x-auto md:flex-col md:overflow-visible p-1 md:p-4 space-x-1 md:space-x-0 md:space-y-1 scrollbar-hide">
             {menuItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleSectionClick(item.id)}
-                className={`w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-l-2 ${
+                className={`whitespace-nowrap px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-all md:text-left flex-shrink-0 md:flex-shrink md:w-full border-b-2 md:border-b-0 md:border-l-2 ${
                   activeSection === item.id
                     ? 'bg-emerald-900/30 text-emerald-300 border-emerald-500'
                     : 'text-emerald-700 border-transparent hover:bg-emerald-900/10 hover:text-emerald-500'
@@ -389,7 +400,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => 
             ))}
           </nav>
 
-          <div className="p-4 border-t border-emerald-900/30 text-center">
+          <div className="hidden md:block p-4 border-t border-emerald-900/30 text-center mt-auto">
             <p className="text-[9px] text-emerald-800 font-mono">
               {BUILD_NUMBER.replace(/\{_build_(\d+)\}/, '$1')}
             </p>
@@ -397,7 +408,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => 
         </div>
 
         {/* MAIN CONTENT AREA */}
-        <div className="flex-grow p-8 overflow-hidden relative">
+        <div className="flex-grow p-4 md:p-8 overflow-hidden relative">
           {/* CRT Scanline Overlay Effect (CSS only) */}
           <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] z-10 bg-[length:100%_2px,3px_100%]"></div>
 
