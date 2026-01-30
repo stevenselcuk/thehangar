@@ -3,12 +3,14 @@ import { GameState, TabType } from '../types.ts';
 import { AircraftAction, aircraftReducer } from './slices/aircraftSlice.ts';
 import { aogReducer } from './slices/aogSlice.ts';
 import { BackshopAction, backshopReducer } from './slices/backshopSlice.ts';
+import { BulletinBoardAction, bulletinBoardReducer } from './slices/bulletinBoardSlice.ts';
 import { ComplianceAction, complianceReducer } from './slices/complianceSlice.ts';
 import { EncountersAction, encountersReducer } from './slices/encountersSlice.ts';
 import { EventsAction, eventsReducer } from './slices/eventsSlice.ts';
 import { HangarAction, hangarReducer } from './slices/hangarSlice.ts';
 import { InventoryAction, inventoryReducer } from './slices/inventorySlice.ts';
 import { OfficeAction, officeReducer } from './slices/officeSlice.ts';
+import { ProcurementAction, procurementReducer } from './slices/procurementSlice.ts'; // Added
 import { ProficiencyAction, proficiencyReducer } from './slices/proficiencySlice.ts';
 import { resourcesReducer } from './slices/resourcesSlice.ts';
 import { ShopAction, shopReducer } from './slices/shopSlice.ts';
@@ -80,7 +82,90 @@ export const composeTick = (
       draft.logs = updatedAog.logs;
     }
 
+    // Procurement Delivery Check (1% chance per tick to check, or every tick? let's do every tick as it's cheap)
+    // Actually, checking orders every tick (100ms) might be spammy if we log every time?
+    // The reducer only logs on actual delivery.
+    const procurementState = {
+      procurement: draft.procurement,
+      resources: draft.resources,
+      inventory: draft.inventory,
+      logs: draft.logs,
+    };
+    const updatedProcurement = procurementReducer(procurementState, {
+      type: 'CHECK_DELIVERIES',
+      payload: { currentTime: Date.now() },
+    } as ProcurementAction); // Cast as ProcurementAction since it's imported
+
+    draft.procurement = updatedProcurement.procurement;
+    draft.inventory = updatedProcurement.inventory;
+    draft.logs = updatedProcurement.logs;
+
+    // Toolroom Status Update
+    if (Date.now() >= draft.toolroom.nextStatusChange) {
+      // Cycle status: OPEN -> LUNCH -> OPEN -> CLOSED -> OPEN (simplified cycle)
+      // Or random? Let's do a simple cycle based on current status.
+      let nextStatus: 'OPEN' | 'CLOSED' | 'AUDIT' | 'LUNCH' = 'OPEN';
+      let duration = 1000 * 60 * 60 * 4; // 4 hours default
+
+      switch (draft.toolroom.status) {
+        case 'OPEN': {
+          // 30% chance lunch, 10% audit, 60% closed (night)
+          const rand = Math.random();
+          if (rand < 0.3) {
+            nextStatus = 'LUNCH';
+            duration = 1000 * 60 * 30;
+          } // 30 min lunch
+          else if (rand < 0.4) {
+            nextStatus = 'AUDIT';
+            duration = 1000 * 60 * 60;
+          } // 1 hr audit
+          else {
+            nextStatus = 'CLOSED';
+            duration = 1000 * 60 * 60 * 8;
+          } // 8 hr night
+          break;
+        }
+        case 'LUNCH':
+          nextStatus = 'OPEN';
+          duration = 1000 * 60 * 60 * 4;
+          break;
+        case 'AUDIT':
+          nextStatus = 'OPEN';
+          duration = 1000 * 60 * 60 * 4;
+          break;
+        case 'CLOSED':
+          nextStatus = 'OPEN';
+          duration = 1000 * 60 * 60 * 4;
+          break;
+      }
+
+      const inventoryState = {
+        inventory: draft.inventory,
+        personalInventory: draft.personalInventory,
+        rotables: draft.rotables,
+        toolConditions: draft.toolConditions,
+        flags: draft.flags,
+        resources: draft.resources,
+        hfStats: draft.hfStats,
+        calibrationMinigame: draft.calibrationMinigame,
+        activeEvent: draft.activeEvent,
+        stats: draft.stats,
+        logs: draft.logs,
+        toolroom: draft.toolroom,
+      };
+
+      const updatedInventory = inventoryReducer(inventoryState, {
+        type: 'UPDATE_TOOLROOM_STATUS',
+        payload: { status: nextStatus, nextChange: Date.now() + duration },
+      } as InventoryAction);
+
+      draft.toolroom = updatedInventory.toolroom;
+      draft.logs = updatedInventory.logs;
+    }
+
     // Time Tracking
+    const oldShiftCycle = draft.time?.shiftCycle || 1;
+
     if (draft.time) {
       draft.time = timeReducer(draft.time, {
         type: 'TIME_TICK',
@@ -92,6 +177,16 @@ export const composeTick = (
         type: 'TIME_TICK',
         payload: { delta, now: Date.now() },
       });
+    }
+
+    // Check for Shift Change
+    if (draft.time.shiftCycle > oldShiftCycle) {
+      // Cycle Bulletin Board
+      const { bulletinBoard } = bulletinBoardReducer(
+        { bulletinBoard: draft.bulletinBoard } as GameState,
+        { type: 'ROTATE_BULLETIN' }
+      );
+      draft.bulletinBoard = bulletinBoard;
     }
 
     // Future slice integrations will be added here:
@@ -225,10 +320,29 @@ const HANGAR_ACTIONS = [
 ] as const;
 
 // Shop action types handled by shopSlice
-const SHOP_ACTIONS = ['BUY_SHOP_ITEM', 'BUY_VENDING', 'FLUCTUATE_PRICES'] as const;
+const SHOP_ACTIONS = [
+  'BUY_SHOP_ITEM',
+  'BUY_VENDING',
+  'FLUCTUATE_PRICES',
+  'BUY_VENDING_ITEM',
+  'KICK_VENDING_MACHINE',
+] as const;
 
 // Encounters action types handled by encountersSlice
 const ENCOUNTERS_ACTIONS = ['OBSERVE_SEDAN', 'JANITOR_INTERACTION'] as const;
+
+// Procurement action types handled by procurementSlice
+const PROCUREMENT_ACTIONS = [
+  'PLACE_ORDER',
+  'CANCEL_ORDER',
+  'DELIVER_ORDER',
+  'CHECK_DELIVERIES',
+  'UNLOCK_CATALOGUE_LEVEL',
+  'UNLOCK_CATALOGUE_LEVEL',
+] as const;
+
+// Bulletin Board action types handled by bulletinBoardSlice
+const BULLETIN_BOARD_ACTIONS = ['ROTATE_BULLETIN'] as const;
 
 /**
  * Compose reducers for ACTION events
@@ -275,6 +389,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
           rotablesRepaired: draft.stats.rotablesRepaired,
         },
         logs: draft.logs,
+        toolroom: draft.toolroom, // Added toolroom state
       };
 
       const updated = inventoryReducer(inventoryState, {
@@ -309,6 +424,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       }
       draft.stats.rotablesRepaired = updated.stats.rotablesRepaired;
       draft.logs = updated.logs;
+      draft.toolroom = updated.toolroom as typeof draft.toolroom; // Added
     });
   }
 
@@ -688,7 +804,53 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
 
       draft.aog = updated.aog;
       draft.resources = updated.resources;
+      draft.aog = updated.aog;
+      draft.resources = updated.resources;
       draft.logs = updated.logs;
+    });
+  }
+
+  // Route procurement actions to procurementSlice
+  if (PROCUREMENT_ACTIONS.includes(action.type as (typeof PROCUREMENT_ACTIONS)[number])) {
+    return produce(state, (draft) => {
+      const procurementState = {
+        procurement: draft.procurement,
+        resources: draft.resources,
+        inventory: draft.inventory,
+        logs: draft.logs,
+      };
+
+      const updated = procurementReducer(procurementState, {
+        type: action.type,
+        payload: action.payload as Record<string, unknown>,
+      } as ProcurementAction);
+
+      draft.procurement = updated.procurement;
+      draft.resources = updated.resources;
+      draft.inventory = updated.inventory;
+      draft.logs = updated.logs;
+    });
+  }
+
+  // Route bulletin board actions to bulletinBoardSlice
+  if (BULLETIN_BOARD_ACTIONS.includes(action.type as (typeof BULLETIN_BOARD_ACTIONS)[number])) {
+    return produce(state, (draft) => {
+      // Actually, let's look at the slice implementation again.
+      // It uses produce(state, (draft) => ...).
+      // So if I pass 'draft' here it might be double-drafting if I'm not careful,
+      // but produce() handles nested drafts fine or I can just call the reducer logic directly if not using produce in the producer.
+      // My slice USES produce. So I should probably pass the state, not the draft, OR simple call:
+
+      const updated = bulletinBoardReducer(
+        draft as unknown as GameState,
+        {
+          type: action.type,
+          payload: action.payload,
+        } as BulletinBoardAction
+      );
+
+      // Map updated state back.
+      draft.bulletinBoard = updated.bulletinBoard;
     });
   }
 
@@ -710,7 +872,7 @@ export const composeReducers = (
     const { delta } = action.payload as { delta: number };
     nextState = composeTick(state, delta, activeTab);
   } else if (action.type === 'ACTION') {
-    nextState = composeAction(state, action);
+    nextState = composeAction(state, action.payload as ReducerAction);
   }
 
   // Check ending conditions

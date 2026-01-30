@@ -24,6 +24,7 @@ const MaintenanceTerminalModal = React.lazy(
   () => import('./components/MaintenanceTerminalModal.tsx')
 );
 const PersonalIdCardModal = React.lazy(() => import('./components/PersonalIdCardModal.tsx'));
+const BulletinBoardModal = React.lazy(() => import('./components/BulletinBoardModal.tsx'));
 const EndingScreen = React.lazy(() => import('./components/EndingScreen.tsx')); // Added
 
 import { useAutoSave } from './hooks/useAutoSave.ts';
@@ -35,8 +36,8 @@ import NotificationContainer from './components/common/NotificationContainer.tsx
 import { NotificationProvider } from './context/NotificationContext.tsx';
 import { useNotification } from './hooks/useNotification.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_45';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_45';
+const SAVE_KEY = 'the_hangar_save__build_49';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_49';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -70,6 +71,7 @@ const AppContent: React.FC = () => {
 
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isIdCardOpen, setIsIdCardOpen] = useState(false);
+  const [isBulletinBoardOpen, setIsBulletinBoardOpen] = useState(false);
   const [isArchiveTerminalOpen, setIsArchiveTerminalOpen] = useState(false);
   const [isMaintenanceTerminalOpen, setIsMaintenanceTerminalOpen] = useState(false);
   const isRebootingRef = useRef(false);
@@ -288,6 +290,7 @@ const AppContent: React.FC = () => {
             state={state}
             onAction={onAction}
             onClose={() => setIsArchiveTerminalOpen(false)}
+            onOpenBulletinBoard={() => setIsBulletinBoardOpen(true)}
           />
         </Suspense>
       )}
@@ -298,6 +301,11 @@ const AppContent: React.FC = () => {
             onAction={onAction}
             onClose={() => setIsMaintenanceTerminalOpen(false)}
           />
+        </Suspense>
+      )}
+      {isBulletinBoardOpen && (
+        <Suspense fallback={<LoadingFallback />}>
+          <BulletinBoardModal state={state} onClose={() => setIsBulletinBoardOpen(false)} />
         </Suspense>
       )}
 
@@ -454,7 +462,12 @@ const AppContent: React.FC = () => {
         <div
           className={`w-full md:w-1/2 p-4 md:p-6 overflow-y-auto border-r border-emerald-900/20 bg-[#0d0d0d] ${mobileView === 'ACTIONS' ? 'block' : 'hidden md:block'}`}
         >
-          <ActionPanel activeTab={activeTab} state={state} onAction={onAction} />
+          <ActionPanel
+            activeTab={activeTab}
+            state={state}
+            onAction={onAction}
+            onOpenBulletinBoard={() => setIsBulletinBoardOpen(true)}
+          />
         </div>
         <div
           className={`w-full md:w-1/2 p-4 md:p-6 bg-[#0a0a0a] overflow-y-auto ${mobileView === 'LOGS' ? 'block' : 'hidden md:block'}`}

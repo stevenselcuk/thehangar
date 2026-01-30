@@ -11,14 +11,27 @@ import OfficeTab from './OfficeTab.tsx';
 import TerminalTab from './TerminalTab.tsx';
 import TrainingTab from './TrainingTab.tsx';
 
+import BackroomModal from './BackroomModal';
+import ProcurementModal from './ProcurementModal';
+import ToolroomStatusWidget from './ToolroomStatusWidget';
+
 const PhotoModal = React.lazy(() => import('./PhotoModal.tsx'));
 
 const ActionPanel: React.FC<{
   activeTab: TabType;
   state: GameState;
   onAction: (t: string, p?: Record<string, unknown>) => void;
-}> = ({ activeTab, state, onAction }) => {
+  onOpenBulletinBoard: () => void;
+}> = ({ activeTab, state, onAction, onOpenBulletinBoard }) => {
   const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
+  const [isBackroomOpen, setIsBackroomOpen] = React.useState(false);
+  const [isProcurementOpen, setIsProcurementOpen] = React.useState(false);
+
+  // Close modals when switching tabs
+  React.useEffect(() => {
+    setIsBackroomOpen(false);
+    setIsProcurementOpen(false);
+  }, [activeTab]);
 
   const renderActiveEvent = () => {
     if (!state.activeEvent) return null;
@@ -254,6 +267,38 @@ const ActionPanel: React.FC<{
               <h4 className="text-[10px] text-emerald-800 uppercase mb-4 font-bold border-l-2 border-emerald-900 pl-2">
                 Equipment Procurement
               </h4>
+              <div className="flex gap-2 mb-4">
+                <button
+                  onClick={() => setIsBackroomOpen(!isBackroomOpen)}
+                  className="flex-1 p-2 bg-emerald-900/20 border border-emerald-700/50 hover:bg-emerald-800/20 text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+                >
+                  [BACKROOM]
+                </button>
+
+                <button
+                  onClick={() => setIsProcurementOpen(true)}
+                  className="flex-1 p-2 bg-emerald-900/20 border border-emerald-700/50 hover:bg-emerald-800/20 text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all"
+                >
+                  [CATALOG] Procurement
+                </button>
+              </div>
+
+              {isBackroomOpen && (
+                <BackroomModal
+                  state={state}
+                  onAction={onAction}
+                  onClose={() => setIsBackroomOpen(false)}
+                />
+              )}
+
+              {isProcurementOpen && (
+                <ProcurementModal
+                  state={state}
+                  onAction={onAction}
+                  onClose={() => setIsProcurementOpen(false)}
+                />
+              )}
+
               <div className="grid grid-cols-1 gap-2">
                 {itemsData.shop
                   .filter((i) => i.category === 'tool')
@@ -315,6 +360,8 @@ const ActionPanel: React.FC<{
 
         return (
           <div className="space-y-6">
+            <ToolroomStatusWidget state={state} />
+
             <div className="flex justify-between items-center border-b border-emerald-900/30 pb-2">
               <h3 className="text-xs text-emerald-700 uppercase tracking-widest">
                 Master Toolroom Control
@@ -834,10 +881,16 @@ const ActionPanel: React.FC<{
               <h4 className="text-[10px] text-emerald-900 uppercase mb-2 font-bold italic tracking-widest">
                 Hangar Environment
               </h4>
-              <p className="text-[9px] text-emerald-900 opacity-60">
+              <p className="text-[9px] text-emerald-900 opacity-60 mb-4">
                 The massive steel rafters groan under the weight of the dark. Somewhere in the back,
                 an APU is testing itself without a crew.
               </p>
+              <ActionButton
+                label="View Bulletin Board"
+                onClick={onOpenBulletinBoard}
+                description="Check the latest company news, staff rosters, and rumors."
+                className="border-emerald-800/50 text-emerald-600"
+              />
             </div>
           </div>
         );
@@ -848,7 +901,9 @@ const ActionPanel: React.FC<{
       case TabType.TERMINAL:
         return <TerminalTab state={state} onAction={onAction} />;
       case TabType.OFFICE:
-        return <OfficeTab state={state} onAction={onAction} />;
+        return (
+          <OfficeTab state={state} onAction={onAction} onOpenBulletinBoard={onOpenBulletinBoard} />
+        );
       case TabType.HR_FLOOR:
         return <HRFloorTab state={state} onAction={onAction} />;
       case TabType.BACKSHOPS:

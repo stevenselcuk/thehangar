@@ -21,7 +21,7 @@ const AvatarDisplay: React.FC = () => {
     >
       {!hasError ? (
         <img
-          src="/ID_photo.png"
+          src="/images/ID_photo.png"
           className="w-full h-full object-cover opacity-80"
           alt="SUBJECT"
           onError={() => setHasError(true)}
@@ -336,7 +336,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_8}';
+  const BUILD_NUMBER = 'Build v.{_build_12}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');

@@ -288,6 +288,26 @@ export const createInitialState = (): GameState => ({
     progressRequired: 100,
     actionInProgress: null,
   },
+  procurement: {
+    orders: [],
+    catalogueUnlockLevel: 0,
+  },
+  toolroom: {
+    status: 'OPEN',
+    unavailableTools: [],
+    nextStatusChange: Date.now() + 1000 * 60 * 60 * 4, // 4 hours
+  },
+  bulletinBoard: {
+    activeIndices: {
+      teamRosters: [0, 1, 2],
+      companyNews: [0, 1, 2],
+      deployments: [0, 1, 2],
+      suitsIntel: [0, 1, 2],
+      conspiracyTheories: [0, 1, 2],
+    },
+    mechanicOfTheMonthIndex: 0,
+    lastUpdate: Date.now(),
+  },
 });
 
 export const loadState = (saveKey: string): GameState => {
@@ -350,6 +370,9 @@ export const loadState = (saveKey: string): GameState => {
         logs: parsed.logs && parsed.logs.length > 0 ? parsed.logs : defaults.logs,
         lastUpdate: Date.now(),
         aog: parsed.aog || defaults.aog,
+        procurement: parsed.procurement || defaults.procurement,
+        toolroom: parsed.toolroom || defaults.toolroom,
+        bulletinBoard: parsed.bulletinBoard || defaults.bulletinBoard,
       };
     } catch (e) {
       console.error('Failed to parse saved state:', e);

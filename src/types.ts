@@ -423,6 +423,42 @@ export interface GameState {
     } | null;
   };
   notificationQueue: NotificationRequest[];
+  procurement: ProcurementState;
+  toolroom: {
+    status: ToolroomStatusType;
+    unavailableTools: string[]; // List of tool IDs currently not available
+    nextStatusChange: number;
+  };
+  bulletinBoard: BulletinBoardState;
+}
+
+export interface BulletinBoardState {
+  activeIndices: {
+    teamRosters: number[];
+    companyNews: number[];
+    deployments: number[];
+    suitsIntel: number[];
+    conspiracyTheories: number[];
+  };
+  mechanicOfTheMonthIndex: number;
+  lastUpdate: number;
+}
+
+export type ToolroomStatusType = 'OPEN' | 'CLOSED' | 'AUDIT' | 'LUNCH';
+
+export interface ProcurementOrder {
+  id: string;
+  itemId: string;
+  itemLabel: string;
+  orderTimestamp: number;
+  deliveryEta: number;
+  status: 'ORDERED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  cost: number;
+}
+
+export interface ProcurementState {
+  orders: ProcurementOrder[];
+  catalogueUnlockLevel: number; // 0 = Basic, 1 = Advanced, 2 = Black Market
 }
 
 export enum TabType {

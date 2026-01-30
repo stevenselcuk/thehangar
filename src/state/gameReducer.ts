@@ -206,6 +206,15 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           'START_AOG_ACTION',
           'RESOLVE_AOG_ACTION',
           'COMPLETE_AOG_DEPLOYMENT',
+          // Procurement Actions
+          'PLACE_ORDER',
+          'CANCEL_ORDER',
+          'DELIVER_ORDER',
+          'CHECK_DELIVERIES',
+          'UNLOCK_CATALOGUE_LEVEL',
+          // Backroom Actions
+          'BUY_VENDING_ITEM',
+          'KICK_VENDING_MACHINE',
         ];
 
         if (composedActions.includes(type)) {

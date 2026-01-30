@@ -55,6 +55,11 @@ export interface InventorySliceState {
     rotablesRepaired: number;
   };
   logs: LogMessage[];
+  toolroom: {
+    status: 'OPEN' | 'CLOSED' | 'AUDIT' | 'LUNCH';
+    unavailableTools: string[];
+    nextStatusChange: number;
+  };
 }
 
 // ===== ACTION TYPES =====
@@ -78,7 +83,12 @@ export type InventoryAction =
       payload: { toolId: string; result: 'perfect' | 'good' | 'fail' };
     }
   | { type: 'ASK_MASTER_LORE'; payload: Record<string, unknown> }
-  | { type: 'TOOLROOM_MASTER_TALK'; payload: Record<string, unknown> };
+  | { type: 'TOOLROOM_MASTER_TALK'; payload: Record<string, unknown> }
+  | {
+      type: 'UPDATE_TOOLROOM_STATUS';
+      payload: { status: 'OPEN' | 'CLOSED' | 'AUDIT' | 'LUNCH'; nextChange: number };
+    }
+  | { type: 'NPC_TOOL_ACTION'; payload: { toolId: string; action: 'CHECKOUT' | 'RETURN' } };
 
 // ===== HELPER FUNCTIONS =====
 
@@ -196,6 +206,17 @@ export const inventoryReducer = produce((draft: InventorySliceState, action: Inv
 
     case 'GET_TOOLROOM_ITEM': {
       const { key, label, pn } = action.payload;
+
+      if (draft.toolroom.status !== 'OPEN') {
+        addLog(`Toolroom is ${draft.toolroom.status}. Cannot check out tools.`, 'warning');
+        return;
+      }
+
+      if (draft.toolroom.unavailableTools.includes(key)) {
+        addLog(`Item ${label} is currently checked out by another technician.`, 'warning');
+        return;
+      }
+
       if (key) {
         (draft.inventory as unknown as Record<string, unknown>)[key] = true;
         draft.toolConditions[key] = 100;
@@ -335,6 +356,44 @@ export const inventoryReducer = produce((draft: InventorySliceState, action: Inv
       const dialogue = getRandomMasterDialogue();
       addLog(dialogue, 'info');
       draft.resources.sanity = Math.min(100, draft.resources.sanity + 2);
+      break;
+    }
+
+    case 'UPDATE_TOOLROOM_STATUS': {
+      const { status, nextChange } = action.payload;
+      draft.toolroom.status = status;
+      draft.toolroom.nextStatusChange = nextChange;
+
+      let msg = '';
+      switch (status) {
+        case 'CLOSED':
+          msg = 'Toolroom is now CLOSED.';
+          break;
+        case 'AUDIT':
+          msg = 'Toolroom is under AUDIT. No issues or returns.';
+          break;
+        case 'LUNCH':
+          msg = 'Master is at LUNCH. Come back later.';
+          break;
+        case 'OPEN':
+          msg = 'Toolroom is OPEN for business.';
+          break;
+      }
+      addLog(msg, status === 'OPEN' ? 'info' : 'warning');
+      break;
+    }
+
+    case 'NPC_TOOL_ACTION': {
+      const { toolId, action: toolAction } = action.payload;
+      if (toolAction === 'CHECKOUT') {
+        if (!draft.toolroom.unavailableTools.includes(toolId)) {
+          draft.toolroom.unavailableTools.push(toolId);
+        }
+      } else {
+        draft.toolroom.unavailableTools = draft.toolroom.unavailableTools.filter(
+          (id) => id !== toolId
+        );
+      }
       break;
     }
   }

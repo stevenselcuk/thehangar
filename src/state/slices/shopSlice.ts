@@ -39,6 +39,11 @@ export type ShopAction =
       type: 'BUY_VENDING';
       payload: { id: string; cost: number; sanity: number; focus: number; msg: string };
     }
+  | {
+      type: 'BUY_VENDING_ITEM';
+      payload: { item: Record<string, unknown> & { id: string; cost: number; label: string } };
+    }
+  | { type: 'KICK_VENDING_MACHINE' }
   | { type: 'FLUCTUATE_PRICES'; payload?: Record<string, never> };
 
 // ==================== REDUCER ====================
@@ -56,11 +61,63 @@ export const shopReducer = (state: ShopSliceState, action: ShopAction): ShopSlic
       case 'BUY_SHOP_ITEM':
         if (draft.resources.alclad >= action.payload.cost) {
           draft.resources.alclad -= action.payload.cost;
-          (draft.inventory as unknown as Record<string, unknown>)[action.payload.item] = true;
+          (draft.inventory as unknown as Record<string, boolean | number>)[action.payload.item] =
+            true;
           draft.toolConditions[action.payload.item] = 100;
           addLog(`PURCHASED: ${action.payload.item.toUpperCase()}`);
         } else {
           addLog('NOT ENOUGH ALCLAD SCRAP.', 'error');
+        }
+        break;
+
+      case 'BUY_VENDING_ITEM': {
+        const { item } = action.payload;
+        const cost = item.cost;
+
+        if (draft.resources.credits >= cost) {
+          draft.resources.credits -= cost;
+          // Handle consumables effects
+          if (item.id === 'winston_pack') {
+            draft.personalInventory['winston_pack'] =
+              (draft.personalInventory['winston_pack'] || 0) + 1;
+            addLog(`BOUGHT: ${item.label.toUpperCase()}`, 'info');
+          } else if (item.id === 'skydrol') {
+            // Skydrol effect? Maybe burn?
+            draft.resources.sanity -= 5;
+            addLog(`BOUGHT: ${item.label.toUpperCase()}. IT BURNS.`, 'warning');
+          } else {
+            addLog(`BOUGHT: ${item.label.toUpperCase()}`, 'info');
+            // Generic inventory add if it's a resource (not defined in types yet, assuming abstract for now)
+            // But consumables usually get used immediately or stored in specific fields.
+            // Current game logic seems to handle winstons in personalInventory, others might be just resource changes?
+            // Checking item.id matches resources keys?
+            if (item.id in draft.resources) {
+              (draft.resources as Record<string, number>)[item.id] =
+                ((draft.resources as Record<string, number>)[item.id] || 0) + 1;
+            }
+          }
+        } else {
+          addLog('INSUFFICIENT CREDITS.', 'error');
+        }
+        break;
+      }
+
+      case 'KICK_VENDING_MACHINE':
+        if (draft.resources.focus >= 5) {
+          draft.resources.focus -= 5;
+          const rand = Math.random();
+          if (rand < 0.1) {
+            // Free item!
+            addLog('CLUNK. A stale chocolate bar falls out. Success.', 'info');
+            draft.resources.sanity += 5;
+          } else if (rand < 0.3) {
+            addLog('OW. You hurt your foot.', 'warning');
+            draft.resources.sanity -= 2;
+          } else {
+            addLog('The machine hums defiantly.', 'info');
+          }
+        } else {
+          addLog('Not enough focus to kick properly.', 'warning');
         }
         break;
 
