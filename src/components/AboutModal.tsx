@@ -185,6 +185,22 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
     );
   };
 
+  const downloadJournal = () => {
+    const journalText = (state.journal || [])
+      .map(
+        (log) =>
+          `[${new Date(log.timestamp).toLocaleString()}] ${log.type.toUpperCase()}: ${log.text}`
+      )
+      .join('\n');
+    const blob = new Blob([journalText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `journal_${new Date().toISOString()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-10 font-mono text-sm max-h-full overflow-y-auto pr-2 pb-10">
       {/* HEADER DOSSIER */}
@@ -228,7 +244,16 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
                 Subject: 770-M-9M-MRO
               </p>
             </div>
-            <div className="text-right">{getClearanceBadge(clearanceLevel)}</div>
+            <div className="flex flex-col items-end gap-2">
+              <div className="text-right">{getClearanceBadge(clearanceLevel)}</div>
+              <button
+                onClick={downloadJournal}
+                className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 hover:text-emerald-300 border border-emerald-800 hover:border-emerald-500 px-2 py-1 bg-black/40 transition-all flex items-center gap-2 group"
+              >
+                <span>[ DOWNLOAD LOGS ]</span>
+                <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mt-4 bg-black/40 p-4 border border-emerald-900/30">
@@ -367,7 +392,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_32}';
+  const BUILD_NUMBER = 'Build v.{_build_33}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');

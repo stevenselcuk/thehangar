@@ -374,6 +374,7 @@ export interface GameState {
   toolConditions: Record<string, number>;
   flags: GameFlags;
   logs: LogMessage[];
+  journal: LogMessage[];
   mail: MailMessage[];
   lastUpdate: number;
   eventTimestamps: Record<string, number>;

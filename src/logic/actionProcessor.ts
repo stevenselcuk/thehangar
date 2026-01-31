@@ -37,12 +37,12 @@ export const handleGameAction = (
   const nextProf = { ...prev.proficiency };
   let nextEvent = prev.activeEvent;
   let nextCalibration = { ...prev.calibrationMinigame };
+  let nextJournal = [...(prev.journal || [])];
 
   const addLog = (text: string, type: LogMessage['type'] = 'info') => {
-    nextLogs = [
-      { id: Math.random().toString(36), text, type, timestamp: Date.now() },
-      ...nextLogs.slice(0, 49),
-    ];
+    const newLog = { id: Math.random().toString(36), text, type, timestamp: Date.now() };
+    nextLogs = [newLog, ...nextLogs.slice(0, 49)];
+    nextJournal = [newLog, ...nextJournal];
   };
 
   const hasSkill = (id: string) => nextProf.unlocked.includes(id);
@@ -333,6 +333,7 @@ export const handleGameAction = (
             calibrationMinigame: nextCalibration,
             anomalies: nextAnomalies,
             activeJob: newRetrofitJob,
+            journal: nextJournal,
           };
         }
       } else {
@@ -869,8 +870,6 @@ export const handleGameAction = (
       nextRes.sanity += 10;
       nextRes.suspicion += 5;
       addLog("You skipped the module on 'Non-Euclidean Geometry'. Probably for the best.", 'info');
-      break;
-
       break;
 
     case 'CHECK_FOR_BUGS':

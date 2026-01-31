@@ -2,6 +2,7 @@ import { produce } from 'immer';
 import { anomaliesData } from '../../data/anomalies.ts';
 import { eventsData } from '../../data/events.ts';
 import { ACTION_LOGS, SYSTEM_LOGS } from '../../data/flavor.ts';
+import { generateResolutionLog } from '../../logic/logGenerator.ts'; // Import
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { Anomaly, GameEvent, GameState, Inventory } from '../../types.ts';
@@ -39,6 +40,7 @@ export interface EventsSliceState {
   flags: GameState['flags'];
   hfStats: GameState['hfStats'];
   logs: GameState['logs'];
+  journal: GameState['journal'];
   rotables: GameState['rotables'];
   proficiency: GameState['proficiency'];
 }
@@ -169,7 +171,10 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
     text: string,
     type: 'info' | 'warning' | 'error' | 'story' | 'vibration' | 'levelup' = 'info'
   ) => {
-    addLogToDraft(draft.logs, text, type, Date.now());
+    const timestamp = Date.now();
+    addLogToDraft(draft.logs, text, type, timestamp);
+    if (!draft.journal) draft.journal = [];
+    draft.journal.unshift({ id: Math.random().toString(36), text, type, timestamp });
   };
 
   switch (action.type) {
@@ -275,7 +280,12 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
 
       // Award experience for resolution
       draft.resources.experience += 350;
-      addLog(SYSTEM_LOGS.EVENT_RESOLVED, 'story');
+      const resolutionLog = generateResolutionLog(
+        draft,
+        draft.activeEvent.type,
+        draft.activeEvent.id
+      );
+      addLog(resolutionLog, 'story');
 
       // Increment stats
       draft.stats.eventsResolved += 1;

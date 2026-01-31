@@ -42,6 +42,7 @@ export const SoundProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return <SoundContext.Provider value={{ play, playUrl }}>{children}</SoundContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSound = () => {
   const context = useContext(SoundContext);
   if (!context) {

@@ -270,6 +270,7 @@ export const createInitialState = (): GameState => ({
   vendingPrices: generateVendingPrices(),
   calibrationMinigame: { active: false, toolId: null, toolLabel: null },
   logs: [{ id: '1', text: SYSTEM_LOGS.BOOT, type: 'info', timestamp: Date.now() }],
+  journal: [],
   mail: [
     {
       id: 'welcome-msg',
@@ -388,7 +389,9 @@ export const loadState = (saveKey: string): GameState => {
         mail: parsed.mail || [],
         rotables: parsed.rotables || [],
         logs: parsed.logs && parsed.logs.length > 0 ? parsed.logs : defaults.logs,
+        journal: parsed.journal || defaults.journal,
         lastUpdate: Date.now(),
+
         aog: parsed.aog || defaults.aog,
         procurement: parsed.procurement || defaults.procurement,
         toolroom: parsed.toolroom || defaults.toolroom,

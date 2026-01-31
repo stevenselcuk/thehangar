@@ -657,3 +657,140 @@ export const PAYPHONE_FLAVOR_TEXTS = [
   'You hear the ocean. Someone is drowning. They say your name.',
   'You hang up, but the voice keeps talking from the receiver.',
 ];
+export type LogCategory = 'GENERAL' | 'HR' | 'MAINTENANCE' | 'LOGISTICS';
+export type LogTone = 'MUNDANE' | 'BUREAUCRATIC' | 'ELDRITCH';
+
+export interface ResolutionContext {
+  sanityLevel: 'high' | 'medium' | 'low';
+  suspicionLevel: 'high' | 'medium' | 'low';
+  department: LogCategory;
+  tone: LogTone;
+}
+
+export interface LogTemplate {
+  text: string;
+  tone?: LogTone;
+  department?: LogCategory;
+  allowedEventTypes?: string[];
+  conditions?: {
+    minSanity?: number;
+    maxSanity?: number;
+    minSuspicion?: number;
+    requiredItem?: string;
+  };
+}
+
+export const EVENT_RESOLUTION_TEMPLATES: LogTemplate[] = [
+  // --- MUNDANE (Standard Professionalism) ---
+  {
+    text: 'Situation resolved and logged in the official manifest.',
+    tone: 'MUNDANE',
+  },
+  {
+    text: 'Maintenance action complete. Paperwork filed in triplicate.',
+    tone: 'MUNDANE',
+    conditions: { minSanity: 50 },
+  },
+  {
+    text: 'The issue has been rectified. Operations returning to normal parameters.',
+    tone: 'MUNDANE',
+  },
+  {
+    text: 'Standard containment protocols were effective. No further action required.',
+    tone: 'MUNDANE',
+  },
+  {
+    text: "You've patched the problem. It's ugly, but it holds.",
+    tone: 'MUNDANE',
+    department: 'MAINTENANCE',
+  },
+  {
+    text: "The lead mechanic nods at your work. 'Acceptable,' he grunts.",
+    tone: 'MUNDANE',
+    department: 'MAINTENANCE',
+  },
+
+  // --- BUREAUCRATIC (Kafkaesque / dystopian) ---
+  {
+    text: 'Incident closed. A deduction has been made from your future happiness metrics.',
+    tone: 'BUREAUCRATIC',
+  },
+  {
+    text: 'The file is sealed. Do not attempt to reopen it without a Class-4 existential warrant.',
+    tone: 'BUREAUCRATIC',
+  },
+  {
+    text: 'Resolution logged. Please ignore any subsequent biological anomalies in the area.',
+    tone: 'BUREAUCRATIC',
+  },
+  {
+    text: 'HR has noted your compliance. Your file remains active and observing.',
+    tone: 'BUREAUCRATIC',
+    conditions: { minSuspicion: 30 },
+  },
+  {
+    text: 'The paperwork for this event is heavier than the component itself.',
+    tone: 'BUREAUCRATIC',
+  },
+  {
+    text: "A memo appears on your desk: 'Regarding the recent event: It never happened.'",
+    tone: 'BUREAUCRATIC',
+    conditions: { minSuspicion: 50 },
+  },
+  {
+    text: 'The audit team has been notified of the resolution. They are unimpressed.',
+    tone: 'BUREAUCRATIC',
+  },
+
+  // --- ELDRITCH (Horror / Insanity) ---
+  {
+    text: 'It is done. But you can still hear the event scratching at the back of your mind.',
+    tone: 'ELDRITCH',
+    conditions: { maxSanity: 40 },
+  },
+  {
+    text: 'You fixed it, but the shadows in the corner of the hangar have moved closer.',
+    tone: 'ELDRITCH',
+    conditions: { maxSanity: 50 },
+  },
+  {
+    text: 'The problem is gone. Replaced by a silence that hurts your ears.',
+    tone: 'ELDRITCH',
+  },
+  {
+    text: "You've resolved the issue, but the geometry of the room still feels... wrong.",
+    tone: 'ELDRITCH',
+    conditions: { maxSanity: 30 },
+  },
+  {
+    text: 'The logbook accepts your entry, the ink soaking into the page like black blood.',
+    tone: 'ELDRITCH',
+    conditions: { maxSanity: 20 },
+  },
+  {
+    text: 'For a moment, you saw the true face of the machine. Then it was just a machine again.',
+    tone: 'ELDRITCH',
+    conditions: { maxSanity: 15 },
+  },
+  {
+    text: 'The event is over. The hunger of the hangar abates, for now.',
+    tone: 'ELDRITCH',
+  },
+  // --- SPECIFIC CONTEXTS ---
+  {
+    text: "You wipe the grease from your hands. It's not grease. It's grey slime.",
+    tone: 'ELDRITCH',
+    department: 'MAINTENANCE',
+    conditions: { maxSanity: 40 },
+  },
+  {
+    text: 'The vending machine hums in approval. A single coin clatters into the tray.',
+    tone: 'MUNDANE', // Or slightly weird
+    allowedEventTypes: ['canteen_incident'],
+  },
+  {
+    text: 'You feel lighter. Something heavy has left your chest.',
+    tone: 'MUNDANE', // Relief
+    conditions: { minSanity: 60 },
+  },
+];
