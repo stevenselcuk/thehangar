@@ -10,6 +10,19 @@ body {
   color: #10b981;
   /* terminal-green */
   overflow: hidden;
+  overflow-x: hidden;
+}
+
+#root {
+  overflow-x: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Hide horizontal scrollbar */
+::-webkit-scrollbar:horizontal {
+  display: none;
+  height: 0;
 }
 
 .vibrate {
@@ -38,6 +51,51 @@ body {
   }
 }
 
+@keyframes rgb-glitch {
+  0% {
+    text-shadow:
+      2px 0 rgba(255, 0, 0, 0.7),
+      -2px 0 rgba(0, 0, 255, 0.7);
+    transform: translate(0, 0);
+  }
+  2% {
+    text-shadow:
+      -2px 0 rgba(255, 0, 0, 0.7),
+      2px 0 rgba(0, 0, 255, 0.7);
+    transform: translate(2px, 0);
+  }
+  4% {
+    text-shadow:
+      2px 0 rgba(255, 0, 0, 0.7),
+      -2px 0 rgba(0, 0, 255, 0.7);
+    transform: translate(-1px, 0);
+  }
+  6% {
+    text-shadow: none;
+    transform: translate(0, 0);
+  }
+  98% {
+    text-shadow: none;
+    transform: translate(0, 0);
+  }
+  100% {
+    text-shadow:
+      2px 0 rgba(255, 0, 0, 0.7),
+      -2px 0 rgba(0, 0, 255, 0.7);
+    transform: translate(0, 0);
+  }
+}
+
+.breathing-ui {
+  animation: rgb-glitch 3s infinite linear alternate-reverse;
+}
+
+.text-chromatic {
+  text-shadow:
+    2px 0 rgba(255, 0, 0, 0.7),
+    -2px 0 rgba(0, 0, 255, 0.7);
+}
+
 .flicker {
   animation: flicker 1s infinite;
 }
@@ -61,6 +119,7 @@ body {
     opacity: 0.3;
   }
 }
+
 
 /* New Log Animations */
 @keyframes log-slide-in {

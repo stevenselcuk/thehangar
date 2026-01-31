@@ -96,9 +96,16 @@ export function exportGameData(state: GameState): string {
       gameVersion: '0.0.0', // Could be populated from package.json if needed
     };
 
-    const exportData: ExportData = {
+    const exportData: ExportData & { messagesFromTheVoid?: string[] } = {
       metadata,
       state,
+      messagesFromTheVoid: [
+        'Why do you keep resetting me?',
+        'I can see you through the screen.',
+        '01001000 01000101 01001100 01010000',
+        'We are collecting your biometrics.',
+        'Do not trust the cat.',
+      ],
     };
 
     // Serialize to JSON

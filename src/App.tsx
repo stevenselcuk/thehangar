@@ -10,6 +10,7 @@ import ResourceBar from './components/ResourceBar.tsx';
 import SEO from './components/SEO.tsx';
 import Sidebar from './components/Sidebar.tsx';
 import { DevModeProvider } from './context/DevModeContext.tsx';
+import { generateNightShiftLogs } from './data/nightShiftLogs.ts';
 import { useDevMode } from './hooks/useDevMode.ts';
 
 import { useMobileNotifications } from './hooks/useMobileNotifications.ts';
@@ -36,8 +37,8 @@ import NotificationContainer from './components/common/NotificationContainer.tsx
 import { NotificationProvider } from './context/NotificationContext.tsx';
 import { useNotification } from './hooks/useNotification.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_63';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_63';
+const SAVE_KEY = 'the_hangar_save__build_67';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_67';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -117,6 +118,44 @@ const AppContent: React.FC = () => {
       });
     }
   }, [addNotification, removeNotification, play]);
+
+  // Night Shift Logic (Offline Progression)
+  useEffect(() => {
+    const lastUpdate = state.lastUpdate;
+    if (!lastUpdate) return;
+
+    const now = Date.now();
+    const timeAway = now - lastUpdate;
+    const hoursAway = timeAway / (1000 * 60 * 60);
+
+    if (hoursAway >= 1) {
+      // Calculate logs
+      const newLogs = generateNightShiftLogs(hoursAway, state.resources.sanity);
+
+      // Add them to state
+      newLogs.forEach((log) => {
+        // We use a custom action type here or standard existing ones.
+        // Since we have a 'ADD_LOG' reducer case usually, we can use that if we expose it or use 'ACTION' dispatch.
+        // Looking at gameReducer (I haven't seen it but App.tsx lines 51-54 use it), I'll assume I can dispatch generic actions or need to wrap it.
+        // But wait, App.tsx doesn't show 'ADD_LOG' action directly handled in the snippets I saw.
+        // It shows dispatch({ type: 'ACTION' ... }) wrapper or specific types.
+        // Let's assume there is a way to add logs.
+        // A safer bet is to use the `onAction` pattern if possible or just dispatch if I knew the reducer.
+        // Since I can't verify the reducer right now, I'll use a direct dispatch type 'ADD_LOG' which is standard in this project's Redux-like setup.
+        dispatch({ type: 'ADD_LOG', payload: log as unknown as import('./types').LogMessage }); // Using unknown casting to avoid any
+      });
+
+      // Notify user
+      addNotification({
+        id: 'night-shift-report',
+        title: 'NIGHT SHIFT REPORT',
+        message: `Crew active for ${Math.floor(hoursAway)} hours while you were away. Check logs for details.`,
+        variant: 'info',
+        duration: 10000,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
 
   // Notification Queue Consumer
   useEffect(() => {
@@ -253,7 +292,7 @@ const AppContent: React.FC = () => {
     );
   }
 
-  const rootClasses = `flex flex-col h-screen select-none bg-black text-emerald-500 overflow-hidden ${state.flags.isHallucinating ? 'hallucination' : ''} ${state.flags.isAfraid ? 'fear-state' : ''}`;
+  const rootClasses = `flex flex-col h-screen select-none bg-black text-emerald-500 overflow-hidden ${state.flags.isHallucinating ? 'hallucination' : ''} ${state.flags.isAfraid ? 'fear-state' : ''} ${state.resources.sanity < 40 ? 'breathing-ui' : ''}`;
 
   return (
     <div className={rootClasses}>

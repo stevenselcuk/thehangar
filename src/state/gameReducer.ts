@@ -216,6 +216,15 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           // Backroom Actions
           'BUY_VENDING_ITEM',
           'KICK_VENDING_MACHINE',
+          // Office
+          'READ_EMAIL',
+          // Resources
+          'LOG_FLAVOR',
+          // Pet
+          'PET_CAT',
+          'FEED_CAT',
+          'PLAY_WITH_CAT',
+          'PET_RANDOM_MOVE',
         ];
 
         if (composedActions.includes(type)) {

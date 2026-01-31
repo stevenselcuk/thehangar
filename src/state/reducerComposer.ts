@@ -327,6 +327,7 @@ const OFFICE_ACTIONS = [
   'REVIEW_SURVEILLANCE_LOGS',
   'DEEP_CLEAN_VENTS',
   'INSPECT_PRINTER',
+  'READ_EMAIL',
 ] as const;
 
 // Hangar action types handled by hangarSlice
