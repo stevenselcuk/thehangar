@@ -43,6 +43,7 @@ export type GameReducerAction =
   | { type: 'UPDATE_HF_STATS'; payload: Partial<GameState['hfStats']> }
   | { type: 'UPDATE_PROFICIENCY'; payload: Partial<GameState['proficiency']> }
   | { type: 'UPDATE_STATS'; payload: Partial<GameState['stats']> }
+  | { type: 'UPDATE_STATE'; payload: Partial<GameState> }
   // Import/Export Actions
   | { type: 'IMPORT_STATE'; payload: { state: GameState } }
   | { type: 'CLEAR_NOTIFICATIONS' };
@@ -261,6 +262,13 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
       }
       case 'UPDATE_STATS': {
         Object.assign(draft.stats, action.payload);
+        break;
+      }
+      case 'UPDATE_STATE': {
+        // Generic state update for Dev Mode
+        // BE CAREFUL: This does a shallow merge at the root level, so if you update 'pet',
+        // you must provide the ENTIRE 'pet' object if you don't want to lose data.
+        Object.assign(draft, action.payload);
         break;
       }
       // Import/Export Actions

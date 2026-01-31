@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
-import { eventsData } from '../data/events.ts';
+import React, { useEffect, useState } from 'react';
 import { useDevMode } from '../hooks/useDevMode';
 import { GameReducerAction } from '../state/gameReducer';
 import { GameState } from '../types';
+
+// Sub-components
+import { DevModeEntities } from './devmode/DevModeEntities';
+import { DevModeEvents } from './devmode/DevModeEvents';
+import { DevModeFlags } from './devmode/DevModeFlags';
+import { DevModeInventory } from './devmode/DevModeInventory';
+import { DevModeResources } from './devmode/DevModeResources';
+import { DevModeSystems } from './devmode/DevModeSystems';
 
 interface DevModeModalProps {
   gameState: GameState;
@@ -11,627 +18,154 @@ interface DevModeModalProps {
 }
 
 type TabType =
+  | 'overview' // Default view
   | 'resources'
   | 'inventory'
   | 'flags'
-  | 'hfstats'
-  | 'proficiency'
-  | 'stats'
-  | 'events'
-  | 'actions';
+  | 'entities' // Pet, Toolroom
+  | 'systems' // Time, Hazards, Jobs
+  | 'events';
+
+const QuickActions: React.FC<{
+  dispatch: React.Dispatch<GameReducerAction>;
+  onReset: () => void;
+}> = ({ dispatch, onReset }) => (
+  <div className="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-emerald-800">
+    <button
+      onClick={() => {
+        const maxValues: Partial<GameState['resources']> = {
+          alclad: 9999,
+          titanium: 9999,
+          fiberglass: 9999,
+          rivets: 9999,
+          credits: 99999,
+          sanity: 100,
+          focus: 100,
+        };
+        dispatch({ type: 'UPDATE_RESOURCE', payload: maxValues });
+      }}
+      className="text-xs bg-emerald-900/50 hover:bg-emerald-800 text-emerald-300 py-2 border border-emerald-700"
+    >
+      💰 Max Res
+    </button>
+    <button
+      onClick={() => {
+        if (confirm('Are you sure you want to reset the game? This will delete your save!')) {
+          onReset();
+        }
+      }}
+      className="text-xs bg-red-900/50 hover:bg-red-800 text-red-300 py-2 border border-red-700"
+    >
+      🔥 Reset Game
+    </button>
+  </div>
+);
 
 const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onReset }) => {
   const { closeDevMode } = useDevMode();
   const [activeTab, setActiveTab] = useState<TabType>('resources');
 
-  // Helper functions for dispatching state changes
-  const updateResource = (key: keyof GameState['resources'], value: number) => {
-    dispatch({
-      type: 'UPDATE_RESOURCE',
-      payload: { [key]: value },
-    });
-  };
-
-  const toggleInventory = (key: keyof GameState['inventory']) => {
-    const currentValue = gameState.inventory[key];
-    dispatch({
-      type: 'UPDATE_INVENTORY',
-      payload: { [key]: typeof currentValue === 'boolean' ? !currentValue : currentValue },
-    });
-  };
-
-  const setInventoryValue = (key: keyof GameState['inventory'], value: boolean | number) => {
-    dispatch({
-      type: 'UPDATE_INVENTORY',
-      payload: { [key]: value },
-    });
-  };
-
-  const toggleFlag = (key: keyof GameState['flags']) => {
-    if (key === 'storyFlags' || key === 'ndtFinding' || key === 'activeComponentFailure') return;
-    const currentValue = gameState.flags[key];
-    dispatch({
-      type: 'UPDATE_FLAGS',
-      payload: { [key]: !currentValue },
-    });
-  };
-
-  const updateHFStat = (key: keyof GameState['hfStats'], value: number) => {
-    dispatch({
-      type: 'UPDATE_HF_STATS',
-      payload: { [key]: value },
-    });
-  };
-
-  // Quick Actions
-  const quickLevelUp = () => {
-    const nextLevelXP = gameState.resources.level * 100;
-    updateResource('experience', gameState.resources.experience + nextLevelXP);
-    updateResource('level', gameState.resources.level + 1);
-  };
-
-  const maxResources = () => {
-    const maxValues: Partial<GameState['resources']> = {
-      alclad: 9999,
-      titanium: 9999,
-      fiberglass: 9999,
-      rivets: 9999,
-      hiloks: 9999,
-      collars: 9999,
-      grommets: 9999,
-      steelWire: 9999,
-      skydrol: 9999,
-      mek: 9999,
-      grease: 9999,
-      sealant: 9999,
-      credits: 99999,
-      kardexFragments: 100,
-      crystallineResonators: 100,
-      bioFilament: 100,
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto';
     };
-    dispatch({ type: 'UPDATE_RESOURCE', payload: maxValues });
-  };
+  }, []);
 
-  const resetSanityFocus = () => {
-    updateResource('sanity', 100);
-    updateResource('focus', 100);
-    updateResource('suspicion', 0);
-  };
-
-  const tabs = [
-    { id: 'resources', label: 'Resources' },
-    { id: 'inventory', label: 'Inventory' },
-    { id: 'flags', label: 'Flags' },
-    { id: 'hfstats', label: 'HF Stats' },
-    { id: 'proficiency', label: 'Proficiency' },
-    { id: 'stats', label: 'Stats' },
-    { id: 'events', label: 'Events' },
-    { id: 'actions', label: 'Quick Actions' },
-  ] as const;
-
+  const navItems: { id: TabType; label: string; icon: string }[] = [
+    { id: 'resources', label: 'Resources & Stats', icon: '💎' },
+    { id: 'inventory', label: 'Inventory & Items', icon: '🎒' },
+    { id: 'flags', label: 'Game Flags', icon: '🚩' },
+    { id: 'entities', label: 'Entities (Pet/Room)', icon: '🐈' },
+    { id: 'systems', label: 'Systems & Time', icon: '⚙️' },
+    { id: 'events', label: 'Events & AOG', icon: '⚡' },
+  ];
   return (
-    <div className="modal-overlay" onClick={closeDevMode}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn"
+      onClick={closeDevMode}
+    >
       <div
-        className="modal-content"
+        className="bg-black border-2 border-emerald-600 w-full max-w-6xl h-[85vh] flex overflow-hidden shadow-[0_0_50px_rgba(16,185,129,0.2)]"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '1200px' }}
       >
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6 pb-4 border-b-2 border-emerald-700">
-          <div>
-            <h1 className="text-2xl font-bold text-emerald-400">🔧 DEV MODE</h1>
-            <p className="text-xs text-emerald-600 mt-1">Developer Tools - Manipulate Game State</p>
+        {/* Sidebar Navigation */}
+        <div className="w-64 bg-emerald-950/20 border-r border-emerald-800 flex flex-col">
+          <div className="p-4 border-b border-emerald-800 bg-emerald-900/20">
+            <h1 className="text-xl font-bold text-emerald-400 tracking-wider">🔧 DEV MODE</h1>
+            <p className="text-[10px] text-emerald-600 mt-1 uppercase tracking-widest">
+              Administrator Access
+            </p>
           </div>
-          <button
-            onClick={closeDevMode}
-            className="text-emerald-400 hover:text-emerald-300 text-2xl font-bold px-4 py-2 transition-colors"
-          >
-            ✕
-          </button>
+
+          <nav className="flex-1 overflow-y-auto py-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full text-left px-4 py-3 text-sm font-bold flex items-center gap-3 transition-all border-l-4 ${
+                  activeTab === item.id
+                    ? 'bg-emerald-900/40 text-emerald-100 border-emerald-400 shadow-[inset_10px_0_20px_-10px_rgba(16,185,129,0.2)]'
+                    : 'text-emerald-500 border-transparent hover:bg-emerald-900/20 hover:text-emerald-300'
+                }`}
+              >
+                <span className="text-lg">{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="p-4">
+            <QuickActions dispatch={dispatch} onReset={onReset} />
+          </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          {tabs.map((tab) => (
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col bg-gradient-to-br from-black to-emerald-950/30">
+          {/* Header */}
+          <div className="h-14 border-b border-emerald-800 flex justify-between items-center px-6 bg-black/50">
+            <h2 className="text-emerald-400 font-bold uppercase tracking-wider text-sm">
+              {navItems.find((n) => n.id === activeTab)?.label}
+            </h2>
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as TabType)}
-              className={`px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
-                activeTab === tab.id
-                  ? 'bg-emerald-700 text-emerald-100 border-2 border-emerald-500'
-                  : 'bg-emerald-900/30 text-emerald-400 border-2 border-emerald-800 hover:border-emerald-700'
-              }`}
+              onClick={closeDevMode}
+              className="text-emerald-600 hover:text-emerald-400 transition-colors"
             >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab Content */}
-        <div className="overflow-y-auto max-h-[60vh]">
-          {/* Resources Tab */}
-          {activeTab === 'resources' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
-                Resource Management
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(gameState.resources).map(([key, value]) => (
-                  <div key={key} className="bg-emerald-950/50 p-3 border border-emerald-800">
-                    <label className="block text-emerald-400 text-sm font-medium mb-2 capitalize">
-                      {key.replace(/([A-Z])/g, ' $1').trim()}: {value}
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max={key === 'credits' ? '100000' : key === 'experience' ? '10000' : '1000'}
-                      value={value}
-                      onChange={(e) =>
-                        updateResource(key as keyof GameState['resources'], Number(e.target.value))
-                      }
-                      className="w-full"
-                    />
-                    <div className="flex gap-2 mt-2">
-                      <input
-                        type="number"
-                        value={value}
-                        onChange={(e) =>
-                          updateResource(
-                            key as keyof GameState['resources'],
-                            Number(e.target.value)
-                          )
-                        }
-                        className="w-full bg-emerald-950 border border-emerald-700 text-emerald-400 px-2 py-1 text-sm"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Inventory Tab */}
-          {activeTab === 'inventory' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
-                Inventory Management
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {Object.entries(gameState.inventory).map(([key, value]) => (
-                  <div key={key} className="bg-emerald-950/50 p-3 border border-emerald-800">
-                    {typeof value === 'boolean' ? (
-                      <label className="flex items-center justify-between cursor-pointer">
-                        <span className="text-emerald-400 text-sm capitalize">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={value}
-                          onChange={() => toggleInventory(key as keyof GameState['inventory'])}
-                          className="w-5 h-5"
-                        />
-                      </label>
-                    ) : typeof value === 'number' ? (
-                      <div>
-                        <label className="text-emerald-400 text-sm capitalize block mb-2">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}: {value}
-                        </label>
-                        <input
-                          type="number"
-                          value={value}
-                          onChange={(e) =>
-                            setInventoryValue(
-                              key as keyof GameState['inventory'],
-                              Number(e.target.value)
-                            )
-                          }
-                          className="w-full bg-emerald-950 border border-emerald-700 text-emerald-400 px-2 py-1 text-sm"
-                        />
-                      </div>
-                    ) : Array.isArray(value) ? (
-                      <div>
-                        <label className="text-emerald-400 text-sm capitalize block mb-2">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}
-                        </label>
-                        <div className="text-xs text-emerald-600">{value.join(', ') || 'None'}</div>
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Flags Tab */}
-          {activeTab === 'flags' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
-                Game Flags
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {Object.entries(gameState.flags).map(([key, value]) => {
-                  if (
-                    key === 'storyFlags' ||
-                    key === 'ndtFinding' ||
-                    key === 'activeComponentFailure'
-                  )
-                    return null;
-                  return (
-                    <div key={key} className="bg-emerald-950/50 p-3 border border-emerald-800">
-                      <label className="flex items-center justify-between cursor-pointer">
-                        <span className="text-emerald-400 text-sm capitalize">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={Boolean(value)}
-                          onChange={() => toggleFlag(key as keyof GameState['flags'])}
-                          className="w-5 h-5"
-                        />
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* HF Stats Tab */}
-          {activeTab === 'hfstats' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
-                Human Factors Statistics
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(gameState.hfStats).map(([key, value]) => (
-                  <div key={key} className="bg-emerald-950/50 p-3 border border-emerald-800">
-                    <label className="block text-emerald-400 text-sm font-medium mb-2 capitalize">
-                      {key.replace(/([A-Z])/g, ' $1').trim()}: {value}
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={value}
-                      onChange={(e) =>
-                        updateHFStat(key as keyof GameState['hfStats'], Number(e.target.value))
-                      }
-                      className="w-full"
-                    />
-                    <input
-                      type="number"
-                      value={value}
-                      onChange={(e) =>
-                        updateHFStat(key as keyof GameState['hfStats'], Number(e.target.value))
-                      }
-                      className="w-full bg-emerald-950 border border-emerald-700 text-emerald-400 px-2 py-1 text-sm mt-2"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Proficiency Tab */}
-          {activeTab === 'proficiency' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
-                Proficiency & Skills
-              </h2>
-
-              {/* Logbook Hours Section */}
-              <div className="bg-emerald-950/50 p-4 border border-emerald-800">
-                <label className="block text-emerald-400 text-sm font-medium mb-3">
-                  Logbook Experience (Hours): {gameState.resources.technicalLogbookHours}
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() =>
-                      updateResource(
-                        'technicalLogbookHours',
-                        Math.max(0, gameState.resources.technicalLogbookHours - 100)
-                      )
-                    }
-                    className="bg-red-900/40 hover:bg-red-800 text-red-200 border border-red-700/50 px-3 py-1 text-xs rounded transition-colors"
-                  >
-                    -100 Hrs
-                  </button>
-                  <button
-                    onClick={() =>
-                      updateResource(
-                        'technicalLogbookHours',
-                        Math.max(0, gameState.resources.technicalLogbookHours - 10)
-                      )
-                    }
-                    className="bg-red-900/40 hover:bg-red-800 text-red-200 border border-red-700/50 px-3 py-1 text-xs rounded transition-colors"
-                  >
-                    -10 Hrs
-                  </button>
-                  <button
-                    onClick={() =>
-                      updateResource(
-                        'technicalLogbookHours',
-                        gameState.resources.technicalLogbookHours + 10
-                      )
-                    }
-                    className="bg-emerald-900/40 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/50 px-3 py-1 text-xs rounded transition-colors"
-                  >
-                    +10 Hrs
-                  </button>
-                  <button
-                    onClick={() =>
-                      updateResource(
-                        'technicalLogbookHours',
-                        gameState.resources.technicalLogbookHours + 100
-                      )
-                    }
-                    className="bg-emerald-900/40 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/50 px-3 py-1 text-xs rounded transition-colors"
-                  >
-                    +100 Hrs
-                  </button>
-                  <button
-                    onClick={() =>
-                      updateResource(
-                        'technicalLogbookHours',
-                        gameState.resources.technicalLogbookHours + 500
-                      )
-                    }
-                    className="bg-emerald-900/40 hover:bg-emerald-800 text-emerald-200 border border-emerald-700/50 px-3 py-1 text-xs rounded transition-colors"
-                  >
-                    +500 Hrs
-                  </button>
-                </div>
-              </div>
-
-              <div className="bg-emerald-950/50 p-4 border border-emerald-800">
-                <label className="block text-emerald-400 text-sm font-medium mb-2">
-                  Skill Points: {gameState.proficiency.skillPoints}
-                </label>
-                <input
-                  type="number"
-                  value={gameState.proficiency.skillPoints}
-                  onChange={(e) =>
-                    dispatch({
-                      type: 'UPDATE_PROFICIENCY',
-                      payload: { skillPoints: Number(e.target.value) },
-                    })
-                  }
-                  className="w-full bg-emerald-950 border border-emerald-700 text-emerald-400 px-2 py-1 text-sm"
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
                 />
-              </div>
-              <div className="bg-emerald-950/50 p-4 border border-emerald-800">
-                <p className="text-emerald-400 text-sm mb-2">
-                  Unlocked Skills: {gameState.proficiency.unlocked.length}
-                </p>
-                <p className="text-xs text-emerald-600">
-                  {gameState.proficiency.unlocked.join(', ') || 'None'}
-                </p>
-              </div>
-              <div className="bg-emerald-950/50 p-4 border border-emerald-800">
-                <p className="text-emerald-400 text-sm mb-2">
-                  Unlocked Bonuses: {gameState.proficiency.unlockedBonuses.length}
-                </p>
-                <p className="text-xs text-emerald-600">
-                  {gameState.proficiency.unlockedBonuses.join(', ') || 'None'}
-                </p>
-              </div>
-            </div>
-          )}
+              </svg>
+            </button>
+          </div>
 
-          {/* Stats Tab */}
-          {activeTab === 'stats' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
-                Game Statistics
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(gameState.stats).map(([key, value]) => (
-                  <div key={key} className="bg-emerald-950/50 p-3 border border-emerald-800">
-                    <label className="block text-emerald-400 text-sm font-medium mb-2 capitalize">
-                      {key.replace(/([A-Z])/g, ' $1').trim()}: {value}
-                    </label>
-                    <input
-                      type="number"
-                      value={value}
-                      onChange={(e) =>
-                        dispatch({
-                          type: 'UPDATE_STATS',
-                          payload: { [key]: Number(e.target.value) },
-                        })
-                      }
-                      className="w-full bg-emerald-950 border border-emerald-700 text-emerald-400 px-2 py-1 text-sm"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Events Tab */}
-          {activeTab === 'events' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
-                Event Manager
-              </h2>
-
-              {/* AOG Deployment Section */}
-              <div className="mb-6 border-b border-emerald-800/50 pb-6">
-                <h3 className="text-emerald-400 font-bold mb-3 text-sm uppercase tracking-wider">
-                  AOG Deployment
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-emerald-950/50 p-4 border border-emerald-800">
-                    <h3 className="text-emerald-400 font-bold mb-2 text-xs">AOG Status</h3>
-                    <div className="mb-4">
-                      <span className="text-emerald-200 text-sm">
-                        Active: {gameState.aog.active ? 'YES' : 'NO'}
-                      </span>
-                    </div>
-                    {!gameState.aog.active ? (
-                      <button
-                        onClick={() =>
-                          dispatch({
-                            type: 'ACTION',
-                            payload: { type: 'ACCEPT_AOG_DEPLOYMENT', payload: {} },
-                          })
-                        }
-                        className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2 px-4 border border-emerald-500 mb-2 text-xs"
-                      >
-                        🚀 Trigger Random Deployment
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() =>
-                          dispatch({
-                            type: 'ACTION',
-                            payload: { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} },
-                          })
-                        }
-                        className="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-2 px-4 border border-red-500 text-xs"
-                      >
-                        ❌ Force Complete Deployment
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        dispatch({
-                          type: 'ACTION',
-                          payload: { type: 'COMPLETE_AOG_DEPLOYMENT', payload: {} },
-                        });
-                      }}
-                      className="w-full mt-2 bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-1 px-4 border border-zinc-500 text-[10px]"
-                    >
-                      🗑️ Reset AOG State
-                    </button>
-                  </div>
-
-                  {gameState.aog.active && (
-                    <div className="bg-emerald-950/50 p-4 border border-emerald-800">
-                      <h3 className="text-emerald-400 font-bold mb-2 text-xs">Current Mission</h3>
-                      <p className="text-xs text-emerald-300 mb-1">
-                        Station ID: {gameState.aog.stationId}
-                      </p>
-                      <p className="text-xs text-emerald-300">
-                        Scenario ID: {gameState.aog.scenarioId}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Active Event Status */}
-              <div className="bg-emerald-950/50 p-4 border border-emerald-800 mb-6">
-                <h3 className="text-emerald-400 font-bold mb-2">Active Event Status</h3>
-                {gameState.activeEvent ? (
-                  <div>
-                    <div className="mb-3">
-                      <p className="text-sm font-bold text-emerald-300">
-                        {gameState.activeEvent.title}
-                      </p>
-                      <p className="text-xs text-emerald-500 italic">
-                        ID: {gameState.activeEvent.id} | Type: {gameState.activeEvent.type}
-                      </p>
-                      <p className="text-xs text-emerald-500">
-                        Time Left: {(gameState.activeEvent.timeLeft / 1000).toFixed(1)}s
-                      </p>
-                    </div>
-                    <button
-                      onClick={() =>
-                        dispatch({
-                          type: 'ACTION',
-                          payload: { type: 'RESOLVE_EVENT', payload: { forceResolve: true } },
-                        })
-                      }
-                      className="bg-red-900/50 hover:bg-red-800 text-red-200 border border-red-700 font-bold py-1 px-3 text-xs"
-                    >
-                      Force Resolve (Clear)
-                    </button>
-                  </div>
-                ) : (
-                  <p className="text-emerald-600 italic text-sm">No active event</p>
-                )}
-              </div>
-
-              {/* Event Triggers */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(eventsData).map(([category, events]) => (
-                  <div key={category} className="bg-emerald-950/50 p-3 border border-emerald-800">
-                    <h3 className="text-emerald-400 font-bold uppercase text-xs tracking-wider mb-3 border-b border-emerald-900/50 pb-1">
-                      {category.replace('_', ' ')}
-                    </h3>
-                    <div className="flex flex-col gap-2">
-                      {events.map((event) => (
-                        <button
-                          key={event.id}
-                          onClick={() =>
-                            dispatch({
-                              type: 'TRIGGER_EVENT',
-                              payload: { type: category, id: event.id },
-                            })
-                          }
-                          className="text-left text-xs bg-black/40 hover:bg-emerald-900/30 text-emerald-300 py-2 px-3 border border-emerald-900/30 hover:border-emerald-500 transition-colors flex justify-between items-center group"
-                        >
-                          <span className="font-mono">{event.id}</span>
-                          <span className="text-[10px] text-emerald-700 group-hover:text-emerald-500 uppercase">
-                            Trigger
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Quick Actions Tab */}
-          {activeTab === 'actions' && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-emerald-400 mb-4 border-b border-emerald-800 pb-2">
-                Quick Actions
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button
-                  onClick={quickLevelUp}
-                  className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-4 px-6 border-2 border-emerald-500 transition-colors"
-                >
-                  ⬆️ Level Up
-                  <div className="text-xs mt-1 text-emerald-200">Gain enough XP to level up</div>
-                </button>
-                <button
-                  onClick={maxResources}
-                  className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-4 px-6 border-2 border-emerald-500 transition-colors"
-                >
-                  💰 Max Resources
-                  <div className="text-xs mt-1 text-emerald-200">Set all resources to maximum</div>
-                </button>
-                <button
-                  onClick={resetSanityFocus}
-                  className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-4 px-6 border-2 border-emerald-500 transition-colors"
-                >
-                  🧠 Reset Sanity/Focus
-                  <div className="text-xs mt-1 text-emerald-200">
-                    Restore to 100, clear suspicion
-                  </div>
-                </button>
-                <button
-                  onClick={() => {
-                    if (
-                      confirm(
-                        'Are you sure you want to reset the game? This will delete your save!'
-                      )
-                    ) {
-                      onReset();
-                    }
-                  }}
-                  className="bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-6 border-2 border-red-500 transition-colors"
-                >
-                  🔥 Reset Game
-                  <div className="text-xs mt-1 text-red-200">Delete save and restart</div>
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Content Scrollable */}
+          <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-emerald-700 scrollbar-track-black">
+            {activeTab === 'resources' && (
+              <DevModeResources gameState={gameState} dispatch={dispatch} />
+            )}
+            {activeTab === 'inventory' && (
+              <DevModeInventory gameState={gameState} dispatch={dispatch} />
+            )}
+            {activeTab === 'flags' && <DevModeFlags gameState={gameState} dispatch={dispatch} />}
+            {activeTab === 'entities' && (
+              <DevModeEntities gameState={gameState} dispatch={dispatch} />
+            )}
+            {activeTab === 'systems' && (
+              <DevModeSystems gameState={gameState} dispatch={dispatch} />
+            )}
+            {activeTab === 'events' && <DevModeEvents gameState={gameState} dispatch={dispatch} />}
+          </div>
         </div>
       </div>
     </div>
