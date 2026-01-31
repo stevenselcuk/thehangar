@@ -25,6 +25,7 @@ export interface ResourceState {
   technicalLogbookHours: number;
   syndicateReputation: number;
   unionReputation: number;
+  canned_tuna: number; // Added for F.O.D.
 }
 
 export enum SuitType {
@@ -163,6 +164,7 @@ export interface Inventory {
   hasEasaC: boolean;
   typeRating737: number;
   typeRatingA330: number;
+  laser_pointer?: boolean; // Added for F.O.D.
 }
 
 export interface GameFlags {
@@ -433,6 +435,25 @@ export interface GameState {
     nextStatusChange: number;
   };
   bulletinBoard: BulletinBoardState;
+  pet: PetState;
+}
+
+export interface PetState {
+  name: string;
+  trust: number; // 0-100
+  hunger: number; // 0-100 (0 is full, 100 is starving)
+  location: 'HANGAR' | 'OFFICE' | 'CANTEEN' | 'TOOLROOM' | 'VOID';
+  cooldowns: {
+    pet: number;
+    feed: number;
+    play: number;
+  };
+  flags: {
+    hasMet: boolean;
+    isSleeping: boolean;
+    isStaringAtNothing: boolean; // Classic cat behavior, or seeing ghosts
+    foundGift: string | null; // Item ID if cat found something
+  };
 }
 
 export interface BulletinBoardState {

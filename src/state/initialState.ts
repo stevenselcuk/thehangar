@@ -59,6 +59,7 @@ export const createInitialState = (): GameState => ({
     technicalLogbookHours: 0,
     syndicateReputation: 0,
     unionReputation: 0,
+    canned_tuna: 0,
   },
   inventory: {
     flashlight: true,
@@ -310,6 +311,23 @@ export const createInitialState = (): GameState => ({
     mechanicOfTheMonthIndex: 0,
     lastUpdate: Date.now(),
   },
+  pet: {
+    name: 'F.O.D.',
+    trust: 10,
+    hunger: 50,
+    location: 'HANGAR',
+    cooldowns: {
+      pet: 0,
+      feed: 0,
+      play: 0,
+    },
+    flags: {
+      hasMet: true,
+      isSleeping: false,
+      isStaringAtNothing: false,
+      foundGift: null,
+    },
+  },
 });
 
 export const loadState = (saveKey: string): GameState => {
@@ -375,6 +393,7 @@ export const loadState = (saveKey: string): GameState => {
         procurement: parsed.procurement || defaults.procurement,
         toolroom: parsed.toolroom || defaults.toolroom,
         bulletinBoard: parsed.bulletinBoard || defaults.bulletinBoard,
+        pet: parsed.pet || defaults.pet,
       };
     } catch (e) {
       console.error('Failed to parse saved state:', e);

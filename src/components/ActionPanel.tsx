@@ -13,6 +13,7 @@ import TrainingTab from './TrainingTab.tsx';
 
 import { locationTriggers } from '../data/locationTriggers';
 import BackroomModal from './BackroomModal';
+import PetInteraction from './PetInteraction';
 import ProcurementModal from './ProcurementModal';
 import ToolroomStatusWidget from './ToolroomStatusWidget';
 
@@ -251,6 +252,19 @@ const ActionPanel: React.FC<{
   };
 
   const renderContent = () => {
+    // Check if pet is in current location
+    // Mapping TabType to PetLocation
+    let isPetHere = false;
+    if (activeTab === TabType.HANGAR && state.pet.location === 'HANGAR') isPetHere = true;
+    else if (activeTab === TabType.OFFICE && state.pet.location === 'OFFICE') isPetHere = true;
+    else if (activeTab === TabType.CANTEEN && state.pet.location === 'CANTEEN') isPetHere = true;
+    else if (activeTab === TabType.TOOLROOM && state.pet.location === 'TOOLROOM') isPetHere = true;
+
+    const petWidget =
+      isPetHere && state.pet.flags.hasMet ? (
+        <PetInteraction state={state} onAction={onAction} />
+      ) : null;
+
     switch (activeTab) {
       case TabType.STRUCTURE_SHOP:
         return (
@@ -258,6 +272,7 @@ const ActionPanel: React.FC<{
             <h3 className="text-xs text-emerald-700 uppercase tracking-widest border-b border-emerald-900/30 pb-2">
               Structures Lab
             </h3>
+            {petWidget}
             <div className="grid grid-cols-2 gap-4">
               <ActionButton
                 label="Install Rivets"
@@ -377,6 +392,7 @@ const ActionPanel: React.FC<{
         return (
           <div className="space-y-6">
             <ToolroomStatusWidget state={state} />
+            {petWidget}
 
             <div className="flex justify-between items-center border-b border-emerald-900/30 pb-2">
               <h3 className="text-xs text-emerald-700 uppercase tracking-widest">
@@ -575,6 +591,7 @@ const ActionPanel: React.FC<{
             <h3 className="text-xs text-emerald-700 uppercase tracking-widest border-b border-emerald-900/30 pb-2">
               Tarmac & Line Operations
             </h3>
+            {petWidget}
 
             {activeAircraft && assignedTask ? (
               <div className="space-y-4">
@@ -775,6 +792,7 @@ const ActionPanel: React.FC<{
             <h3 className="text-xs text-emerald-700 uppercase tracking-widest border-b border-emerald-900/30 pb-2">
               Maint. Bay 7 SITREP
             </h3>
+            {petWidget}
             {renderJobCard()}
 
             {/* Anomaly Analysis */}
@@ -913,12 +931,24 @@ const ActionPanel: React.FC<{
       }
 
       case TabType.CANTEEN:
-        return <CanteenTab state={state} onAction={onAction} />;
+        return (
+          <>
+            {petWidget}
+            <CanteenTab state={state} onAction={onAction} />
+          </>
+        );
       case TabType.TERMINAL:
         return <TerminalTab state={state} onAction={onAction} />;
       case TabType.OFFICE:
         return (
-          <OfficeTab state={state} onAction={onAction} onOpenBulletinBoard={onOpenBulletinBoard} />
+          <>
+            {petWidget}
+            <OfficeTab
+              state={state}
+              onAction={onAction}
+              onOpenBulletinBoard={onOpenBulletinBoard}
+            />
+          </>
         );
       case TabType.HR_FLOOR:
         return <HRFloorTab state={state} onAction={onAction} />;

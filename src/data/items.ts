@@ -18,6 +18,18 @@ export interface Item {
 export const itemsData: Record<string, Item[]> = {
   shop: [
     {
+      id: 'laser_pointer',
+      label: 'Laser Pointer',
+      cost: 25,
+      category: 'tool',
+      pn: 'LSR-PNT-RED',
+      description: {
+        normal: 'Red laser pointer. Technically for presentations.',
+        unsettled: "The dot doesn't always go where I point it.",
+        madness: 'It burns. It burns holes in the fabric of the night.',
+      },
+    },
+    {
       id: 'ruler',
       label: '6in Steel Ruler',
       cost: 15,
@@ -258,6 +270,18 @@ export const itemsData: Record<string, Item[]> = {
     },
   ],
   consumables: [
+    {
+      id: 'canned_tuna',
+      label: 'Canned Tuna',
+      cost: 12,
+      unit: 'Can',
+      pn: 'CAT-FOOD-STD',
+      description: {
+        normal: 'Standard can of tuna in brine. Not for human consumption.',
+        unsettled: 'The fish smells like the ocean deep. Too deep.',
+        madness: 'It wriggles when I open the can. It wants to go back.',
+      },
+    },
     {
       id: 'skydrol',
       label: 'Skydrol LD-4',

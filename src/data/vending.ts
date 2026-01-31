@@ -9,6 +9,15 @@ export const vendingData = [
     msg: "The oily film on the coffee reflects a face that isn't quite yours.",
   },
   {
+    id: 'canned_tuna',
+    label: 'Canned Tuna',
+    cost: 12,
+    sanity: 0,
+    focus: 0,
+    description: 'A can of tuna. The label is faded.',
+    msg: 'You bought tuna. F.O.D. will appreciate this.',
+  },
+  {
     id: 'tap_water',
     label: 'Tap Water',
     cost: 0,

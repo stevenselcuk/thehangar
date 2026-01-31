@@ -10,6 +10,7 @@ import { EventsAction, eventsReducer } from './slices/eventsSlice.ts';
 import { HangarAction, hangarReducer } from './slices/hangarSlice.ts';
 import { InventoryAction, inventoryReducer } from './slices/inventorySlice.ts';
 import { OfficeAction, officeReducer } from './slices/officeSlice.ts';
+import { PetAction, petReducer } from './slices/petSlice.ts';
 import { ProcurementAction, procurementReducer } from './slices/procurementSlice.ts'; // Added
 import { ProficiencyAction, proficiencyReducer } from './slices/proficiencySlice.ts';
 import { ResourcesAction, resourcesReducer } from './slices/resourcesSlice.ts';
@@ -189,6 +190,28 @@ export const composeTick = (
       draft.bulletinBoard = bulletinBoard;
     }
 
+    // Pet Tick (Hunger & Movement)
+    // We dispatch a pseudo-action or direct update? reducerComposer typically uses reducers.
+    // Let's use the reducer with a tick action or check if moved.
+    if (Math.random() < 0.05) {
+      // 5% chance per tick to potentially move
+      const petState = {
+        pet: draft.pet,
+        inventory: draft.inventory,
+        resources: draft.resources,
+        logs: draft.logs,
+        activeEvent: draft.activeEvent,
+      };
+      // We can reuse the reducer logic for movement
+      const updatedPet = petReducer(petState, { type: 'PET_RANDOM_MOVE' });
+      draft.pet = updatedPet.pet;
+    }
+    // Periodic hunger increase (every 100 ticks ~ 10s? No, tick delta is passed, but we don't have accumulation here easily without state.
+    // We'll just decrement slightly every tick if we want, or rely on random chance.
+    if (Math.random() < 0.1) {
+      draft.pet.hunger = Math.min(100, draft.pet.hunger + 0.05);
+    }
+
     // Future slice integrations will be added here:
     // - Tick-based flag updates (fear timer, cooldowns)
     // - Passive income calculations
@@ -347,6 +370,9 @@ const BULLETIN_BOARD_ACTIONS = ['ROTATE_BULLETIN'] as const;
 
 // Resource action types handled by resourcesSlice
 const RESOURCE_ACTIONS = ['LOG_FLAVOR'] as const;
+
+// Pet action types handled by petSlice
+const PET_ACTIONS = ['PET_CAT', 'FEED_CAT', 'PLAY_WITH_CAT', 'PET_RANDOM_MOVE'] as const;
 
 /**
  * Compose reducers for ACTION events
@@ -775,6 +801,32 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.personalInventory = updated.personalInventory;
       draft.hfStats = updated.hfStats as typeof draft.hfStats; // Map back
       draft.logs = updated.logs;
+    });
+  }
+
+  // Route pet actions to petSlice
+  if (PET_ACTIONS.includes(action.type as (typeof PET_ACTIONS)[number])) {
+    return produce(state, (draft) => {
+      const petState = {
+        pet: draft.pet,
+        inventory: draft.inventory,
+        resources: draft.resources,
+        logs: draft.logs,
+        activeEvent: draft.activeEvent,
+      };
+
+      const updated = petReducer(petState, {
+        type: action.type,
+        payload: action.payload as Record<string, unknown>,
+      } as PetAction);
+
+      draft.pet = updated.pet;
+      draft.inventory = updated.inventory;
+      draft.resources = updated.resources;
+      draft.logs = updated.logs;
+      if (updated.activeEvent !== undefined) {
+        draft.activeEvent = updated.activeEvent as typeof draft.activeEvent;
+      }
     });
   }
 
