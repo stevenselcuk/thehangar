@@ -78,6 +78,7 @@ export interface GameEvent {
     | 'accident'
     | 'incident'
     | 'audit'
+    | 'bureaucratic_horror'
     | 'eldritch_manifestation'
     | 'canteen_incident'
     | 'component_failure'

@@ -387,11 +387,11 @@ export const eventsData: Record<string, EventTemplates[]> = {
       type: 'incident',
       title: 'CONTAINMENT BREACH - BAY 4C',
       description:
-        'A klaxon blares. Emergency lights flash. The monitoring system for a secure storage unit in Bay 4C is offline. You must re-engage the magnetic locks manually.',
+        'The klaxons are silent. The warning light pulses in sync with your heartbeat. The magnetic locks on Storage 4C have disengaged. Nothing has come out... yet.',
       totalTime: 25000,
       requiredAction: 'Re-engage Magnetic Locks',
       successOutcome: {
-        log: 'You slammed the override switch. The locks whine and re-engage with a deafening CLANG. The klaxon stops. The silence is somehow worse.',
+        log: 'You force the lever down. The darkness recedes, leaving oily residues on the floor. You try not to step in them.',
         effects: { experience: 500, sanity: -15 },
       },
       failureOutcome: {
@@ -512,7 +512,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
       type: 'incident',
       title: 'Wrong Number',
       description:
-        "A frantic woman asks if you've seen her husband. She describes a pilot who went missing in 1974. She says he's standing right behind you.",
+        "A frantic woman asks if you've seen her husband. She describes a pilot who went missing in 1974. Then her voice changes. 'He is standing behind you.'",
       totalTime: 20000,
       choices: [
         {
@@ -524,15 +524,73 @@ export const eventsData: Record<string, EventTemplates[]> = {
         },
         {
           id: 'comfort',
-          label: 'Comfort Her',
+          label: 'Stay Still',
           cost: { resource: 'focus', amount: 15 },
-          log: "You tell her to keep looking. She whispers 'Thank you' and the line goes dead. You feel lighter.",
-          effects: { sanity: 10 },
+          log: "You don't move. You feel warm breath on your neck. You hang up. You survive.",
+          effects: { sanity: -15 },
         },
       ],
       failureOutcome: {
         log: 'You dropped the phone in panic. When you picked it up, it was just a dial tone.',
         effects: { focus: -10 },
+      },
+    },
+  ],
+  bureaucratic_horror: [
+    {
+      id: 'PAPERWORK_ERROR_INK',
+      type: 'bureaucratic_horror',
+      title: 'FORM DEC-77 REJECTION',
+      description:
+        'You submitted the maintenance log using blue ink. The Regulation 99.1(B) specifically demands black ink. The shadows in the office corner seem pleased by your mistake.',
+      totalTime: 40000,
+      choices: [
+        {
+          id: 'redo',
+          label: 'Rewrite Everything',
+          cost: { resource: 'focus', amount: 40 },
+          log: 'You spend hours rewriting the logs. Your hand cramps. The ink looks like it is moving on the page.',
+          effects: { experience: 100, sanity: -10 },
+        },
+        {
+          id: 'argue',
+          label: 'Submit Anyway',
+          cost: { resource: 'sanity', amount: 15 },
+          log: 'You put it in the inbox. You hear a shredder start up, even though the office is empty.',
+          effects: { suspicion: 20 },
+        },
+      ],
+      failureOutcome: {
+        log: "The form is returned to you. It is covered in red stamps: 'INVALID'. The red ink is wet.",
+        effects: { suspicion: 15, sanity: -15 },
+      },
+    },
+    {
+      id: 'LOGBOOK_RECURSION',
+      type: 'bureaucratic_horror',
+      title: 'REGULATORY LOOP',
+      description:
+        'You are trying to find the reference for a part installation. Section 8 refers you to Section 12. Section 12 refers you to Section 8. You have been reading for hours.',
+      totalTime: 50000,
+      choices: [
+        {
+          id: 'break_loop',
+          label: 'Burn the Page',
+          cost: { resource: 'sanity', amount: 20 },
+          log: 'You tear out the referencing page. The logic loop breaks. You feel a headache subside.',
+          effects: { suspicion: 10, focus: 10 },
+        },
+        {
+          id: 'continue',
+          label: 'Keep Reading',
+          cost: { resource: 'focus', amount: 30 },
+          log: "You find a hidden footnote in microscopic text. It says: 'WE ARE TRAPPED HERE TOO'.",
+          effects: { experience: 500, sanity: -20 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You fell asleep reading. You dreamt of a library with no exits. You wake up tired.',
+        effects: { focus: -40 },
       },
     },
   ],
