@@ -136,32 +136,30 @@ export const processTick = (
   // Using a random chance is efficient enough for "periodic" checks without storing a timer
   if (Math.random() < 0.05) {
     // ~Every 20 frames (1.3s at 15FPS)
-    const checkResult = checkLocationRequirements(activeTab, draft.inventory);
-    const isBlocking = !checkResult.satisfied;
-    const hasIssues = isBlocking || checkResult.missingSoft.length > 0;
-    // const warningId = `location-warning-${activeTab}`; // Unused currently
+    // Check cooldown (60 seconds)
+    const lastWarning = draft.eventTimestamps.locationWarning || 0;
+    if (now - lastWarning > 60000) {
+      const checkResult = checkLocationRequirements(activeTab, draft.inventory);
+      const isBlocking = !checkResult.satisfied;
+      const hasIssues = isBlocking || checkResult.missingSoft.length > 0;
 
-    // We don't remove old warnings here (the UI handles auto-dismiss or we rely on new ones pushing out old ones)
-    // BUT App.tsx logic kept it persistent?
-    // The App.tsx logic just fired `addNotification` when conditions met.
-    // To avoid spamming, we check if we already notified recently?
-    // For now, let's just trigger it once per tab visit session?
-    // Actually, simpler: The NotificationContext deduplicates by ID.
-    // So we can blindly add it if satisfied.
+      if (hasIssues) {
+        const missingItems = [
+          ...checkResult.missingRequired.map((r) => r.label),
+          ...checkResult.missingSoft.map((r) => r.label),
+        ].join(', ');
 
-    if (hasIssues) {
-      const missingItems = [
-        ...checkResult.missingRequired.map((r) => r.label),
-        ...checkResult.missingSoft.map((r) => r.label),
-      ].join(', ');
+        addNotification(draft, {
+          id: 'location-warning', // Constant ID to prevent stacking, just refresh duration
+          title: isBlocking ? 'HAZARD: UNSAFE CONDITIONS' : 'CAUTION: ADVISORY',
+          message: `Missing: ${missingItems}`,
+          variant: isBlocking ? 'hazard' : 'warning',
+          duration: NOTIFICATION_DURATIONS.WARNING,
+        });
 
-      addNotification(draft, {
-        id: 'location-warning', // Constant ID to prevent stacking, just refresh duration
-        title: isBlocking ? 'HAZARD: UNSAFE CONDITIONS' : 'CAUTION: ADVISORY',
-        message: `Missing: ${missingItems}`,
-        variant: isBlocking ? 'hazard' : 'warning',
-        duration: NOTIFICATION_DURATIONS.WARNING,
-      });
+        // Set cooldown
+        draft.eventTimestamps.locationWarning = now;
+      }
     }
   }
 
