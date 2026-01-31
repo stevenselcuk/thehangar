@@ -43,6 +43,7 @@ export type ShopAction =
       type: 'BUY_VENDING_ITEM';
       payload: { item: Record<string, unknown> & { id: string; cost: number; label: string } };
     }
+  | { type: 'RUMMAGE_SHELVES' }
   | { type: 'KICK_VENDING_MACHINE' }
   | { type: 'FLUCTUATE_PRICES'; payload?: Record<string, never> };
 
@@ -101,6 +102,25 @@ export const shopReducer = (state: ShopSliceState, action: ShopAction): ShopSlic
         }
         break;
       }
+
+      case 'RUMMAGE_SHELVES':
+        if (draft.resources.focus >= 5) {
+          draft.resources.focus -= 5;
+          const rand = Math.random();
+          if (rand < 0.1) {
+            // Free item!
+            addLog('You find a forgotten item in the dust.', 'info');
+            draft.resources.sanity += 5;
+          } else if (rand < 0.3) {
+            addLog('You cut your hand on a rusty edge.', 'warning');
+            draft.resources.sanity -= 2;
+          } else {
+            addLog('Just dust and spiders.', 'info');
+          }
+        } else {
+          addLog('Not enough focus to search properly.', 'warning');
+        }
+        break;
 
       case 'KICK_VENDING_MACHINE':
         if (draft.resources.focus >= 5) {

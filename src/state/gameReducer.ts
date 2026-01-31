@@ -215,6 +215,7 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           'UNLOCK_CATALOGUE_LEVEL',
           // Backroom Actions
           'BUY_VENDING_ITEM',
+          'RUMMAGE_SHELVES',
           'KICK_VENDING_MACHINE',
           // Office
           'READ_EMAIL',

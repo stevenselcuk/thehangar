@@ -73,6 +73,13 @@ const CanteenTab: React.FC<{
                 />
               );
             })}
+            <ActionButton
+              label="Kick Machine"
+              onClick={() => onAction('KICK_VENDING_MACHINE')}
+              cost={{ label: 'FOCUS', value: 5 }}
+              description="Percussive maintenance. Sometimes it works."
+              className="border-red-900/30 hover:bg-red-900/10 text-red-400 mt-2"
+            />
           </div>
           <div className="mt-4 text-[7px] text-emerald-900 uppercase font-mono tracking-tighter text-right">
             // MANAGEMENT RESERVES THE RIGHT TO FLUCTUATE PRICING BASED ON DEMAND

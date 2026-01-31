@@ -271,18 +271,6 @@ export const itemsData: Record<string, Item[]> = {
   ],
   consumables: [
     {
-      id: 'canned_tuna',
-      label: 'Canned Tuna',
-      cost: 12,
-      unit: 'Can',
-      pn: 'CAT-FOOD-STD',
-      description: {
-        normal: 'Standard can of tuna in brine. Not for human consumption.',
-        unsettled: 'The fish smells like the ocean deep. Too deep.',
-        madness: 'It wriggles when I open the can. It wants to go back.',
-      },
-    },
-    {
       id: 'skydrol',
       label: 'Skydrol LD-4',
       cost: 45,
