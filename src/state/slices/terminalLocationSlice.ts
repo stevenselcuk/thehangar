@@ -61,7 +61,10 @@ export type TerminalLocationAction =
   | { type: 'TALK_TO_REGULAR'; payload?: Record<string, unknown> }
   | { type: 'RUMMAGE_LOST_FOUND'; payload?: Record<string, unknown> }
   | { type: 'CHECK_DELAYED_GATE'; payload?: Record<string, unknown> }
-  | { type: 'INSPECT_VENDING_MACHINE'; payload?: Record<string, unknown> };
+  | {
+      type: 'INSPECT_VENDING_MACHINE';
+      payload?: { triggerEvent?: (type: string, id?: string) => void };
+    };
 
 // ==================== REDUCER ====================
 
@@ -185,8 +188,12 @@ export const terminalLocationReducer = (
               action.payload.triggerEvent('canteen_incident', 'UNMARKED_OFFICER');
             }
           }
+          // 10% Chance: Union Activity (Talk to a rep or sympathizer)
+          else if (roll < 0.2) {
+            action.payload.triggerEvent('union');
+          }
           // 5% Chance: New Incident
-          else if (roll < 0.15) {
+          else if (roll < 0.25) {
             const incidentRoll = Math.random();
             if (incidentRoll < 0.33) {
               action.payload.triggerEvent('canteen_incident', 'CASUAL_CHAT_GONE_WRONG');
@@ -195,11 +202,7 @@ export const terminalLocationReducer = (
             } else {
               action.payload.triggerEvent('canteen_incident', 'LOST_ITEM_RETURN');
             }
-          }
-          // Retain original small chance for Ramp Delay? Or maybe replace it.
-          // The user asked for specific new things, so let's keep the old one as a fallback or remove if it feels too cluttered.
-          // Let's keep it but slightly lower chance to avoid constant events.
-          else if (roll < 0.2) {
+          } else if (roll < 0.3) {
             action.payload.triggerEvent('incident', 'RAMP_DELAY');
           }
         }
@@ -360,7 +363,16 @@ export const terminalLocationReducer = (
         if (roll < 0.2) {
           addLog(ACTION_LOGS.INSPECT_VENDING_MACHINE_COIN, 'story');
           draft.resources.experience += 100;
-        } else if (roll < 0.5) {
+        } else if (roll < 0.35) {
+          // Syndicate Drop (Cryptic Note/Item)
+          addLog(
+            'You find a black envelope taped to the underside of the selection panel.',
+            'vibration'
+          );
+          if (action.payload?.triggerEvent) {
+            action.payload.triggerEvent('syndicate');
+          }
+        } else if (roll < 0.6) {
           addLog(ACTION_LOGS.INSPECT_VENDING_MACHINE_NOTE, 'vibration');
           draft.resources.sanity -= 5;
           draft.resources.experience += 150;

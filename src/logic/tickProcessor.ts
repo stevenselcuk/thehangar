@@ -1,8 +1,8 @@
-import { GameState, Inventory, LogMessage, GameEvent, MailMessage, TabType } from '../types';
-import { SYSTEM_LOGS } from '../data/flavor';
 import { eventsData } from '../data/events';
+import { SYSTEM_LOGS } from '../data/flavor';
 import { mailData } from '../data/mail';
-import { getXpForNextLevel, getLevelUpLog } from './levels';
+import { GameEvent, GameState, Inventory, LogMessage, MailMessage, TabType } from '../types';
+import { getLevelUpLog, getXpForNextLevel } from './levels';
 
 export const processTick = (
   prev: GameState,
@@ -43,12 +43,25 @@ export const processTick = (
   // Location-specific passive effects
   if (activeTab === TabType.BACKSHOPS) {
     nextRes.suspicion = Math.min(100, nextRes.suspicion + 0.02 * (delta / 1000));
-    if (Math.random() < 0.0005 * (delta / 1000)) {
+    const randomRoll = Math.random();
+
+    // Eldritch Camera Malfunction
+    if (randomRoll < 0.0005 * (delta / 1000)) {
       triggerEvent('eldritch_manifestation', 'CAMERA_MALFUNCTION');
     }
-    if (Math.random() < 0.0003 * (delta / 1000)) {
+    // Audit Chance
+    else if (randomRoll < 0.0008 * (delta / 1000)) {
       triggerEvent('audit', 'AUDIT_SUITS');
     }
+    // Union Activity (Backshops specific)
+    else if (randomRoll < 0.0012 * (delta / 1000)) {
+      triggerEvent('union');
+    }
+  }
+
+  // Generic Syndicate Activity (Anywhere, rare)
+  if (Math.random() < 0.0001 * (delta / 1000) && nextRes.sanity < 50) {
+    triggerEvent('syndicate');
   }
 
   // 1. Rotable & Tool Degradation
