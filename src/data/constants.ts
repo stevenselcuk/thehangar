@@ -1,6 +1,6 @@
 export const GAME_CONSTANTS = {
   FPS: 15,
-  SAVE_KEY: 'the_hangar_save__build_72',
+  SAVE_KEY: 'the_hangar_save__build_73',
 
   // Resources
   FOCUS_REGEN_BASE: 3.0,
@@ -31,6 +31,27 @@ export const GAME_CONSTANTS = {
   MAX_SANITY: 100,
   MAX_FOCUS: 100,
   CRITICAL_SUSPICION_THRESHOLDS: [30, 60, 90],
+
+  // Dynamic Difficulty
+  DIFFICULTY_SCALING: {
+    LEVEL_MULTIPLIER: 0.05, // 5% harder per level
+    MAX_MULTIPLIER: 2.5, // Cap at 250% difficulty
+  },
+
+  // Event Probabilities (Per Tick)
+  EVENT_PROBABILITIES: {
+    THE_HUM: 0.0005,
+    BACKSHOP_AUDIT: 0.0003,
+    CONTAINMENT_BREACH: 0.0001, // Corrected from implicit value in logic
+    SUSPICION_AUDIT: 0.001,
+    RANDOM_DRUG_TEST: 0.0001,
+    OVERDUE_NDT: 0.00015,
+    COMPONENT_FAILURE: 0.0005,
+    FUEL_CONTAMINATION: 0.0002,
+    MARKET_FLUCTUATION: 0.005,
+    JANITOR_APPEARANCE: 0.0002,
+    MAIL_ARRIVAL: 0.05,
+  },
 };
 
 export const NOTIFICATION_DURATIONS = {

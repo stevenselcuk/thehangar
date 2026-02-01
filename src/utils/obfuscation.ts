@@ -22,12 +22,17 @@ function stringToHex(str: string): string {
  * Convert hex string back to string
  */
 function hexToString(hex: string): string {
+  if (hex.length % 4 !== 0) {
+    throw new Error('Invalid hex encoding: length must be divisible by 4');
+  }
+
   let str = '';
   for (let i = 0; i < hex.length; i += 4) {
-    const charCode = parseInt(hex.substring(i, i + 4), 16);
-    if (isNaN(charCode)) {
-      throw new Error('Invalid hex encoding - corrupted data');
+    const chunk = hex.substring(i, i + 4);
+    if (!/^[0-9a-fA-F]+$/.test(chunk)) {
+      throw new Error(`Invalid hex character in chunk: ${chunk}`);
     }
+    const charCode = parseInt(chunk, 16);
     str += String.fromCharCode(charCode);
   }
   return str;

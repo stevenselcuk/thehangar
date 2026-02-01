@@ -1,4 +1,5 @@
 import { GAME_CONSTANTS, NOTIFICATION_DURATIONS } from '../data/constants.ts';
+import { eventsData } from '../data/events.ts';
 import { SYSTEM_LOGS } from '../data/flavor.ts';
 import {
   FatigueLevel,
@@ -46,6 +47,22 @@ export const processTick = (
   // --- Location-Based Property Updates ---
   const locationProps = LOCATION_PROPERTIES[activeTab] || LOCATION_PROPERTIES[TabType.HANGAR];
 
+  // --- Dynamic Difficulty Scaling ---
+  const level = draft.resources.level;
+  const difficultyMultiplier = Math.min(
+    GAME_CONSTANTS.DIFFICULTY_SCALING.MAX_MULTIPLIER,
+    1 + level * GAME_CONSTANTS.DIFFICULTY_SCALING.LEVEL_MULTIPLIER
+  );
+
+  // --- Generic Event Dispatcher ---
+  const triggerRandomEvent = (category: string) => {
+    const pool = eventsData[category];
+    if (pool && pool.length > 0) {
+      const randomEvent = pool[Math.floor(Math.random() * pool.length)];
+      triggerEvent(category, randomEvent.id);
+    }
+  };
+
   // 1. Noise Logic
   const noiseMap: Record<NoiseLevel, number> = {
     [NoiseLevel.LOW]: 10,
@@ -71,7 +88,8 @@ export const processTick = (
       draft.hfStats.socialStress + stressMultiplier * (delta / 1000)
     );
 
-    const focusDrain = locationProps.noise === NoiseLevel.EXTREME_HIGH ? 5.0 : 3.5;
+    const focusDrain =
+      (locationProps.noise === NoiseLevel.EXTREME_HIGH ? 5.0 : 3.5) * difficultyMultiplier;
     draft.resources.focus = Math.max(0, draft.resources.focus - focusDrain * (delta / 1000));
   }
 
@@ -168,13 +186,16 @@ export const processTick = (
       GAME_CONSTANTS.MAX_SUSPICION,
       draft.resources.suspicion + 0.02 * (delta / 1000)
     );
-    if (Math.random() < 0.0005 * (delta / 1000)) {
-      triggerEvent('eldritch_manifestation', 'THE_HUM');
+    if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.THE_HUM * (delta / 1000)) {
+      triggerRandomEvent('eldritch_manifestation');
     }
-    if (Math.random() < 0.0003 * (delta / 1000) && draft.resources.suspicion > 40) {
-      triggerEvent('audit', 'BACKSHOP_AUDIT_SUITS');
+    if (
+      Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.BACKSHOP_AUDIT * (delta / 1000) &&
+      draft.resources.suspicion > 40
+    ) {
+      triggerRandomEvent('audit');
     }
-    if (Math.random() < GAME_CONSTANTS.RANDOM_INCIDENT_CHANCE * (delta / 1000)) {
+    if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.CONTAINMENT_BREACH * (delta / 1000)) {
       triggerEvent('incident', 'CONTAINMENT_BREACH_ALERT');
     }
   }
@@ -192,7 +213,7 @@ export const processTick = (
   });
 
   if (!draft.activeEvent) {
-    // Suspicion Threshold Events
+    // Suspicion Threshold Events (Keep specific triggers)
     if (draft.resources.suspicion > 30 && !draft.flags.suspicionEvent30Triggered) {
       triggerEvent('incident', 'SUS_MEMO');
       draft.flags.suspicionEvent30Triggered = true;
@@ -205,21 +226,35 @@ export const processTick = (
     }
 
     // Random Events based on Suspicion
-    if (draft.resources.suspicion > 70 && Math.random() < 0.001 * (delta / 1000)) {
-      triggerEvent('audit');
+    if (
+      draft.resources.suspicion > 70 &&
+      Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.SUSPICION_AUDIT * (delta / 1000)
+    ) {
+      triggerRandomEvent('audit');
     }
-    if (draft.resources.suspicion > 40 && Math.random() < 0.0001 * (delta / 1000)) {
+    if (
+      draft.resources.suspicion > 40 &&
+      Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.RANDOM_DRUG_TEST * (delta / 1000)
+    ) {
       triggerEvent('audit', 'RANDOM_DRUG_TEST');
     }
 
     // General Random Events
-    if (Math.random() < 0.00015 * (delta / 1000)) {
+    if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.OVERDUE_NDT * (delta / 1000)) {
       triggerEvent('incident', 'OVERDUE_NDT_INSPECTION');
+    }
+
+    // General Weirdness (Generic Dispatcher for previously unreachable events)
+    if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.THE_HUM * 0.5 * (delta / 1000)) {
+      triggerRandomEvent('eldritch_manifestation');
     }
 
     if (!draft.flags.activeComponentFailure) {
       for (const rotable of draft.rotables) {
-        if (rotable.condition < 25 && Math.random() < 0.0005 * (delta / 1000)) {
+        if (
+          rotable.condition < 25 &&
+          Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.COMPONENT_FAILURE * (delta / 1000)
+        ) {
           triggerEvent('component_failure', rotable.id);
           break;
         }
@@ -293,6 +328,10 @@ export const processTick = (
   let sanityDrain = 0;
   if (draft.flags.isAfraid) sanityDrain += GAME_CONSTANTS.SANITY_DRAIN_FEAR_MULTIPLIER;
   if (draft.proficiency.unlocked.includes('steadyNerves')) sanityDrain *= 0.9;
+
+  // Apply difficulty scaling
+  sanityDrain *= difficultyMultiplier;
+
   if (draft.hfStats.sanityShieldTimer > 0) sanityDrain = 0;
   draft.resources.sanity = Math.max(0, draft.resources.sanity - sanityDrain * (delta / 1000));
 

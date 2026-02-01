@@ -92,9 +92,7 @@ export const proficiencyReducer = produce(
 
     switch (action.type) {
       case 'TAKE_MANDATORY_COURSE': {
-        const { id } = action.payload as { id: string }; // We only expect ID now, but support legacy for a moment if needed? No, refactoring both.
-        // Actually the action type definition above needs update too if we change payload shape!
-        // But for now let's just implement logic.
+        const { id } = action.payload;
 
         const course = trainingData.mandatoryCourses.find((c) => c.id === id);
         if (!course) {
