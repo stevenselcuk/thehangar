@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSound } from '../context/SoundContext.tsx';
+import { itemsData } from '../data/items.ts';
 import { Skill, skillsData } from '../data/skills.ts';
 import { GameState } from '../types.ts';
 import ImportExportView from './ImportExportView.tsx';
@@ -192,6 +193,7 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
           `[${new Date(log.timestamp).toLocaleString()}] ${log.type.toUpperCase()}: ${log.text}`
       )
       .join('\n');
+
     const blob = new Blob([journalText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -246,13 +248,6 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
             </div>
             <div className="flex flex-col items-end gap-2">
               <div className="text-right">{getClearanceBadge(clearanceLevel)}</div>
-              <button
-                onClick={downloadJournal}
-                className="text-[10px] font-bold uppercase tracking-widest text-emerald-500 hover:text-emerald-300 border border-emerald-800 hover:border-emerald-500 px-2 py-1 bg-black/40 transition-all flex items-center gap-2 group"
-              >
-                <span>[ DOWNLOAD LOGS ]</span>
-                <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
-              </button>
             </div>
           </div>
 
@@ -332,6 +327,103 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
         </div>
       </div>
 
+      {/* PERSONAL EFFECTS */}
+      <div>
+        <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
+          Personal Effects
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {itemsData.carried.map((item) => {
+            // Determine if player has item
+            let hasItem = false;
+            let quantity = 0;
+
+            // Check inventory (boolean)
+            if (state.inventory[item.id as keyof typeof state.inventory]) {
+              hasItem = true;
+              quantity = 1;
+            }
+            // Check personal inventory (count)
+            else if ((state.personalInventory[item.id] || 0) > 0) {
+              hasItem = true;
+              quantity = state.personalInventory[item.id];
+            }
+            // Special mappings
+            else if (
+              item.id === 'cigarettes' &&
+              (state.personalInventory['winston_pack'] || 0) > 0
+            ) {
+              hasItem = true;
+              quantity = state.personalInventory['winston_pack'];
+            } else if (item.id === 'wallet') {
+              // Always show wallet for now, or check a flag if we want it to be losable
+              hasItem = true;
+              quantity = 1;
+            }
+
+            if (!hasItem) return null;
+
+            return (
+              <div
+                key={item.id}
+                className="bg-emerald-900/10 border border-emerald-900/30 p-3 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-2">
+                    <h5 className="text-[10px] text-emerald-500 font-bold uppercase">
+                      {item.label}
+                    </h5>
+                    {quantity > 1 && (
+                      <span className="text-[9px] text-emerald-400">x{quantity}</span>
+                    )}
+                  </div>
+                  <p className="text-[9px] text-emerald-400/80 leading-relaxed italic">
+                    {sanity < 50 ? item.description.unsettled : item.description.normal}
+                  </p>
+                </div>
+                <div className="mt-2 pt-2 border-t border-emerald-900/20 flex justify-between items-center">
+                  <span className="text-[8px] text-emerald-800 uppercase tracking-wider">
+                    P/N: {item.pn}
+                  </span>
+                  {item.id === 'flashlight' && (
+                    <span className="text-[8px] text-amber-500 animate-pulse">BATTERY LOW</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* UTILITY FLASHLIGHT (Explicit check if not in itemsData or needed separately) */}
+          {/* Note: Flashlight is in itemsData.shop but maybe not in itemsData.carried? Check itemsData structure. */}
+          {/* Step 17 shows flashlight is in itemsData.shop, NOT carried. I need to check itemsData.shop too or just manually add it if I want it here. */}
+          {/* Checking itemsData.shop for 'flashlight' */}
+          {itemsData.shop
+            .filter((i) => i.id === 'flashlight' && state.inventory.flashlight)
+            .map((item) => (
+              <div
+                key={item.id}
+                className="bg-emerald-900/10 border border-emerald-900/30 p-3 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-2">
+                    <h5 className="text-[10px] text-emerald-500 font-bold uppercase">
+                      {item.label}
+                    </h5>
+                  </div>
+                  <p className="text-[9px] text-emerald-400/80 leading-relaxed italic">
+                    {sanity < 50 ? item.description.unsettled : item.description.normal}
+                  </p>
+                </div>
+                <div className="mt-2 pt-2 border-t border-emerald-900/20 flex justify-between items-center">
+                  <span className="text-[8px] text-emerald-800 uppercase tracking-wider">
+                    P/N: {item.pn}
+                  </span>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+
       {/* CERTIFICATIONS */}
       <div>
         <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
@@ -376,6 +468,22 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
           </div>
         </div>
       </div>
+      {/* ADMINISTRATIVE ACTIONS */}
+      {/* ADMINISTRATIVE ACTIONS */}
+      <div>
+        <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
+          Administrative Actions
+        </h4>
+        <div className="flex justify-start">
+          <button
+            onClick={downloadJournal}
+            className="text-xs font-bold uppercase tracking-widest text-emerald-500 hover:text-emerald-300 border border-emerald-800 hover:border-emerald-500 px-6 py-3 bg-black/40 transition-all flex items-center gap-2 group shadow-[0_0_10px_rgba(16,185,129,0.1)] hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+          >
+            <span>[ DOWNLOAD SERVICE RECORD ]</span>
+            <span className="group-hover:translate-y-0.5 transition-transform">↓</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -392,7 +500,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_33}';
+  const BUILD_NUMBER = 'Build v.{_build_34}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');

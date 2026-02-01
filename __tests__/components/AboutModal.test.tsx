@@ -39,6 +39,18 @@ describe('AboutModal', () => {
 
     // Check for "Personnel File" header from new UI
     expect(screen.getByText(/Personnel File/i)).toBeInTheDocument();
+
+    // Check for "Administrative Actions" section
+    expect(screen.getByText(/Administrative Actions/i)).toBeInTheDocument();
+  });
+
+  it('renders the Download Service Record button', () => {
+    renderWithProviders(
+      <AboutModal state={midGameState} onAction={mockOnAction} onClose={mockOnClose} />
+    );
+
+    const downloadButton = screen.getByText('[ DOWNLOAD SERVICE RECORD ]');
+    expect(downloadButton).toBeInTheDocument();
   });
 
   it('navigates to Field Competencies', () => {

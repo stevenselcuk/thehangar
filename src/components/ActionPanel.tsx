@@ -12,6 +12,7 @@ import TerminalTab from './TerminalTab.tsx';
 import TrainingTab from './TrainingTab.tsx';
 
 import { locationTriggers } from '../data/locationTriggers';
+import { checkLocationRequirements } from '../logic/locationRequirements';
 import BackroomModal from './BackroomModal';
 import PetInteraction from './PetInteraction';
 import ProcurementModal from './ProcurementModal';
@@ -49,6 +50,10 @@ const ActionPanel: React.FC<{
       }
     }
   }, [activeTab, onAction]);
+
+  // Check location requirements
+  const locationCheck = checkLocationRequirements(activeTab, state.inventory);
+  const showLocationWarning = !locationCheck.satisfied || locationCheck.missingSoft.length > 0;
 
   const renderActiveEvent = () => {
     if (!state.activeEvent) return null;
@@ -269,6 +274,46 @@ const ActionPanel: React.FC<{
       case TabType.STRUCTURE_SHOP:
         return (
           <div className="space-y-8">
+            {/* Location Warnings */}
+            {showLocationWarning && (
+              <div className="mb-4">
+                {locationCheck.missingRequired.map((item) => (
+                  <div
+                    key={item.key}
+                    className="p-3 mb-2 bg-red-950/20 border-l-2 border-red-600 animate-pulse flex justify-between items-center"
+                  >
+                    <div>
+                      <h5 className="text-[10px] font-bold text-red-500 uppercase tracking-widest">
+                        RESTRICTED ACCESS
+                      </h5>
+                      <p className="text-[9px] text-red-400">MISSING: {item.label.toUpperCase()}</p>
+                    </div>
+                    <span className="text-[8px] text-red-600 font-mono uppercase">
+                      {item.reason}
+                    </span>
+                  </div>
+                ))}
+                {locationCheck.missingSoft.map((item) => (
+                  <div
+                    key={item.key}
+                    className="p-3 mb-2 bg-amber-950/20 border-l-2 border-amber-600 flex justify-between items-center"
+                  >
+                    <div>
+                      <h5 className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">
+                        SAFETY ADVISORY
+                      </h5>
+                      <p className="text-[9px] text-amber-400">
+                        RECOMMENDED: {item.label.toUpperCase()}
+                      </p>
+                    </div>
+                    <span className="text-[8px] text-amber-600 font-mono uppercase">
+                      {item.penalty}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <h3 className="text-xs text-emerald-700 uppercase tracking-widest border-b border-emerald-900/30 pb-2">
               Structures Lab
             </h3>
@@ -684,7 +729,12 @@ const ActionPanel: React.FC<{
                   label="Listen to Radio"
                   onClick={() => onAction('LISTEN_RADIO')}
                   cost={{ label: 'FOCUS', value: 0 }}
-                  description="Tune into Line Maint. VHF 141.80. Listen for lead, A/C on ground, and... other signals."
+                  disabled={!state.inventory.radio}
+                  description={
+                    !state.inventory.radio
+                      ? 'Radio required to listen to signals.'
+                      : 'Tune into Line Maint. VHF 141.80. Listen for lead, A/C on ground, and... other signals.'
+                  }
                 />
                 <ActionButton
                   label={`Smoke A Cigarette ${state.personalInventory['winston_pack'] ? `(${state.personalInventory['winston_pack']})` : ''}`}

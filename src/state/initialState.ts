@@ -118,7 +118,7 @@ export const createInitialState = (): GameState => ({
     typeRating737: 0,
     typeRatingA330: 0,
   },
-  personalInventory: {},
+  personalInventory: { wallet: 1 },
   rotables: [],
   anomalies: [],
   toolConditions: {

@@ -166,6 +166,10 @@ export const shopReducer = (state: ShopSliceState, action: ShopAction): ShopSlic
           if (action.payload.id === 'winston_pack') {
             draft.personalInventory['winston_pack'] =
               (draft.personalInventory['winston_pack'] || 0) + 1;
+          } else if (action.payload.id in draft.resources) {
+            // Check if it's a known resource (like canned_tuna) and increment it
+            const resKey = action.payload.id as keyof GameState['resources'];
+            draft.resources[resKey] = (draft.resources[resKey] || 0) + 1;
           }
         } else {
           addLog('INSUFFICIENT CREDITS.', 'error');

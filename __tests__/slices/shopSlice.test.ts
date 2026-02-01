@@ -32,6 +32,9 @@ describe('shopSlice', () => {
         crystallineResonators: 0,
         bioFilament: 0,
         technicalLogbookHours: 0,
+        syndicateReputation: 0,
+        unionReputation: 0,
+        canned_tuna: 0,
       },
       inventory: {
         flashlight: false,
@@ -41,6 +44,7 @@ describe('shopSlice', () => {
         notebook: true,
         leatherman: false,
         radio: false,
+        technicianToolbox: false,
         torxScrewdriver: false,
         snapOnWrenchSet: false,
         hammer: false,
@@ -88,7 +92,9 @@ describe('shopSlice', () => {
         hasEasaC: false,
         typeRating737: 0,
         typeRatingA330: 0,
+        laser_pointer: false,
       },
+      personalInventory: {},
       toolConditions: {},
       flags: {
         nightCrewActive: false,
@@ -102,6 +108,30 @@ describe('shopSlice', () => {
         janitorPresent: false,
         onPerformanceImprovementPlan: false,
         storyFlags: { fdrDeconstructed: false },
+        foundNote: false,
+        lightsFlickered: false,
+        officeUnlocked: false,
+        hangarUnlocked: false,
+        tarmacUnlocked: false,
+        foundManifest: false,
+        revealedTruth: false,
+        kardexActive: false,
+        suitsVisiting: false,
+        underSurveillance: false,
+        toolroomMasterPissed: false,
+        nightCrewUnlocked: false,
+        activeComponentFailure: null,
+        suspicionEvent30Triggered: false,
+        suspicionEvent60Triggered: false,
+        suspicionEvent90Triggered: false,
+        migraineActive: false,
+        janitorArcStage: 0,
+        toolroomMasterArcStage: 0,
+        endingAlienConspiracyProgress: 0,
+        endingGovtConspiracyProgress: 0,
+        endingTriggered: null,
+        foundPhoto: false,
+        isHallucinating: false,
       },
       hfStats: {
         trainingProgress: 0,
@@ -111,6 +141,18 @@ describe('shopSlice', () => {
         foundLoopholeTimer: 0,
         scheduleCompressionTimer: 0,
         venomSurgeTimer: 0,
+        fatigue: 0,
+        socialStress: 0,
+        compliancePressureTimer: 0,
+        temperature: 20,
+        lightingLevel: 1,
+        toolroomMasterCooldown: 0,
+        migraineTimer: 0,
+        performanceReviewCooldown: 0,
+        janitorCooldown: 0,
+        sanityShieldTimer: 0,
+        clearanceLevel: 1,
+        hfRecurrentDueDate: 0,
       },
       vendingPrices: {},
       logs: [],
@@ -254,7 +296,6 @@ describe('shopSlice', () => {
           cost: 5,
           sanity: -20,
           focus: 10,
-          msg: 'That tasted awful.',
         },
       };
 
@@ -262,6 +303,24 @@ describe('shopSlice', () => {
 
       expect(result.resources.sanity).toBe(80);
       expect(result.logs[0].type).toBe('warning');
+    });
+
+    it('should increment resource count for resource items (canned_tuna)', () => {
+      const action: ShopAction = {
+        type: 'BUY_VENDING',
+        payload: {
+          id: 'canned_tuna',
+          cost: 12,
+          sanity: 0,
+          focus: 0,
+          msg: 'Tuna acquired.',
+        },
+      };
+
+      const result = shopReducer(initialState, action);
+
+      expect(result.resources.canned_tuna).toBe(1);
+      expect(result.resources.credits).toBe(88); // 100 - 12
     });
   });
 
