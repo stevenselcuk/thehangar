@@ -349,6 +349,9 @@ export const loadState = (saveKey: string): GameState => {
       loadedFlags.onPerformanceImprovementPlan = parsed.flags.onPerformanceImprovementPlan || false;
       loadedFlags.janitorPresent = false;
       loadedFlags.ndtFinding = null;
+      loadedFlags.migraineActive = false;
+      loadedFlags.isHallucinating = false;
+      loadedFlags.isAfraid = false;
       loadedFlags.storyFlags = parsed.flags.storyFlags || {};
 
       return {
