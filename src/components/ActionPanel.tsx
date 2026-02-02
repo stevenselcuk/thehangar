@@ -226,20 +226,25 @@ const ActionPanel: React.FC<{
           "{state.activeJob.description}"
         </p>
         <div className="grid grid-cols-2 gap-3 mb-5 text-[9px] uppercase py-2 bg-black/20 px-3">
-          <div
-            className={
-              state.resources.alclad >= (req.alclad || 0) ? 'text-emerald-700' : 'text-red-900'
-            }
-          >
-            Alclad: {req.alclad || 0}
-          </div>
-          <div
-            className={
-              state.resources.rivets >= (req.rivets || 0) ? 'text-emerald-700' : 'text-red-900'
-            }
-          >
-            Rivets: {req.rivets || 0}
-          </div>
+          {[
+            { key: 'alclad', label: 'Alclad' },
+            { key: 'rivets', label: 'Rivets' },
+            { key: 'titanium', label: 'Titanium' },
+            { key: 'crystallineResonators', label: 'Resonators' },
+            { key: 'bioFilament', label: 'Bio-Filament' },
+            { key: 'skydrol', label: 'Skydrol' },
+          ].map((r) => {
+            const reqVal = req[r.key as keyof typeof req] as number | undefined;
+            if (!reqVal) return null;
+            const currentVal =
+              (state.resources[r.key as keyof typeof state.resources] as number) || 0;
+            const hasEnough = currentVal >= reqVal;
+            return (
+              <div key={r.key} className={hasEnough ? 'text-emerald-700' : 'text-red-900'}>
+                {r.label}: {reqVal}
+              </div>
+            );
+          })}
         </div>
         <ActionButton
           label="Sign Off"
@@ -799,6 +804,16 @@ const ActionPanel: React.FC<{
                 cost={{ label: 'FOCUS', value: 10 }}
                 description="Use the derelict airframes as cover to observe the tarmac for unusual activity."
               />
+              {state.inventory.metallicSphere && (
+                <ActionButton
+                  label="Activate Sphere"
+                  onClick={() => onAction('TRIGGER_ALIEN_ENDING')}
+                  cost={{ label: 'FOCUS', value: 100 }}
+                  disabled={state.resources.focus < 100}
+                  description="The sphere hums. It wants to go home. So do you."
+                  className="mt-4 border-purple-500 text-purple-400 glow-pulse-border"
+                />
+              )}
               <ActionButton
                 label="Scavenge Old Airframes"
                 onClick={() => onAction('SCAVENGE_CORROSION_CORNER')}

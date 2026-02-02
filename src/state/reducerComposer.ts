@@ -328,6 +328,9 @@ const OFFICE_ACTIONS = [
   'DEEP_CLEAN_VENTS',
   'INSPECT_PRINTER',
   'READ_EMAIL',
+  'TRIGGER_CRAZY_ENDING',
+  'TRIGGER_GOVT_ENDING',
+  'TRIGGER_ALIEN_ENDING',
 ] as const;
 
 // Hangar action types handled by hangarSlice
@@ -571,6 +574,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         logs: draft.logs,
         rotables: draft.rotables,
         proficiency: draft.proficiency,
+        journal: draft.journal,
       };
 
       const updated = eventsReducer(eventsState, {
@@ -588,6 +592,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.flags = updated.flags as typeof draft.flags;
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs;
+      draft.journal = updated.journal;
     });
   }
 
@@ -719,6 +724,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         proficiency: draft.proficiency,
         stats: draft.stats,
         activeEvent: draft.activeEvent,
+        journal: draft.journal,
       };
 
       const updated = officeReducer(officeState, {
@@ -732,7 +738,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.flags = updated.flags as typeof draft.flags;
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs;
-      draft.logs = updated.logs;
+      draft.journal = updated.journal;
       draft.proficiency = updated.proficiency as typeof draft.proficiency;
       draft.stats = updated.stats as typeof draft.stats;
       if (updated.activeEvent !== undefined) {

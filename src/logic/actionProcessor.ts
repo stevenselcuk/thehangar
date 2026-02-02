@@ -1,11 +1,10 @@
+import { actionsData } from '../data/actions';
 import { anomaliesData } from '../data/anomalies';
 import {
   ACTION_LOGS,
   BOEING_REPLIES,
   CANTEEN_INCIDENT_FLAVOR,
-  MAGAZINE_FLAVOR_TEXTS,
   MASTER_LORE,
-  REGULAR_TALK_LOGS,
   STANDARD_RADIO_CHATTER,
   SYSTEM_LOGS,
   TOOLROOM_INCIDENT_FLAVOR,
@@ -13,9 +12,8 @@ import {
   TRAINING_DEPT_FLAVOR,
   VOID_BROADCASTS,
 } from '../data/flavor';
-import { itemsData } from '../data/items';
 import { skillsData } from '../data/skills';
-import { Anomaly, GameState, JobCard, LogMessage, RotableItem } from '../types';
+import { Anomaly, GameState, JobCard, LogMessage, ResourceState, RotableItem } from '../types';
 
 export const handleGameAction = (
   prev: GameState,
@@ -24,20 +22,22 @@ export const handleGameAction = (
   createJob: () => JobCard,
   triggerEvent: (type: string, id?: string) => void
 ): GameState => {
-  const nextRes = { ...prev.resources };
+  let nextRes = { ...prev.resources };
   const nextPersonal = { ...prev.personalInventory };
-  const nextInv = { ...prev.inventory };
-  const nextFlg = { ...prev.flags };
-  const nextHF = { ...prev.hfStats };
+  let nextInv = { ...prev.inventory };
+  let nextFlg = { ...prev.flags };
+  let nextHF = { ...prev.hfStats };
   const nextTools = { ...prev.toolConditions };
   let nextRotables = [...prev.rotables];
-  const nextAnomalies = [...prev.anomalies];
+  let nextAnomalies = [...prev.anomalies];
   let nextLogs = [...prev.logs];
   let nextMail = [...prev.mail];
   const nextProf = { ...prev.proficiency };
   let nextEvent = prev.activeEvent;
   let nextCalibration = { ...prev.calibrationMinigame };
   let nextJournal = [...(prev.journal || [])];
+  let nextPet = { ...prev.pet };
+  let nextProcurement = { ...prev.procurement };
 
   const addLog = (text: string, type: LogMessage['type'] = 'info') => {
     const newLog = { id: Math.random().toString(36), text, type, timestamp: Date.now() };
@@ -47,15 +47,153 @@ export const handleGameAction = (
 
   const hasSkill = (id: string) => nextProf.unlocked.includes(id);
 
+  // --- GENERIC ACTION PROCESSOR ---
+  if (actionsData[type]) {
+    const action = actionsData[type];
+
+    // 1. Cost Check & Deduction
+    let focusCost = action.baseCost.focus || 0;
+    if (nextFlg.isAfraid) focusCost = Math.floor(focusCost * 1.5);
+    if (nextHF.efficiencyBoost > 0) focusCost = Math.floor(focusCost * 0.9);
+
+    if (focusCost > 0 && nextRes.focus < focusCost) {
+      addLog(SYSTEM_LOGS.LOW_FOCUS, 'warning');
+      return { ...prev };
+    }
+
+    // Check specific resource costs
+    for (const [key, cost] of Object.entries(action.baseCost)) {
+      if (key === 'focus') continue;
+      const resKey = key as keyof ResourceState;
+      if (typeof cost === 'number' && cost > 0) {
+        if ((nextRes[resKey] || 0) < cost) {
+          addLog(`Insufficient ${key.replace(/_/g, ' ')}.`, 'warning');
+          return { ...prev };
+        }
+        nextRes[resKey] = (nextRes[resKey] || 0) - (cost as number);
+      }
+    }
+
+    if (focusCost > 0) nextRes.focus -= focusCost;
+
+    // 2. Requirement Checks
+    if (action.requiredItems) {
+      for (const item of action.requiredItems) {
+        if (!nextInv[item]) {
+          addLog(`Missing required item to proceed.`, 'warning');
+          return { ...prev };
+        }
+      }
+    }
+
+    // 3. Effect Resolution
+    let effectTriggered = false;
+    const combinedState: GameState = {
+      ...prev,
+      resources: nextRes,
+      inventory: nextInv,
+      flags: nextFlg,
+      hfStats: nextHF,
+      rotables: nextRotables,
+      anomalies: nextAnomalies,
+      pet: nextPet,
+      procurement: nextProcurement,
+    };
+
+    const roll = Math.random();
+    let currentChance = 0;
+
+    for (const effect of action.effects) {
+      currentChance += effect.chance;
+      if (roll < currentChance) {
+        effectTriggered = true;
+
+        if (effect.log) {
+          const logText =
+            (effect.customEffect && effect.customEffect(combinedState).logOverride) || effect.log;
+          addLog(logText, effect.logType || 'info');
+        }
+
+        if (effect.resourceModifiers) {
+          for (const [k, v] of Object.entries(effect.resourceModifiers)) {
+            const key = k as keyof ResourceState;
+            combinedState.resources[key] = (combinedState.resources[key] || 0) + (v as number);
+            if (key === 'sanity' || key === 'focus' || key === 'suspicion') {
+              combinedState.resources[key] = Math.max(
+                0,
+                Math.min(100, combinedState.resources[key])
+              );
+            }
+          }
+        }
+
+        if (effect.flagModifiers) {
+          combinedState.flags = { ...combinedState.flags, ...effect.flagModifiers };
+        }
+
+        if (effect.eventTrigger) {
+          triggerEvent(effect.eventTrigger.split('_')[0] || 'incident', effect.eventTrigger);
+        }
+
+        if (effect.customEffect) {
+          const partial = effect.customEffect(combinedState);
+          if (partial.resources)
+            combinedState.resources = { ...combinedState.resources, ...partial.resources };
+          if (partial.flags) combinedState.flags = { ...combinedState.flags, ...partial.flags };
+          if (partial.hfStats)
+            combinedState.hfStats = { ...combinedState.hfStats, ...partial.hfStats };
+          if (partial.pet) combinedState.pet = { ...combinedState.pet, ...partial.pet };
+          if (partial.procurement)
+            combinedState.procurement = { ...combinedState.procurement, ...partial.procurement };
+          if (partial.rotables) combinedState.rotables = partial.rotables;
+        }
+
+        break;
+      }
+    }
+
+    if (!effectTriggered && action.failureEffect) {
+      const fail = action.failureEffect;
+      if (fail.log) addLog(fail.log, fail.logType || 'info');
+      if (fail.resourceModifiers) {
+        for (const [k, v] of Object.entries(fail.resourceModifiers)) {
+          const key = k as keyof ResourceState;
+          combinedState.resources[key] = (combinedState.resources[key] || 0) + (v as number);
+        }
+      }
+    }
+
+    nextRes = combinedState.resources;
+    nextInv = combinedState.inventory;
+    nextFlg = combinedState.flags;
+    nextHF = combinedState.hfStats;
+    nextRotables = combinedState.rotables;
+    nextAnomalies = combinedState.anomalies;
+    nextPet = combinedState.pet;
+    nextProcurement = combinedState.procurement;
+
+    return {
+      ...prev,
+      resources: nextRes,
+      inventory: nextInv,
+      flags: nextFlg,
+      hfStats: nextHF,
+      rotables: nextRotables,
+      anomalies: nextAnomalies,
+      pet: nextPet,
+      procurement: nextProcurement,
+      logs: nextLogs,
+      journal: nextJournal,
+    };
+  }
+
+  // --- LEGACY ---
   const baseCosts: Record<string, number> = {
     TIGHTEN_BOLT: 3,
     COMPLETE_JOB: 15,
     PERFORM_NDT: 20,
     TRANSIT_CHECK: 12,
     RESOLVE_EVENT: 30,
-    STUDY_MODULE: 8,
-    READ_MAGAZINE: 0,
-    NAP_TABLE: 0,
     SEARCH_MANUALS: 5,
     ASSEMBLE_PC: 20,
     BOEING_SUPPORT: 15,
@@ -64,7 +202,7 @@ export const handleGameAction = (
     WALK_AROUND: 10,
     DAILY_CHECK: 25,
     LISTEN_RADIO: 0,
-    SLEEP_CAR: 0,
+    SMOKE_CIGARETTE: 0,
     EAT_BURGER: 0,
     CHECK_BOARDS: 5,
     SMALL_TALK: 5,
@@ -87,7 +225,6 @@ export const handleGameAction = (
     FOD_SWEEP: 5,
     REPAIR_ROTABLE: 10,
     MAINTAIN_LOW_PROFILE: 40,
-    OBSERVE_SEDAN: 10,
     CHECK_INTERNAL_MAIL: 2,
     CROSS_REFERENCE_MANIFESTS: 50,
     GIVE_URINE_SAMPLE: 5,
@@ -95,17 +232,8 @@ export const handleGameAction = (
     ASK_MASTER_LORE: 2,
     HARVEST_ROTABLE: 30,
     DISPOSE_ROTABLE: 0,
-    OBSERVE_CORROSION_CORNER: 10,
-    SCAVENGE_CORROSION_CORNER: 40,
     ANALYZE_ANOMALY: 60,
-    DEEP_CLEAN_VENTS: 15,
-    REVIEW_SURVEILLANCE_LOGS: 50,
-    LISTEN_FUSELAGE: 0,
-    CHECK_REDACTED_LOGS: 30,
-    TALK_TO_REGULAR: 10,
-    RUMMAGE_LOST_FOUND: 5,
-    CHECK_DELAYED_GATE: 0,
-    INSPECT_VENDING_MACHINE: 10,
+    // Removed migrated actions
   };
 
   let cost = baseCosts[type] || 0;
@@ -121,264 +249,12 @@ export const handleGameAction = (
   if (cost > 0) nextRes.focus -= cost;
 
   switch (type) {
-    case 'INSPECT_VENDING_MACHINE': {
-      const roll = Math.random();
-      if (roll < 0.2) {
-        addLog(ACTION_LOGS.INSPECT_VENDING_MACHINE_COIN, 'story');
-        // This is a placeholder for a new item type if you want to add one
-        nextRes.experience += 100;
-      } else if (roll < 0.5) {
-        addLog(ACTION_LOGS.INSPECT_VENDING_MACHINE_NOTE, 'vibration');
-        nextRes.sanity -= 5;
-        nextRes.experience += 150;
-      } else {
-        addLog(ACTION_LOGS.INSPECT_VENDING_MACHINE_NOTHING, 'info');
-      }
-      break;
-    }
-    case 'CHECK_DELAYED_GATE': {
-      if (nextRes.sanity < 25) {
-        addLog("You can't bring yourself to go near that gate right now.", 'warning');
-        return prev;
-      }
-      nextRes.sanity -= 25;
-      const roll = Math.random();
-      if (roll < 0.2) {
-        addLog(ACTION_LOGS.CHECK_DELAYED_GATE_COLD, 'vibration');
-        nextFlg.isAfraid = true;
-        nextHF.fearTimer = 30000;
-      } else if (roll < 0.5) {
-        addLog(ACTION_LOGS.CHECK_DELAYED_GATE_SOUND, 'story');
-        nextRes.experience += 200;
-      } else {
-        addLog(ACTION_LOGS.CHECK_DELAYED_GATE_NORMAL, 'info');
-      }
-      break;
-    }
-    case 'RUMMAGE_LOST_FOUND': {
-      const roll = Math.random();
-      if (roll < 0.2) {
-        addLog(ACTION_LOGS.RUMMAGE_LOST_FOUND_CREDITS, 'info');
-        nextRes.credits += Math.floor(Math.random() * 20) + 5;
-      } else if (roll < 0.5) {
-        addLog(ACTION_LOGS.RUMMAGE_LOST_FOUND_SANITY, 'story');
-        nextRes.sanity = Math.min(100, nextRes.sanity + 10);
-      } else {
-        addLog(ACTION_LOGS.RUMMAGE_LOST_FOUND_WEIRD, 'vibration');
-        nextRes.sanity -= 5;
-      }
-      break;
-    }
-    case 'TALK_TO_REGULAR': {
-      const roll = Math.random();
-      if (roll < 0.3) {
-        // Clue
-        const clue =
-          REGULAR_TALK_LOGS.CLUES[Math.floor(Math.random() * REGULAR_TALK_LOGS.CLUES.length)];
-        addLog(clue, 'story');
-        nextRes.experience += 250;
-        nextRes.sanity -= 5;
-      } else if (roll < 0.6) {
-        // Warning
-        const warning =
-          REGULAR_TALK_LOGS.WARNINGS[Math.floor(Math.random() * REGULAR_TALK_LOGS.WARNINGS.length)];
-        addLog(warning, 'vibration');
-        nextRes.sanity -= 10;
-      } else {
-        // Ramble
-        const ramble =
-          REGULAR_TALK_LOGS.RAMBLES[Math.floor(Math.random() * REGULAR_TALK_LOGS.RAMBLES.length)];
-        addLog(ramble, 'info');
-        nextRes.focus = Math.max(0, nextRes.focus - 10); // Extra focus cost for being bored
-      }
-      break;
-    }
-    case 'CHECK_REDACTED_LOGS': {
-      nextRes.suspicion = Math.min(100, nextRes.suspicion + 5);
-      const roll = Math.random();
-      if (roll < 0.1) {
-        addLog(ACTION_LOGS.CHECK_REDACTED_SUITS, 'vibration');
-        nextRes.suspicion = Math.min(100, nextRes.suspicion + 15);
-        nextFlg.isAfraid = true;
-        nextHF.fearTimer = 45000;
-      } else if (roll < 0.4) {
-        addLog(ACTION_LOGS.CHECK_REDACTED_SUCCESS, 'story');
-        nextRes.experience += 400;
-        nextRes.sanity -= 5;
-      } else {
-        addLog(ACTION_LOGS.CHECK_REDACTED_FAIL, 'warning');
-      }
-      break;
-    }
-    case 'LISTEN_FUSELAGE': {
-      if (nextRes.sanity < 20) {
-        addLog("You're too on edge to listen closely to anything.", 'warning');
-        return prev;
-      }
-      nextRes.sanity -= 20;
-      const roll = Math.random();
-      if (roll < 0.15) {
-        addLog(ACTION_LOGS.LISTEN_FUSELAGE_HEARTBEAT, 'vibration');
-        nextFlg.isAfraid = true;
-        nextHF.fearTimer = 60000;
-      } else if (roll < 0.45) {
-        addLog(ACTION_LOGS.LISTEN_FUSELAGE_WHISPERS, 'story');
-        nextRes.experience += 300;
-      } else {
-        addLog(ACTION_LOGS.LISTEN_FUSELAGE_NORMAL, 'info');
-      }
-      break;
-    }
-    case 'REVIEW_SURVEILLANCE_LOGS': {
-      nextRes.suspicion = Math.min(100, nextRes.suspicion + 15);
-      const roll = Math.random();
-      if (roll < 0.15) {
-        addLog(ACTION_LOGS.REVIEW_SURVEILLANCE_CAUGHT, 'error');
-        triggerEvent('audit', 'AUDIT_INTERNAL');
-      } else if (roll < 0.4) {
-        addLog(ACTION_LOGS.REVIEW_SURVEILLANCE_SUCCESS, 'vibration');
-        nextRes.sanity -= 15;
-        nextRes.experience += 500;
-      } else {
-        addLog(ACTION_LOGS.REVIEW_SURVEILLANCE_NOTHING, 'info');
-      }
-      break;
-    }
-    case 'DEEP_CLEAN_VENTS': {
-      const roll = Math.random();
-      if (roll < 0.1) {
-        addLog(ACTION_LOGS.DEEP_CLEAN_VENTS_DEVICE, 'story');
-        nextRes.suspicion = Math.min(100, nextRes.suspicion + 10);
-        nextRes.experience += 300;
-      } else if (roll < 0.3) {
-        addLog(ACTION_LOGS.DEEP_CLEAN_VENTS_STATIC, 'vibration');
-        nextRes.sanity -= 5;
-      } else {
-        addLog(ACTION_LOGS.DEEP_CLEAN_VENTS_NORMAL, 'info');
-        nextRes.experience += 50;
-      }
-      break;
-    }
-    case 'SCAVENGE_CORROSION_CORNER': {
-      nextRes.suspicion = Math.min(100, nextRes.suspicion + 10);
-      const template = itemsData.rotables[Math.floor(Math.random() * itemsData.rotables.length)];
-      const newPart: RotableItem = {
-        id: Math.random().toString(36),
-        label: template.label,
-        pn: 'UNKNOWN',
-        sn: 'UNTRACEABLE',
-        condition: Math.random() * 50,
-        isInstalled: false,
-        isUntraceable: true,
-        isRedTagged: Math.random() < 0.3,
-      };
-      nextRotables.push(newPart);
-      addLog(ACTION_LOGS.SCAVENGE_SUCCESS, 'story');
-      break;
-    }
-
-    case 'OBSERVE_CORROSION_CORNER': {
-      const obsRoll = Math.random();
-      if (obsRoll < 0.2) {
-        addLog(ACTION_LOGS.OBSERVE_GHOST, 'vibration');
-        nextRes.sanity -= 25;
-        nextFlg.isAfraid = true;
-        nextHF.fearTimer = 40000;
-      } else if (obsRoll < 0.5) {
-        addLog(ACTION_LOGS.OBSERVE_SUITS, 'story');
-        nextRes.suspicion = Math.min(100, nextRes.suspicion + 5);
-      } else {
-        addLog(ACTION_LOGS.OBSERVE_WEATHER, 'info');
-      }
-      break;
-    }
-
-    case 'ANALYZE_ANOMALY': {
-      const anomalyToAnalyze = nextAnomalies[0];
-      if (!anomalyToAnalyze) return prev;
-
-      nextRes.sanity -= 60;
-
-      if (Math.random() > 0.3) {
-        // 70% success
-        const template = anomaliesData.find((a) => a.id === anomalyToAnalyze.templateId);
-        if (template) {
-          if (template.retrofitJob.requirements.crystallineResonators)
-            nextRes.crystallineResonators += 5;
-          if (template.retrofitJob.requirements.bioFilament) nextRes.bioFilament += 10;
-
-          addLog(ACTION_LOGS.ANOMALY_ANALYSIS_SUCCESS, 'story');
-
-          const duration = 300000 + Math.random() * 300000;
-          const newRetrofitJob: JobCard = {
-            ...template.retrofitJob,
-            id: `retrofit_${Date.now()}`,
-            timeLeft: duration,
-            totalTime: duration,
-          };
-
-          nextAnomalies.shift(); // remove analyzed anomaly
-          return {
-            ...prev,
-            resources: nextRes,
-            inventory: nextInv,
-            toolConditions: nextTools,
-            flags: nextFlg,
-            hfStats: nextHF,
-            rotables: nextRotables,
-            logs: nextLogs,
-            proficiency: nextProf,
-            activeEvent: nextEvent,
-            mail: nextMail,
-            calibrationMinigame: nextCalibration,
-            anomalies: nextAnomalies,
-            activeJob: newRetrofitJob,
-            journal: nextJournal,
-          };
-        }
-      } else {
-        // Failure
-        addLog(ACTION_LOGS.ANOMALY_ANALYSIS_FAIL, 'error');
-        nextAnomalies.shift();
-        triggerEvent('eldritch_manifestation', 'CONTAINMENT_BREACH');
-      }
-      break;
-    }
-
-    case 'OBSERVE_SEDAN': {
-      nextRes.suspicion = Math.min(100, nextRes.suspicion + 5);
-      nextRes.experience += 150;
-      const sedanRoll = Math.random();
-      if (sedanRoll < 0.1) {
-        addLog(
-          'The license plate on the sedan shifts, the characters rearranging into impossible geometry before snapping back. You feel sick.',
-          'vibration'
-        );
-        nextRes.sanity -= 15;
-        nextFlg.isAfraid = true;
-        nextHF.fearTimer = 20000;
-      } else if (sedanRoll < 0.3) {
-        addLog(
-          'A rear door on the sedan opens a few inches, then clicks shut. No one gets in or out. The air smells like ozone.',
-          'story'
-        );
-        nextRes.sanity -= 8;
-      } else {
-        addLog(
-          "The sedan is empty. You can't see the driver's seat through the windshield, just... darkness.",
-          'info'
-        );
-        nextRes.sanity -= 2;
-      }
-      break;
-    }
     case 'UNLOCK_SKILL':
       if (nextProf.skillPoints > 0) {
         const skill = [...skillsData.mechanic, ...skillsData.watcher].find(
           (s) => s.id === payload.id
         );
         if (skill && !nextProf.unlocked.includes(skill.id)) {
-          // Check prereqs
           const hasPrereqs = !skill.prereq || nextProf.unlocked.includes(skill.prereq);
           if (hasPrereqs) {
             nextProf.skillPoints -= 1;
@@ -389,7 +265,6 @@ export const handleGameAction = (
       }
       break;
 
-    // --- Canteen ---
     case 'JANITOR_INTERACTION': {
       nextFlg.janitorPresent = false;
       const roll = Math.random();
@@ -409,50 +284,6 @@ export const handleGameAction = (
       break;
     }
 
-    case 'NAP_TABLE':
-      addLog(ACTION_LOGS.NAP_TABLE, 'info');
-      nextRes.focus = Math.min(100, nextRes.focus + 40);
-      nextRes.sanity = Math.min(100, nextRes.sanity + 25);
-      nextRes.suspicion = Math.min(100, nextRes.suspicion + 15);
-      if (hasSkill('dreamJournal') && Math.random() < 0.25) {
-        addLog(
-          'You dream of a flight path that ends in a city of black glass under a dead star.',
-          'vibration'
-        );
-        nextRes.experience += 500;
-      }
-      break;
-
-    case 'READ_MAGAZINE': {
-      const magText =
-        MAGAZINE_FLAVOR_TEXTS[Math.floor(Math.random() * MAGAZINE_FLAVOR_TEXTS.length)];
-      addLog(magText, 'info');
-      nextRes.focus = Math.min(100, nextRes.focus + 15);
-      nextRes.sanity = Math.max(0, nextRes.sanity - 10);
-      break;
-    }
-
-    // --- HR Floor ---
-    case 'REVIEW_COMPLIANCE':
-      addLog(ACTION_LOGS.REVIEW_COMPLIANCE, 'info');
-      nextRes.suspicion = Math.max(0, nextRes.suspicion - 2);
-      nextRes.sanity = Math.max(0, nextRes.sanity - 5);
-      break;
-
-    case 'GIVE_URINE_SAMPLE':
-      nextRes.sanity = Math.max(0, nextRes.sanity - 2);
-      if (nextFlg.venomSurgeActive) {
-        addLog(ACTION_LOGS.URINE_SAMPLE_FAIL, 'error');
-        nextRes.suspicion = Math.min(100, nextRes.suspicion + 30);
-        nextFlg.isAfraid = true;
-        nextHF.fearTimer = 45000;
-      } else {
-        addLog(ACTION_LOGS.URINE_SAMPLE_PASS, 'info');
-        nextRes.suspicion = Math.max(0, nextRes.suspicion - 5);
-      }
-      break;
-
-    // --- Office & Training ---
     case 'TOGGLE_AUTO_SRF':
       nextFlg.autoSrfActive = !nextFlg.autoSrfActive;
       addLog(
@@ -481,29 +312,6 @@ export const handleGameAction = (
       break;
     }
 
-    case 'CROSS_REFERENCE_MANIFESTS':
-      nextRes.suspicion = Math.min(100, nextRes.suspicion + 20);
-      nextRes.kardexFragments += 1;
-      nextRes.experience += 1000;
-      addLog(ACTION_LOGS.MANIFEST_CROSS_REF_SUCCESS, 'vibration');
-      break;
-
-    case 'MAINTAIN_LOW_PROFILE': {
-      let suspicionReduction = 10;
-      if (hasSkill('unseenPresence')) {
-        suspicionReduction = 15;
-      }
-      nextRes.suspicion = Math.max(0, nextRes.suspicion - suspicionReduction);
-      addLog(
-        'You spend an hour meticulously aligning your records and covering your tracks. The less attention, the better.',
-        'info'
-      );
-      if (hasSkill('unseenPresence')) {
-        addLog('[Unseen Presence] Your efforts are particularly effective.', 'levelup');
-      }
-      break;
-    }
-
     case 'TAKE_EXAM': {
       if (nextHF.trainingProgress >= 100) {
         const certId = payload.cert || payload.id;
@@ -519,35 +327,20 @@ export const handleGameAction = (
       break;
     }
 
-    case 'STUDY_MODULE':
-      addLog(
-        'Paging through heavy binders. The diagrams of wing spars look like skeletons.',
-        'info'
-      );
-      nextHF.trainingProgress = Math.min(100, nextHF.trainingProgress + 15);
-      nextRes.sanity -= 5;
-      break;
-
-    case 'DIGITAL_STUDY': {
-      addLog(ACTION_LOGS.DIGITAL_AMM, 'info');
-      let studyGain = 20;
-      if (nextInv.pcHddUpgrade) studyGain += 5;
-      nextHF.trainingProgress = Math.min(100, nextHF.trainingProgress + studyGain);
-      nextRes.sanity -= 2;
-      break;
-    }
-
     case 'CREATE_SRF':
       addLog(ACTION_LOGS.SRF_FILED, 'info');
       nextRes.credits += 35;
       nextRes.experience += 120;
       break;
 
+    // ... Legacy/Complex cases ...
+    // We keep these until migrated completely.
+    // Minimizing duplications where actionsData handles it.
+
     case 'SEARCH_MANUALS': {
       addLog('Digging through the archive. The paper is brittle and yellowed.', 'info');
       let findRoll = Math.random();
       if (hasSkill('keenEye')) findRoll += 0.1;
-      // Logic for finding PC parts
       if (findRoll < 0.1 && !nextInv.mainboard) {
         nextInv.mainboard = true;
         addLog('FOUND: Vintage ATX Mainboard.', 'story');
@@ -599,7 +392,6 @@ export const handleGameAction = (
       }
       break;
 
-    // --- Toolroom ---
     case 'HARVEST_ROTABLE':
       nextRotables = nextRotables.filter((r) => r.id !== payload.rotableId);
       nextRes.titanium += 10 + Math.floor(Math.random() * 15);
@@ -630,7 +422,7 @@ export const handleGameAction = (
           'The Master just glares at you and goes back to polishing a wrench. Probably best to leave him be.',
           'info'
         );
-        nextRes.focus += cost; // refund focus
+        nextRes.focus += cost;
       }
       break;
 
@@ -648,7 +440,7 @@ export const handleGameAction = (
       if (result === 'perfect') {
         addLog(ACTION_LOGS.CALIBRATION_PERFECT, 'levelup');
         nextTools[toolId] = 100;
-        nextHF.efficiencyBoost = 30000; // 30 seconds
+        nextHF.efficiencyBoost = 30000;
       } else if (result === 'good') {
         addLog(ACTION_LOGS.CALIBRATION_GOOD, 'info');
         nextTools[toolId] = 100;
@@ -656,7 +448,7 @@ export const handleGameAction = (
         addLog(ACTION_LOGS.CALIBRATION_FAIL, 'error');
         nextTools[toolId] = Math.max(0, nextTools[toolId] - 25);
         nextFlg.toolroomMasterPissed = true;
-        nextHF.toolroomMasterCooldown = 300000; // 5 minutes
+        nextHF.toolroomMasterCooldown = 300000;
       }
       break;
     }
@@ -677,7 +469,7 @@ export const handleGameAction = (
         }
       } else {
         addLog('REPAIR FAILED: Insufficient resources.', 'error');
-        nextRes.focus += cost; // Refund focus
+        nextRes.focus += cost;
       }
       break;
     }
@@ -769,7 +561,6 @@ export const handleGameAction = (
       }
       break;
 
-    // --- Line Maint & Apron ---
     case 'READ_FLIGHT_LOG':
       nextRes.experience += 60;
       if (Math.random() < 0.12) {
@@ -1006,7 +797,6 @@ export const handleGameAction = (
 
       const eventRoll = Math.random();
       if (eventRoll < 0.4) {
-        // 40% chance of an event
         const eventPool = [
           'CAPTAIN_ARGUMENT',
           'RAMP_DELAY',
@@ -1031,7 +821,6 @@ export const handleGameAction = (
 
         setTimeout(() => triggerEvent(eventType, chosenEventId), 1000);
       } else if (eventRoll < 0.45) {
-        // 5% chance of rare lavatory find
         const lavRoll = Math.random();
         addLog('The lavatory system check reveals something unusual...', 'story');
         if (lavRoll < 0.5 && !nextInv.foundRetiredIDCard) {
@@ -1062,7 +851,6 @@ export const handleGameAction = (
       nextRes.experience += 40;
       break;
 
-    // --- Hangar ---
     case 'PERFORM_NDT':
       addLog(SYSTEM_LOGS.NDT_SCAN, 'info');
       nextRes.experience += 200;
@@ -1090,8 +878,37 @@ export const handleGameAction = (
 
     case 'COMPLETE_JOB': {
       if (prev.activeJob) {
-        const req = prev.activeJob.requirements.tools || [];
-        for (const t of req) {
+        const jobReqs = prev.activeJob.requirements;
+
+        // 1. Check Resources
+        if ((jobReqs.alclad || 0) > nextRes.alclad) {
+          addLog('Insufficient Alclad.', 'error');
+          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+        }
+        if ((jobReqs.rivets || 0) > nextRes.rivets) {
+          addLog('Insufficient Rivets.', 'error');
+          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+        }
+        if ((jobReqs.titanium || 0) > nextRes.titanium) {
+          addLog('Insufficient Titanium.', 'error');
+          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+        }
+        if ((jobReqs.crystallineResonators || 0) > (nextRes.crystallineResonators || 0)) {
+          addLog('Insufficient Crystalline Resonators.', 'error');
+          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+        }
+        if ((jobReqs.bioFilament || 0) > (nextRes.bioFilament || 0)) {
+          addLog('Insufficient Bio-Filament.', 'error');
+          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+        }
+        if ((jobReqs.skydrol || 0) > (nextRes.skydrol || 0)) {
+          addLog('Insufficient Skydrol.', 'error');
+          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+        }
+
+        // 2. Check Tools
+        const reqTools = jobReqs.tools || [];
+        for (const t of reqTools) {
           if (!nextInv[t]) {
             addLog(`ERROR: MISSING TOOL: ${t.toUpperCase()}`, 'error');
             return {
@@ -1108,18 +925,33 @@ export const handleGameAction = (
               resources: { ...nextRes, focus: nextRes.focus + cost },
             };
           }
+          // Tool Wear
           if (!hasSkill('highTorqueMethods') || Math.random() > 0.2) {
             nextTools[t] = Math.max(0, nextTools[t] - (5 + Math.random() * 5));
           } else {
             addLog(`[High-Torque Methods] Tool ${t.toUpperCase()} condition preserved.`, 'info');
           }
         }
+
+        // 3. Deduct Resources
+        nextRes.alclad = Math.max(0, nextRes.alclad - (jobReqs.alclad || 0));
+        nextRes.rivets = Math.max(0, nextRes.rivets - (jobReqs.rivets || 0));
+        nextRes.titanium = Math.max(0, nextRes.titanium - (jobReqs.titanium || 0));
+        if (jobReqs.crystallineResonators)
+          nextRes.crystallineResonators = Math.max(
+            0,
+            (nextRes.crystallineResonators || 0) - jobReqs.crystallineResonators
+          );
+        if (jobReqs.bioFilament)
+          nextRes.bioFilament = Math.max(0, (nextRes.bioFilament || 0) - jobReqs.bioFilament);
+        if (jobReqs.skydrol)
+          nextRes.skydrol = Math.max(0, (nextRes.skydrol || 0) - jobReqs.skydrol);
+
         addLog(`Work Order ${prev.activeJob.id} Signed Off.`, 'story');
         nextRes.credits += prev.activeJob.rewardXP / 2;
         nextRes.experience += prev.activeJob.rewardXP;
 
         if (!prev.activeJob.isRetrofit && Math.random() < 0.05) {
-          // 5% chance to find anomaly
           const anomalyTemplate = anomaliesData[Math.floor(Math.random() * anomaliesData.length)];
           const newAnomaly: Anomaly = {
             id: `anom_${Date.now()}`,
@@ -1160,7 +992,6 @@ export const handleGameAction = (
       break;
     }
 
-    // --- Misc ---
     case 'RESOLVE_EVENT':
       if (prev.activeEvent) {
         if (prev.activeEvent.id === 'FUEL_CONTAM') {
@@ -1181,15 +1012,15 @@ export const handleGameAction = (
         }
         if (prev.activeEvent.requiredAction === 'SUBMIT_URINE_SAMPLE') {
           handleGameAction(prev, 'GIVE_URINE_SAMPLE', payload, createJob, triggerEvent);
-          nextEvent = null; // Clear event after sample given
-          return { ...prev, activeEvent: null }; // Return early
+          nextEvent = null;
+          return { ...prev, activeEvent: null };
         }
         if (prev.activeEvent.type === 'component_failure') {
           addLog(
             'This issue cannot be resolved through standard channels. The component must be repaired in the toolroom.',
             'error'
           );
-          nextRes.focus += cost; // Refund focus
+          nextRes.focus += cost;
           return { ...prev, resources: nextRes, logs: nextLogs };
         }
         nextRes.experience += 350;
@@ -1253,13 +1084,68 @@ export const handleGameAction = (
 
         if (p.id === 'venom_surge') {
           nextFlg.venomSurgeActive = true;
-          nextHF.venomSurgeTimer = 60000; // 1 minute
+          nextHF.venomSurgeTimer = 60000;
         }
         if (p.id === 'winston_pack') {
           nextPersonal['winston_pack'] = (nextPersonal['winston_pack'] || 0) + 1;
         }
       } else {
         addLog('INSUFFICIENT CREDITS.', 'error');
+      }
+      break;
+    }
+
+    case 'ANALYZE_ANOMALY': {
+      const anomalyToAnalyze = nextAnomalies[0];
+      if (!anomalyToAnalyze) return prev;
+
+      nextRes.sanity -= 60;
+
+      if (Math.random() > 0.3) {
+        // 70% success
+        const template = anomaliesData.find((a) => a.id === anomalyToAnalyze.templateId);
+        if (template) {
+          if (template.retrofitJob.requirements.crystallineResonators)
+            nextRes.crystallineResonators = (nextRes.crystallineResonators || 0) + 5;
+          if (template.retrofitJob.requirements.bioFilament)
+            nextRes.bioFilament = (nextRes.bioFilament || 0) + 10;
+
+          addLog(ACTION_LOGS.ANOMALY_ANALYSIS_SUCCESS, 'story');
+
+          const duration = 300000 + Math.random() * 300000;
+          const newRetrofitJob: JobCard = {
+            ...template.retrofitJob,
+            id: `retrofit_${Date.now()}`,
+            timeLeft: duration,
+            totalTime: duration,
+          };
+
+          nextAnomalies.shift();
+          return {
+            ...prev,
+            resources: nextRes,
+            inventory: nextInv,
+            toolConditions: nextTools,
+            flags: nextFlg,
+            hfStats: nextHF,
+            rotables: nextRotables,
+            logs: nextLogs,
+            proficiency: nextProf,
+            activeEvent: nextEvent,
+            mail: nextMail,
+            calibrationMinigame: nextCalibration,
+            anomalies: nextAnomalies,
+            activeJob: newRetrofitJob,
+            journal: nextJournal,
+            pet: nextPet,
+            procurement: nextProcurement,
+          };
+        }
+      } else {
+        // Failure
+        addLog(ACTION_LOGS.ANOMALY_ANALYSIS_FAIL, 'error');
+        nextAnomalies.shift();
+        triggerEvent('eldritch_manifestation', 'CONTAINMENT_BREACH');
       }
       break;
     }
@@ -1280,5 +1166,7 @@ export const handleGameAction = (
     proficiency: nextProf,
     calibrationMinigame: nextCalibration,
     activeEvent: nextEvent,
+    pet: nextPet,
+    procurement: nextProcurement,
   };
 };

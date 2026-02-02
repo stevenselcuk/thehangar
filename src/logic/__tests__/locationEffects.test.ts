@@ -37,9 +37,9 @@ describe('Location Effects in Game Reducer', () => {
 
     const nextState = gameReducer(initialState, action);
 
-    // Extreme high noise: Stress +1.5, Focus -2.0
+    // Extreme high noise: Stress +1.5, Focus -2.0 -> Modified by difficulty 1.05: Drain 5.25, Regen 3.0 = Net -2.25
     expect(nextState.hfStats.socialStress).toBe(1.5);
-    expect(nextState.resources.focus).toBe(98);
+    expect(nextState.resources.focus).toBe(97.75);
   });
 
   it('should increase social stress when an event is active', () => {

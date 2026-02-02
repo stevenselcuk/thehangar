@@ -344,9 +344,8 @@ export const loadState = (saveKey: string): GameState => {
       }
 
       const loadedFlags = { ...defaults.flags, ...(parsed.flags || {}) };
-      loadedFlags.migraineActive = false;
-      loadedFlags.isHallucinating = false;
-      loadedFlags.isAfraid = false;
+      // Removed manual resets to enforce state persistence
+
       loadedFlags.onPerformanceImprovementPlan = parsed.flags.onPerformanceImprovementPlan || false;
       loadedFlags.janitorPresent = false;
       loadedFlags.ndtFinding = null;

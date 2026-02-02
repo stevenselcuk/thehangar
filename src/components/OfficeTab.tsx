@@ -341,6 +341,33 @@ const OfficeTab: React.FC<{
           </div>
         </>
       )}
+      {/* Endgame Options */}
+      {(state.resources.suspicion < 10 && state.inventory.foundRetiredIDCard) ||
+      state.resources.sanity < 15 ? (
+        <div className="p-5 border border-purple-900/60 bg-purple-950/20 mt-8 relative overflow-hidden">
+          <h4 className="text-[10px] text-purple-400 uppercase mb-4 font-bold tracking-widest border-l-2 border-purple-600 pl-3">
+            Final Protocols
+          </h4>
+          <div className="grid grid-cols-1 gap-3">
+            {state.resources.suspicion < 10 && state.inventory.foundRetiredIDCard && (
+              <ActionButton
+                label="Accept Recruitment Offer"
+                onClick={() => onAction('TRIGGER_GOVT_ENDING')}
+                description="The Suits have been watching. They are impressed. Leave the hangar behind."
+                className="border-blue-500 text-blue-400"
+              />
+            )}
+            {state.resources.sanity < 15 && (
+              <ActionButton
+                label="Surrender to the Noise"
+                onClick={() => onAction('TRIGGER_CRAZY_ENDING')}
+                description="It's too loud. It's too bright. Just let go."
+                className="border-emerald-500 text-emerald-400 animate-pulse"
+              />
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

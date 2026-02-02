@@ -1,5 +1,10 @@
 import { produce } from 'immer';
-import { ACTION_LOGS, MAGAZINE_FLAVOR_TEXTS, SYSTEM_LOGS } from '../../data/flavor.ts';
+import {
+  ACTION_LOGS,
+  DIGITAL_AMM_FLAVOR,
+  MAGAZINE_FLAVOR_TEXTS,
+  SYSTEM_LOGS,
+} from '../../data/flavor.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
@@ -64,7 +69,10 @@ export type OfficeAction =
     }
   | { type: 'DEEP_CLEAN_VENTS'; payload: Record<string, unknown> }
   | { type: 'INSPECT_PRINTER'; payload: Record<string, unknown> }
-  | { type: 'READ_EMAIL'; payload: { id: string } };
+  | { type: 'READ_EMAIL'; payload: { id: string } }
+  | { type: 'TRIGGER_CRAZY_ENDING'; payload: Record<string, unknown> }
+  | { type: 'TRIGGER_GOVT_ENDING'; payload: Record<string, unknown> }
+  | { type: 'TRIGGER_ALIEN_ENDING'; payload: Record<string, unknown> };
 
 // ==================== REDUCER ====================
 
@@ -125,7 +133,8 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
         break;
 
       case 'DIGITAL_STUDY': {
-        addLog(ACTION_LOGS.DIGITAL_AMM, 'info');
+        const studyText = DIGITAL_AMM_FLAVOR[Math.floor(Math.random() * DIGITAL_AMM_FLAVOR.length)];
+        addLog(studyText, 'info');
         let studyGain = 20;
         if (draft.inventory.pcHddUpgrade) studyGain += 5;
         draft.hfStats.trainingProgress = Math.min(100, draft.hfStats.trainingProgress + studyGain);
@@ -299,6 +308,21 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
         }
         break;
       }
+
+      case 'TRIGGER_CRAZY_ENDING':
+        addLog('You stop fighting the noise. It welcomes you.', 'story');
+        draft.flags.endingTriggered = 'CRAZY';
+        break;
+
+      case 'TRIGGER_GOVT_ENDING':
+        addLog('You shake the hand of the man in the suit. His skin is cold.', 'story');
+        draft.flags.endingTriggered = 'GOVT';
+        break;
+
+      case 'TRIGGER_ALIEN_ENDING':
+        addLog('The sphere opens. It is not empty.', 'story');
+        draft.flags.endingTriggered = 'ALIEN';
+        break;
     }
   });
 };

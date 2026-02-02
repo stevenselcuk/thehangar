@@ -652,6 +652,146 @@ export const eventsData: Record<string, EventTemplates[]> = {
     },
     // KARDEX EVENTS
     {
+      id: 'AMM_FIELD_UPDATE',
+      type: 'eldritch_manifestation',
+      title: 'MANDATORY UPDATE',
+      description:
+        "The AMM on your screen locks up. A popup appears: 'FIRMWARE UPDATE REQUIRED FOR REALITY SYNC'. The progress bar is moving backwards.",
+      totalTime: 40000,
+      choices: [
+        {
+          id: 'force_quit',
+          label: 'Pull the Plug',
+          cost: { resource: 'focus', amount: 10 },
+          log: 'You yank the power cord. The screen stays on for 3 seconds of screaming static before dying.',
+          effects: { sanity: -10, focus: -10 },
+        },
+        {
+          id: 'wait',
+          label: 'Watch the Update',
+          cost: { resource: 'sanity', amount: 20 },
+          log: "You watch as files named 'human_soul_v1.zip' and 'forgotten_memories.dat' are uploaded to an external server.",
+          effects: { experience: 500, suspicion: 10 },
+        },
+      ],
+      failureOutcome: {
+        log: "The update reaches -100%. You forget your mother's face.",
+        effects: { sanity: -30, experience: -100 },
+      },
+    },
+    {
+      id: 'GHOST_TOUCH',
+      type: 'eldritch_manifestation',
+      title: 'HAPTIC FEEDBACK',
+      description:
+        'As you scroll through the digital manual, you feel a distinct textured surface on your smooth touchscreen. It feels like cold, wet skin.',
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'wipe',
+          label: 'Wipe the Screen',
+          cost: { resource: 'focus', amount: 5 },
+          log: 'You wipe it with a rag. The rag comes away stained with something black.',
+          effects: { suspicion: 5, sanity: -5 },
+        },
+        {
+          id: 'touch',
+          label: 'Press Harder',
+          cost: { resource: 'sanity', amount: 15 },
+          log: 'You press into the screen. It yields like flesh. You feel a pulse.',
+          effects: { experience: 400, sanity: -15 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The screen grabs your finger. You have to yank it free, leaving a bruise.',
+        effects: { sanity: -20, focus: -10 },
+      },
+    },
+    {
+      id: 'DATA_CORRUPTION',
+      type: 'eldritch_manifestation',
+      title: 'VISUAL HAZARD',
+      description:
+        'The text on your monitor begins to melt, dripping down to the bottom of the bezel. It forms a pool of black letters that spell out a warning.',
+      totalTime: 35000,
+      choices: [
+        {
+          id: 'read_warning',
+          label: 'Read the Warning',
+          cost: { resource: 'sanity', amount: 20 },
+          log: "It says: 'THEY ARE COMING THROUGH THE WIRES'.",
+          effects: { experience: 300, suspicion: 5 },
+        },
+        {
+          id: 'screen_off',
+          label: 'Turn Off Monitor',
+          cost: { resource: 'focus', amount: 10 },
+          log: 'You kill the power. The letters burn into your retina for an hour.',
+          effects: { focus: -10 },
+        },
+      ],
+      failureOutcome: {
+        log: "The melting text pours off the desk and stains your boots. It won't come out.",
+        effects: { suspicion: 10, sanity: -10 },
+      },
+    },
+    {
+      id: 'PRINTER_ACTUATION',
+      type: 'eldritch_manifestation',
+      title: 'UNAUTHORIZED PRINT',
+      description:
+        "The office printer starts up on its own. It's printing page after page of solid black ink. The noise sounds like a rhythmic chanting.",
+      totalTime: 45000,
+      choices: [
+        {
+          id: 'stop_print',
+          label: 'Open Tray',
+          cost: { resource: 'focus', amount: 15 },
+          log: 'You rip the paper tray out. The printer screams before shutting down.',
+          effects: { suspicion: 5 },
+        },
+        {
+          id: 'examine',
+          label: 'Examine Output',
+          cost: { resource: 'sanity', amount: 25 },
+          log: "The black pages aren't solid black. They are photos of the hangar taken from the ceiling, timestamped 10 seconds ago.",
+          effects: { experience: 600, sanity: -20 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The printer overheats and catches fire. The smoke smells like burning hair.',
+        effects: { credits: -100, sanity: -10 },
+      },
+    },
+    {
+      id: 'SCREEN_REFLECTION',
+      type: 'eldritch_manifestation',
+      title: 'BEHIND YOU',
+      description:
+        'Specifically in the reflection of your dark monitor, you see a tall man in a suit standing directly behind your chair. You are alone in the room.',
+      totalTime: 20000,
+      choices: [
+        {
+          id: 'dont_turn',
+          label: 'Do Not Turn Around',
+          cost: { resource: 'sanity', amount: 30 },
+          log: "You stare at the reflection until it fades. You don't breathe. When it's gone, you exhale.",
+          effects: { experience: 500, focus: -20 },
+        },
+        {
+          id: 'turn_fast',
+          label: 'Turn Around Quickly',
+          cost: { resource: 'focus', amount: 20 },
+          log: 'You spin the chair. The room is empty. But the door handle is slowly turning.',
+          effects: { suspicion: 10, sanity: -15 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You felt a cold hand on your shoulder. You fainted.',
+        effects: { sanity: -50, focus: -50 },
+      },
+    },
+    {
       id: 'KARDEX_RECOVERY',
       type: 'eldritch_manifestation',
       title: 'ANOMALOUS FILE',

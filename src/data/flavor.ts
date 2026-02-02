@@ -635,6 +635,33 @@ export const TRAINING_DEPT_FLAVOR = [
   'The training manual breathes.',
 ];
 
+export const DIGITAL_AMM_FLAVOR = [
+  "Chapter 4, Section 9: 'Bleeding Hydraulic Lines and Ritual Containment Protocols'.",
+  'The wiring diagram for the autopilot system resembles a human nerve cluster. It pulses when you zoom in.',
+  "Procedure 77-B: 'How to placate the machine spirit with copper offerings'.",
+  "A warning in red text: 'DO NOT READ THE METADATA. THE METADATA IS LOOKING AT YOU'.",
+  "You find a schematic for a 'Soul-to-Digital Converter' attached to the passenger entertainment system.",
+  "Section 12: 'Emergency procedures for non-Euclidean flight paths'.",
+  "The troubleshooting guide suggests 'speaking softly to the engine' as a valid fix for vibration.",
+  "A footnote references a 'Department of Ontological Security' that doesn't exist.",
+  "The page you are reading is slowly filling up with the word 'OBEY' in binary.",
+  'You find a maintenance log from 1950 for a Boeing 787. The signature is yours.',
+  "Chapter 0: 'The Plane that was Promised'.",
+  "A diagram shows the fuel tanks being filled with 'liquid time'.",
+  'The Revision History shows an update from the year 2099. The comment is just screaming.',
+  "Section 88: 'Disposing of biological residue found in the landing gear (Post-Warp Travel)'.",
+  "The torque values for the wing bolts are given in 'prayers' instead of Newton-meters.",
+  'A blurry photo in the manual shows a mechanic standing in the background. It looks exactly like you, but with no eyes.',
+  "Warning: 'Extended viewing of this page may cause memory leaks in the user'.",
+  "The index lists a chapter called 'The Void Beyond the Bulkhead'. The page number is ∞.",
+  "You find a checklist for 'Exorcising the Flight Management Computer'.",
+  "The manual explicitly forbids using 'cursed' 10mm sockets on the fuselage.",
+  "A tech note describes 'how to remove teeth from the air conditioning ducts'.",
+  "The glossary defines 'Passenger' as 'Temporary organic cargo'.",
+  "You stumble upon a hidden file named 'Project_Icarus_Failed_Test_Subjects.pdf'.",
+  'The screen flickers, and for a second, the schematic is a map of Hell.',
+];
+
 export const PAYPHONE_FLAVOR_TEXTS = [
   "You dial 0. The operator asks for your name. You say it, but she says, 'No, the other one.'",
   'The dial tone sounds like a choir holding a single, dissonant note.',
