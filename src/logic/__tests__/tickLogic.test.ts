@@ -16,7 +16,7 @@ vi.mock('../levels', () => ({
 
 describe('processTick', () => {
   let draft: GameState;
-  let mockTriggerEvent: any;
+  let mockTriggerEvent: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     mockTriggerEvent = vi.fn();
@@ -30,39 +30,39 @@ describe('processTick', () => {
         focus: 100,
         alclad: 0,
         rivets: 0,
-      } as any,
+      },
       flags: {
         nightCrewActive: false,
         isAfraid: false,
         transitCheckDelegationActive: false,
         autoSrfActive: false,
-      } as any,
+      },
       hfStats: {
         fatigue: 0,
         socialStress: 0,
         noiseExposure: 0,
         temperature: 22,
         trainingProgress: 100, // Default to 100 so it doesn't trigger training event
-      } as any,
+      },
       toolConditions: {
         'drill': 100,
-      } as any,
+      },
       time: {
         totalPlayTime: 10000,
-      } as any,
+      },
       eventTimestamps: {},
       inventory: {},
       rotables: [],
       mail: [],
       logs: [],
       vendingPrices: {},
-      proficiency: { unlocked: [], skillPoints: 0 } as any,
+      proficiency: { unlocked: [], skillPoints: 0 },
       notificationQueue: [],
-      pet: { hunger: 0 } as any,
+      pet: { hunger: 0 },
       activeEvent: null,
       activeJob: null,
       lastUpdate: 0,
-    } as any;
+    } as unknown as GameState;
   });
 
   afterEach(() => {

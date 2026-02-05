@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { officeReducer, OfficeSliceState } from '../officeSlice';
-import { GameState } from '../../../types';
 
 // Mock dependencies
 vi.mock('../../../services/logService', () => ({
@@ -12,7 +11,7 @@ vi.mock('../../../services/CostCalculator', () => ({
 
 describe('officeSlice', () => {
   let initialState: OfficeSliceState;
-  let mockTriggerEvent: any;
+  let mockTriggerEvent: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     mockTriggerEvent = vi.fn();
@@ -20,14 +19,14 @@ describe('officeSlice', () => {
       flags: {
         autoSrfActive: false,
         endingTriggered: null,
-      } as any,
+      },
       resources: {
         credits: 100,
         experience: 0,
         sanity: 50,
         focus: 50,
         suspicion: 20,
-      } as any,
+      },
       inventory: {
         mainboard: false,
         graphicCard: false,
@@ -36,19 +35,19 @@ describe('officeSlice', () => {
         pcAssembled: false,
         pcGpuUpgrade: false,
         pcHddUpgrade: false,
-      } as any,
+      },
       hfStats: {
         trainingProgress: 0,
         socialStress: 0,
-      } as any,
+      },
       stats: {
         srfsFiled: 0,
-      } as any,
-      proficiency: {} as any,
+      },
+      proficiency: {},
       logs: [],
       mail: [],
       activeEvent: null,
-    };
+    } as unknown as OfficeSliceState;
   });
 
   afterEach(() => {
@@ -69,7 +68,7 @@ describe('officeSlice', () => {
         },
       };
 
-      const newState = officeReducer(initialState, action);
+      officeReducer(initialState, action);
 
       expect(mockTriggerEvent).toHaveBeenCalledWith('eldritch_manifestation', 'KARDEX_RECOVERY');
     });
@@ -84,7 +83,7 @@ describe('officeSlice', () => {
         },
       };
 
-      const newState = officeReducer(initialState, action);
+      officeReducer(initialState, action);
 
       expect(mockTriggerEvent).not.toHaveBeenCalledWith('eldritch_manifestation', 'KARDEX_RECOVERY');
     });
@@ -102,7 +101,7 @@ describe('officeSlice', () => {
         },
       };
 
-      const newState = officeReducer(initialState, action);
+      officeReducer(initialState, action);
 
       expect(mockTriggerEvent).toHaveBeenCalledWith('eldritch_manifestation', 'THE_ARCHIVIST');
     });
@@ -118,7 +117,7 @@ describe('officeSlice', () => {
         },
       };
 
-      const newState = officeReducer(initialState, action);
+      officeReducer(initialState, action);
 
       expect(mockTriggerEvent).not.toHaveBeenCalledWith('eldritch_manifestation', 'THE_ARCHIVIST');
     });
@@ -134,7 +133,7 @@ describe('officeSlice', () => {
         },
       };
 
-      const newState = officeReducer(initialState, action);
+      officeReducer(initialState, action);
 
       expect(mockTriggerEvent).not.toHaveBeenCalledWith('eldritch_manifestation', 'THE_ARCHIVIST');
     });
