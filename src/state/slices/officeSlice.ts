@@ -54,7 +54,10 @@ export type OfficeAction =
   | { type: 'CROSS_REFERENCE_MANIFESTS'; payload: Record<string, unknown> }
   | { type: 'DIGITAL_STUDY'; payload: Record<string, unknown> }
   | { type: 'CREATE_SRF'; payload: Record<string, unknown> }
-  | { type: 'SEARCH_MANUALS'; payload: Record<string, unknown> }
+  | {
+      type: 'SEARCH_MANUALS';
+      payload: { triggerEvent?: (type: string, id?: string) => void } & Record<string, unknown>;
+    }
   | { type: 'ASSEMBLE_PC'; payload: { cost: number } }
   | { type: 'UPGRADE_PC_GPU'; payload: Record<string, unknown> }
   | { type: 'UPGRADE_PC_HDD'; payload: Record<string, unknown> }
@@ -151,6 +154,13 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
 
       case 'SEARCH_MANUALS': {
         addLog('Digging through the archive. The paper is brittle and yellowed.', 'info');
+        // KARDEX Recovery Chance (Active Trigger Method 1)
+        if (Math.random() < 0.05 && action.payload.triggerEvent) {
+          action.payload.triggerEvent('eldritch_manifestation', 'KARDEX_RECOVERY');
+          addLog('While looking for a part number, you find a file that shouldn\'t exist.', 'vibration');
+          break;
+        }
+
         let findRoll = Math.random();
         if (hasSkill(draft as unknown as GameState, 'keenEye')) findRoll += 0.1;
         if (findRoll < 0.1 && !draft.inventory.mainboard) {
@@ -250,6 +260,18 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
 
       case 'REVIEW_SURVEILLANCE_LOGS': {
         draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 15);
+
+        // Surveillance Backfire (Active Trigger Method 2)
+        if (
+          draft.resources.suspicion > 75 &&
+          draft.resources.sanity < 40 &&
+          action.payload?.triggerEvent
+        ) {
+          action.payload.triggerEvent('eldritch_manifestation', 'THE_ARCHIVIST');
+          addLog('You\'re watching them, but something starts watching you back.', 'vibration');
+          break;
+        }
+
         const roll = Math.random();
         if (roll < 0.15 && action.payload?.triggerEvent) {
           addLog(ACTION_LOGS.REVIEW_SURVEILLANCE_CAUGHT, 'error');

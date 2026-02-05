@@ -98,6 +98,66 @@ export const processTick = (
     draft.hfStats.socialStress = Math.min(100, draft.hfStats.socialStress + 2.0 * (delta / 1000));
   }
 
+  // --- KARDEX & Passive Event System ---
+  const prevTime = draft.time.totalPlayTime - delta;
+  const currentSecond = Math.floor(draft.time.totalPlayTime / 1000);
+  const prevSecond = Math.floor(prevTime / 1000);
+  const secondTrigger = currentSecond > prevSecond; // Triggers roughly once per second
+
+  const currentFiveSec = Math.floor(draft.time.totalPlayTime / 5000);
+  const prevFiveSec = Math.floor(prevTime / 5000);
+  const fiveSecTrigger = currentFiveSec > prevFiveSec; // Triggers roughly once per 5 seconds
+
+  // 1. Reality Breakdown (Method 3)
+  if (draft.resources.sanity < 20) {
+    // Low chance per tick
+    if (Math.random() < 0.0005 * (delta / 16)) {
+      // Assuming 60fps (~16ms), chance should be low.
+      // Logic from snippet: Math.random() < 0.0005
+      // Adjusting for delta to make it framerate independent.
+      // Base probability 0.0005 per tick (assuming 16ms tick? or just per check?)
+      // Let's use the explicit check requested.
+      triggerEvent('eldritch_manifestation', 'TIMELINE_CORRUPTION');
+      addLogToDraft(draft.logs, 'Your mind fractures, and the timeline of the maintenance logs begins to bleed into the future.', 'vibration', now);
+    }
+  }
+
+  // 2. Audit Encounters (The Suits)
+  if (secondTrigger) {
+    // tick % 1000 === 0 logic
+    if (draft.resources.suspicion > 30 || Math.random() < 0.01) {
+      triggerEvent('audit', 'AUDIT_INTERNAL_SUITS_1');
+    }
+  }
+
+  // 3. Canteen/Vending Incidents
+  if (activeTab === TabType.CANTEEN && secondTrigger) {
+    // Purely random tick check while in Canteen tab (throttled to once/sec to avoid spam)
+    if (Math.random() < 0.05) {
+      triggerEvent('canteen_incident', 'CANTEEN_VENDING_PROPHECY');
+    }
+  }
+
+  // 4. Toolroom Sacrifices
+  // Check periodically (e.g. every second) to avoid spam
+  if (activeTab === TabType.TOOLROOM && secondTrigger) {
+    for (const tool of Object.keys(draft.toolConditions)) {
+      if (draft.toolConditions[tool] < 20) {
+        // Trigger demand
+        triggerEvent('incident', 'INCIDENT_TOOLROOM_DEMAND');
+        break; // Trigger only one
+      }
+    }
+  }
+
+  // 5. Training & Indoctrination
+  if (fiveSecTrigger) {
+    // tick % 5000 === 0
+    if (draft.hfStats.trainingProgress < 20) {
+      triggerEvent('incident', 'INCIDENT_TRAINING_MODULE');
+    }
+  }
+
   // 3. Fatigue Logic
   const fatigueRateMap: Record<FatigueLevel, number> = {
     [FatigueLevel.LOW]: 0.1,
