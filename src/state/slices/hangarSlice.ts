@@ -107,6 +107,7 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
         addLog('Sweeping the apron for debris. Found some stray fasteners.', 'info');
         draft.resources.rivets += 15;
         draft.resources.experience += 40;
+        draft.resources.focus = Math.max(0, draft.resources.focus - 5);
         break;
 
       case 'PERFORM_NDT':

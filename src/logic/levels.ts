@@ -1,5 +1,5 @@
 export const getXpForNextLevel = (level: number): number => {
-  return Math.floor(1000 * Math.pow(level, 1.5));
+  return 500 * (level + 1);
 };
 
 export const getLevelUpLog = (newLevel: number): string => {

@@ -1,6 +1,7 @@
 import { GAME_CONSTANTS, NOTIFICATION_DURATIONS } from '../data/constants.ts';
 import { eventsData } from '../data/events.ts';
 import { SYSTEM_LOGS } from '../data/flavor.ts';
+import { getMilestoneForLevel } from '../data/levelMilestones.ts';
 import {
   FatigueLevel,
   LOCATION_PROPERTIES,
@@ -139,11 +140,36 @@ export const processTick = (
     draft.proficiency.skillPoints += 1;
     addLog(getLevelUpLog(draft.resources.level), 'levelup');
 
+    // Check for Milestone Unlocks
+    const milestone = getMilestoneForLevel(draft.resources.level);
+    if (milestone) {
+      // 1. Grant Flags
+      if (milestone.unlocks.flags) {
+        milestone.unlocks.flags.forEach((flagKey) => {
+          // Type-safe assignment
+          const key = flagKey as keyof GameState['flags'];
+          if (typeof draft.flags[key] === 'boolean') {
+            (draft.flags as Record<string, boolean | number | string | null | object>)[key] = true;
+            addLog(`Unlocked: ${flagKey}`, 'levelup');
+          }
+        });
+      }
+
+      // 2. Trigger Narrative Event
+      if (milestone.narrativeEvent) {
+        // We trigger it immediately. The event system should handle queuing or overriding.
+        // triggerEvent('story_event', milestone.narrativeEvent);
+        // HACK: We need to pass this out or rely on the effect.
+        // `triggerEvent` is a callback passed from Reducer -> tickProcessor.
+        triggerEvent('story_event', milestone.narrativeEvent);
+      }
+    }
+
     // NEW: Add Notification Logic (Refactored from App.tsx)
     addNotification(draft, {
       id: `levelup-${draft.resources.level}`,
       title: 'LEVEL UP',
-      message: '+1 SKILL POINT',
+      message: `Reached Level ${draft.resources.level}: ${milestone?.name || 'Unknown'}`,
       variant: 'levelup',
       duration: NOTIFICATION_DURATIONS.DEFAULT,
     });

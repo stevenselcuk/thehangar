@@ -29,8 +29,8 @@ export const eventsData: Record<string, EventTemplates[]> = {
           id: 'comply',
           label: 'Present Documentation',
           cost: { resource: 'focus', amount: 30 },
-          log: 'You present your A&P license and tool calibration logs. The inspector nods and moves on. A close call.',
           effects: { experience: 350, suspicion: 5 },
+          log: 'You present your A&P license and tool calibration logs. The inspector nods and moves on. A close call.',
         },
       ],
       failureOutcome: {
@@ -255,6 +255,35 @@ export const eventsData: Record<string, EventTemplates[]> = {
         effects: { credits: -500, suspicion: 20 },
       },
     },
+    {
+      id: 'RANDOM_DRUG_TEST',
+      type: 'audit',
+      suitType: 'INTERNAL_SECURITY',
+      title: 'Random Drug Test',
+      description:
+        'Medical staff and security are blocking the exit. "Routine screening," they say. They are collecting samples.',
+      totalTime: 40000,
+      choices: [
+        {
+          id: 'comply',
+          label: 'Provide Sample',
+          cost: { resource: 'sanity', amount: 10 },
+          log: 'You provide the sample. You feel violated, but you pass.',
+          effects: { suspicion: -5, sanity: -5 },
+        },
+        {
+          id: 'delay',
+          label: 'Stall for Time',
+          cost: { resource: 'focus', amount: 20 },
+          log: 'You drink water. You wait. They eventually get impatient and accept a partial sample.',
+          effects: { suspicion: 10 },
+        },
+      ],
+      failureOutcome: {
+        log: 'REFUSAL TO TEST: Security escorts you to a holding cell. You are released hours later with a warning.',
+        effects: { suspicion: 40, sanity: -20, credits: -200 },
+      },
+    },
   ],
   accident: [
     {
@@ -293,6 +322,62 @@ export const eventsData: Record<string, EventTemplates[]> = {
     },
   ],
   incident: [
+    {
+      id: 'SUS_MEMO',
+      type: 'incident',
+      title: 'Suspicious Memo',
+      description:
+        "You find a memo on the floor. It details a shift rotation that doesn't exist. It mentions your name.",
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'read',
+          label: 'Read Carefully',
+          cost: { resource: 'sanity', amount: 5 },
+          log: 'The memo describes your movements yesterday perfectly. Down to the minute.',
+          effects: { sanity: -10, suspicion: 5 },
+        },
+        {
+          id: 'shred',
+          label: 'Shred It',
+          cost: { resource: 'focus', amount: 5 },
+          log: 'You shred the memo. As the paper strips fall, they look like worms.',
+          effects: { suspicion: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You left the memo on the desk. Someone else found it.',
+        effects: { suspicion: 15 },
+      },
+    },
+    {
+      id: 'OVERDUE_NDT_INSPECTION',
+      type: 'incident',
+      title: 'Overdue NDT Inspection',
+      description:
+        'Quality Control has flagged a repair you did last week. The NDT sign-off is missing.',
+      totalTime: 45000,
+      choices: [
+        {
+          id: 'perform',
+          label: 'Perform Scan Now',
+          cost: { resource: 'focus', amount: 25 },
+          log: 'You rush to the aircraft and perform the scan. The structure is sound.',
+          effects: { experience: 200, sanity: -5 },
+        },
+        {
+          id: 'forge',
+          label: 'Forge the Sign-off',
+          cost: { resource: 'sanity', amount: 15 },
+          log: 'You scribble a signature. It looks enough like yours.',
+          effects: { suspicion: 20 },
+        },
+      ],
+      failureOutcome: {
+        log: 'QC issues a formal reprimand for the missing inspection.',
+        effects: { suspicion: 15, credits: -100 },
+      },
+    },
     {
       id: 'LEAD_FAVOR',
       type: 'incident',
@@ -800,110 +885,76 @@ export const eventsData: Record<string, EventTemplates[]> = {
       totalTime: 45000,
       choices: [
         {
+          id: 'file',
+          label: 'File It Correctly',
+          cost: { resource: 'focus', amount: 15 },
+          log: 'You file it in the dead archive. As you slide the drawer shut, you hear a sigh of relief.',
+          effects: { experience: 300, sanity: 5 },
+        },
+        {
           id: 'read',
-          label: 'Read the File',
-          cost: { resource: 'sanity', amount: 15 },
-          log: 'The text shifts as you read it. It describes maintenance on a vessel that flies between stars. You gain forbidden knowledge.',
-          effects: { experience: 500, sanity: -20 },
-        },
-        {
-          id: 'burn',
-          label: 'Burn It',
-          cost: { resource: 'focus', amount: 10 },
-          log: 'You light the card on fire. It screams—a high pitched digital shriek—before turning to ash. You feel lighter.',
-          effects: { sanity: 5, suspicion: 5 },
-        },
-      ],
-      failureOutcome: {
-        log: "You held the card too long. The ink seemed to seep into your skin. You can't wash it off.",
-        effects: { sanity: -25, suspicion: 10 },
-      },
-    },
-    {
-      id: 'THE_ARCHIVIST',
-      type: 'eldritch_manifestation',
-      title: 'THE ARCHIVIST',
-      description:
-        'A figure in a heavy, dust-covered coat is rifling through your filing cabinets. They move with jerky, unnatural speed.',
-      totalTime: 30000,
-      choices: [
-        {
-          id: 'confront',
-          label: 'Confront the Intruder',
-          cost: { resource: 'focus', amount: 30 },
-          log: 'You shout. The figure snaps its head 180 degrees to look at you. Its face is a flat LCD screen displaying static. It vanishes in a burst of ozone.',
-          effects: { sanity: -30, suspicion: 10 },
-          storyFlag: { key: 'metArchivist', value: true },
-        },
-        {
-          id: 'hide',
-          label: 'Hide and Watch',
-          cost: { resource: 'sanity', amount: 5 },
-          log: "You watch as it pulls a specific file, 'eats' the paper, and then dissolves into the shadows. You check the cabinet: The '[REDACTED]' file is gone.",
-          effects: { experience: 300, suspicion: -5 },
-        },
-      ],
-      failureOutcome: {
-        log: "The figure turns to you, placing a finger to where its mouth should be. 'Shhh.' You black out.",
-        effects: { sanity: -50 },
-      },
-    },
-    {
-      id: 'TIMELINE_CORRUPTION',
-      type: 'eldritch_manifestation',
-      title: 'TIMELINE CORRUPTION',
-      description:
-        "The maintenance logs on your terminal are updating themselves. They show work being completed on aircraft that haven't been manufactured yet.",
-      totalTime: 60000,
-      choices: [
-        {
-          id: 'sync',
-          label: 'Sync with Reality',
-          cost: { resource: 'focus', amount: 50 },
-          log: 'You frantically manually override the system, forcing it back to the current date. The terminal smokes, but the data is corrected.',
-          effects: { experience: 600, credits: 100 },
-        },
-        {
-          id: 'observe',
-          label: 'Study the Future',
+          label: 'Read the History',
           cost: { resource: 'sanity', amount: 20 },
-          log: "You read the logs. You learn about the 'Great Silence' of 2030 and the new 'flesh-metal' alloys. Fascinating.",
-          effects: { experience: 1000, sanity: -40 },
+          log: "The maintenance history describes repairs to 'non-Euclidean geometry' and 'temporal leaks'.",
+          effects: { experience: 600, sanity: -20 },
         },
       ],
       failureOutcome: {
-        log: 'The future data overwrites your current work. You have lost hours of progress and your memories of the last shift are... wrong.',
-        effects: { sanity: -30, experience: -200 },
+        log: 'The file card burns your fingers and turns to ash.',
+        effects: { sanity: -5 },
+      },
+    },
+  ],
+  story_event: [
+    {
+      id: 'TRUTH_PROXIMATE_REVELATION',
+      type: 'story_event',
+      title: 'THE PATTERN EMERGES',
+      description:
+        'You have seen enough. The missing tools, the whispers in the fuselage, the figures on the mezzanine. It is not just incompetence or bad luck. It is a design.',
+      totalTime: 0, // Story events typically don't expire or have long timers
+      choices: [
+        {
+          id: 'acknowledge',
+          label: 'Acknowledge the Truth',
+          log: "You write it down in your personal log. 'They are feeding the machine.'",
+          effects: { sanity: -10, experience: 1000 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You try to deny it, but the truth is already in your blood.',
+        effects: { sanity: -20 },
       },
     },
     {
-      id: 'PAYPHONE_SUIT_OBSERVATION',
-      type: 'eldritch_manifestation',
-      title: 'The Listener',
+      id: 'TRUTH_REVEAL',
+      type: 'story_event',
+      title: 'THE HANGAR DOORS OPEN',
       description:
-        'As you hold the receiver, you realize the dial tone is matching your heartbeat. Across the terminal, a Suit lowers a newspaper and looks directly at you.',
-      totalTime: 30000,
+        'Level 49. The final shift. The main hangar doors are opening, but there is no runway outside. Only a swirling vortex of greyscale clouds and static.',
+      totalTime: 0,
       choices: [
         {
-          id: 'stare',
-          label: 'Stare Back',
-          cost: { resource: 'sanity', amount: 20 },
-          log: 'You lock eyes. You hear a high-pitched whine in the earpiece until your nose bleeds. The Suit nods and vanishes behind a pillar.',
-          effects: { experience: 500, sanity: -10 },
-          storyFlag: { key: 'payphoneSuit', value: true },
-        },
-        {
-          id: 'look_away',
-          label: 'Look Away',
-          cost: { resource: 'focus', amount: 10 },
-          log: 'You drop the phone and pretend to tie your shoe. When you look up, the seat is empty.',
-          effects: { suspicion: 5 },
+          id: 'witness',
+          label: 'Witness the End',
+          log: 'You stand on the apron line. The wind does not blow. The world is silent. You are ready.',
+          effects: { experience: 5000, sanity: -50 },
         },
       ],
       failureOutcome: {
-        log: "You were frozen in fear. The Suit walked right up to the glass and fogged it with his breath. It said 'RUN'.",
-        effects: { sanity: -40 },
+        log: 'The void consumes all.',
+        effects: { sanity: -100 },
       },
+    },
+    {
+      id: 'FOUND_PHOTO_EVENT',
+      type: 'story_event',
+      title: 'Anomalous Signal',
+      description:
+        "The line goes dead, but a dot-matrix printer in the corner starts screaming. It spits out a single page before jamming. It's a photograph.",
+      totalTime: 0,
+      choices: [],
+      failureOutcome: { log: 'The photo crumbles to dust.' },
     },
   ],
   canteen_incident: [
@@ -1017,91 +1068,93 @@ export const eventsData: Record<string, EventTemplates[]> = {
       },
     },
     {
-      id: 'CRYPTIC_WARNING',
-      type: 'canteen_incident',
-      title: "A Pilot's Warning",
+      id: 'THE_ARCHIVIST',
+      type: 'eldritch_manifestation',
+      title: 'THE ARCHIVIST',
       description:
-        "A pilot grabs your arm. His eyes are wide. 'Don't sign the log for tail number 709,' he hisses. 'It's not a plane.'",
-      totalTime: 20000,
+        'A figure in a heavy, dust-covered coat is rifling through your filing cabinets. They move with jerky, unnatural speed.',
+      totalTime: 30000,
       choices: [
         {
-          id: 'listen',
-          label: 'Ask for Details',
-          cost: { resource: 'sanity', amount: 10 },
-          log: "He tells you about the 'passengers' he saw. They had no faces. You wish you hadn't asked.",
-          effects: { experience: 400, sanity: -15 },
+          id: 'confront',
+          label: 'Confront the Intruder',
+          cost: { resource: 'focus', amount: 30 },
+          log: 'You shout. The figure snaps its head 180 degrees to look at you. Its face is a flat LCD screen displaying static. It vanishes in a burst of ozone.',
+          effects: { sanity: -30, suspicion: 10 },
+          storyFlag: { key: 'metArchivist', value: true },
         },
         {
-          id: 'shake_off',
-          label: 'Shake Him Off',
-          cost: { resource: 'focus', amount: 5 },
-          log: "You pull away. 'You're drunk,' you say. But you check the schedule for 709 anyway.",
-          effects: { suspicion: -5 },
-        },
-      ],
-      failureOutcome: {
-        log: 'He starts screaming. Security tackles him. As they drag him away, he locks eyes with you.',
-        effects: { sanity: -20 },
-      },
-    },
-    {
-      id: 'LOST_ITEM_RETURN',
-      type: 'canteen_incident',
-      title: 'Lost Property',
-      description:
-        "You find a briefcase left at a table. It has no tag, but it feels... heavy. And it's vibrating.",
-      totalTime: 25000,
-      choices: [
-        {
-          id: 'open',
-          label: 'Open It',
-          cost: { resource: 'sanity', amount: 20 },
-          log: 'Inside is a single, glowing geometric shape. It shifts as you look at it. You close the case, heart pounding.',
-          effects: { experience: 500, sanity: -30 },
-        },
-        {
-          id: 'turn_in',
-          label: 'Give to Security',
-          cost: { resource: 'focus', amount: 10 },
-          log: "The guard takes it with a pale face. 'We've been looking for this.' He hands you a reward.",
-          effects: { credits: 200, suspicion: -10 },
-        },
-      ],
-      failureOutcome: {
-        log: 'The briefcase vanishes when you look away. You feel a sudden sense of loss.',
-        effects: { sanity: -10 },
-      },
-    },
-    {
-      id: 'EASA_AUDIT_SURPRISE',
-      type: 'audit',
-      suitType: 'EASA_AUDITOR',
-      title: 'EASA Spot Check',
-      description:
-        'An EASA auditor was posing as a passenger. You just bumped into him. He wants to see your license. Now.',
-      totalTime: 40000,
-      choices: [
-        {
-          id: 'show_license',
-          label: 'Show EASA Part-66',
-          cost: { resource: 'focus', amount: 20 },
-          log: "You produce your license. He inspects it with a magnifying glass. 'Acceptable.'",
+          id: 'hide',
+          label: 'Hide and Watch',
+          cost: { resource: 'sanity', amount: 5 },
+          log: "You watch as it pulls a specific file, 'eats' the paper, and then dissolves into the shadows. You check the cabinet: The '[REDACTED]' file is gone.",
           effects: { experience: 300, suspicion: -5 },
         },
+      ],
+      failureOutcome: {
+        log: "The figure turns to you, placing a finger to where its mouth should be. 'Shhh.' You black out.",
+        effects: { sanity: -50 },
+      },
+    },
+    {
+      id: 'TIMELINE_CORRUPTION',
+      type: 'eldritch_manifestation',
+      title: 'TIMELINE CORRUPTION',
+      description:
+        "The maintenance logs on your terminal are updating themselves. They show work being completed on aircraft that haven't been manufactured yet.",
+      totalTime: 60000,
+      choices: [
         {
-          id: 'fumble',
-          label: 'Fumble',
-          cost: { resource: 'sanity', amount: 15 },
-          log: "You drop your papers. He sighs, noting your clumsiness. 'Unprofessional,' he mutters.",
-          effects: { suspicion: 10 },
+          id: 'sync',
+          label: 'Sync with Reality',
+          cost: { resource: 'focus', amount: 50 },
+          log: 'You frantically manually override the system, forcing it back to the current date. The terminal smokes, but the data is corrected.',
+          effects: { experience: 600, credits: 100 },
+        },
+        {
+          id: 'observe',
+          label: 'Study the Future',
+          cost: { resource: 'sanity', amount: 20 },
+          log: "You read the logs. You learn about the 'Great Silence' of 2030 and the new 'flesh-metal' alloys. Fascinating.",
+          effects: { experience: 1000, sanity: -40 },
         },
       ],
       failureOutcome: {
-        log: "You couldn't produce your license in time. 'Grounded,' he says. A formal complaint is filed.",
-        effects: { credits: -300, suspicion: 40 },
+        log: 'The future data overwrites your current work. You have lost hours of progress and your memories of the last shift are... wrong.',
+        effects: { sanity: -30, experience: -200 },
+      },
+    },
+    {
+      id: 'PAYPHONE_SUIT_OBSERVATION',
+      type: 'eldritch_manifestation',
+      title: 'The Listener',
+      description:
+        'As you hold the receiver, you realize the dial tone is matching your heartbeat. Across the terminal, a Suit lowers a newspaper and looks directly at you.',
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'stare',
+          label: 'Stare Back',
+          cost: { resource: 'sanity', amount: 20 },
+          log: 'You lock eyes. You hear a high-pitched whine in the earpiece until your nose bleeds. The Suit nods and vanishes behind a pillar.',
+          effects: { experience: 500, sanity: -10 },
+          storyFlag: { key: 'payphoneSuit', value: true },
+        },
+        {
+          id: 'look_away',
+          label: 'Look Away',
+          cost: { resource: 'focus', amount: 10 },
+          log: 'You drop the phone and pretend to tie your shoe. When you look up, the seat is empty.',
+          effects: { suspicion: 5 },
+        },
+      ],
+      failureOutcome: {
+        log: "You were frozen in fear. The Suit walked right up to the glass and fogged it with his breath. It said 'RUN'.",
+        effects: { sanity: -40 },
       },
     },
   ],
+
   component_failure: [
     {
       id: 'BASE_FAILURE',
