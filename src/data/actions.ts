@@ -204,29 +204,8 @@ export const actionsData: Record<string, ActionDefinition> = {
       logType: 'warning',
     },
   },
-  REVIEW_SURVEILLANCE_LOGS: {
-    id: 'REVIEW_SURVEILLANCE_LOGS',
-    baseCost: { focus: 50 },
-    effects: [
-      {
-        chance: 0.15,
-        log: ACTION_LOGS.REVIEW_SURVEILLANCE_CAUGHT,
-        logType: 'error',
-        eventTrigger: 'AUDIT_INTERNAL',
-      },
-      {
-        chance: 0.4,
-        log: ACTION_LOGS.REVIEW_SURVEILLANCE_SUCCESS,
-        logType: 'vibration',
-        resourceModifiers: { sanity: -15, experience: 500 },
-      },
-    ],
-    failureEffect: {
-      chance: 1.0,
-      log: ACTION_LOGS.REVIEW_SURVEILLANCE_NOTHING,
-      logType: 'info',
-    },
-  },
+  // REVIEW_SURVEILLANCE_LOGS moved to actionProcessor.ts for complex logic
+
   DEEP_CLEAN_VENTS: {
     id: 'DEEP_CLEAN_VENTS',
     baseCost: { focus: 15 },

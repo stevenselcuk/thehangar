@@ -127,6 +127,42 @@ export const processTick = (
         }
       }
     }
+
+    // 3. New KARDEX Passive Triggers
+
+    // Method 3: Reality Breakdown
+    if (nextRes.sanity < 20 && Math.random() < 0.0005 * (delta / 1000)) {
+      triggerEvent('eldritch_manifestation', 'TIMELINE_CORRUPTION');
+    }
+
+    // Audit Encounters (The Suits)
+    // Check every 10 ticks approx, or use random chance directly scaled by delta
+    // Condition: suspicion > 30 OR random < 0.01 per second
+    if (nextRes.suspicion > 30 || Math.random() < 0.01) {
+      // Very low chance per tick, scaled.
+      // Original plan: tick % 1000 === 0. We don't track 'tick' counter here easily without state,
+      // so using random chance per second: 0.0005 per sec (approx once every 30 mins game time)
+      if (Math.random() < 0.0005 * (delta / 1000)) {
+        triggerEvent('audit', 'AUDIT_INTERNAL_SUITS_1');
+      }
+    }
+
+    // Canteen/Vending Incidents
+    if (activeTab === TabType.CANTEEN && Math.random() < 0.002 * (delta / 1000)) {
+      triggerEvent('canteen_incident', 'CANTEEN_VENDING_PROPHECY');
+    }
+
+    // Toolroom Sacrifices
+    // Check if any tool is broken (< 20 condition)
+    const brokenTool = Object.entries(nextTools).find(([_, condition]) => condition < 20);
+    if (brokenTool && Math.random() < 0.001 * (delta / 1000)) {
+      triggerEvent('incident', 'INCIDENT_TOOLROOM_DEMAND');
+    }
+
+    // Training & Indoctrination
+    if (nextHF.trainingProgress < 20 && Math.random() < 0.0005 * (delta / 1000)) {
+      triggerEvent('incident', 'INCIDENT_TRAINING_MODULE');
+    }
   }
 
   // 3. Mental State & Debuff Processing
