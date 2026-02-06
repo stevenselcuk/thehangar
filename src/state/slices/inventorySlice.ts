@@ -69,6 +69,7 @@ export type InventoryAction =
   | { type: 'DISPOSE_ROTABLE'; payload: { rotableId: string } }
   | { type: 'REPAIR_ROTABLE'; payload: { rotableId: string } }
   | { type: 'GET_TOOLROOM_ITEM'; payload: { key: string; label: string; pn: string } }
+  | { type: 'RETURN_TOOLROOM_ITEM'; payload: { key: string; label: string } }
   | {
       type: 'DISPENSE_CONSUMABLE';
       payload: { id: string; label: string; unit: string; cost: number };
@@ -221,6 +222,25 @@ export const inventoryReducer = produce((draft: InventorySliceState, action: Inv
         (draft.inventory as unknown as Record<string, unknown>)[key] = true;
         draft.toolConditions[key] = 100;
         addLog(`CHECK-OUT: ${label}. (P/N: ${pn}). Master signed the tag.`, 'info');
+      }
+      break;
+    }
+
+    case 'RETURN_TOOLROOM_ITEM': {
+      const { key, label } = action.payload;
+
+      if (draft.toolroom.status !== 'OPEN') {
+        addLog(`Toolroom is ${draft.toolroom.status}. Cannot return tools.`, 'warning');
+        return;
+      }
+
+      if (key && (draft.inventory as unknown as Record<string, unknown>)[key]) {
+        // Remove from inventory
+        delete (draft.inventory as unknown as Record<string, unknown>)[key];
+        // We don't necessarily need to delete from toolConditions as checkout resets it to 100
+        addLog(`RETURNED: ${label}. Tag cleared.`, 'info');
+      } else {
+        addLog(`Error: You don't have ${label} to return.`, 'error');
       }
       break;
     }

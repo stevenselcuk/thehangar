@@ -87,7 +87,7 @@ const TrainingTab: React.FC<{
         {!inv.apWrittenPassed ? (
           <ActionButton
             label={trainingData.faaLicense.written.label}
-            onClick={() => onAction('TAKE_AP_EXAM', trainingData.faaLicense.written)}
+            onClick={() => onAction('TAKE_AP_WRITTEN')}
             description={trainingData.faaLicense.written.description}
             cost={{ label: 'CR', value: trainingData.faaLicense.written.costCredits }}
             disabled={
@@ -203,7 +203,7 @@ const TrainingTab: React.FC<{
           <>
             <ActionButton
               label="Sit Next EASA Module Exam"
-              onClick={() => onAction('TAKE_EASA_EXAM')}
+              onClick={() => onAction('START_EASA_MODULE')}
               description={`Take the exam for the next required module. Cost is per attempt.`}
               cost={{ label: 'CR', value: trainingData.easaLicense.examCost.costCredits }}
               disabled={res.credits < trainingData.easaLicense.examCost.costCredits}
