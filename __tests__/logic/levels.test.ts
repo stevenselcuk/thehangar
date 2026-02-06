@@ -5,25 +5,25 @@ describe('levels', () => {
   describe('getXpForNextLevel', () => {
     it('should calculate XP for level 1', () => {
       const xp = getXpForNextLevel(1);
-      expect(xp).toBe(1000); // 1000 * 1^1.5 = 1000
+      expect(xp).toBe(1000); // 500 * (1 + 1) = 1000
     });
 
     it('should calculate XP for level 2', () => {
       const xp = getXpForNextLevel(2);
-      expect(xp).toBe(2828); // 1000 * 2^1.5 ≈ 2828
+      expect(xp).toBe(1500); // 500 * (2 + 1) = 1500
     });
 
     it('should calculate XP for level 5', () => {
       const xp = getXpForNextLevel(5);
-      expect(xp).toBe(11180); // 1000 * 5^1.5 ≈ 11180
+      expect(xp).toBe(3000); // 500 * (5 + 1) = 3000
     });
 
     it('should calculate XP for level 10', () => {
       const xp = getXpForNextLevel(10);
-      expect(xp).toBe(31622); // 1000 * 10^1.5 ≈ 31622
+      expect(xp).toBe(5500); // 500 * (10 + 1) = 5500
     });
 
-    it('should be exponentially increasing', () => {
+    it('should be linearly increasing', () => {
       const xp1 = getXpForNextLevel(1);
       const xp2 = getXpForNextLevel(2);
       const xp5 = getXpForNextLevel(5);
@@ -33,11 +33,6 @@ describe('levels', () => {
       expect(xp2).toBeGreaterThan(xp1);
       expect(xp5).toBeGreaterThan(xp2);
       expect(xp10).toBeGreaterThan(xp5);
-
-      // Growth rate increases (exponential)
-      const growth2to5 = xp5 - xp2;
-      const growth5to10 = xp10 - xp5;
-      expect(growth5to10).toBeGreaterThan(growth2to5);
     });
 
     it('should return integer values', () => {
@@ -49,18 +44,18 @@ describe('levels', () => {
 
     it('should handle level 0', () => {
       const xp = getXpForNextLevel(0);
-      expect(xp).toBe(0); // 1000 * 0^1.5 = 0
+      expect(xp).toBe(500); // 500 * (0 + 1) = 500
     });
 
     it('should handle high levels', () => {
       const xp50 = getXpForNextLevel(50);
-      expect(xp50).toBeGreaterThan(100000);
+      expect(xp50).toBe(25500); // 500 * 51
       expect(Number.isFinite(xp50)).toBe(true);
     });
 
-    it('should match exponential formula 1000 * level^1.5', () => {
+    it('should match linear formula 500 * (level + 1)', () => {
       for (let level = 1; level <= 10; level++) {
-        const expected = Math.floor(1000 * Math.pow(level, 1.5));
+        const expected = 500 * (level + 1);
         const actual = getXpForNextLevel(level);
         expect(actual).toBe(expected);
       }
@@ -216,8 +211,8 @@ describe('levels', () => {
         expect(xpByLevel[i]).toBeGreaterThan(xpByLevel[i - 1]);
       }
 
-      // Total XP to reach level 10 should be substantial (actual is ~142k)
-      expect(totalXP).toBeGreaterThan(140000);
+      // Total XP to reach level 10 should be substantial (actual is 32,500 with linear)
+      expect(totalXP).toBeGreaterThan(30000);
     });
 
     it('should have appropriate log message transitions', () => {
