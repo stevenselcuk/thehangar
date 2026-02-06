@@ -31,6 +31,8 @@ describe('Performance Benchmark: Mail Filtering', () => {
 
     it('benchmarks nested loop vs Set lookup', () => {
         const iterations = 200;
+        let totalFoundCurrent = 0;
+        let totalFoundOptimized = 0;
 
         // 1. Current Implementation
         const startCurrent = performance.now();
@@ -38,6 +40,7 @@ describe('Performance Benchmark: Mail Filtering', () => {
              const availableMail = mailData.filter(
                 (m) => !existingMail.some((existing) => existing.subject === m.subject)
             );
+            totalFoundCurrent += availableMail.length;
         }
         const endCurrent = performance.now();
         const timeCurrent = endCurrent - startCurrent;
@@ -50,6 +53,7 @@ describe('Performance Benchmark: Mail Filtering', () => {
              const availableMail = mailData.filter(
                 (m) => !existingSubjects.has(m.subject)
              );
+             totalFoundOptimized += availableMail.length;
         }
         const endOptimized = performance.now();
         const timeOptimized = endOptimized - startOptimized;
@@ -60,6 +64,6 @@ describe('Performance Benchmark: Mail Filtering', () => {
         console.log(`Current (Nested Loop): ${timeCurrent.toFixed(2)}ms`);
         console.log(`Optimized (Set): ${timeOptimized.toFixed(2)}ms`);
         console.log(`Improvement: ${(timeCurrent / timeOptimized).toFixed(2)}x`);
-
+        console.log(`Total Found (Check): ${totalFoundCurrent} vs ${totalFoundOptimized}`);
     });
 });
