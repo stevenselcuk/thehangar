@@ -189,6 +189,12 @@ export const ACTION_FEATURES: Record<string, FeatureDefinition> = {
     requiredLevel: 49,
     description: 'Madness ending - perhaps it was you all along',
   },
+  // Violation Management
+  CLEAR_CACHE: { id: 'CLEAR_CACHE', type: 'action', requiredLevel: 0 },
+  APPEAL_VIOLATION: { id: 'APPEAL_VIOLATION', type: 'action', requiredLevel: 0 },
+  BRIBE_SYSADMIN: { id: 'BRIBE_SYSADMIN', type: 'action', requiredLevel: 0 },
+  FORCE_OVERRIDE: { id: 'FORCE_OVERRIDE', type: 'action', requiredLevel: 0 },
+  ACCEPT_REEDUCATION: { id: 'ACCEPT_REEDUCATION', type: 'action', requiredLevel: 0 },
 };
 
 /**

@@ -354,6 +354,7 @@ export interface GameStats {
   rotablesRepaired: number;
   rotablesScavenged: number;
   eventsResolved: number;
+  accessViolations: number;
 }
 
 export interface TimeState {

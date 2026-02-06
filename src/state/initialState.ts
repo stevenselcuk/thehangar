@@ -208,6 +208,7 @@ export const createInitialState = (): GameState => ({
     rotablesRepaired: 0,
     rotablesScavenged: 0,
     eventsResolved: 0,
+    accessViolations: 0,
   },
   archiveTerminal: {
     output: [

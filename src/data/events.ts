@@ -284,6 +284,64 @@ export const eventsData: Record<string, EventTemplates[]> = {
         effects: { suspicion: 40, sanity: -20, credits: -200 },
       },
     },
+    {
+      id: 'SECURITY_VIOLATION_SCAN',
+      type: 'audit',
+      suitType: 'INTERNAL_SECURITY',
+      title: 'TARGETED SECURITY SCAN',
+      description:
+        'Your recent activity has triggered a level 3 security response. Systems are being locked down for analysis.',
+      totalTime: 45000,
+      choices: [
+        {
+          id: 'purge',
+          label: 'Purge Local Cache',
+          cost: { resource: 'focus', amount: 30 },
+          log: 'You purge the terminal cache just as the scan hits. They find nothing but empty sectors.',
+          effects: { suspicion: -5 },
+        },
+        {
+          id: 'wait',
+          label: 'Wait it Out',
+          cost: { resource: 'sanity', amount: 15 },
+          log: 'The scan crawls over your screen like a spider. It flags several "questionable" queries.',
+          effects: { suspicion: 15 },
+        },
+      ],
+      failureOutcome: {
+        log: 'SCAN COMPLETE. MULTIPLE VIOLATIONS DETECTED. FINES APPLIED.',
+        effects: { credits: -300, suspicion: 25 },
+      },
+    },
+    {
+      id: 'SUIT_INTERROGATION',
+      type: 'audit',
+      suitType: 'THE_SUITS',
+      title: 'MANDATORY INTERVIEW',
+      description:
+        'They are waiting for you in the break room. They know how many times you tried to access the restricted files. They want to know why.',
+      totalTime: 60000,
+      choices: [
+        {
+          id: 'truth',
+          label: 'Tell a Partial Truth',
+          cost: { resource: 'sanity', amount: 30 },
+          log: 'You admit to "curiosity". They stare at you without blinking for a full minute. Then they leave.',
+          effects: { suspicion: 5, experience: 500 },
+        },
+        {
+          id: 'lie',
+          label: 'Deny Everything',
+          cost: { resource: 'focus', amount: 40 },
+          log: 'You construct a complex lie about system glitches. They seem to buy it, but they take notes.',
+          effects: { suspicion: 10 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You broke under the silence. You told them everything. They smiled.',
+        effects: { sanity: -50, suspicion: 50 },
+      },
+    },
   ],
   accident: [
     {

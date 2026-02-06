@@ -1,6 +1,7 @@
 import { produce } from 'immer';
-import { isActionUnlocked } from '../services/LevelManager.ts';
-import { GameState, TabType } from '../types.ts';
+import { eventsData } from '../data/events.ts';
+import { getLockedFeatureMessage, isActionUnlocked } from '../services/LevelManager.ts';
+import { GameEvent, GameState, TabType } from '../types.ts';
 import { AircraftAction, aircraftReducer } from './slices/aircraftSlice.ts';
 import { aogReducer } from './slices/aogSlice.ts';
 import { BackshopAction, backshopReducer } from './slices/backshopSlice.ts';
@@ -401,10 +402,94 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
   ];
 
   if (!systemActions.includes(action.type) && !isActionUnlocked(action.type, state)) {
-    // Action is locked - return state unchanged
-    // Note: UI should prevent this from being called, this is a safety check
+    // Action is locked - return state unchanged but add notification
+    // Note: UI should prevent this from being called, this is a safety check and feedback mechanism
     console.warn(`[LevelManager] Action '${action.type}' blocked - player level too low`);
-    return state;
+
+    return produce(state, (draft) => {
+      const message = getLockedFeatureMessage('action', action.type, state);
+
+      // Increment access violations
+      if (draft.stats.accessViolations === undefined) {
+        draft.stats.accessViolations = 0;
+      }
+      draft.stats.accessViolations += 1;
+      const violations = draft.stats.accessViolations;
+
+      // Add toast notification
+      draft.notificationQueue.push({
+        id: `blocked-${action.type}-${Date.now()}`,
+        title: 'ACCESS DENIED',
+        message: message,
+        variant: 'danger',
+        duration: 4000,
+      });
+
+      // Consequence Logic
+      // 1. Logs
+      if (violations === 3) {
+        draft.logs.unshift({
+          id: `violation-${Date.now()}`,
+          text: 'SYSTEM ALERT: Repeated unauthorized access attempts detected. This incident has been logged.',
+          type: 'warning',
+          timestamp: Date.now(),
+        });
+      } else if (violations === 5) {
+        draft.logs.unshift({
+          id: `violation-${Date.now()}`,
+          text: 'SECURITY NOTICE: Your terminal ID has been flagged for suspicious activity. Cease attempts immediately.',
+          type: 'error',
+          timestamp: Date.now(),
+        });
+      } else if (violations === 8) {
+        draft.logs.unshift({
+          id: `violation-${Date.now()}`,
+          text: 'Intrusion protocols initializing. Trace program active. They are watching.',
+          type: 'vibration',
+          timestamp: Date.now(),
+        });
+        draft.resources.suspicion += 5;
+      } else if (violations === 15) {
+        draft.logs.unshift({
+          id: `violation-${Date.now()}`,
+          text: "*** CRITICAL VIOLATION *** Pattern analysis complete. User profile matches 'SUBVERSIVE ELEMENT'. Dispatching response.",
+          type: 'error',
+          timestamp: Date.now(),
+        });
+        draft.resources.suspicion += 10;
+        draft.resources.sanity -= 5;
+      } else if (violations === 20) {
+        draft.logs.unshift({
+          id: `violation-${Date.now()}`,
+          text: "There is a knock at the door. It's too specific to be random. Don't answer it.",
+          type: 'story',
+          timestamp: Date.now(),
+        });
+        draft.resources.sanity -= 10;
+      }
+
+      const tryTriggerEvent = (eventId: string) => {
+        if (!draft.activeEvent) {
+          // Flatten eventsData to find the event
+          const allEvents = Object.values(eventsData).flat() as GameEvent[];
+          const event = allEvents.find((e) => e.id === eventId);
+          if (event) {
+            draft.activeEvent = {
+              ...event,
+              timeLeft: event.totalTime,
+              // Ensure suitType is set if missing (default to NONE or leave undefined if optional)
+            } as typeof draft.activeEvent;
+            draft.eventTimestamps[eventId] = Date.now();
+          }
+        }
+      };
+
+      if (violations === 10) {
+        tryTriggerEvent('SECURITY_VIOLATION_SCAN');
+      } else if (violations === 20) {
+        tryTriggerEvent('SUIT_INTERROGATION');
+      }
+    });
   }
 
   // Route resource actions to resourcesSlice

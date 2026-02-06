@@ -560,4 +560,100 @@ export const actionsData: Record<string, ActionDefinition> = {
       },
     ],
   },
+  // Access Violation Actions
+  CLEAR_CACHE: {
+    id: 'CLEAR_CACHE',
+    label: 'Purge Terminal Cache',
+    baseCost: { focus: 40 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You wipe the event logs. The "Access Denied" counters reset to zero.',
+        logType: 'info',
+        customEffect: (state) => ({
+          stats: {
+            ...state.stats,
+            accessViolations: 0,
+          },
+        }),
+      },
+    ],
+  },
+  APPEAL_VIOLATION: {
+    id: 'APPEAL_VIOLATION',
+    label: 'Appeal Security Violation',
+    baseCost: { focus: 20, sanity: 10 },
+    effects: [
+      {
+        chance: 0.3,
+        log: 'Appeal Review: APPROVED. The flag on your file has been removed as a "glitch".',
+        logType: 'info',
+        resourceModifiers: { suspicion: -10 },
+      },
+      {
+        chance: 0.7,
+        log: 'Appeal Review: DENIED. "Frivolous appeals will be noted."',
+        logType: 'warning',
+        resourceModifiers: { suspicion: 5 },
+      },
+    ],
+  },
+  BRIBE_SYSADMIN: {
+    id: 'BRIBE_SYSADMIN',
+    label: 'Bribe SysAdmin',
+    baseCost: { credits: 200 },
+    effects: [
+      {
+        chance: 0.8,
+        log: 'Money changes hands. Your violation count disappears.',
+        logType: 'story',
+        resourceModifiers: { suspicion: -5 },
+        customEffect: (state) => ({
+          stats: { ...state.stats, accessViolations: 0 },
+        }),
+      },
+      {
+        chance: 0.2,
+        log: 'He takes the money but reports you anyway.',
+        logType: 'error',
+        resourceModifiers: { credits: -200, suspicion: 20 },
+      },
+    ],
+  },
+  FORCE_OVERRIDE: {
+    id: 'FORCE_OVERRIDE',
+    label: 'Force System Override',
+    baseCost: { focus: 50, sanity: 20 },
+    effects: [
+      {
+        chance: 0.1,
+        log: 'OVERRIDE SUCCESSFUL. You bypassed the lock momentarily... but at what cost?',
+        logType: 'story',
+        resourceModifiers: { experience: 1000, suspicion: 50 },
+        flagModifiers: { underSurveillance: true },
+      },
+      {
+        chance: 0.9,
+        log: 'OVERRIDE FAILED. The system screams at you.',
+        logType: 'error',
+        resourceModifiers: { sanity: -10, suspicion: 10 },
+      },
+    ],
+  },
+  ACCEPT_REEDUCATION: {
+    id: 'ACCEPT_REEDUCATION',
+    label: 'Request Re-Education',
+    baseCost: {},
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You sit in the chair. The screen flashes lights. You feel better. You feel compliant.',
+        logType: 'story',
+        resourceModifiers: { sanity: 100, suspicion: -50, experience: -500 },
+        customEffect: (state) => ({
+          stats: { ...state.stats, accessViolations: 0 },
+        }),
+      },
+    ],
+  },
 };
