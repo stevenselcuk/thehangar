@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => {
         pattern: /(_build_)(\d+)/g,
       }),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png'],
         manifest: {
           name: 'The Hangar',
