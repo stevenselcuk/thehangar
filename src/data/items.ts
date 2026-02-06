@@ -200,6 +200,18 @@ export const itemsData: Record<string, Item[]> = {
         madness: 'Round is not a shape. It is a trap. The wheels must not turn.',
       },
     },
+    {
+      id: 'wrench',
+      label: '10mm Wrench',
+      cost: 30,
+      category: 'tool',
+      pn: 'TOOL-10MM',
+      description: {
+        normal: 'A standard 10mm wrench. Essential.',
+        unsettled: 'It feels heavier than it should.',
+        madness: 'I can use this to unbolt the sky.',
+      },
+    },
   ],
   toolroom: [
     {
@@ -330,6 +342,18 @@ export const itemsData: Record<string, Item[]> = {
         madness: 'I hear them better when I wear them. They are inside the cups.',
       },
     },
+    {
+      id: 'canned_tuna',
+      label: 'Canned Tuna',
+      cost: 5,
+      unit: 'Can',
+      pn: 'FOOD-TUNA',
+      description: {
+        normal: 'A can of tuna. Good for protein.',
+        unsettled: 'The expiration date is in the future.',
+        madness: 'It smells like the ocean on a planet that died.',
+      },
+    },
   ],
   carried: [
     {
@@ -366,6 +390,17 @@ export const itemsData: Record<string, Item[]> = {
         normal: 'Brushed steel lighter.',
         unsettled: 'The flame is cold.',
         madness: 'I see faces in the fire. They are screaming.',
+      },
+    },
+    {
+      id: 'pcAssembled',
+      label: 'Assembled PC',
+      category: 'carried',
+      pn: 'PC-WX-XP',
+      description: {
+        normal: 'A functional workstation running Windows XP.',
+        unsettled: "The screen flickers with images of a hangar that doesn't exist.",
+        madness: 'It knows my search history from before I was born.',
       },
     },
   ],
@@ -459,28 +494,6 @@ export const itemsData: Record<string, Item[]> = {
         normal: 'A heavy, perfectly smooth sphere. It feels warm.',
         unsettled: 'It vibrates slightly when I hold it. Is it... purring?',
         madness: 'It speaks to me in geometry. I must bring it to the end.',
-      },
-    },
-    {
-      id: 'wrench',
-      label: '10mm Wrench',
-      pn: 'TOOL-10MM',
-      category: 'tool',
-      description: {
-        normal: 'A standard 10mm wrench. Essential.',
-        unsettled: 'It feels heavier than it should.',
-        madness: 'I can use this to unbolt the sky.',
-      },
-    },
-    {
-      id: 'canned_tuna',
-      label: 'Canned Tuna',
-      pn: 'FOOD-TUNA',
-      category: 'consumable',
-      description: {
-        normal: 'A can of tuna. Good for protein.',
-        unsettled: 'The expiration date is in the future.',
-        madness: 'It smells like the ocean on a planet that died.',
       },
     },
   ],

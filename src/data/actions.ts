@@ -26,6 +26,124 @@ export interface ActionDefinition {
 }
 
 export const actionsData: Record<string, ActionDefinition> = {
+  MARSHALLING: {
+    id: 'MARSHALLING',
+    label: 'Marshal Aircraft',
+    baseCost: { focus: 15 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You guide the aircraft with precise hand signals. The pilots follow your commands.',
+        logType: 'info',
+        resourceModifiers: { experience: 100, credits: 50 },
+      },
+    ],
+  },
+  CREATE_SRF: {
+    id: 'CREATE_SRF',
+    label: 'Create Service Request',
+    baseCost: { focus: 20 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You file a Service Request Form. The paperwork is accepted.',
+        logType: 'info',
+        resourceModifiers: { experience: 150, credits: 75 },
+      },
+    ],
+  },
+  INSTALL_RIVETS: {
+    id: 'INSTALL_RIVETS',
+    label: 'Install Structural Rivets',
+    baseCost: { focus: 25 },
+    requiredItems: ['rivetGun'],
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You install the rivets. The metal holds. For now.',
+        logType: 'info',
+        resourceModifiers: { experience: 200 },
+      },
+    ],
+  },
+  HARVEST_ROTABLE: {
+    id: 'HARVEST_ROTABLE',
+    label: 'Scavenge Component',
+    baseCost: { focus: 30 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You carefully remove a serviceable component. It might be useful.',
+        logType: 'story',
+        resourceModifiers: { experience: 250 },
+      },
+    ],
+  },
+  USE_PAYPHONE: {
+    id: 'USE_PAYPHONE',
+    label: 'Use Payphone',
+    baseCost: { credits: 5 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'The dial tone hums. You listen for messages in the static.',
+        logType: 'info',
+        resourceModifiers: { experience: 50 },
+      },
+    ],
+  },
+  PERFORMANCE_REVIEW: {
+    id: 'PERFORMANCE_REVIEW',
+    label: 'Attend Performance Review',
+    baseCost: { sanity: 20 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'The HR representative stares at you without blinking. "Your compliance is... adequate."',
+        logType: 'vibration',
+        resourceModifiers: { experience: 500, suspicion: -10 },
+      },
+    ],
+  },
+  START_EASA_MODULE: {
+    id: 'START_EASA_MODULE',
+    label: 'Start EASA Module',
+    baseCost: { focus: 50 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You begin the study module. The regulations are written in a font that hurts your eyes.',
+        logType: 'info',
+        resourceModifiers: { experience: 100 },
+      },
+    ],
+  },
+  TAKE_AP_WRITTEN: {
+    id: 'TAKE_AP_WRITTEN',
+    label: 'Take A&P Written Exam',
+    baseCost: { credits: 150, focus: 50 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You sit for the exam. The questions seem to change when you look away.',
+        logType: 'story',
+        resourceModifiers: { experience: 1000 },
+      },
+    ],
+  },
+  ANALYZE_ANOMALY: {
+    id: 'ANALYZE_ANOMALY',
+    label: 'Analyze Anomaly',
+    baseCost: { focus: 60, sanity: 30 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You dismantle the component. It bleeds oil.',
+        logType: 'vibration',
+        resourceModifiers: { experience: 800 },
+      },
+    ],
+  },
   INSPECT_VENDING_MACHINE: {
     id: 'INSPECT_VENDING_MACHINE',
     baseCost: { focus: 10 },
@@ -656,7 +774,7 @@ export const actionsData: Record<string, ActionDefinition> = {
         chance: 0.2,
         log: 'MATCH FOUND: The digital record links to a physical card stained with... something dry and brown.',
         logType: 'story',
-        resourceModifiers: { experience: 350, sanity: -5 },
+        resourceModifiers: { experience: 350, sanity: -5, kardexFragments: 1 },
       },
       {
         chance: 0.8,

@@ -340,10 +340,10 @@ const ActionPanel: React.FC<{
             <div className="grid grid-cols-2 gap-4">
               <ActionButton
                 label="Install Rivets"
-                onClick={() => onAction('TIGHTEN_BOLT')}
+                onClick={() => onAction('INSTALL_RIVETS')}
                 cooldown={400}
-                cost={{ label: 'FOCUS', value: 3 }}
-                disabled={state.resources.focus < 3}
+                cost={{ label: 'FOCUS', value: 25 }}
+                disabled={state.resources.focus < 25}
                 {...getLockedProps('INSTALL_RIVETS')}
               />
               <ActionButton
@@ -740,6 +740,13 @@ const ActionPanel: React.FC<{
                 General Ramp Actions
               </h4>
               <div className="grid grid-cols-2 gap-3">
+                <ActionButton
+                  label="Marshal Aircraft"
+                  onClick={() => onAction('MARSHALLING')}
+                  cost={{ label: 'FOCUS', value: 15 }}
+                  description="Guide aircraft to parking. Precision required."
+                  {...getLockedProps('MARSHALLING')}
+                />
                 <ActionButton
                   label="Apron FOD Sweep"
                   onClick={() => onAction('FOD_SWEEP')}

@@ -26,8 +26,10 @@ export type ProficiencyAction =
       type: 'TAKE_AP_EXAM';
       payload: { id: string };
     }
+  | { type: 'TAKE_AP_WRITTEN'; payload: Record<string, never> }
   | { type: 'TAKE_AVIONICS_EXAM'; payload: Record<string, never> }
   | { type: 'TAKE_EASA_EXAM'; payload: Record<string, never> }
+  | { type: 'START_EASA_MODULE'; payload: Record<string, never> }
   | { type: 'CERTIFY_EASA_LICENSE'; payload: Record<string, never> }
   | {
       type: 'TAKE_NDT_EXAM';
@@ -52,8 +54,10 @@ export type ProficiencyAction =
 export const PROFICIENCY_ACTIONS = [
   'TAKE_MANDATORY_COURSE',
   'TAKE_AP_EXAM',
+  'TAKE_AP_WRITTEN',
   'TAKE_AVIONICS_EXAM',
   'TAKE_EASA_EXAM',
+  'START_EASA_MODULE',
   'CERTIFY_EASA_LICENSE',
   'TAKE_NDT_EXAM',
   'TAKE_NDT_SUBTASK_EXAM',
@@ -153,6 +157,18 @@ export const proficiencyReducer = produce(
         break;
       }
 
+      case 'TAKE_AP_WRITTEN': {
+        const examData = trainingData.faaLicense.written;
+        draft.resources.credits -= examData.costCredits;
+        draft.resources.experience += examData.rewardXp;
+        draft.inventory.apWrittenPassed = true;
+        addLog(
+          'FAA EXAM PASSED: You have successfully passed the A&P Written Examination.',
+          'levelup'
+        );
+        break;
+      }
+
       case 'TAKE_AVIONICS_EXAM': {
         draft.resources.credits -= trainingData.faaLicense.avionics.costCredits;
         draft.resources.experience += trainingData.faaLicense.avionics.rewardXp;
@@ -161,7 +177,8 @@ export const proficiencyReducer = produce(
         break;
       }
 
-      case 'TAKE_EASA_EXAM': {
+      case 'TAKE_EASA_EXAM':
+      case 'START_EASA_MODULE': {
         draft.resources.credits -= trainingData.easaLicense.examCost.costCredits;
 
         const nextModule = getNextEasaModule(draft);
