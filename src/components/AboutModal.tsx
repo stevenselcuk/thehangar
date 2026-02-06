@@ -504,7 +504,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_53}';
+  const BUILD_NUMBER = 'Build v.{_build_54}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');

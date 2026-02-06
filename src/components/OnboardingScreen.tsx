@@ -255,7 +255,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ dispatch }) => {
                 type="text"
                 value={signature}
                 onChange={(e) => setSignature(e.target.value)}
-                placeholder="Type name..."
+                placeholder="Your initials here..."
                 disabled={isTyping}
                 className="bg-black border border-emerald-700 text-emerald-400 px-3 py-2 w-48 focus:outline-none focus:border-emerald-500"
               />
