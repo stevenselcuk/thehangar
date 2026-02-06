@@ -11,14 +11,6 @@ import { midGameState } from '../fixtures/gameStates';
 // So we should verify if SoundProvider can run in JSDOM or if we mock the useSound hook.
 // The error says "useSound must be used within a SoundProvider", implying the hook is running but context is missing.
 
-// Let's mock the Audio object for JSDOM first
-global.Audio = vi.fn().mockImplementation(() => ({
-  play: vi.fn().mockResolvedValue(undefined),
-  pause: vi.fn(),
-  volume: 1,
-  currentTime: 0,
-}));
-
 // We can wrap with the actual provider
 const renderWithProviders = (ui: React.ReactElement) => {
   return render(<SoundProvider>{ui}</SoundProvider>);
