@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { processTick } from '../../logic/tickLogic';
 import { composeAction, composeTick } from '../reducerComposer';
-import { gameReducer } from '../gameReducer';
+import { gameReducer, GameReducerAction } from '../gameReducer';
 import { GameState } from '../../types';
 
 // Mock dependencies
@@ -206,7 +206,7 @@ describe('gameReducer', () => {
         const action = {
             type: 'UPDATE_INVENTORY',
             payload: { 'test-item': { id: 'test-item', name: 'Test', count: 1 } }
-        } as any; // Cast because payload type might be strictly typed in real code but loose in test
+        } as unknown as GameReducerAction;
 
         const newState = gameReducer(initialState, action);
         expect(newState.inventory['test-item']).toBeDefined();
@@ -236,7 +236,7 @@ describe('gameReducer', () => {
         const action = {
             type: 'UPDATE_PROFICIENCY',
             payload: { unlocked: ['skill1'] }
-        } as any;
+        } as unknown as GameReducerAction;
 
         const newState = gameReducer(initialState, action);
         expect(newState.proficiency.unlocked).toEqual(['skill1']);
@@ -246,7 +246,7 @@ describe('gameReducer', () => {
         const action = {
             type: 'UPDATE_STATS',
             payload: { 'stat1': 10 }
-        } as any;
+        } as unknown as GameReducerAction;
 
         const newState = gameReducer(initialState, action);
         expect(newState.stats['stat1']).toBe(10);
@@ -255,7 +255,7 @@ describe('gameReducer', () => {
      it('should handle UPDATE_STATE', () => {
         const action = {
             type: 'UPDATE_STATE',
-            payload: { activeJob: { id: 'job1', timeLeft: 100 } as any }
+            payload: { activeJob: { id: 'job1', timeLeft: 100 } as unknown as GameState['activeJob'] }
         } as const;
 
         const newState = gameReducer(initialState, action);
@@ -263,7 +263,7 @@ describe('gameReducer', () => {
     });
 
     it('should handle CLEAR_NOTIFICATIONS', () => {
-        initialState.notificationQueue = [{ id: '1', message: 'Test' } as any];
+        initialState.notificationQueue = [{ id: '1', message: 'Test' } as unknown as GameState['notificationQueue'][number]];
         const action = { type: 'CLEAR_NOTIFICATIONS' } as const;
 
         const newState = gameReducer(initialState, action);

@@ -220,7 +220,7 @@ describe('terminalLocationReducer', () => {
             type: 'SLEEP_AT_GATE',
             payload: { triggerEvent: mockTriggerEvent }
         } as const;
-        const newState = terminalLocationReducer(initialState, action);
+        terminalLocationReducer(initialState, action);
 
         expect(mockTriggerEvent).toHaveBeenCalledWith('incident', 'SECURITY_WAKEUP');
     });
