@@ -8,6 +8,7 @@ import { DevModeEntities } from './devmode/DevModeEntities';
 import { DevModeEvents } from './devmode/DevModeEvents';
 import { DevModeFlags } from './devmode/DevModeFlags';
 import { DevModeInventory } from './devmode/DevModeInventory';
+import { DevModeLevels } from './devmode/DevModeLevels';
 import { DevModeResources } from './devmode/DevModeResources';
 import { DevModeSystems } from './devmode/DevModeSystems';
 
@@ -24,7 +25,8 @@ type TabType =
   | 'flags'
   | 'entities' // Pet, Toolroom
   | 'systems' // Time, Hazards, Jobs
-  | 'events';
+  | 'events'
+  | 'levels'; // NEW: Level progression
 
 const QuickActions: React.FC<{
   dispatch: React.Dispatch<GameReducerAction>;
@@ -77,6 +79,7 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onRese
     { id: 'resources', label: 'Resources & Stats', icon: '💎' },
     { id: 'inventory', label: 'Inventory & Items', icon: '🎒' },
     { id: 'flags', label: 'Game Flags', icon: '🚩' },
+    { id: 'levels', label: 'Levels & Progress', icon: '📈' },
     { id: 'entities', label: 'Entities (Pet/Room)', icon: '🐈' },
     { id: 'systems', label: 'Systems & Time', icon: '⚙️' },
     { id: 'events', label: 'Events & AOG', icon: '⚡' },
@@ -165,6 +168,7 @@ const DevModeModal: React.FC<DevModeModalProps> = ({ gameState, dispatch, onRese
               <DevModeSystems gameState={gameState} dispatch={dispatch} />
             )}
             {activeTab === 'events' && <DevModeEvents gameState={gameState} dispatch={dispatch} />}
+            {activeTab === 'levels' && <DevModeLevels gameState={gameState} dispatch={dispatch} />}
           </div>
         </div>
       </div>

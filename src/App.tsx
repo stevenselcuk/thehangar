@@ -26,10 +26,12 @@ const MaintenanceTerminalModal = React.lazy(
 );
 const PersonalIdCardModal = React.lazy(() => import('./components/PersonalIdCardModal.tsx'));
 const BulletinBoardModal = React.lazy(() => import('./components/BulletinBoardModal.tsx'));
-const EndingScreen = React.lazy(() => import('./components/EndingScreen.tsx')); // Added
+const EndingScreen = React.lazy(() => import('./components/EndingScreen.tsx'));
+const OnboardingScreen = React.lazy(() => import('./components/OnboardingScreen.tsx'));
 
 import { useAutoSave } from './hooks/useAutoSave.ts';
 import { useGameEngine } from './hooks/useGameEngine.ts';
+import { hasCompletedOnboarding } from './services/LevelManager.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
@@ -37,8 +39,8 @@ import NotificationContainer from './components/common/NotificationContainer.tsx
 import { NotificationProvider } from './context/NotificationContext.tsx';
 import { useNotification } from './hooks/useNotification.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_78';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_78';
+const SAVE_KEY = 'the_hangar_save__build_80';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_80';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -261,6 +263,15 @@ const AppContent: React.FC = () => {
     localStorage.removeItem(`${SAVE_KEY}_tab`);
     window.location.reload();
   };
+
+  // Level 0 Onboarding - one-time NDA/Offer/ID card sequence
+  if (!hasCompletedOnboarding(state)) {
+    return (
+      <Suspense fallback={<div className="bg-black h-screen w-screen" />}>
+        <OnboardingScreen gameState={state} dispatch={dispatch} />
+      </Suspense>
+    );
+  }
 
   if (state.flags.endingTriggered) {
     return (
