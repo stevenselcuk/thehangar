@@ -126,6 +126,15 @@ const OfficeTab: React.FC<{
               cooldown={30000}
               description="It's been printing random pages all night. Sometimes it prints things that weren't sent."
             />
+            {state.resources.level >= 22 && (
+              <ActionButton
+                label="Print [REDACTED] Page"
+                onClick={() => onAction('PRINT_FORBIDDEN_PAGE')}
+                cost={{ label: 'FOCUS', value: 15 }}
+                description="Force the printer to output the cached file 'DO_NOT_READ.txt'."
+                className="border-red-600 text-red-500 mt-2"
+              />
+            )}
           </div>
 
           {/* PC Assembly Section */}
@@ -195,6 +204,15 @@ const OfficeTab: React.FC<{
                     cost={{ label: 'FOCUS', value: 15 }}
                     className="border-red-900 text-red-500"
                   />
+                  {state.resources.level >= 22 && (
+                    <ActionButton
+                      label="Decrypt Encrypted Partition"
+                      onClick={() => onAction('DECRYPT_AMM')}
+                      cost={{ label: 'FOCUS', value: 40 }}
+                      description="Attempt to decrypt the hidden partition on the hard drive. High risk of failure."
+                      className="border-purple-900 text-purple-400 col-span-2"
+                    />
+                  )}
                 </div>
 
                 {/* Internal Mail */}

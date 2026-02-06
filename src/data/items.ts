@@ -450,5 +450,38 @@ export const itemsData: Record<string, Item[]> = {
         madness: 'It leads to the void. If I fall in, I will fall forever.',
       },
     },
+    {
+      id: 'metallicSphere',
+      label: 'Metallic Sphere',
+      pn: 'UNKNOWN-ORIGIN',
+      category: 'rotable',
+      description: {
+        normal: 'A heavy, perfectly smooth sphere. It feels warm.',
+        unsettled: 'It vibrates slightly when I hold it. Is it... purring?',
+        madness: 'It speaks to me in geometry. I must bring it to the end.',
+      },
+    },
+    {
+      id: 'wrench',
+      label: '10mm Wrench',
+      pn: 'TOOL-10MM',
+      category: 'tool',
+      description: {
+        normal: 'A standard 10mm wrench. Essential.',
+        unsettled: 'It feels heavier than it should.',
+        madness: 'I can use this to unbolt the sky.',
+      },
+    },
+    {
+      id: 'canned_tuna',
+      label: 'Canned Tuna',
+      pn: 'FOOD-TUNA',
+      category: 'consumable',
+      description: {
+        normal: 'A can of tuna. Good for protein.',
+        unsettled: 'The expiration date is in the future.',
+        madness: 'It smells like the ocean on a planet that died.',
+      },
+    },
   ],
 };

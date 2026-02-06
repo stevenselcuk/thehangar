@@ -162,9 +162,26 @@ export interface Inventory {
   hasEasaB1_1: boolean;
   hasEasaB2: boolean;
   hasEasaC: boolean;
+
+  // Rotables
+  idg?: boolean;
+  adirs?: boolean;
+  hp_valve?: boolean;
+  csd?: boolean;
+  apu?: boolean;
+  nose_cowl?: boolean;
+  coffee_maker?: boolean;
+  toilet_assy?: boolean;
+
+  // Carried
+  wallet?: boolean;
+  cigarettes?: boolean;
+  lighter?: boolean;
   typeRating737: number;
   typeRatingA330: number;
   laser_pointer?: boolean; // Added for F.O.D.
+  wrench: boolean;
+  canned_tuna: boolean;
 }
 
 export interface GameFlags {

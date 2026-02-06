@@ -1,6 +1,6 @@
 export const GAME_CONSTANTS = {
   FPS: 15,
-  SAVE_KEY: 'the_hangar_save__build_91',
+  SAVE_KEY: 'the_hangar_save__build_92',
 
   // Resources
   FOCUS_REGEN_BASE: 3.0,

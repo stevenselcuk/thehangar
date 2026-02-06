@@ -137,12 +137,59 @@ export const ACTION_LOGS: Record<string, string> = {
     "It's just grainy footage of an empty office. The hum of the servers is the only sound.",
   REVIEW_SURVEILLANCE_CAUGHT:
     "An alert flashes on your screen: 'UNAUTHORIZED ACCESS DETECTED - LOGGING USER ID 770-M-9M-MRO'. The feed cuts out.",
-  LISTEN_FUSELAGE_NORMAL:
-    'You hear the normal groans and clicks of cooling metal. Nothing out of the ordinary.',
-  LISTEN_FUSELAGE_WHISPERS:
-    'You press your ear to the cold aluminum. Faintly, you hear what sounds like whispers, distorted, as if coming from a great distance.',
+  LISTEN_FUSELAGE_NORMAL: 'You hear the settling of the airframe. Typical thermal contraction.',
   LISTEN_FUSELAGE_HEARTBEAT:
     "There's a sound. A slow, rhythmic thumping, like a massive heart beating deep within the aircraft's structure.",
+  LISTEN_TO_WALLS_WHISPER:
+    'The concrete walls are humming. If you press your ear against them, you can hear the shift change from 1985.',
+  LISTEN_TO_WALLS_NOTHING: 'Just the hum of the high-voltage lines. And a faint scratching sound.',
+  SACRIFICE_TOOL_ACCEPTED:
+    "You drop the wrench into the dark gap between the bulkheads. It doesn't hit the bottom. You feel a weight lift from your chest.",
+  SACRIFICE_TOOL_REJECTED:
+    "The tool clatters back out, covered in slime. The hangar doesn't want it.",
+  BRIBE_AUDITOR_SUCCESS:
+    "The auditor takes the credits without looking. 'Compliance noted,' he murmurs.",
+  BRIBE_AUDITOR_FAIL:
+    "The auditor stares at the credits. 'We do not accept currency from this timeline.'",
+  SUBMIT_FAKE_LOGS_SUCCESS:
+    'The system digests your fabricated data. Green lights across the board. The lie becomes truth.',
+  SUBMIT_FAKE_LOGS_FAIL: 'Error 404: REALITY_MISMATCH. The logs burn on the screen.',
+  EAT_VOID_BURGER_TASTE: 'It tastes like ash and nostalgia. You feel fuller, but colder.',
+  TALK_TO_SUITS_IGNORE: "The Suit doesn't acknowledge you. He keeps staring at the plane.",
+  TALK_TO_SUITS_LISTEN:
+    "He turns to you. His face is a blur. 'We are monitoring the timeline,' he says.",
+  INSPECT_SHADOWS_MOVEMENT: 'The shadow under the wing detaches itself and slithers away.',
+  INSPECT_SHADOWS_NOTHING: "It's just a shadow. Probably.",
+  CHECK_FOR_BUGS_FOUND: "You find a microphone inside the coffee maker. It's recording.",
+  CHECK_FOR_BUGS_CLEAN:
+    'You sweep the office. Nothing found, but you feel like you missed something.',
+  LISTEN_FUSELAGE_WHISPERS:
+    'The wind through the gap seals sounds like voices. They are discussing your file.',
+
+  // New Actions
+  CHECK_BLACK_MARKET_OPEN:
+    'You knock on the unmarked door. A slot opens. "We have the parts that don\'t exist."',
+  CHECK_BLACK_MARKET_CLOSED: 'The door is locked. You hear shuffling inside, but no one answers.',
+
+  CROSS_REFERENCE_KARDEX_MATCH:
+    "You find a card that shouldn't exist. It details maintenance on a plane that crashed in 1999.",
+  CROSS_REFERENCE_KARDEX_NORMAL: 'Rows and rows of yellowed cards. Nothing out of the ordinary.',
+
+  CONSULT_LEGACY_ARCHIVES_DATA:
+    'The green phosphor screen flickers. You see flight paths that go straight down.',
+  CONSULT_LEGACY_ARCHIVES_ERROR: 'PC LOAD LETTER. The printer starts screaming.',
+
+  DECRYPT_AMM_SUCCESS:
+    'The text rearranges itself. You read the procedure for "Removing Angelic Entities from APU".',
+  DECRYPT_AMM_FAIL: 'Access Denied. Your terminal freezes for a minute.',
+
+  PRINT_FORBIDDEN_PAGE_PRINTING: 'The printer churns out a page of pure black ink. It is warm.',
+
+  OBSERVE_SEDAN_WATCHING:
+    'The black sedan is parked by the fence. The windows are tinted, but you feel the gaze.',
+  OBSERVE_SEDAN_GONE: 'The sedan is gone. Tire tracks remain, but they look... wrong.',
+
+  OBSERVE_CORROSION_CORNER_GROWTH: 'The rust is moving. It has grown an inch since yesterday.',
   CHECK_REDACTED_SUCCESS:
     "Using a flashlight and a keen eye, you can just make out the words under the black ink: '...cargo is not inanimate... requires pacification...'",
   CHECK_REDACTED_FAIL:

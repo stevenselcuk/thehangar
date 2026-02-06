@@ -148,6 +148,15 @@ export const handleGameAction = (
           if (partial.rotables) combinedState.rotables = partial.rotables;
         }
 
+        if (effect.addItem) {
+          (combinedState.inventory as unknown as Record<string, boolean>)[effect.addItem] = true;
+        }
+
+        if (effect.removeItem) {
+          (combinedState.inventory as unknown as Record<string, boolean>)[effect.removeItem] =
+            false;
+        }
+
         break;
       }
     }

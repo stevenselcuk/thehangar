@@ -16,6 +16,7 @@ describe('actionProcessor - New Events', () => {
 
   describe('Audit Actions', () => {
     it('BRIBE_AUDITOR should reduce suspicion and cost credits', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.3); // Success (chance 0.6)
       state.resources.credits = 200;
       state.resources.suspicion = 50;
 
@@ -28,12 +29,13 @@ describe('actionProcessor - New Events', () => {
       );
 
       expect(nextState.resources.credits).toBe(100); // Cost 100
-      expect(nextState.resources.suspicion).toBe(35); // -15
+      expect(nextState.resources.suspicion).toBe(30); // -20
     });
 
     it('SUBMIT_FAKE_LOGS handles success correctly', () => {
-      // Force random to return < 0.6 for success
-      vi.spyOn(Math, 'random').mockReturnValue(0.5);
+      // Force random to return < 0.5 for success (chance 0.5)
+      vi.spyOn(Math, 'random').mockReturnValue(0.4);
+      state.resources.suspicion = 50; // Set initial suspicion
 
       const nextState = handleGameAction(
         state,
@@ -43,7 +45,7 @@ describe('actionProcessor - New Events', () => {
         mockTriggerEvent
       );
 
-      expect(nextState.resources.suspicion).toBeGreaterThan(state.resources.suspicion); // Always adds suspicion
+      expect(nextState.resources.suspicion).toBeLessThan(state.resources.suspicion); // Should reduce suspicion on success
       expect(nextState.resources.experience).toBeGreaterThan(state.resources.experience);
     });
   });
@@ -61,17 +63,18 @@ describe('actionProcessor - New Events', () => {
         mockTriggerEvent
       );
 
-      expect(nextState.resources.sanity).toBe(40); // -10
-      expect(nextState.resources.focus).toBe(75); // +25
+      // actions.ts: focus +10, sanity -5
+      expect(nextState.resources.sanity).toBe(45); // 50 - 5
+      expect(nextState.resources.focus).toBe(60); // 50 + 10
     });
   });
 
   describe('Toolroom Actions', () => {
     it('SACRIFICE_TOOL requires a tool', () => {
-      // Grant a tool
-      // Reset all tools to 0 first
-      Object.keys(state.toolConditions).forEach((t) => (state.toolConditions[t] = 0));
-      state.toolConditions['hammer'] = 100;
+      vi.spyOn(Math, 'random').mockReturnValue(0.3); // Success (chance 0.5)
+      // Grant a wrench (required item)
+      state.inventory.wrench = true;
+      state.resources.sanity = 50; // Lower sanity so it can increase
 
       const nextState = handleGameAction(
         state,
@@ -81,7 +84,7 @@ describe('actionProcessor - New Events', () => {
         mockTriggerEvent
       );
 
-      expect(nextState.toolConditions['hammer']).toBe(0);
+      expect(nextState.inventory.wrench).toBe(false); // Validating item removal
       expect(nextState.resources.sanity).toBeGreaterThan(state.resources.sanity);
     });
   });

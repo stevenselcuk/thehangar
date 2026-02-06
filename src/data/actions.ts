@@ -308,19 +308,168 @@ export const actionsData: Record<string, ActionDefinition> = {
       resourceModifiers: { sanity: -2, experience: 150, suspicion: 5 },
     },
   },
+  EAT_VOID_BURGER: {
+    id: 'EAT_VOID_BURGER',
+    label: 'Eat "Void" Burger',
+    baseCost: { credits: 15 },
+    effects: [
+      {
+        chance: 1.0,
+        log: ACTION_LOGS.EAT_VOID_BURGER_TASTE,
+        logType: 'story',
+        resourceModifiers: { focus: 10, sanity: -5 },
+      },
+    ],
+  },
+  LISTEN_TO_WALLS: {
+    id: 'LISTEN_TO_WALLS',
+    label: 'Listen to Hangar Walls',
+    baseCost: { focus: 10 },
+    effects: [
+      {
+        chance: 0.3,
+        log: ACTION_LOGS.LISTEN_TO_WALLS_WHISPER,
+        logType: 'vibration',
+        resourceModifiers: { sanity: -10, experience: 200 },
+        flagModifiers: { isAfraid: true },
+      },
+      {
+        chance: 0.7,
+        log: ACTION_LOGS.LISTEN_TO_WALLS_NOTHING,
+        logType: 'info',
+      },
+    ],
+  },
+  SACRIFICE_TOOL: {
+    id: 'SACRIFICE_TOOL',
+    label: 'Sacrifice Tool to Void',
+    baseCost: { focus: 20 },
+    requiredItems: ['wrench'], // Assuming wrench exists or some tool
+    effects: [
+      {
+        chance: 0.5,
+        log: ACTION_LOGS.SACRIFICE_TOOL_ACCEPTED,
+        logType: 'story',
+        resourceModifiers: { sanity: 20, experience: 300 },
+        removeItem: 'wrench',
+      },
+      {
+        chance: 0.5,
+        log: ACTION_LOGS.SACRIFICE_TOOL_REJECTED,
+        logType: 'warning',
+        resourceModifiers: { sanity: -10 },
+      },
+    ],
+  },
+  BRIBE_AUDITOR: {
+    id: 'BRIBE_AUDITOR',
+    label: 'Bribe Internal Auditor',
+    baseCost: { credits: 100 },
+    effects: [
+      {
+        chance: 0.6,
+        log: ACTION_LOGS.BRIBE_AUDITOR_SUCCESS,
+        logType: 'story',
+        resourceModifiers: { suspicion: -20 },
+      },
+      {
+        chance: 0.4,
+        log: ACTION_LOGS.BRIBE_AUDITOR_FAIL,
+        logType: 'error',
+        resourceModifiers: { suspicion: 10, credits: -100 },
+      },
+    ],
+  },
+  SUBMIT_FAKE_LOGS: {
+    id: 'SUBMIT_FAKE_LOGS',
+    label: 'Submit Falsified Logs',
+    baseCost: { focus: 30, sanity: 10 },
+    effects: [
+      {
+        chance: 0.5,
+        log: ACTION_LOGS.SUBMIT_FAKE_LOGS_SUCCESS,
+        logType: 'story',
+        resourceModifiers: { suspicion: -15, experience: 150 },
+      },
+      {
+        chance: 0.5,
+        log: ACTION_LOGS.SUBMIT_FAKE_LOGS_FAIL,
+        logType: 'error',
+        resourceModifiers: { suspicion: 20, sanity: -5 },
+      },
+    ],
+  },
+  TALK_TO_SUITS: {
+    id: 'TALK_TO_SUITS',
+    label: 'Talk to "Suits"',
+    baseCost: { focus: 20 },
+    effects: [
+      {
+        chance: 0.2,
+        log: ACTION_LOGS.TALK_TO_SUITS_LISTEN,
+        logType: 'vibration',
+        resourceModifiers: { sanity: -15, experience: 300 },
+        flagModifiers: { suitsVisiting: true },
+      },
+      {
+        chance: 0.8,
+        log: ACTION_LOGS.TALK_TO_SUITS_IGNORE,
+        logType: 'info',
+        resourceModifiers: { suspicion: 10 },
+      },
+    ],
+  },
+  INSPECT_SHADOWS: {
+    id: 'INSPECT_SHADOWS',
+    label: 'Inspect Shadows',
+    baseCost: { focus: 10 },
+    effects: [
+      {
+        chance: 0.3,
+        log: ACTION_LOGS.INSPECT_SHADOWS_MOVEMENT,
+        logType: 'vibration',
+        resourceModifiers: { sanity: -10 },
+        flagModifiers: { isAfraid: true },
+        customEffect: (state) => ({ hfStats: { ...state.hfStats, fearTimer: 30000 } }),
+      },
+      {
+        chance: 0.7,
+        log: ACTION_LOGS.INSPECT_SHADOWS_NOTHING,
+        logType: 'info',
+      },
+    ],
+  },
+  CHECK_FOR_BUGS: {
+    id: 'CHECK_FOR_BUGS',
+    label: 'Sweep for Bugs',
+    baseCost: { focus: 25 },
+    effects: [
+      {
+        chance: 0.4,
+        log: ACTION_LOGS.CHECK_FOR_BUGS_FOUND,
+        logType: 'story',
+        resourceModifiers: { suspicion: 5, experience: 200 },
+      },
+      {
+        chance: 0.6,
+        log: ACTION_LOGS.CHECK_FOR_BUGS_CLEAN,
+        logType: 'info',
+      },
+    ],
+  },
   // New Feature: Pet Actions
   FEED_CAT: {
     id: 'FEED_CAT',
     label: 'Feed F.O.D.',
-    baseCost: { focus: 5, canned_tuna: 1 },
+    baseCost: { focus: 5 }, // Tuna handled via requiredItems/effects
+    requiredItems: ['canned_tuna'],
     effects: [
       {
         chance: 1.0,
         log: 'You open the tuna. F.O.D. emerges from the shadows, eats ravenously, and purrs like a diesel engine.',
         logType: 'story',
-        resourceModifiers: { sanity: 15, canned_tuna: -1 }, // Tuna is a resource, not inventory bool. Custom logic needed if generic processor doesn't handle resource costs well.
-        // We'll trust our new generic processor to handle resource consumption if defined in baseCost, but here it's conditional.
-        // Since 'canned_tuna' is a resource, we can use resourceModifiers.
+        resourceModifiers: { sanity: 15 },
+        removeItem: 'canned_tuna',
         customEffect: (state) => ({
           pet: {
             ...state.pet,

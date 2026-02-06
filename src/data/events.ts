@@ -1211,6 +1211,34 @@ export const eventsData: Record<string, EventTemplates[]> = {
         effects: { sanity: -40 },
       },
     },
+    {
+      id: 'THE_ARCHIVIST',
+      type: 'eldritch_manifestation',
+      title: 'THE ARCHIVIST',
+      description:
+        'A figure made of paper and old microfiche is standing by the time clock. It wants to collect "overdue time" from you.',
+      totalTime: 50000,
+      choices: [
+        {
+          id: 'pay',
+          label: 'Give it 5 Minutes',
+          cost: { resource: 'sanity', amount: 30 },
+          log: 'You stand still for five minutes. The figure absorbs the time. You feel older.',
+          effects: { experience: 600, sanity: -10 },
+        },
+        {
+          id: 'deny',
+          label: 'Clock Out',
+          cost: { resource: 'focus', amount: 30 },
+          log: 'You punch your card. The mechanical sound shatters the figure into confetti.',
+          effects: { suspicion: 10 },
+        },
+      ],
+      failureOutcome: {
+        log: 'It took hours. Or days. You are not sure what year it is.',
+        effects: { sanity: -50, experience: -500 },
+      },
+    },
   ],
 
   component_failure: [

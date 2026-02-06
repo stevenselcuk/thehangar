@@ -34,11 +34,32 @@ const AogTab: React.FC<AogTabProps> = ({ state, onAction }) => {
   if (!state.aog.active) {
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-black/50 border border-emerald-900/30">
-        <h2 className="text-xl font-bold text-emerald-500 uppercase tracking-widest mb-2">
-          Mission Complete
+        <h2 className="text-xl font-bold text-emerald-500 uppercase tracking-widest mb-4">
+          AOG Mission Control
         </h2>
-        <p className="text-sm text-zinc-500 font-mono">
-          Transmitting mission logs... Returning to base...
+        <div className="max-w-md space-y-4 mb-8">
+          <p className="text-sm text-zinc-400 font-mono">
+            Remote stations are reporting critical failures. Specialized intervention required.
+          </p>
+          <div className="p-4 bg-emerald-950/10 border border-emerald-900/50 text-xs text-left font-mono text-emerald-600/80">
+            {'>'} ESTABLISHING UPLINK... OK
+            <br />
+            {'>'} SCANNING GLOBAL ASSETS... 5 STATIONS FLAGS
+            <br />
+            {'>'} CALCULATING SCENARIO PROBABILITY... 98%
+            <br />
+            {'>'} WAITING FOR DEPLOYMENT AUTHORIZATION...
+          </div>
+        </div>
+
+        <ActionButton
+          label="INITIATE DEPLOYMENT SEQUENCE"
+          onClick={() => onAction('ACCEPT_AOG_DEPLOYMENT')}
+          className="border-emerald-600 text-emerald-400 hover:bg-emerald-900/20 active:bg-emerald-800/30 px-8 py-4 text-sm"
+        />
+
+        <p className="mt-4 text-[10px] text-zinc-600 uppercase tracking-widest">
+          Authorized Personnel Only | Level 25 Clearance
         </p>
       </div>
     );

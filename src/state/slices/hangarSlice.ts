@@ -1,4 +1,5 @@
 import { produce } from 'immer';
+import { ENDINGS } from '../../data/endings.ts';
 import {
   ACTION_LOGS,
   BOEING_REPLIES,
@@ -57,7 +58,8 @@ export type HangarAction =
   | { type: 'TOGGLE_NIGHT_CREW'; payload: Record<string, unknown> }
   | { type: 'TOGGLE_TRANSIT_CHECK_DELEGATION'; payload: Record<string, unknown> }
   | { type: 'LISTEN_FUSELAGE'; payload: Record<string, unknown> }
-  | { type: 'CHECK_REDACTED_LOGS'; payload: Record<string, unknown> };
+  | { type: 'CHECK_REDACTED_LOGS'; payload: Record<string, unknown> }
+  | { type: 'TRIGGER_ENDING'; payload: { endingId: string } };
 
 // ==================== REDUCER ====================
 
@@ -218,6 +220,31 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
           draft.resources.sanity -= 5;
         } else {
           addLog(ACTION_LOGS.CHECK_REDACTED_FAIL, 'warning');
+        }
+        break;
+      }
+
+      case 'TRIGGER_ENDING': {
+        const { endingId } = action.payload;
+        const ending = ENDINGS[endingId];
+
+        if (ending) {
+          // Check requirements
+          if (ending.requirement?.item) {
+            const hasItem =
+              draft.inventory[ending.requirement.item as keyof GameState['inventory']];
+            if (!hasItem) {
+              addLog(`CONDITION FAILED: Missing ${ending.requirement.item}`, 'warning');
+              return; // Stop execution
+            }
+          }
+
+          addLog(ending.outcome.log, 'story');
+          // Here we would typically set a gameOver flag or similar,
+          // but for now we just log the outcome as per the slice scope.
+          // Future: draft.flags.gameOver = true; or draft.activeEvent = ...
+        } else {
+          addLog(`ERROR: ENDING ${endingId} NOT FOUND`, 'error');
         }
         break;
       }
