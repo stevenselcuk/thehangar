@@ -252,9 +252,9 @@ export const handleGameAction = (
   switch (type) {
     case 'UNLOCK_SKILL':
       if (nextProf.skillPoints > 0) {
-        const skill = [...skillsData.mechanic, ...skillsData.watcher].find(
-          (s) => s.id === payload.id
-        );
+        const skill =
+          skillsData.mechanic.find((s) => s.id === payload.id) ||
+          skillsData.watcher.find((s) => s.id === payload.id);
         if (skill && !nextProf.unlocked.includes(skill.id)) {
           const hasPrereqs = !skill.prereq || nextProf.unlocked.includes(skill.prereq);
           if (hasPrereqs) {
