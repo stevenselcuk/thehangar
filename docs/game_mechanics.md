@@ -149,6 +149,16 @@ Vehicle and heavy equipment access keys.
 | `ford150` | Fleet Key Access | 2500 | Keys to the company utility truck.    |
 | `tireKit` | Tire Change Kit  | 200  | Jack, torque wrench, and safety cage. |
 
+### Rare Resources
+
+Strange materials found during specific high-level actions.
+
+| ID                      | Name             | Source                                | Description                                      |
+| :---------------------- | :--------------- | :------------------------------------ | :----------------------------------------------- |
+| `bioFilament`           | Bio-Filament     | **Action**: Deep Clean Vents          | Unknown biological component. Found in the dark. |
+| `crystallineResonators` | Resonators       | **Action**: Scavenge Corrosion Corner | Vibrating crystals. Anomaly stabilization?       |
+| `kardexFragments`       | KARDEX Fragments | **Action**: Cross-Reference KARDEX    | Piecing together the past.                       |
+
 ---
 
 ## 5. Event System
@@ -190,6 +200,15 @@ Events are triggered based on level and actions. They have categories, choices, 
   - `THE_ARCHIVIST`: A figure stealing files.
   - `TIMELINE_CORRUPTION`: Logs show work on future aircraft.
 - **Canteen Incidents**: `CANTEEN_SUITS_LUNCH`, `CANTEEN_VENDING_PROPHECY`.
+
+### Environmental Hazards
+
+Global effects that alter gameplay conditions.
+
+| Hazard ID            | Name                | Duration | Effect                                                          |
+| :------------------- | :------------------ | :------- | :-------------------------------------------------------------- |
+| `THUNDERSTORM`       | Severe Thunderstorm | 5 min    | Tarmac actions disabled. Focus cost +10%. Sanity drain active.  |
+| `POWER_SURGE_HAZARD` | Power Fluctuations  | 3 min    | Focus cost +25%. Sanity drain. Risk of `MEZZANINE_OBSERVATION`. |
 
 ---
 
@@ -258,3 +277,42 @@ A comprehensive list of user actions and their unlock requirements.
 | `APPEAL_VIOLATION`          | -     | Digital (Access Violation) |
 | `FORCE_OVERRIDE`            | -     | Digital (High Sanity Cost) |
 | `ACCEPT_REEDUCATION`        | -     | Digital (Reset Violations) |
+
+---
+
+## 8. Special Systems
+
+### Automation
+
+As you progress, the machine begins to run itself. You can delegate tasks, but they come with risks.
+
+- **Night Crew Delegation** (Level 6+):
+  - **Generates**: `Alclad`, `Rivets`.
+  - **Cost**: Slowly increases **Suspicion**.
+  - **Modifier**: `Night Shift Supervisor` skill reduces Suspicion gain.
+- **Transit Check Delegation**:
+  - **Generates**: `Credits`, `Experience`.
+  - **Cost**: Small **Suspicion** increase.
+- **Auto-SRF Filing**:
+  - **Generates**: `Credits`, `Experience`.
+  - **Risk**: Low chance of triggering an Audit (`AUDIT_INTERNAL`).
+
+### Pet System (F.O.D.)
+
+A cat that nests in the Structure Shop. It is not entirely naturally occurring.
+
+- **Stats**:
+  - **Trust**: Increased by feeding and playing.
+  - **Hunger**: Must be managed.
+- **Interactions**:
+  - **Feed**: Requires `Canned Tuna`. Reduces Hunger, greatly increases Trust.
+  - **Play**: Requires `Laser Pointer`. Increases Trust.
+  - **Pet**: Small Trust increase. Risk of biting (Love bite?).
+
+### The Janitor
+
+An entity that appears randomly in the facility.
+
+- **Trigger**: Random chance per tick.
+- **Cooldown**: 10 minutes between appearances.
+- **Nature**: He is always cleaning something that isn't dirty. He has always been here.
