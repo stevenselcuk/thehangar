@@ -12,7 +12,7 @@
  * After completion, sets storyFlags.onboardingComplete = true
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { GameReducerAction } from '../state/gameReducer.ts';
 import { GameState } from '../types.ts';
 
@@ -27,6 +27,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ dispatch }) => {
   const [step, setStep] = useState<OnboardingStep>('NDA');
   const [isTyping, setIsTyping] = useState(false);
   const [signature, setSignature] = useState('');
+  const [finalName, setFinalName] = useState('');
 
   // Generate employee ID once on initial render (lazy initializer is allowed)
   const [employeeId] = useState(() =>
@@ -35,20 +36,28 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ dispatch }) => {
       .padStart(3, '0')
   );
 
-  const completeOnboarding = useCallback(() => {
+  const completeOnboarding = () => {
     dispatch({
       type: 'UPDATE_STATE',
       payload: {
+        playerName: finalName || 'Unknown Tech',
+        employeeId: `TECH-${employeeId}`,
         flags: {
           storyFlags: { onboardingComplete: true },
         },
       },
     });
-  }, [dispatch]);
+  };
 
   const handleSign = () => {
     if (signature.length < 2) return;
     setIsTyping(true);
+
+    // Capture name if at relevant steps
+    if (step === 'NDA' || step === 'ID_CARD') {
+      if (signature.length > 2) setFinalName(signature);
+    }
+
     setTimeout(() => {
       setIsTyping(false);
       if (step === 'NDA') setStep('OFFER');

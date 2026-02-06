@@ -438,6 +438,8 @@ export interface GameState {
   };
   bulletinBoard: BulletinBoardState;
   pet: PetState;
+  playerName: string;
+  employeeId: string;
 }
 
 export interface PetState {

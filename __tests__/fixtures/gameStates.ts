@@ -39,6 +39,9 @@ export const initialGameState: GameState = {
     crystallineResonators: 0,
     bioFilament: 0,
     technicalLogbookHours: 0,
+    syndicateReputation: 0,
+    unionReputation: 0,
+    canned_tuna: 0,
   },
   inventory: {
     flashlight: false,
@@ -131,9 +134,38 @@ export const initialGameState: GameState = {
     ndtFinding: null,
     sls3Unlocked: false,
     storyFlags: {},
+    janitorArcStage: 0,
+    toolroomMasterArcStage: 0,
+    endingAlienConspiracyProgress: 0,
+    endingGovtConspiracyProgress: 0,
+    endingTriggered: null,
+    foundPhoto: false,
   },
   logs: [],
   mail: [],
+  journal: [],
+  notificationQueue: [],
+  procurement: { orders: [], catalogueUnlockLevel: 0 },
+  toolroom: { status: 'OPEN', unavailableTools: [], nextStatusChange: 0 },
+  bulletinBoard: {
+    activeIndices: {
+      teamRosters: [],
+      companyNews: [],
+      deployments: [],
+      suitsIntel: [],
+      conspiracyTheories: [],
+    },
+    mechanicOfTheMonthIndex: 0,
+    lastUpdate: 0,
+  },
+  pet: {
+    name: 'F.O.D.',
+    trust: 0,
+    hunger: 0,
+    location: 'HANGAR',
+    cooldowns: { pet: 0, feed: 0, play: 0 },
+    flags: { hasMet: false, isSleeping: false, isStaringAtNothing: false, foundGift: null },
+  },
   lastUpdate: Date.now(),
   eventTimestamps: {},
   activeJob: null,
@@ -170,6 +202,7 @@ export const initialGameState: GameState = {
     rotablesRepaired: 0,
     rotablesScavenged: 0,
     eventsResolved: 0,
+    accessViolations: 0,
   },
   calibrationMinigame: {
     active: false,
@@ -214,6 +247,8 @@ export const initialGameState: GameState = {
     progressRequired: 0,
     actionInProgress: null,
   },
+  playerName: '[REDACTED]',
+  employeeId: '000-0-00',
 };
 
 /**
@@ -255,6 +290,7 @@ export const midGameState: GameState = {
     rotablesRepaired: 1,
     rotablesScavenged: 0,
     eventsResolved: 3,
+    accessViolations: 0,
   },
 };
 
@@ -321,6 +357,7 @@ export const advancedGameState: GameState = {
     rotablesRepaired: 20,
     rotablesScavenged: 5,
     eventsResolved: 25,
+    accessViolations: 5,
   },
 };
 

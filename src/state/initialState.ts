@@ -330,6 +330,8 @@ export const createInitialState = (): GameState => ({
       foundGift: null,
     },
   },
+  playerName: '[REDACTED]',
+  employeeId: '000-0-00',
 });
 
 export const loadState = (saveKey: string): GameState => {
@@ -400,6 +402,8 @@ export const loadState = (saveKey: string): GameState => {
         toolroom: parsed.toolroom || defaults.toolroom,
         bulletinBoard: parsed.bulletinBoard || defaults.bulletinBoard,
         pet: parsed.pet || defaults.pet,
+        playerName: parsed.playerName || defaults.playerName,
+        employeeId: parsed.employeeId || defaults.employeeId,
       };
     } catch (e) {
       console.error('Failed to parse saved state:', e);

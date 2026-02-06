@@ -205,7 +205,7 @@ export const getLockedFeatureMessage = (
   }
 
   if (playerLevel < requiredLevel) {
-    return `[CLEARANCE DENIED] Level ${requiredLevel} required. Current: ${playerLevel}.`;
+    return `[CLEARANCE DENIED] Level ${requiredLevel} required.`;
   }
 
   return '[ACCESS RESTRICTED] Additional requirements not met.';

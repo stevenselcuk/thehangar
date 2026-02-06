@@ -62,11 +62,11 @@ const PersonalIdCardModal: React.FC<{ state: GameState; onClose: () => void }> =
             <div className="space-y-3">
               <div>
                 <p className="text-[10px] uppercase text-zinc-500">NAME</p>
-                <p className="text-lg font-bold tracking-wider">[REDACTED]</p>
+                <p className="text-lg font-bold tracking-wider">{state.playerName}</p>
               </div>
               <div>
                 <p className="text-[10px] uppercase text-zinc-500">EMPLOYEE ID</p>
-                <p className="text-lg font-bold tracking-wider">770-M-9M-MRO</p>
+                <p className="text-lg font-bold tracking-wider">{state.employeeId}</p>
               </div>
               <div>
                 <p className="text-[10px] uppercase text-zinc-500">TITLE</p>

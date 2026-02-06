@@ -214,11 +214,15 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
             <div className="flex space-x-3 mb-4">
               <AvatarDisplay />
               <div className="space-y-1">
-                <h2 className="text-black font-bold text-xs leading-none uppercase">[REDACTED]</h2>
+                <h2 className="text-black font-bold text-xs leading-none uppercase">
+                  {state.playerName}
+                </h2>
                 <p className="text-[8px] text-zinc-600 uppercase leading-none">
                   Mechanic // Night Shift
                 </p>
-                <p className="text-[8px] text-zinc-600 uppercase leading-none mt-1">ID: 770-M-9M</p>
+                <p className="text-[8px] text-zinc-600 uppercase leading-none mt-1">
+                  ID: {state.employeeId}
+                </p>
               </div>
             </div>
             <div className="h-4 bg-black w-full mb-1"></div>
@@ -243,7 +247,7 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
                 Personnel File
               </h1>
               <p className="text-emerald-700 text-xs uppercase tracking-wider">
-                Subject: 770-M-9M-MRO
+                Subject: {state.employeeId}
               </p>
             </div>
             <div className="flex flex-col items-end gap-2">
@@ -500,7 +504,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_52}';
+  const BUILD_NUMBER = 'Build v.{_build_53}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');
