@@ -12,7 +12,10 @@ import TerminalTab from './TerminalTab.tsx';
 import TrainingTab from './TrainingTab.tsx';
 
 import { locationTriggers } from '../data/locationTriggers';
+// Import level helpers
+import { getActionRequiredLevel } from '../data/featureRegistry';
 import { checkLocationRequirements } from '../logic/locationRequirements';
+import { isActionUnlocked } from '../services/LevelManager';
 import BackroomModal from './BackroomModal';
 import PetInteraction from './PetInteraction';
 import ProcurementModal from './ProcurementModal';
@@ -54,6 +57,17 @@ const ActionPanel: React.FC<{
   // Check location requirements
   const locationCheck = checkLocationRequirements(activeTab, state.inventory);
   const showLocationWarning = !locationCheck.satisfied || locationCheck.missingSoft.length > 0;
+
+  // Helper to generate props for level-locked actions
+  const getLockedProps = (actionId: string) => {
+    if (isActionUnlocked(actionId, state)) return {};
+    const reqLevel = getActionRequiredLevel(actionId);
+    return {
+      disabled: true,
+      description: `[LOCKED] Requires Level ${reqLevel}`,
+      className: 'opacity-40 border-zinc-800 text-zinc-600 grayscale cursor-not-allowed',
+    };
+  };
 
   const renderActiveEvent = () => {
     if (!state.activeEvent) return null;
@@ -330,6 +344,7 @@ const ActionPanel: React.FC<{
                 cooldown={400}
                 cost={{ label: 'FOCUS', value: 3 }}
                 disabled={state.resources.focus < 3}
+                {...getLockedProps('INSTALL_RIVETS')}
               />
               <ActionButton
                 label="Orbital Sanding"
@@ -342,6 +357,7 @@ const ActionPanel: React.FC<{
                     ? 'EQUIPMENT MISSING'
                     : 'Smooth out the Alclad plates.'
                 }
+                {...getLockedProps('ORBITAL_SAND')}
               />
             </div>
             <div>
@@ -740,6 +756,7 @@ const ActionPanel: React.FC<{
                       ? 'Radio required to listen to signals.'
                       : 'Tune into Line Maint. VHF 141.80. Listen for lead, A/C on ground, and... other signals.'
                   }
+                  {...getLockedProps('LISTEN_RADIO')}
                 />
                 <ActionButton
                   label={`Smoke A Cigarette ${state.personalInventory['winston_pack'] ? `(${state.personalInventory['winston_pack']})` : ''}`}
@@ -751,12 +768,14 @@ const ActionPanel: React.FC<{
                       ? 'Retreat to your truck for a smoke. +5 Focus, +5 Sanity. Reduces Stress & Fatigue.'
                       : 'You need a pack of smokes first. Check the Canteen.'
                   }
+                  {...getLockedProps('SMOKE_CIGARETTE')}
                 />
                 <ActionButton
                   label="Drink Galley Coffee"
                   onClick={() => onAction('DRINK_GALLEY_COFFEE')}
                   cooldown={60000}
                   description="Find a leftover pot of coffee. Tastes like kerosene. +10 Focus, -5 Sanity."
+                  {...getLockedProps('DRINK_GALLEY_COFFEE')}
                 />
                 <ActionButton
                   label="Scavenge Galleys"
@@ -764,6 +783,7 @@ const ActionPanel: React.FC<{
                   cost={{ label: 'FOC', value: 5 }}
                   description="HIGH RISK. Rummage through parked aircraft galleys for leftovers. Increases suspicion."
                   className="border-amber-800 text-amber-500"
+                  {...getLockedProps('SCAVENGE_GALLEYS')}
                 />
                 <ActionButton
                   label="Watch Runway Landings"
@@ -771,6 +791,7 @@ const ActionPanel: React.FC<{
                   cost={{ label: 'FOC', value: 2 }}
                   cooldown={30000}
                   description="Take a moment to watch the arrivals and judge the pilots' skills. A brief distraction."
+                  {...getLockedProps('WATCH_RUNWAY')}
                 />
                 <ActionButton
                   label="Small Talk (Cabin Crew)"

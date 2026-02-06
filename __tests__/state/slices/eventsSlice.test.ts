@@ -1,6 +1,4 @@
-import { describe, expect, it } from 'vitest';
 import { eventsData } from '@/data/events.ts';
-import { JobCard } from '@/types.ts';
 import {
   calculateLogbookHours,
   createAnomalyFromTemplate,
@@ -13,7 +11,9 @@ import {
   isToolServiceable,
   rollForAnomalyDiscovery,
 } from '@/state/slices/eventsSlice.ts';
+import { JobCard } from '@/types.ts';
 import { createMinimalGameState } from '@/utils/testHelpers.ts';
+import { describe, expect, it } from 'vitest';
 
 describe('eventsSlice', () => {
   // ==================== HELPER FUNCTIONS ====================
@@ -546,6 +546,7 @@ describe('eventsSlice', () => {
     it('triggers standard event from type', () => {
       const state = createMinimalGameState();
       state.activeEvent = null;
+      state.resources.level = 10; // Audit events require level 5
       Math.random = () => 0.5; // Select middle template
 
       const result = eventsReducer(state as unknown as EventsSliceState, {
@@ -561,6 +562,7 @@ describe('eventsSlice', () => {
     it('triggers specific event by id', () => {
       const state = createMinimalGameState();
       state.activeEvent = null;
+      state.resources.level = 10; // Audit events require level 5
 
       const result = eventsReducer(state as unknown as EventsSliceState, {
         type: 'TRIGGER_EVENT',
@@ -574,6 +576,7 @@ describe('eventsSlice', () => {
     it('triggers component_failure event from rotable', () => {
       const state = createMinimalGameState();
       state.activeEvent = null;
+      state.resources.level = 10; // Component failure events require level 8
       state.rotables.push({
         id: 'rot-456',
         label: 'IDG',

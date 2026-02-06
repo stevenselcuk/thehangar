@@ -1,4 +1,5 @@
 import { produce } from 'immer';
+import { isActionUnlocked } from '../services/LevelManager.ts';
 import { GameState, TabType } from '../types.ts';
 import { AircraftAction, aircraftReducer } from './slices/aircraftSlice.ts';
 import { aogReducer } from './slices/aogSlice.ts';
@@ -387,6 +388,25 @@ const PET_ACTIONS = ['PET_CAT', 'FEED_CAT', 'PLAY_WITH_CAT', 'PET_RANDOM_MOVE'] 
  * @returns Updated game state
  */
 export const composeAction = (state: GameState, action: ReducerAction): GameState => {
+  // Level gating check - block actions if player doesn't meet level requirements
+  // Skip check for system actions and events that are already active
+  const systemActions = [
+    'RESOURCES_TICK',
+    'TIME_TICK',
+    'AOG_TICK',
+    'CHECK_DELIVERIES',
+    'PET_RANDOM_MOVE',
+    'UPDATE_TOOLROOM_STATUS',
+    'ROTATE_BULLETIN',
+  ];
+
+  if (!systemActions.includes(action.type) && !isActionUnlocked(action.type, state)) {
+    // Action is locked - return state unchanged
+    // Note: UI should prevent this from being called, this is a safety check
+    console.warn(`[LevelManager] Action '${action.type}' blocked - player level too low`);
+    return state;
+  }
+
   // Route resource actions to resourcesSlice
   if (RESOURCE_ACTIONS.includes(action.type as (typeof RESOURCE_ACTIONS)[number])) {
     return produce(state, (draft) => {

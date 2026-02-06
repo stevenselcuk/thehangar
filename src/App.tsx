@@ -31,7 +31,7 @@ const OnboardingScreen = React.lazy(() => import('./components/OnboardingScreen.
 
 import { useAutoSave } from './hooks/useAutoSave.ts';
 import { useGameEngine } from './hooks/useGameEngine.ts';
-import { hasCompletedOnboarding } from './services/LevelManager.ts';
+import { hasCompletedOnboarding, isTabUnlocked } from './services/LevelManager.ts';
 import { gameReducer, GameReducerAction } from './state/gameReducer.ts';
 import { loadState } from './state/initialState.ts';
 
@@ -39,8 +39,8 @@ import NotificationContainer from './components/common/NotificationContainer.tsx
 import { NotificationProvider } from './context/NotificationContext.tsx';
 import { useNotification } from './hooks/useNotification.ts';
 
-const SAVE_KEY = 'the_hangar_save__build_80';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_80';
+const SAVE_KEY = 'the_hangar_save__build_82';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_82';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -193,6 +193,17 @@ const AppContent: React.FC = () => {
       hasPlayedGameOverSoundRef.current = true;
     }
   }, [state.resources.suspicion, state.resources.sanity, play]);
+
+  // Redirect if active tab is locked
+  useEffect(() => {
+    if (!isTabUnlocked(activeTab, state)) {
+      // Find first unlocked tab
+      const firstUnlocked = Object.values(TabType).find((t) => isTabUnlocked(t, state));
+      if (firstUnlocked) {
+        setActiveTab(firstUnlocked);
+      }
+    }
+  }, [activeTab, state]);
 
   // FIX: Force title update when tab changes
   useEffect(() => {
@@ -423,7 +434,9 @@ const AppContent: React.FC = () => {
 
           <div className="hidden md:flex bg-[#050505] border-l border-emerald-900/50 h-full">
             {Object.values(TabType)
-              .filter((t) => t !== TabType.AOG_DEPLOYMENT || state.aog.active)
+              .filter(
+                (t) => (t !== TabType.AOG_DEPLOYMENT || state.aog.active) && isTabUnlocked(t, state)
+              )
               .map((t) => (
                 <button
                   key={t}
@@ -443,7 +456,9 @@ const AppContent: React.FC = () => {
         {/* Mobile Tabs Row (Scrollable) */}
         <div className="md:hidden flex overflow-x-auto scrollbar-hide bg-[#050505] border-b border-emerald-900/50 h-10 w-full">
           {Object.values(TabType)
-            .filter((t) => t !== TabType.AOG_DEPLOYMENT || state.aog.active)
+            .filter(
+              (t) => (t !== TabType.AOG_DEPLOYMENT || state.aog.active) && isTabUnlocked(t, state)
+            )
             .map((t) => (
               <button
                 key={t}

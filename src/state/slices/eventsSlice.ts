@@ -4,6 +4,7 @@ import { eventsData } from '../../data/events.ts';
 import { ACTION_LOGS, SYSTEM_LOGS } from '../../data/flavor.ts';
 import { generateResolutionLog } from '../../logic/logGenerator.ts'; // Import
 import { hasSkill } from '../../services/CostCalculator.ts';
+import { canSpawnEventCategory } from '../../services/LevelManager.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { Anomaly, GameEvent, GameState, Inventory } from '../../types.ts';
 
@@ -300,6 +301,19 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
       if (draft.activeEvent) return;
 
       const { type: eventType, id: specificId } = action.payload;
+
+      // Level gating check - don't spawn events if player level is too low
+      // Create a minimal GameState-like object for the level check
+      const stateForCheck = {
+        resources: draft.resources,
+        flags: draft.flags,
+        inventory: draft.inventory,
+      } as GameState;
+
+      if (!canSpawnEventCategory(eventType, stateForCheck)) {
+        // Event category is locked at this level - silently skip
+        return;
+      }
 
       // Special handling for component failures
       if (eventType === 'component_failure') {
