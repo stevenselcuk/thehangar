@@ -15,23 +15,23 @@
 
 # Notes
 
-> _⚠️ IMPORTANT_: THIS GAME IS NOT INTENDED FOR MINOR OR YOUNG ADULTS
+> **⚠️ IMPORTANT**: THIS GAME IS NOT INTENDED FOR MINOR OR YOUNG ADULTS
 
-> _⚠️ IMPORTANT_: THIS DOCUMENTATION IS INCLUDES SPOILERS... I MEAN FULL OF SPOILERS. DO NOT READ IF YOU HAVE NOT PLAYED THE GAME YET.
+> **⚠️ IMPORTANT**: THIS DOCUMENTATION IS INCLUDES SPOILERS... I MEAN FULL OF SPOILERS. DO NOT READ IF YOU HAVE NOT PLAYED THE GAME YET.
 
-> _⚠️ IMPORTANT_: ALL NAMES, LOCATIONS AND OTHER DETAILS ARE FICTIONAL AND ARE NOT INTENDED TO BE TAKEN AS REAL.
+> **⚠️ IMPORTANT**: ALL NAMES, LOCATIONS AND OTHER DETAILS ARE FICTIONAL AND ARE NOT INTENDED TO BE TAKEN AS REAL.
 
-> _⚠️ IMPORTANT_: ALL REFERENCES TO SPECIFIC PRODUCTS, BRANDS, OR SERVICES ARE FOR ILLUSTRATIVE PURPOSES ONLY AND DO NOT IMPLY ENDORSEMENT OR ENDORSEMENT.
+> **⚠️ IMPORTANT**: ALL REFERENCES TO SPECIFIC PRODUCTS, BRANDS, OR SERVICES ARE FOR ILLUSTRATIVE PURPOSES ONLY AND DO NOT IMPLY ENDORSEMENT OR ENDORSEMENT.
 
-> _⚠️ IMPORTANT_: FLASHES AND FLICKERS CAN CAUSE SEIZURES IN SOME PEOPLE. IF YOU ARE SUSCEPTIBLE TO SEIZURES, PLEASE PLAY AT YOUR OWN RISK.
+> **⚠️ IMPORTANT**: FLASHES AND FLICKERS CAN CAUSE SEIZURES IN SOME PEOPLE. IF YOU ARE SUSCEPTIBLE TO SEIZURES, PLEASE PLAY AT YOUR OWN RISK.
 
-> _⚠️ IMPORTANT_: ONCE AGAIN! THIS DOCUMENTATION IS INCLUDES SPOILERS. THIS IS THE LAST WARNING.
+> **⚠️ IMPORTANT**: ONCE AGAIN! THIS DOCUMENTATION IS INCLUDES SPOILERS. THIS IS THE LAST WARNING.
 
 ---
 
 # What is The Hangar?
 
-**The Hangar** is a browser-based incremental horror RPG where **corporate aviation meets cosmic dread**. You're an aircraft maintenance technician working the graveyard shift at a remote commercial facility. What begins as routine maintenance—checking rivets, filing paperwork, calibrating torque wrenches—gradually reveals something _profoundly wrong_ with your workplace.
+**The Hangar** is a browser-based incremental horror RPG where **corporate aviation meets cosmic dread**. You're an aircraft maintenance technician working the graveyard shift at a remote commercial facility. What begins as routine maintenance, installing rivets, filing paperwork, calibrating torque wrenches and gradually reveals something _profoundly wrong_ with your workplace.
 
 ### Why Play The Hangar?
 
@@ -63,14 +63,14 @@
 - **Dynamic Events**: 100+ random encounters ranging from mundane audits to eldritch manifestations
 - **Environmental Layers**: Explore 11 distinct locations, each with secrets and dangers
 
-### Key Selling Points
+### Rest of other features
 
 ✅ **No Install Required** - Runs in any modern browser (Chrome, Firefox, Safari, Edge)  
 ✅ **100% Free & Open Source** - MIT license, no ads, no tracking  
 ✅ **Auto-Save System** - Pick up exactly where you left off  
 ✅ **Responsive Design** - Play on desktop, tablet, or mobile  
 ✅ **Active Development** - Weekly updates, responsive to community feedback  
-✅ **Professional Quality** - 90%+ test coverage, CI/CD pipeline, production monitoring
+✅ **Stability** - 90%+ test coverage, CI/CD pipeline, production monitoring
 
 ---
 
