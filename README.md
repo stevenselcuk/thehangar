@@ -5,7 +5,7 @@
 [![Health Check](https://github.com/stevenselcuk/thehangar/actions/workflows/health-check.yml/badge.svg)](https://github.com/stevenselcuk/thehangar/actions/workflows/health-check.yml)
 [![CodeQL](https://github.com/stevenselcuk/thehangar/actions/workflows/codeql.yml/badge.svg)](https://github.com/stevenselcuk/thehangar/actions/workflows/codeql.yml)
 
-> _"The rivets hold. The paperwork is filed. The night shift begins. And somewhere in the metal darkness, something... There is nothing but suffer in here"_
+> _"Installed 40 x MS20470AD rivets instead of icebox... The paperwork is filed. The night shift begins. And somewhere in the metal darkness, something... There is nothing but suffer in here"_
 
 **Play Now**: [Production (Weekly Updates)](https://hangar.tabbythecat.com) | [Staging (Nightly Builds)](https://stevenselcuk.github.io/thehangar/)
 

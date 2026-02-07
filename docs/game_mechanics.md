@@ -39,7 +39,7 @@ The following table details the narrative progression and specific unlocks for e
 | **25** | **AOG DEPLOYMENT**         | Remote stations await.                            | **Tab**: AOG Deployment<br>**Action**: Upload Clean Protocol                                                       |
 | **28** | **KARDEX INITIATED**       | The physical archives.                            | **Action**: Cross Reference KARDEX                                                                                 |
 | **30** | **LEGACY ACCESS**          | The 1970s database.                               | **Action**: Consult Legacy Archives                                                                                |
-| **35** | **SLS-3 DISCOVERY**        | You found the door.                               | **Action**: Check Black Market                                                                                     |
+| **35** | **SLS-3 DISCOVERY**        | You found the door.                               | **Action**: Access Black Market Channel                                                                            |
 | **40** | **TRUTH PROXIMATE**        | The pieces are assembling themselves.             | _(Narrative Event Only)_                                                                                           |
 | **45** | **FINAL CLEARANCE**        | They have stopped watching.                       | _(Completion Preparation)_                                                                                         |
 | **49** | **TRUTH REVEAL**           | The hangar door opens to the void.                | **Action**: Trigger Endings                                                                                        |
@@ -151,7 +151,7 @@ Vehicle and heavy equipment access keys.
 
 ### Rare Resources
 
-Strange materials found during specific high-level actions.
+Strange materials found during specific high-level actions. These are tracked as special resources, not inventory items.
 
 | ID                      | Name             | Source                                | Description                                      |
 | :---------------------- | :--------------- | :------------------------------------ | :----------------------------------------------- |

@@ -1212,7 +1212,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
       },
     },
     {
-      id: 'THE_ARCHIVIST',
+      id: 'THE_ARCHIVIST_TIME_CLOCK',
       type: 'eldritch_manifestation',
       title: 'THE ARCHIVIST',
       description:

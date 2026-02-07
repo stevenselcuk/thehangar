@@ -26,6 +26,22 @@ export interface ActionDefinition {
 }
 
 export const actionsData: Record<string, ActionDefinition> = {
+  DELEGATE_NIGHT_CREW: {
+    id: 'DELEGATE_NIGHT_CREW',
+    label: 'Delegate to Night Crew',
+    baseCost: { focus: 20 },
+    requiredFlags: ['nightCrewUnlocked'],
+    effects: [
+      {
+        chance: 1.0,
+        log: 'You leave a list of tasks for the night shift. They will handle the heavy lifting.',
+        logType: 'story',
+        flagModifiers: { nightCrewActive: true },
+        resourceModifiers: { suspicion: 5 },
+      },
+    ],
+  },
+
   MARSHALLING: {
     id: 'MARSHALLING',
     label: 'Marshal Aircraft',
