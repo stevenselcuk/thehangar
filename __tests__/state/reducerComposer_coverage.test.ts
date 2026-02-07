@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { composeReducers, composeTick, composeAction } from '../../src/state/reducerComposer';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { composeTick, composeAction } from '../../src/state/reducerComposer';
 import { createInitialState } from '../../src/state/initialState';
 import { GameState } from '../../src/types';
 import * as LevelManager from '../../src/services/LevelManager';
@@ -60,6 +60,9 @@ vi.mock('../../src/state/slices/timeSlice', () => ({
     timeReducer: vi.fn((state) => ({ ...state, shiftCycle: state.shiftCycle }))
 }));
 
+// Helper type for mocked properties
+type MockState<T> = T & { test?: string };
+
 describe('reducerComposer coverage', () => {
     let state: GameState;
 
@@ -73,32 +76,23 @@ describe('reducerComposer coverage', () => {
     describe('composeTick', () => {
         it('should route to resourcesReducer', () => {
             const nextState = composeTick(state, 100, 'HANGAR');
-            // Using implicit knowledge that our mock sets resources.test
-            expect((nextState.resources as any).test).toBe('resources');
+            expect((nextState.resources as unknown as MockState<typeof nextState.resources>).test).toBe('resources');
         });
 
         it('should route to aogReducer if aog active', () => {
             state.aog.active = true;
             const nextState = composeTick(state, 100, 'HANGAR');
-            expect((nextState.aog as any).test).toBe('aog');
+            expect((nextState.aog as unknown as MockState<typeof nextState.aog>).test).toBe('aog');
         });
 
         it('should route to procurementReducer', () => {
              const nextState = composeTick(state, 100, 'HANGAR');
-             expect((nextState.procurement as any).test).toBe('procurement');
+             expect((nextState.procurement as unknown as MockState<typeof nextState.procurement>).test).toBe('procurement');
         });
 
         // Toolroom status update test
         it('should update toolroom status', async () => {
             state.toolroom.nextStatusChange = Date.now() - 1000;
-            // mock inventoryReducer handles UPDATE_TOOLROOM_STATUS which updates toolroom
-            // But our mock returns generic 'test' inventory.
-            // Wait, composeTick calls inventoryReducer for toolroom status.
-            // Our mock returns { ...state, inventory: ..., logs: ... }.
-            // It does NOT update 'toolroom' property on the returned object in the mock above.
-            // We need to fix the mock for inventorySlice to return toolroom if we want to test that.
-            // Or just check that inventoryReducer was called with correct type.
-
             // Let's rely on call arguments
             const { inventoryReducer } = await import('../../src/state/slices/inventorySlice');
             composeTick(state, 100, 'HANGAR');
@@ -109,17 +103,17 @@ describe('reducerComposer coverage', () => {
     describe('composeAction Routing', () => {
         it('should route RESOURCE_ACTIONS', () => {
             const nextState = composeAction(state, { type: 'LOG_FLAVOR' });
-            expect((nextState.resources as any).test).toBe('resources');
+            expect((nextState.resources as unknown as MockState<typeof nextState.resources>).test).toBe('resources');
         });
 
         it('should route INVENTORY_ACTIONS', () => {
             const nextState = composeAction(state, { type: 'HARVEST_ROTABLE' });
-            expect((nextState.inventory as any).test).toBe('inventory');
+            expect((nextState.inventory as unknown as MockState<typeof nextState.inventory>).test).toBe('inventory');
         });
 
         it('should route PROFICIENCY_ACTIONS', () => {
             const nextState = composeAction(state, { type: 'UNLOCK_SKILL' });
-            expect((nextState.proficiency as any).test).toBe('proficiency');
+            expect((nextState.proficiency as unknown as MockState<typeof nextState.proficiency>).test).toBe('proficiency');
         });
 
         it('should route EVENT_ACTIONS', () => {
@@ -129,12 +123,12 @@ describe('reducerComposer coverage', () => {
 
         it('should route BACKSHOP_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'CLEAN_ULD' });
-             expect((nextState.resources as any).test).toBe('backshop');
+             expect((nextState.resources as unknown as MockState<typeof nextState.resources>).test).toBe('backshop');
         });
 
         it('should route COMPLIANCE_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'REVIEW_COMPLIANCE' });
-             expect((nextState.resources as any).test).toBe('compliance');
+             expect((nextState.resources as unknown as MockState<typeof nextState.resources>).test).toBe('compliance');
         });
 
         it('should route AIRCRAFT_ACTIONS', () => {
@@ -144,7 +138,7 @@ describe('reducerComposer coverage', () => {
 
         it('should route TERMINAL_LOCATION_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'WATCH_BOARDS' });
-             expect((nextState.resources as any).test).toBe('terminalLocation');
+             expect((nextState.resources as unknown as MockState<typeof nextState.resources>).test).toBe('terminalLocation');
         });
 
         it('should route OFFICE_ACTIONS', () => {
@@ -154,42 +148,42 @@ describe('reducerComposer coverage', () => {
 
         it('should route HANGAR_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'FOD_SWEEP' });
-             expect((nextState.resources as any).test).toBe('hangar');
+             expect((nextState.resources as unknown as MockState<typeof nextState.resources>).test).toBe('hangar');
         });
 
         it('should route SHOP_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'BUY_SHOP_ITEM' });
-             expect((nextState.resources as any).test).toBe('shop');
+             expect((nextState.resources as unknown as MockState<typeof nextState.resources>).test).toBe('shop');
         });
 
         it('should route PET_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'PET_CAT' });
-             expect((nextState.pet as any).test).toBe('pet');
+             expect((nextState.pet as unknown as MockState<typeof nextState.pet>).test).toBe('pet');
         });
 
         it('should route ENCOUNTERS_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'OBSERVE_SEDAN' });
-             expect((nextState.resources as any).test).toBe('encounters');
+             expect((nextState.resources as unknown as MockState<typeof nextState.resources>).test).toBe('encounters');
         });
 
         it('should route PROCUREMENT_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'PLACE_ORDER' });
-             expect((nextState.procurement as any).test).toBe('procurement');
+             expect((nextState.procurement as unknown as MockState<typeof nextState.procurement>).test).toBe('procurement');
         });
 
         it('should route TERMINAL_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'ARCHIVE_ACTION', payload: { command: 'test', triggerEvent: vi.fn() } });
-             expect((nextState.archiveTerminal as any).test).toBe('archive');
+             expect((nextState.archiveTerminal as unknown as MockState<typeof nextState.archiveTerminal>).test).toBe('archive');
         });
 
         it('should route AOG_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'START_AOG_ACTION' });
-             expect((nextState.aog as any).test).toBe('aog');
+             expect((nextState.aog as unknown as MockState<typeof nextState.aog>).test).toBe('aog');
         });
 
         it('should route BULLETIN_BOARD_ACTIONS', () => {
              const nextState = composeAction(state, { type: 'ROTATE_BULLETIN' });
-             expect((nextState.bulletinBoard as any).test).toBe('bulletin');
+             expect((nextState.bulletinBoard as unknown as MockState<typeof nextState.bulletinBoard>).test).toBe('bulletin');
         });
     });
 

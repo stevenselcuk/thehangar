@@ -16,7 +16,7 @@ describe('logUtils', () => {
         });
 
         it('should return default styles for unknown type', () => {
-            const styles = getLogStyles('unknown' as any);
+            const styles = getLogStyles('unknown' as LogMessage['type']);
             expect(styles.prefix).toBe('[ MSG ]');
         });
 
@@ -44,7 +44,7 @@ describe('logUtils', () => {
         });
 
         it('should return default for unknown type', () => {
-            expect(getNotificationVariantForLogType('unknown' as any)).toBe('default');
+            expect(getNotificationVariantForLogType('unknown' as LogMessage['type'])).toBe('default');
         });
     });
 });

@@ -71,7 +71,7 @@ describe('actionProcessor coverage', () => {
             expect(nextState.resources.focus).toBe(90); // 100 - 10
             expect(nextState.resources.experience).toBe((state.resources.experience || 0) + 10);
             expect(nextState.flags.isAfraid).toBe(true);
-            expect((nextState.inventory as any).mockItem).toBe(true);
+            expect((nextState.inventory as unknown as Record<string, boolean>).mockItem).toBe(true);
             expect(nextState.logs[0].text).toBe('Mock Success');
         });
 
