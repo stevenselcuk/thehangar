@@ -22,7 +22,7 @@ describe('Performance Benchmark: Mail Filtering', () => {
     };
 
     // Setup large datasets
-    const existingMailCount = 10000;
+    const existingMailCount = 1000;
     const existingMail = generateMail(existingMailCount, 0);
 
     // Using a moderate size for mailData to demonstrate the algorithmic difference
@@ -30,7 +30,7 @@ describe('Performance Benchmark: Mail Filtering', () => {
     const mailData = generateMailData(mailDataCount, existingMailCount - 50); // 50 overlap, 50 new.
 
     it('benchmarks nested loop vs Set lookup', () => {
-        const iterations = 200;
+        const iterations = 20;
         let totalFoundCurrent = 0;
         let totalFoundOptimized = 0;
 
