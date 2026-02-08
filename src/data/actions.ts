@@ -82,19 +82,6 @@ export const actionsData: Record<string, ActionDefinition> = {
       },
     ],
   },
-  HARVEST_ROTABLE: {
-    id: 'HARVEST_ROTABLE',
-    label: 'Scavenge Component',
-    baseCost: { focus: 30 },
-    effects: [
-      {
-        chance: 1.0,
-        log: 'You carefully remove a serviceable component. It might be useful.',
-        logType: 'story',
-        resourceModifiers: { experience: 250 },
-      },
-    ],
-  },
   USE_PAYPHONE: {
     id: 'USE_PAYPHONE',
     label: 'Use Payphone',
@@ -144,19 +131,6 @@ export const actionsData: Record<string, ActionDefinition> = {
         log: 'You sit for the exam. The questions seem to change when you look away.',
         logType: 'story',
         resourceModifiers: { experience: 1000 },
-      },
-    ],
-  },
-  ANALYZE_ANOMALY: {
-    id: 'ANALYZE_ANOMALY',
-    label: 'Analyze Anomaly',
-    baseCost: { focus: 60, sanity: 30 },
-    effects: [
-      {
-        chance: 1.0,
-        log: 'You dismantle the component. It bleeds oil.',
-        logType: 'vibration',
-        resourceModifiers: { experience: 800 },
       },
     ],
   },

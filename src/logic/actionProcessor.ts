@@ -972,27 +972,51 @@ export const handleGameAction = (
         // 1. Check Resources
         if ((jobReqs.alclad || 0) > nextRes.alclad) {
           addLog('Insufficient Alclad.', 'error');
-          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+          return {
+            ...prev,
+            logs: nextLogs,
+            resources: { ...nextRes, focus: nextRes.focus + cost },
+          };
         }
         if ((jobReqs.rivets || 0) > nextRes.rivets) {
           addLog('Insufficient Rivets.', 'error');
-          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+          return {
+            ...prev,
+            logs: nextLogs,
+            resources: { ...nextRes, focus: nextRes.focus + cost },
+          };
         }
         if ((jobReqs.titanium || 0) > nextRes.titanium) {
           addLog('Insufficient Titanium.', 'error');
-          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+          return {
+            ...prev,
+            logs: nextLogs,
+            resources: { ...nextRes, focus: nextRes.focus + cost },
+          };
         }
         if ((jobReqs.crystallineResonators || 0) > (nextRes.crystallineResonators || 0)) {
           addLog('Insufficient Crystalline Resonators.', 'error');
-          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+          return {
+            ...prev,
+            logs: nextLogs,
+            resources: { ...nextRes, focus: nextRes.focus + cost },
+          };
         }
         if ((jobReqs.bioFilament || 0) > (nextRes.bioFilament || 0)) {
           addLog('Insufficient Bio-Filament.', 'error');
-          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+          return {
+            ...prev,
+            logs: nextLogs,
+            resources: { ...nextRes, focus: nextRes.focus + cost },
+          };
         }
         if ((jobReqs.skydrol || 0) > (nextRes.skydrol || 0)) {
           addLog('Insufficient Skydrol.', 'error');
-          return { ...prev, resources: { ...nextRes, focus: nextRes.focus + cost } };
+          return {
+            ...prev,
+            logs: nextLogs,
+            resources: { ...nextRes, focus: nextRes.focus + cost },
+          };
         }
 
         // 2. Check Tools
