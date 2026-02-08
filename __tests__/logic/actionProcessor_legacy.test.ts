@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { handleGameAction } from '../../src/logic/actionProcessor';
 import { GameState, JobCard, RotableItem } from '../../src/types';
 import { createInitialState } from '../../src/state/initialState';
-import { skillsData } from '../../src/data/skills';
 
 describe('actionProcessor - Legacy Actions', () => {
   let initialState: GameState;
@@ -81,14 +80,14 @@ describe('actionProcessor - Legacy Actions', () => {
   it('TAKE_EXAM: should pass if training progress 100', () => {
       const state = { ...initialState, hfStats: { ...initialState.hfStats, trainingProgress: 100 } };
       const nextState = handleGameAction(state, 'TAKE_EXAM', { id: 'testCert' }, createJobMock, triggerEventMock);
-      expect((nextState.inventory as any).testCert).toBe(true);
+      expect((nextState.inventory as unknown as Record<string, boolean>).testCert).toBe(true);
       expect(nextState.hfStats.trainingProgress).toBe(0);
   });
 
   it('TAKE_EXAM: should fail if training progress < 100', () => {
       const state = { ...initialState, hfStats: { ...initialState.hfStats, trainingProgress: 99 } };
       const nextState = handleGameAction(state, 'TAKE_EXAM', { id: 'testCert' }, createJobMock, triggerEventMock);
-      expect((nextState.inventory as any).testCert).toBeUndefined();
+      expect((nextState.inventory as unknown as Record<string, boolean>).testCert).toBeUndefined();
   });
 
   it('CREATE_SRF: should add credits and xp', () => {
@@ -153,7 +152,7 @@ describe('actionProcessor - Legacy Actions', () => {
 
   it('GET_TOOLROOM_ITEM: should add item and set condition', () => {
       const nextState = handleGameAction(initialState, 'GET_TOOLROOM_ITEM', { key: 'wrench', label: 'Wrench', pn: 'W1' }, createJobMock, triggerEventMock);
-      expect((nextState.inventory as any).wrench).toBe(true);
+      expect((nextState.inventory as unknown as Record<string, boolean>).wrench).toBe(true);
       expect(nextState.toolConditions['wrench']).toBe(100);
   });
 

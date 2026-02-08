@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { processTick } from '../../src/logic/tickLogic';
 import { createInitialState } from '../../src/state/initialState';
-import { GameState, TabType, NoiseLevel, FatigueLevel, TemperatureLevel } from '../../src/types';
-import { LOCATION_PROPERTIES } from '../../src/data/locationProperties';
-import { GAME_CONSTANTS } from '../../src/data/constants';
+import { GameState, TabType } from '../../src/types';
 
 // Mock dependencies if needed, but integration style is fine for logic testing
 // We can mock Math.random to control probabilities
