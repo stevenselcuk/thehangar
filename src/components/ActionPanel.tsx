@@ -491,6 +491,14 @@ const ActionPanel: React.FC<{
               className="mb-0 text-sm"
             />
 
+            <ActionButton
+              label="Sort Hardware Bin"
+              onClick={() => onAction('SORT_HARDWARE')}
+              cost={{ label: 'FOCUS', value: 20 }}
+              description="Organize the chaos. The Master values order."
+              className="mb-0 text-sm border-zinc-700/50 hover:bg-zinc-900/20 text-zinc-400"
+            />
+
             <div className="p-4 border border-emerald-900 bg-zinc-950/40">
               <h4 className="text-[10px] text-emerald-500 uppercase mb-4 font-bold tracking-widest border-l-2 border-emerald-600 pl-3">
                 Owned Tool Maintenance

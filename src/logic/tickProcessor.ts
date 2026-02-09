@@ -249,20 +249,20 @@ export const processTick = (
   }
 
   if (nextFlags.transitCheckDelegationActive) {
-    nextRes.credits += 1.5 * (delta / 1000);
-    nextRes.experience += 5 * (delta / 1000);
+    // Nerfed from 1.5 credits / 5 XP to prevent inflation
+    nextRes.credits += 0.5 * (delta / 1000);
+    nextRes.experience += 0.2 * (delta / 1000);
     nextRes.suspicion = Math.min(100, nextRes.suspicion + 0.05 * (delta / 1000));
   }
 
   if (nextFlags.autoSrfActive) {
-    nextRes.credits += 0.8 * (delta / 1000);
-    nextRes.experience += 2 * (delta / 1000);
+    // Nerfed from 0.8 credits / 2 XP
+    nextRes.credits += 0.2 * (delta / 1000);
+    nextRes.experience += 0.05 * (delta / 1000);
+
+    // Audit risk remains the same
     if (Math.random() < 0.0001 * (delta / 1000)) {
-      addLog(
-        'AUTOMATION ALERT: SRF form filed with a data discrepancy. An internal review has been triggered.',
-        'warning'
-      );
-      triggerEvent('audit', 'AUDIT_INTERNAL');
+      triggerEvent('audit', 'AUDIT_SURPRISE');
     }
   }
 

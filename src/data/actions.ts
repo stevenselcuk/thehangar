@@ -207,6 +207,56 @@ export const actionsData: Record<string, ActionDefinition> = {
       logType: 'info',
     },
   },
+  GET_TOOLROOM_ITEM: {
+    id: 'GET_TOOLROOM_ITEM',
+    label: 'Check Out Tool',
+    baseCost: { focus: 0 },
+    effects: [
+      {
+        chance: 1.0,
+        log: 'Tool checked out.',
+        logType: 'info',
+        resourceModifiers: { experience: 25 },
+      },
+    ],
+  },
+  SORT_HARDWARE: {
+    id: 'SORT_HARDWARE',
+    label: 'Sort Hardware Bin',
+    baseCost: { focus: 20 },
+    effects: [
+      {
+        chance: 0.2,
+        log: 'You separate the AN3 bolts from the AN4s. One of them is warm to the touch.',
+        logType: 'story',
+        resourceModifiers: { experience: 100, credits: 10 },
+      },
+      {
+        chance: 0.4,
+        log: 'You organize the washers. You find a human tooth mixed in with the spacers. You ignore it.',
+        logType: 'vibration',
+        resourceModifiers: { experience: 120, credits: 10, sanity: -5 },
+      },
+      {
+        chance: 0.6,
+        log: 'The Master nods as you align the wrenches. The shadows under the workbench seem to recede slightly.',
+        logType: 'story',
+        resourceModifiers: { experience: 110, credits: 15 },
+      },
+      {
+        chance: 0.8,
+        log: 'You count the rivets. 50... 51... 50... 49? You stop counting.',
+        logType: 'vibration',
+        resourceModifiers: { experience: 100, credits: 10, sanity: -2 },
+      },
+      {
+        chance: 1.0,
+        log: "Sorting the scrap bin. You find a piece of fuselage with your name scratched into it. It's an old scratch.",
+        logType: 'story',
+        resourceModifiers: { experience: 150, credits: 10, sanity: -10 },
+      },
+    ],
+  },
   RUMMAGE_LOST_FOUND: {
     id: 'RUMMAGE_LOST_FOUND',
     baseCost: { focus: 5 },
@@ -219,6 +269,7 @@ export const actionsData: Record<string, ActionDefinition> = {
           resources: {
             ...state.resources,
             credits: state.resources.credits + Math.floor(Math.random() * 20) + 5,
+            experience: state.resources.experience + 40,
           },
         }),
       },
@@ -226,14 +277,14 @@ export const actionsData: Record<string, ActionDefinition> = {
         chance: 0.5,
         log: ACTION_LOGS.RUMMAGE_LOST_FOUND_SANITY,
         logType: 'story',
-        resourceModifiers: { sanity: 10 },
+        resourceModifiers: { sanity: 10, experience: 40 },
       },
     ],
     failureEffect: {
       chance: 1.0,
       log: ACTION_LOGS.RUMMAGE_LOST_FOUND_WEIRD,
       logType: 'vibration',
-      resourceModifiers: { sanity: -5 },
+      resourceModifiers: { sanity: -5, experience: 80 },
     },
   },
   LISTEN_FUSELAGE: {

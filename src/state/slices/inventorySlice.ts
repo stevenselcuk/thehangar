@@ -89,7 +89,8 @@ export type InventoryAction =
       type: 'UPDATE_TOOLROOM_STATUS';
       payload: { status: 'OPEN' | 'CLOSED' | 'AUDIT' | 'LUNCH'; nextChange: number };
     }
-  | { type: 'NPC_TOOL_ACTION'; payload: { toolId: string; action: 'CHECKOUT' | 'RETURN' } };
+  | { type: 'NPC_TOOL_ACTION'; payload: { toolId: string; action: 'CHECKOUT' | 'RETURN' } }
+  | { type: 'SORT_HARDWARE'; payload?: Record<string, unknown> };
 
 // ===== HELPER FUNCTIONS =====
 
@@ -413,6 +414,53 @@ export const inventoryReducer = produce((draft: InventorySliceState, action: Inv
         draft.toolroom.unavailableTools = draft.toolroom.unavailableTools.filter(
           (id) => id !== toolId
         );
+      }
+      break;
+    }
+
+    case 'SORT_HARDWARE': {
+      if (draft.resources.focus < 20) {
+        addLog('Focus too low to sort hardware.', 'warning');
+        return;
+      }
+      draft.resources.focus -= 20;
+
+      const roll = Math.random();
+      if (roll < 0.2) {
+        addLog(
+          'You separate the AN3 bolts from the AN4s. One of them is warm to the touch.',
+          'story'
+        );
+        draft.resources.experience += 100;
+        draft.resources.credits += 10;
+      } else if (roll < 0.4) {
+        addLog(
+          'You organize the washers. You find a human tooth mixed in with the spacers. You ignore it.',
+          'vibration'
+        );
+        draft.resources.experience += 120;
+        draft.resources.credits += 10;
+        draft.resources.sanity = Math.max(0, draft.resources.sanity - 5);
+      } else if (roll < 0.6) {
+        addLog(
+          'The Master nods as you align the wrenches. The shadows under the workbench seem to recede slightly.',
+          'story'
+        );
+        draft.resources.experience += 110;
+        draft.resources.credits += 15;
+      } else if (roll < 0.8) {
+        addLog('You count the rivets. 50... 51... 50... 49? You stop counting.', 'vibration');
+        draft.resources.experience += 100;
+        draft.resources.credits += 10;
+        draft.resources.sanity = Math.max(0, draft.resources.sanity - 2);
+      } else {
+        addLog(
+          "Sorting the scrap bin. You find a piece of fuselage with your name scratched into it. It's an old scratch.",
+          'story'
+        );
+        draft.resources.experience += 150;
+        draft.resources.credits += 10;
+        draft.resources.sanity = Math.max(0, draft.resources.sanity - 10);
       }
       break;
     }

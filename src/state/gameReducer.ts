@@ -226,6 +226,7 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           'FEED_CAT',
           'PLAY_WITH_CAT',
           'PET_RANDOM_MOVE',
+          'SORT_HARDWARE',
         ];
 
         if (composedActions.includes(type)) {

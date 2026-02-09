@@ -237,6 +237,7 @@ const INVENTORY_ACTIONS = [
   'FINISH_CALIBRATION_MINIGAME',
   'ASK_MASTER_LORE',
   'TOOLROOM_MASTER_TALK',
+  'SORT_HARDWARE',
 ] as const;
 
 // Proficiency action types handled by proficiencySlice
@@ -832,7 +833,6 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         proficiency: draft.proficiency,
         stats: draft.stats,
         activeEvent: draft.activeEvent,
-        journal: draft.journal,
       };
 
       const updated = officeReducer(officeState, {
@@ -846,7 +846,6 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.flags = updated.flags as typeof draft.flags;
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs;
-      draft.journal = updated.journal;
       draft.proficiency = updated.proficiency as typeof draft.proficiency;
       draft.stats = updated.stats as typeof draft.stats;
       if (updated.activeEvent !== undefined) {
