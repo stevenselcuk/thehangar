@@ -50,7 +50,7 @@ export const generateResolutionLog = (
     // Filter by Tone (if specified)
     if (template.tone && template.tone !== context.tone) {
       // Allow 'MUNDANE' to mix with others sometimes, but usually strict
-      if (context.tone === 'ELDRITCH' && template.tone === 'BUREAUCRATIC') return false;
+      if (template.tone !== 'MUNDANE') return false;
     }
 
     // Filter by Conditions (Sanity, Items, etc.)
