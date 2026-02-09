@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { procurementReducer, ProcurementSliceState } from '../../../src/state/slices/procurementSlice';
-import { Inventory, LogMessage, ProcurementState, ResourceState } from '../../../src/types';
+import { Inventory, ProcurementState, ResourceState } from '../../../src/types';
 
 describe('procurementReducer', () => {
   const initialProcurement: ProcurementState = {
@@ -125,7 +125,7 @@ describe('procurementReducer', () => {
       // Order is removed from list
       expect(nextState.procurement.orders).toHaveLength(0);
       // Item added to inventory
-      expect((nextState.inventory as any).drill_press).toBe(true);
+      expect((nextState.inventory as unknown as Record<string, boolean>).drill_press).toBe(true);
       expect(nextState.logs).toHaveLength(2);
       expect(nextState.logs[0].text).toContain('DELIVERY RECEIVED');
   });
@@ -151,7 +151,7 @@ describe('procurementReducer', () => {
       const nextState = procurementReducer(stateWithOrder, checkAction);
 
       expect(nextState.procurement.orders).toHaveLength(0);
-      expect((nextState.inventory as any).fast_item).toBe(true);
+      expect((nextState.inventory as unknown as Record<string, boolean>).fast_item).toBe(true);
       expect(nextState.logs).toHaveLength(2);
       expect(nextState.logs[0].text).toContain('DELIVERY: Fast Item has arrived');
   });

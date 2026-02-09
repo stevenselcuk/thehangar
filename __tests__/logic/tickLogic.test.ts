@@ -1,8 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { processTick } from '../../src/logic/tickLogic';
-import { GameState, TabType, NoiseLevel, FatigueLevel, TemperatureLevel } from '../../src/types';
-import { LOCATION_PROPERTIES } from '../../src/data/locationProperties';
-import { GAME_CONSTANTS } from '../../src/data/constants';
+import { GameState, TabType, Job } from '../../src/types';
 import * as logService from '../../src/services/logService';
 
 // Mock dependencies
@@ -15,7 +13,7 @@ vi.mock('../../src/services/logService', () => ({
 
 describe('tickLogic', () => {
     let mockState: GameState;
-    let triggerEvent: any;
+    let triggerEvent: Mock;
 
     beforeEach(() => {
         triggerEvent = vi.fn();
@@ -132,7 +130,7 @@ describe('tickLogic', () => {
             id: 'job1',
             title: 'Job',
             timeLeft: 10000,
-        } as any;
+        } as unknown as Job;
 
         processTick(mockState, 1000, triggerEvent, TabType.HANGAR);
 
@@ -144,7 +142,7 @@ describe('tickLogic', () => {
             id: 'job1',
             title: 'Job',
             timeLeft: 500, // Less than delta
-        } as any;
+        } as unknown as Job;
 
         // This will reduce time to -500, trigger expire log, and create new job.
         processTick(mockState, 1000, triggerEvent, TabType.HANGAR);

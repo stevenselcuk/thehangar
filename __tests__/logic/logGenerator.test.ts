@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { generateResolutionLog } from '../../src/logic/logGenerator';
 import { EVENT_RESOLUTION_TEMPLATES } from '../../src/data/flavor';
-import { GameState } from '../../src/types';
 
 describe('logGenerator', () => {
     const mockState = {
@@ -80,7 +79,6 @@ describe('logGenerator', () => {
         // Find a template with requiredItem if any exist
         const itemTemplate = EVENT_RESOLUTION_TEMPLATES.find(t => t.conditions?.requiredItem);
         if (itemTemplate && itemTemplate.conditions?.requiredItem) {
-            const itemName = itemTemplate.conditions.requiredItem;
 
             // Without item
             // We can't easily force this exact template to be picked unless we filter others out or mock random.
