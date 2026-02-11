@@ -77,7 +77,7 @@ test.describe('Progression Level 0 to 3', () => {
         // Try to click Check Out
         try {
             await checkoutBtn.click({ timeout: 2000 });
-        } catch (_) {
+        } catch {
             console.log('Click failed or timed out. Checking state...');
             const count = await page.locator('button:has-text("Check Out")').count();
             console.log(`Remaining Check Out buttons: ${count}`);
@@ -124,7 +124,7 @@ test.describe('Progression Level 0 to 3', () => {
              // Ensure element is stable before clicking to avoid detachment errors
              try {
                 await rummageBtn.click({ timeout: 2000 });
-             } catch (_) {
+             } catch {
                 // Retry loop will handle it
                 await page.waitForTimeout(500);
                 continue;
@@ -132,7 +132,10 @@ test.describe('Progression Level 0 to 3', () => {
 
              await page.waitForTimeout(200); // Slightly longer wait for state update
              currentLevel = await getLevel(page);
-             console.log(`Canteen Loop: Level ${currentLevel}`);
+
+             // Debug XP
+             const xpText = await page.locator('text=/\\d+ \\/ \\d+ XP/').textContent().catch(() => 'XP Not Found');
+             console.log(`Canteen Loop: Level ${currentLevel} | ${xpText}`);
          }
     }
     console.log('Reached Level 2!');
