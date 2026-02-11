@@ -10,40 +10,6 @@ async function getLevel(page: Page): Promise<number> {
   return parseInt(match[1], 10);
 }
 
-// Helper to get current focus from UI
-async function getFocus(page: Page): Promise<number> {
-  // Locating the focus value. Structure:
-  // div containing "Focus" -> sibling or child span with value.
-  // Based on ResourceBar.tsx, there is a span with "Focus" and a sibling span with "{val}%"
-  // We can look for the text "Focus" and then find the percentage number near it.
-
-  // Using a specific locator strategy based on the component structure:
-  // <div ...> <span ...>Focus</span> <span ...>100%</span> </div>
-  const focusContainer = page.locator('div').filter({ hasText: /^Focus\d+%$/ });
-  // Fallback if structure is slightly different or text is split
-  if (await focusContainer.count() === 0) {
-      // Try to find "Focus" label and get the text following it
-      const focusLabel = page.locator('span', { hasText: 'Focus' });
-      const focusValue = page.locator('span', { hasText: /^\d+%$/ }).filter({ has: page.locator('xpath=preceding-sibling::span[text()="Focus"]') });
-      // This is tricky without unique IDs.
-      // Let's try getting all text content of the vital bars area and parsing.
-      // Or finding the specific color class for focus value: text-blue-400
-      // There are multiple blue-400, but in vitals row it should be unique near "Focus".
-
-      const focusText = await page.locator('div:has-text("Focus")').last().textContent();
-      // This might capture "Focus100%"
-      if (focusText) {
-          const match = focusText.match(/Focus(\d+)%/);
-          if (match) return parseInt(match[1], 10);
-      }
-      return 0; // Fail safe
-  }
-
-  const text = await focusContainer.textContent();
-  const match = text?.match(/Focus(\d+)%/);
-  return match ? parseInt(match[1], 10) : 0;
-}
-
 test.describe('Progression Level 0 to 3', () => {
   test.beforeEach(async ({ page }) => {
     // Clear state
@@ -111,7 +77,7 @@ test.describe('Progression Level 0 to 3', () => {
         // Try to click Check Out
         try {
             await checkoutBtn.click({ timeout: 2000 });
-        } catch (e) {
+        } catch (_) {
             console.log('Click failed or timed out. Checking state...');
             const count = await page.locator('button:has-text("Check Out")').count();
             console.log(`Remaining Check Out buttons: ${count}`);
@@ -132,14 +98,18 @@ test.describe('Progression Level 0 to 3', () => {
     // Fallback to Canteen if Level 2 not reached (ran out of tools)
     if (currentLevel < 2) {
          console.log('Falling back to Canteen for remaining XP...');
+
+         // Check if Canteen tab is available before clicking
          const canteenTab = page.locator('button:has-text("CANTEEN")').first();
-         await expect(canteenTab).toBeVisible();
+         await expect(canteenTab).toBeVisible({ timeout: 5000 });
          await canteenTab.click();
 
          // "Inspect Vending Machine" is missing.
          // We fixed "Rummage in Lost & Found" to give XP. It is safer than Talking (Sanity+).
          const rummageBtn = page.locator('button:has-text("Rummage in Lost & Found")');
-         await expect(rummageBtn).toBeVisible();
+
+         // Wait for the button to appear in case of render delay
+         await expect(rummageBtn).toBeVisible({ timeout: 5000 });
 
          while (currentLevel < 2) {
              if (await rummageBtn.isDisabled()) {
@@ -147,12 +117,20 @@ test.describe('Progression Level 0 to 3', () => {
                  if (dead > 0) throw new Error('Died during Level 1 grind');
 
                  console.log('Waiting for Focus...');
-                 await page.waitForTimeout(2000);
+                 await page.waitForTimeout(1500); // Shorter wait to be more responsive
                  continue;
              }
 
-             await rummageBtn.click();
-             await page.waitForTimeout(500); // Wait longer for stability/tick
+             // Ensure element is stable before clicking to avoid detachment errors
+             try {
+                await rummageBtn.click({ timeout: 2000 });
+             } catch (_) {
+                // Retry loop will handle it
+                await page.waitForTimeout(500);
+                continue;
+             }
+
+             await page.waitForTimeout(200); // Slightly longer wait for state update
              currentLevel = await getLevel(page);
              console.log(`Canteen Loop: Level ${currentLevel}`);
          }
