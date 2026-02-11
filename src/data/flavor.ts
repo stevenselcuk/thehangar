@@ -143,6 +143,28 @@ export const ACTION_LOGS: Record<string, string> = {
   LISTEN_TO_WALLS_WHISPER:
     'The concrete walls are humming. If you press your ear against them, you can hear the shift change from 1985.',
   LISTEN_TO_WALLS_NOTHING: 'Just the hum of the high-voltage lines. And a faint scratching sound.',
+
+  // MARSHALLING LOGS
+  MARSHALLING_SUCCESS:
+    'You guide the aircraft to the gate. The pilot gives you a thumbs up. Or maybe he was just adjusting his visor.',
+  MARSHALLING_STATIC:
+    'The wands leave trails of green light in your vision. The pilot is staring at something behind you.',
+  MARSHALLING_TEXT_CRAWL:
+    'As you signal the turn, the scrolling text on the gate sign changes to "RUN". You finish the job anyway.',
+  MARSHALLING_GHOST_WIND:
+    'A gust of wind hits you, smelling of ozone and old perfume. The aircraft engines are off, but you hear them screaming.',
+  MARSHALLING_MIRROR:
+    'For a second, the pilot in the cockpit looks exactly like you. He is screaming.',
+  MARSHALLING_SLOW_TIME:
+    'The aircraft moves in slow motion, but the clock on the wall is spinning wildly. You marshal it in between seconds.',
+  MARSHALLING_SHADOWS: 'The shadow of the plane lands before the plane does. It is shaped wrong.',
+  MARSHALLING_NO_PILOT:
+    'You guide the plane perfectly to the stop bar. Only then do you realize the cockpit is empty.',
+  MARSHALLING_WHISPER:
+    'The noise of the APU drowns out everything, except the whisper in your ear: "We are not landing."',
+  MARSHALLING_WRONG_Airline:
+    'The livery flickers. One moment it is United, the next it is Pan Am. Then it is just bare metal.',
+
   SACRIFICE_TOOL_ACCEPTED:
     "You drop the wrench into the dark gap between the bulkheads. It doesn't hit the bottom. You feel a weight lift from your chest.",
   SACRIFICE_TOOL_REJECTED:

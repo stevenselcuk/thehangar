@@ -351,6 +351,7 @@ const HANGAR_ACTIONS = [
   'TOGGLE_TRANSIT_CHECK_DELEGATION',
   'LISTEN_FUSELAGE',
   'CHECK_REDACTED_LOGS',
+  'MARSHALLING',
 ] as const;
 
 // Shop action types handled by shopSlice

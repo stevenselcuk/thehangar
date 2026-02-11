@@ -1,5 +1,6 @@
 import { produce } from 'immer';
 import { ENDINGS } from '../../data/endings.ts';
+import { eventsData } from '../../data/events.ts';
 import {
   ACTION_LOGS,
   BOEING_REPLIES,
@@ -9,7 +10,7 @@ import {
 } from '../../data/flavor.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
-import { GameState } from '../../types.ts';
+import { GameEvent, GameState } from '../../types.ts';
 
 /**
  * hangarSlice.ts - Hangar Operations Domain
@@ -59,7 +60,8 @@ export type HangarAction =
   | { type: 'TOGGLE_TRANSIT_CHECK_DELEGATION'; payload: Record<string, unknown> }
   | { type: 'LISTEN_FUSELAGE'; payload: Record<string, unknown> }
   | { type: 'CHECK_REDACTED_LOGS'; payload: Record<string, unknown> }
-  | { type: 'TRIGGER_ENDING'; payload: { endingId: string } };
+  | { type: 'TRIGGER_ENDING'; payload: { endingId: string } }
+  | { type: 'MARSHALLING'; payload: Record<string, unknown> };
 
 // ==================== REDUCER ====================
 
@@ -245,6 +247,79 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
           // Future: draft.flags.gameOver = true; or draft.activeEvent = ...
         } else {
           addLog(`ERROR: ENDING ${endingId} NOT FOUND`, 'error');
+        }
+        break;
+      }
+
+      case 'MARSHALLING': {
+        draft.resources.focus = Math.max(0, draft.resources.focus - 15);
+        draft.resources.experience += 100;
+        draft.resources.credits += 50;
+
+        const roll = Math.random();
+
+        // 10% chance to trigger a specific marshalling event
+        if (!draft.activeEvent && roll < 0.1) {
+          const marshallingEvents = [
+            'MARSHALLING_GHOST_PLANE',
+            'MARSHALLING_WRONG_GATE',
+            'MARSHALLING_NO_PILOT',
+            'MARSHALLING_FACE_IN_WINDOW',
+            'MARSHALLING_STATIC_STORM',
+            'MARSHALLING_TIME_SLIP',
+            'MARSHALLING_SHADOW_CREW',
+            'MARSHALLING_ENGINE_WHISPER',
+            'MARSHALLING_CARGO_LEAK',
+            'MARSHALLING_PERFECT_ARRIVAL',
+          ];
+          const eventId = marshallingEvents[Math.floor(Math.random() * marshallingEvents.length)];
+
+          // Flatten eventsData to find the event
+          const allEvents = Object.values(eventsData).flat() as GameEvent[];
+          const event = allEvents.find((e) => e.id === eventId);
+
+          if (event) {
+            draft.activeEvent = {
+              ...event,
+              timeLeft: event.totalTime || 30000,
+            };
+          } else {
+            addLog(
+              'The marshalling wands vibrate in your hands. Something is watching.',
+              'vibration'
+            );
+            draft.resources.sanity -= 5;
+          }
+        } else {
+          // Standard success
+          const logs = [
+            'MARSHALLING_SUCCESS',
+            'MARSHALLING_STATIC',
+            'MARSHALLING_TEXT_CRAWL',
+            'MARSHALLING_GHOST_WIND',
+            'MARSHALLING_MIRROR',
+            'MARSHALLING_SLOW_TIME',
+            'MARSHALLING_SHADOWS',
+            'MARSHALLING_NO_PILOT',
+            'MARSHALLING_WHISPER',
+            'MARSHALLING_WRONG_Airline',
+          ];
+
+          const logKey = logs[Math.floor(Math.random() * logs.length)];
+          const logText = ACTION_LOGS[logKey] || 'You marshal the plane. It obeys.';
+
+          let logType: 'info' | 'story' | 'vibration' | 'warning' = 'story';
+          if (logKey === 'MARSHALLING_SUCCESS') logType = 'info';
+          if (['MARSHALLING_STATIC', 'MARSHALLING_MIRROR', 'MARSHALLING_WHISPER'].includes(logKey))
+            logType = 'vibration';
+          if (['MARSHALLING_TEXT_CRAWL', 'MARSHALLING_NO_PILOT'].includes(logKey))
+            logType = 'warning';
+
+          addLog(logText, logType);
+
+          if (logType === 'vibration') {
+            draft.resources.sanity -= 5;
+          }
         }
         break;
       }

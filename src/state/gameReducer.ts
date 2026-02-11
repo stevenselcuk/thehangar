@@ -174,6 +174,7 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           'TOGGLE_TRANSIT_CHECK_DELEGATION',
           'LISTEN_FUSELAGE',
           'CHECK_REDACTED_LOGS',
+          'MARSHALLING',
           'BUY_SHOP_ITEM',
           'BUY_VENDING',
           'OBSERVE_SEDAN',
