@@ -325,6 +325,9 @@ export const terminalLocationReducer = (
 
       case 'RUMMAGE_LOST_FOUND': {
         const roll = Math.random();
+        // Award XP for the action (consistent with actionsData definition)
+        draft.resources.experience += 40;
+
         if (roll < 0.2) {
           addLog(ACTION_LOGS.RUMMAGE_LOST_FOUND_CREDITS, 'info');
           draft.resources.credits += Math.floor(Math.random() * 20) + 5;
@@ -334,6 +337,8 @@ export const terminalLocationReducer = (
         } else {
           addLog(ACTION_LOGS.RUMMAGE_LOST_FOUND_WEIRD, 'vibration');
           draft.resources.sanity -= 5;
+          // Bonus XP for the weirdness?
+          draft.resources.experience += 40;
         }
         break;
       }
