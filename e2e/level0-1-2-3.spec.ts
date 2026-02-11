@@ -124,18 +124,17 @@ test.describe('Progression Level 0 to 3', () => {
              // Ensure element is stable before clicking to avoid detachment errors
              try {
                 await rummageBtn.click({ timeout: 2000 });
+                console.log('Clicked Rummage');
              } catch {
                 // Retry loop will handle it
+                console.log('Click Rummage failed');
                 await page.waitForTimeout(500);
                 continue;
              }
 
              await page.waitForTimeout(200); // Slightly longer wait for state update
              currentLevel = await getLevel(page);
-
-             // Debug XP
-             const xpText = await page.locator('text=/\\d+ \\/ \\d+ XP/').textContent().catch(() => 'XP Not Found');
-             console.log(`Canteen Loop: Level ${currentLevel} | ${xpText}`);
+             console.log(`Canteen Loop: Level ${currentLevel}`);
          }
     }
     console.log('Reached Level 2!');
