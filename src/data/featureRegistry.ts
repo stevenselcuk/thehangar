@@ -104,7 +104,7 @@ export const ACTION_FEATURES: Record<string, FeatureDefinition> = {
   RETURN_TOOLROOM_ITEM: { id: 'RETURN_TOOLROOM_ITEM', type: 'action', requiredLevel: 1 },
 
   // Level 2 - Ramp
-  RUMMAGE_LOST_FOUND: { id: 'RUMMAGE_LOST_FOUND', type: 'action', requiredLevel: 2 },
+  RUMMAGE_LOST_FOUND: { id: 'RUMMAGE_LOST_FOUND', type: 'action', requiredLevel: 0 },
 
   // Level 3 - Office
   TALK_TO_REGULAR: { id: 'TALK_TO_REGULAR', type: 'action', requiredLevel: 3 },
