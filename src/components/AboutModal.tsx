@@ -472,6 +472,46 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
           </div>
         </div>
       </div>
+
+      {/* COLLECTED EVIDENCE & ARTIFACTS */}
+      <div>
+        <h4 className="text-xs text-emerald-600 uppercase tracking-widest mb-4 border-b border-emerald-900/30 pb-2">
+          Collected Evidence
+        </h4>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {resources.hardwareBolts > 0 && (
+            <StatDisplay label="Hardware Bolts" value={resources.hardwareBolts} />
+          )}
+          {resources.threadlocker > 0 && (
+            <StatDisplay label="Threadlocker" value={resources.threadlocker} />
+          )}
+          {resources.cableTools > 0 && (
+            <StatDisplay label="Cable Tools" value={resources.cableTools} />
+          )}
+          {resources.fdrData > 0 && <StatDisplay label="FDR Data" value={resources.fdrData} />}
+          {resources.fqpu > 0 && <StatDisplay label="FQPU Units" value={resources.fqpu} />}
+          {resources.pressureTransducer > 0 && (
+            <StatDisplay label="Pressure Transducers" value={resources.pressureTransducer} />
+          )}
+          {resources.aimsData > 0 && (
+            <StatDisplay label="AIMS Data Logs" value={resources.aimsData} />
+          )}
+          {resources.ram > 0 && <StatDisplay label="RAM Modules" value={resources.ram} />}
+          {resources.smokeDetector > 0 && (
+            <StatDisplay label="Smoke Detectors" value={resources.smokeDetector} />
+          )}
+          {/* Also display some existing but hidden resources if they are relevant */}
+          {resources.bioFilament > 0 && (
+            <StatDisplay label="Bio-Filament" value={resources.bioFilament} />
+          )}
+          {resources.crystallineResonators > 0 && (
+            <StatDisplay label="Crystalline Resonators" value={resources.crystallineResonators} />
+          )}
+          {resources.kardexFragments > 0 && (
+            <StatDisplay label="Kardex Fragments" value={resources.kardexFragments} />
+          )}
+        </div>
+      </div>
       {/* ADMINISTRATIVE ACTIONS */}
       {/* ADMINISTRATIVE ACTIONS */}
       <div>
@@ -504,7 +544,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_63}';
+  const BUILD_NUMBER = 'Build v.{_build_67}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');

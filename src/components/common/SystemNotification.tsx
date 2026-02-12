@@ -1,5 +1,5 @@
 import React from 'react';
-import { Notification, NotificationVariant } from '../../context/NotificationContext';
+import { Notification, NotificationVariant } from '../../types';
 
 interface Props {
   notification: Notification;

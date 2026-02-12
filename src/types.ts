@@ -26,6 +26,16 @@ export interface ResourceState {
   syndicateReputation: number;
   unionReputation: number;
   canned_tuna: number; // Added for F.O.D.
+  // New items from aircraft scenarios
+  hardwareBolts: number;
+  threadlocker: number;
+  cableTools: number;
+  fdrData: number;
+  fqpu: number;
+  pressureTransducer: number;
+  aimsData: number;
+  ram: number;
+  smokeDetector: number;
 }
 
 export enum SuitType {

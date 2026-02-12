@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
 import { addLogImmutable, addLogToDraft, createLog } from '@/services/logService.ts';
-import { LogMessage } from '../../types.ts';
+import { LogMessage } from '@/types';
+import { describe, expect, it } from 'vitest';
 
 describe('LogService', () => {
   describe('createLog', () => {

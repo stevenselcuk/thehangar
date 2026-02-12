@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest';
 import { Inventory, TabType } from '../../types';
 import { checkLocationRequirements } from '../locationRequirements';
 

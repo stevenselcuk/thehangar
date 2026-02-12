@@ -11,6 +11,8 @@ import {
 import { syndicateEvents } from './syndicateEvents';
 import { unionEvents } from './unionEvents';
 
+import { aircraftEvents } from './aircraftEvents';
+
 type EventTemplates = Omit<GameEvent, 'timeLeft'>;
 
 export const eventsData: Record<string, EventTemplates[]> = {
@@ -228,6 +230,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
     },
   ],
   audit: [
+    ...(aircraftEvents.audit || []),
     {
       id: 'FAA_INSPECTOR',
       type: 'audit',
@@ -557,6 +560,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
     },
   ],
   accident: [
+    ...(aircraftEvents.accident || []),
     {
       id: 'ELECTRICAL_ARC_FLASH',
       type: 'accident',
@@ -593,6 +597,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
     },
   ],
   incident: [
+    ...(aircraftEvents.incident || []),
     {
       id: 'SUS_MEMO',
       type: 'incident',
@@ -951,6 +956,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
     },
   ],
   eldritch_manifestation: [
+    ...(aircraftEvents.eldritch_manifestation || []),
     {
       id: 'MEZZANINE_OBSERVATION',
       type: 'eldritch_manifestation',

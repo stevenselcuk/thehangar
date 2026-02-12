@@ -10,7 +10,7 @@ describe('shopSlice', () => {
 
     initialState = {
       resources: {
-        alclad: 500,
+        alclad: 0,
         titanium: 0,
         fiberglass: 0,
         rivets: 0,
@@ -27,7 +27,7 @@ describe('shopSlice', () => {
         focus: 100,
         experience: 0,
         level: 1,
-        credits: 100,
+        credits: 0,
         kardexFragments: 0,
         crystallineResonators: 0,
         bioFilament: 0,
@@ -35,6 +35,15 @@ describe('shopSlice', () => {
         syndicateReputation: 0,
         unionReputation: 0,
         canned_tuna: 0,
+        hardwareBolts: 0,
+        threadlocker: 0,
+        cableTools: 0,
+        fdrData: 0,
+        fqpu: 0,
+        pressureTransducer: 0,
+        aimsData: 0,
+        ram: 0,
+        smokeDetector: 0,
       },
       inventory: {
         flashlight: false,
@@ -92,6 +101,8 @@ describe('shopSlice', () => {
         hasEasaC: false,
         typeRating737: 0,
         typeRatingA330: 0,
+        wrench: false,
+        canned_tuna: false,
         laser_pointer: false,
       },
       personalInventory: {},
@@ -169,7 +180,7 @@ describe('shopSlice', () => {
       const result = shopReducer(initialState, action);
 
       expect(result.resources.alclad).toBe(300);
-      expect((result.inventory as Record<string, unknown>).rivetGun).toBe(true);
+      expect((result.inventory as unknown as Record<string, unknown>).pencil).toBe(true);
       expect(result.toolConditions.rivetGun).toBe(100);
       expect(result.logs[0].text).toContain('PURCHASED');
     });
@@ -188,7 +199,7 @@ describe('shopSlice', () => {
       const result = shopReducer(poorState, action);
 
       expect(result.resources.alclad).toBe(50);
-      expect((result.inventory as Record<string, unknown>).rivetGun).toBe(false);
+      expect((result.inventory as unknown as Record<string, unknown>).rivetGun).toBe(false);
       expect(result.logs[0].text).toContain('NOT ENOUGH');
       expect(result.logs[0].type).toBe('error');
     });
@@ -296,6 +307,7 @@ describe('shopSlice', () => {
           cost: 5,
           sanity: -20,
           focus: 10,
+          msg: 'Yuck!',
         },
       };
 

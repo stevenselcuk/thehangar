@@ -38,33 +38,82 @@ describe('terminalLocationSlice', () => {
         crystallineResonators: 0,
         bioFilament: 0,
         technicalLogbookHours: 0,
+        syndicateReputation: 0,
+        unionReputation: 0,
+        canned_tuna: 0,
+        hardwareBolts: 0,
+        threadlocker: 0,
+        cableTools: 0,
+        fdrData: 0,
+        fqpu: 0,
+        pressureTransducer: 0,
+        aimsData: 0,
+        ram: 0,
+        smokeDetector: 0,
       },
       flags: {
+        foundNote: false,
+        lightsFlickered: false,
+        officeUnlocked: false,
+        hangarUnlocked: false,
+        tarmacUnlocked: false,
+        foundManifest: false,
+        revealedTruth: false,
+        kardexActive: false,
+        suitsVisiting: false,
+        underSurveillance: false,
         nightCrewActive: false,
+        nightCrewUnlocked: false,
         transitCheckDelegationActive: false,
+        activeComponentFailure: null,
+        suspicionEvent30Triggered: false,
+        suspicionEvent60Triggered: false,
+        suspicionEvent90Triggered: false,
         autoSrfActive: false,
-        isAfraid: false,
-        fuelContaminationRisk: false,
-        ndtFinding: null,
         venomSurgeActive: false,
-        sls3Unlocked: false,
+        fuelContaminationRisk: false,
+        migraineActive: false,
+        toolroomMasterPissed: false,
         janitorPresent: false,
+        ndtFinding: null,
+        sls3Unlocked: false,
         onPerformanceImprovementPlan: false,
+        janitorArcStage: 0,
+        toolroomMasterArcStage: 0,
+        endingAlienConspiracyProgress: 0,
+        endingGovtConspiracyProgress: 0,
+        endingTriggered: null,
+        foundPhoto: false,
+        isHallucinating: false,
+        isAfraid: false,
         storyFlags: { fdrDeconstructed: false },
       },
       hfStats: {
+        fatigue: 0,
+        socialStress: 0,
         trainingProgress: 0,
+        compliancePressureTimer: 0,
+        efficiencyBoost: 0,
+        temperature: 20,
+        lightingLevel: 100,
         fearTimer: 0,
         noiseExposure: 0,
-        efficiencyBoost: 0,
-        foundLoopholeTimer: 0,
-        scheduleCompressionTimer: 0,
         venomSurgeTimer: 0,
+        toolroomMasterCooldown: 0,
+        migraineTimer: 0,
+        performanceReviewCooldown: 0,
+        janitorCooldown: 0,
+        scheduleCompressionTimer: 0,
+        sanityShieldTimer: 0,
+        foundLoopholeTimer: 0,
+        clearanceLevel: 0,
+        hfRecurrentDueDate: 0,
       },
       proficiency: {
         unlocked: [],
-        available: [],
-        points: 0,
+        skillPoints: 0,
+        unlockedBonuses: [],
+        easaModulesPassed: [],
       },
       logs: [],
     };
@@ -74,7 +123,9 @@ describe('terminalLocationSlice', () => {
     it('should award experience and reduce sanity', () => {
       const action: TerminalLocationAction = {
         type: 'WATCH_BOARDS',
-        payload: { triggerEvent: mockTriggerEvent },
+        payload: {
+          triggerEvent: mockTriggerEvent as unknown as (type: string, id?: string) => void,
+        },
       };
 
       const result = terminalLocationReducer(initialState, action);
@@ -146,7 +197,9 @@ describe('terminalLocationSlice', () => {
 
       const action: TerminalLocationAction = {
         type: 'SLEEP_AT_GATE',
-        payload: { triggerEvent: mockTriggerEvent },
+        payload: {
+          triggerEvent: mockTriggerEvent as unknown as (type: string, id?: string) => void,
+        },
       };
 
       const result = terminalLocationReducer(tired, action);
@@ -162,7 +215,9 @@ describe('terminalLocationSlice', () => {
     it('should restore sanity', () => {
       const action: TerminalLocationAction = {
         type: 'SMALL_TALK_PERSONNEL',
-        payload: { triggerEvent: mockTriggerEvent },
+        payload: {
+          triggerEvent: mockTriggerEvent as unknown as (type: string, id?: string) => void,
+        },
       };
 
       const result = terminalLocationReducer(initialState, action);
@@ -176,7 +231,9 @@ describe('terminalLocationSlice', () => {
     it('should increase suspicion', () => {
       const action: TerminalLocationAction = {
         type: 'OFFER_ASSISTANCE',
-        payload: { triggerEvent: mockTriggerEvent },
+        payload: {
+          triggerEvent: mockTriggerEvent as unknown as (type: string, id?: string) => void,
+        },
       };
 
       const result = terminalLocationReducer(initialState, action);
@@ -220,7 +277,9 @@ describe('terminalLocationSlice', () => {
     it('should not mutate original state', () => {
       const action: TerminalLocationAction = {
         type: 'WATCH_BOARDS',
-        payload: { triggerEvent: mockTriggerEvent },
+        payload: {
+          triggerEvent: mockTriggerEvent as unknown as (type: string, id?: string) => void,
+        },
       };
 
       const originalExp = initialState.resources.experience;

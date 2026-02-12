@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { createMinimalGameState } from '../../../utils/testHelpers';
 import { inventoryReducer, InventorySliceState } from '../inventorySlice';
 
 describe('inventoryReducer - SORT_HARDWARE', () => {
@@ -6,7 +7,7 @@ describe('inventoryReducer - SORT_HARDWARE', () => {
 
   beforeEach(() => {
     initialState = {
-      inventory: {},
+      inventory: createMinimalGameState().inventory,
       personalInventory: {},
       rotables: [],
       toolConditions: {},

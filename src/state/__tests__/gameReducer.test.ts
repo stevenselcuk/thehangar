@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { processTick } from '../../logic/tickLogic';
-import { composeAction, composeTick } from '../reducerComposer';
-import { gameReducer, GameReducerAction } from '../gameReducer';
 import { GameState } from '../../types';
+import { gameReducer, GameReducerAction } from '../gameReducer';
+import { composeAction, composeTick } from '../reducerComposer';
 
 // Mock dependencies
 vi.mock('../../logic/tickLogic', () => ({
@@ -11,7 +11,7 @@ vi.mock('../../logic/tickLogic', () => ({
 
 vi.mock('../reducerComposer', () => ({
   composeAction: vi.fn(() => ({})), // Return empty object to avoid proxy issues with Immer
-  composeTick: vi.fn(() => ({})),   // Return empty object
+  composeTick: vi.fn(() => ({})), // Return empty object
 }));
 
 describe('gameReducer', () => {
@@ -67,7 +67,7 @@ describe('gameReducer', () => {
         },
       } as const;
 
-      gameReducer(initialState, action);
+      gameReducer(initialState, action as unknown as GameReducerAction);
 
       // Check call arguments manually to avoid accessing revoked proxy (draft)
       const composeTickCalls = vi.mocked(composeTick).mock.calls;
@@ -95,7 +95,7 @@ describe('gameReducer', () => {
       // Spy on Math.random to trigger event (< 0.0003)
       const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.0002);
 
-      gameReducer(initialState, action);
+      gameReducer(initialState, action as unknown as GameReducerAction);
 
       expect(mockTriggerEvent).toHaveBeenCalled();
       randomSpy.mockRestore();
@@ -115,11 +115,12 @@ describe('gameReducer', () => {
       // Math.random() is called multiple times.
       // 1. First check (< 0.0003) -> Return 0.5 (fail)
       // 2. Second check (< 0.0001) -> Return 0.00005 (pass)
-      const randomSpy = vi.spyOn(Math, 'random')
+      const randomSpy = vi
+        .spyOn(Math, 'random')
         .mockReturnValueOnce(0.5)
         .mockReturnValueOnce(0.00005);
 
-      gameReducer(initialState, action);
+      gameReducer(initialState, action as unknown as GameReducerAction);
 
       expect(mockTriggerEvent).toHaveBeenCalledWith('incident', 'FUEL_CONTAM');
       randomSpy.mockRestore();
@@ -136,13 +137,13 @@ describe('gameReducer', () => {
         },
       } as const;
 
-      gameReducer(initialState, action);
+      gameReducer(initialState, action as unknown as GameReducerAction);
 
       const composeActionCalls = vi.mocked(composeAction).mock.calls;
       expect(composeActionCalls).toHaveLength(1);
       expect(composeActionCalls[0][1]).toEqual({
         type: 'PET_CAT',
-        payload: { someData: 'test' }
+        payload: { someData: 'test' },
       });
     });
 
@@ -175,136 +176,138 @@ describe('gameReducer', () => {
     });
 
     it('should warn on unknown actions', () => {
-        const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-        const action = {
-            type: 'ACTION',
-            payload: {
-                type: 'UNKNOWN_ACTION',
-            }
-        } as const;
+      const action = {
+        type: 'ACTION',
+        payload: {
+          type: 'UNKNOWN_ACTION',
+        },
+      } as const;
 
-        gameReducer(initialState, action);
+      gameReducer(initialState, action as unknown as GameReducerAction);
 
-        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Unhandled action type'));
-        consoleSpy.mockRestore();
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Unhandled action type'));
+      consoleSpy.mockRestore();
     });
   });
 
   describe('Dev Mode Actions', () => {
     it('should handle UPDATE_RESOURCE', () => {
-        const action = {
-            type: 'UPDATE_RESOURCE',
-            payload: { credits: 500 }
-        } as const;
+      const action = {
+        type: 'UPDATE_RESOURCE',
+        payload: { credits: 500 },
+      } as const;
 
-        const newState = gameReducer(initialState, action);
-        expect(newState.resources.credits).toBe(500);
+      const newState = gameReducer(initialState, action);
+      expect(newState.resources.credits).toBe(500);
     });
 
     it('should handle UPDATE_INVENTORY', () => {
-        const action = {
-            type: 'UPDATE_INVENTORY',
-            payload: { 'test-item': { id: 'test-item', name: 'Test', count: 1 } }
-        } as unknown as GameReducerAction;
+      const action = {
+        type: 'UPDATE_INVENTORY',
+        payload: { 'test-item': { id: 'test-item', name: 'Test', count: 1 } },
+      } as unknown as GameReducerAction;
 
-        const newState = gameReducer(initialState, action);
-        expect(newState.inventory['test-item']).toBeDefined();
+      const newState = gameReducer(initialState, action);
+      expect(newState.inventory['test-item']).toBeDefined();
     });
 
     it('should handle UPDATE_FLAGS', () => {
-        const action = {
-            type: 'UPDATE_FLAGS',
-            payload: { isAfraid: true }
-        } as const;
+      const action = {
+        type: 'UPDATE_FLAGS',
+        payload: { isAfraid: true },
+      } as const;
 
-        const newState = gameReducer(initialState, action);
-        expect(newState.flags.isAfraid).toBe(true);
+      const newState = gameReducer(initialState, action);
+      expect(newState.flags.isAfraid).toBe(true);
     });
 
     it('should handle UPDATE_HF_STATS', () => {
-        const action = {
-            type: 'UPDATE_HF_STATS',
-            payload: { fearTimer: 100 }
-        } as const;
+      const action = {
+        type: 'UPDATE_HF_STATS',
+        payload: { fearTimer: 100 },
+      } as const;
 
-        const newState = gameReducer(initialState, action);
-        expect(newState.hfStats.fearTimer).toBe(100);
+      const newState = gameReducer(initialState, action);
+      expect(newState.hfStats.fearTimer).toBe(100);
     });
 
     it('should handle UPDATE_PROFICIENCY', () => {
-        const action = {
-            type: 'UPDATE_PROFICIENCY',
-            payload: { unlocked: ['skill1'] }
-        } as unknown as GameReducerAction;
+      const action = {
+        type: 'UPDATE_PROFICIENCY',
+        payload: { unlocked: ['skill1'] },
+      } as unknown as GameReducerAction;
 
-        const newState = gameReducer(initialState, action);
-        expect(newState.proficiency.unlocked).toEqual(['skill1']);
+      const newState = gameReducer(initialState, action);
+      expect(newState.proficiency.unlocked).toEqual(['skill1']);
     });
 
     it('should handle UPDATE_STATS', () => {
-        const action = {
-            type: 'UPDATE_STATS',
-            payload: { 'stat1': 10 }
-        } as unknown as GameReducerAction;
+      const action = {
+        type: 'UPDATE_STATS',
+        payload: { stat1: 10 },
+      } as unknown as GameReducerAction;
 
-        const newState = gameReducer(initialState, action);
-        expect(newState.stats['stat1']).toBe(10);
+      const newState = gameReducer(initialState, action);
+      expect(newState.stats['stat1']).toBe(10);
     });
 
-     it('should handle UPDATE_STATE', () => {
-        const action = {
-            type: 'UPDATE_STATE',
-            payload: { activeJob: { id: 'job1', timeLeft: 100 } as unknown as GameState['activeJob'] }
-        } as const;
+    it('should handle UPDATE_STATE', () => {
+      const action = {
+        type: 'UPDATE_STATE',
+        payload: { activeJob: { id: 'job1', timeLeft: 100 } as unknown as GameState['activeJob'] },
+      } as const;
 
-        const newState = gameReducer(initialState, action);
-        expect(newState.activeJob?.id).toBe('job1');
+      const newState = gameReducer(initialState, action);
+      expect(newState.activeJob?.id).toBe('job1');
     });
 
     it('should handle CLEAR_NOTIFICATIONS', () => {
-        initialState.notificationQueue = [{ id: '1', message: 'Test' } as unknown as GameState['notificationQueue'][number]];
-        const action = { type: 'CLEAR_NOTIFICATIONS' } as const;
+      initialState.notificationQueue = [
+        { id: '1', message: 'Test' } as unknown as GameState['notificationQueue'][number],
+      ];
+      const action = { type: 'CLEAR_NOTIFICATIONS' } as const;
 
-        const newState = gameReducer(initialState, action);
-        expect(newState.notificationQueue).toEqual([]);
+      const newState = gameReducer(initialState, action);
+      expect(newState.notificationQueue).toEqual([]);
     });
 
     it('should handle TRIGGER_EVENT', () => {
-        const action = {
-            type: 'TRIGGER_EVENT',
-            payload: { type: 'test-event' }
-        } as const;
+      const action = {
+        type: 'TRIGGER_EVENT',
+        payload: { type: 'test-event' },
+      } as const;
 
-        gameReducer(initialState, action);
+      gameReducer(initialState, action as unknown as GameReducerAction);
 
-        const composeActionCalls = vi.mocked(composeAction).mock.calls;
-        expect(composeActionCalls).toHaveLength(1);
-        expect(composeActionCalls[0][1]).toEqual({
-            type: 'TRIGGER_EVENT',
-            payload: { type: 'test-event' }
-        });
+      const composeActionCalls = vi.mocked(composeAction).mock.calls;
+      expect(composeActionCalls).toHaveLength(1);
+      expect(composeActionCalls[0][1]).toEqual({
+        type: 'TRIGGER_EVENT',
+        payload: { type: 'test-event' },
+      });
     });
 
     // Test the IMPORT_STATE case which is also a top-level action type, not just nested in ACTION
     it('should handle top-level IMPORT_STATE action', () => {
-        const importedState = {
-          ...initialState,
-          resources: { ...initialState.resources, credits: 8888 },
-          activeEvent: { id: 'test' },
-        } as unknown as GameState;
+      const importedState = {
+        ...initialState,
+        resources: { ...initialState.resources, credits: 8888 },
+        activeEvent: { id: 'test' },
+      } as unknown as GameState;
 
-        const action = {
-          type: 'IMPORT_STATE',
-          payload: {
-            state: importedState,
-          },
-        } as const;
+      const action = {
+        type: 'IMPORT_STATE',
+        payload: {
+          state: importedState,
+        },
+      } as const;
 
-        const newState = gameReducer(initialState, action);
+      const newState = gameReducer(initialState, action);
 
-        expect(newState.resources.credits).toBe(8888);
-        expect(newState.activeEvent).toBeNull(); // Should be reset
-      });
+      expect(newState.resources.credits).toBe(8888);
+      expect(newState.activeEvent).toBeNull(); // Should be reset
+    });
   });
 });

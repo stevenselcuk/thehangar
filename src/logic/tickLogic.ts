@@ -149,7 +149,9 @@ export const processTick = (
           // Type-safe assignment
           const key = flagKey as keyof GameState['flags'];
           if (typeof draft.flags[key] === 'boolean') {
-            (draft.flags as Record<string, boolean | number | string | null | object>)[key] = true;
+            (draft.flags as unknown as Record<string, boolean | number | string | null | object>)[
+              key
+            ] = true;
             addLog(`Unlocked: ${flagKey}`, 'levelup');
           }
         });

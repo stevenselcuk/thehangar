@@ -1,3 +1,4 @@
+import { createInitialState } from '@/state/initialState';
 import { terminalReducer, TerminalSliceState } from '@/state/slices/terminalSlice.ts';
 import { AircraftType } from '@/types.ts';
 import { describe, expect, it, vi } from 'vitest';
@@ -35,35 +36,7 @@ describe('terminalSlice', () => {
     },
     logs: [],
     activeAircraft: null,
-    flags: {
-      foundNote: false,
-      lightsFlickered: false,
-      officeUnlocked: false,
-      hangarUnlocked: true,
-      tarmacUnlocked: true,
-      foundManifest: false,
-      revealedTruth: false,
-      kardexActive: false,
-      suitsVisiting: false,
-      underSurveillance: false,
-      nightCrewActive: false,
-      isHallucinating: false,
-      isAfraid: false,
-      toolroomMasterPissed: false,
-      activeComponentFailure: false,
-      fuelContaminationRisk: false,
-      suspicionEvent30Triggered: false,
-      suspicionEvent60Triggered: false,
-      suspicionEvent90Triggered: false,
-      janitorPresent: false,
-      transitCheckDelegationActive: false,
-      autoSrfActive: false,
-      ndtFinding: null,
-      venomSurgeActive: false,
-      endingTriggered: null,
-      endingAlienConspiracyProgress: 0,
-      endingGovtConspiracyProgress: 0,
-    },
+    flags: createInitialState().flags,
   });
 
   describe('ARCHIVE_COMMAND', () => {

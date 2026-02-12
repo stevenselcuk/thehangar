@@ -1,8 +1,8 @@
-import type { GameState } from '@/src/types';
 import { render, RenderOptions } from '@testing-library/react';
 import { ReactElement } from 'react';
 import seedrandom from 'seedrandom';
 import { vi } from 'vitest';
+import type { GameState } from '../types.ts';
 
 /**
  * Seeded random number generator for deterministic tests
@@ -106,6 +106,18 @@ export function createMinimalGameState(overrides: Partial<GameState> = {}): Game
       crystallineResonators: 0,
       bioFilament: 0,
       technicalLogbookHours: 0,
+      syndicateReputation: 0,
+      unionReputation: 0,
+      canned_tuna: 0,
+      hardwareBolts: 0,
+      threadlocker: 0,
+      cableTools: 0,
+      fdrData: 0,
+      fqpu: 0,
+      pressureTransducer: 0,
+      aimsData: 0,
+      ram: 0,
+      smokeDetector: 0,
     },
     inventory: {
       flashlight: false,
@@ -115,6 +127,7 @@ export function createMinimalGameState(overrides: Partial<GameState> = {}): Game
       notebook: true,
       leatherman: false,
       radio: false,
+      technicianToolbox: false,
       torxScrewdriver: false,
       snapOnWrenchSet: false,
       hammer: false,
@@ -162,7 +175,51 @@ export function createMinimalGameState(overrides: Partial<GameState> = {}): Game
       hasEasaC: false,
       typeRating737: 0,
       typeRatingA330: 0,
+      wrench: false,
+      canned_tuna: false,
     },
+    personalInventory: {},
+    journal: [],
+    aog: {
+      active: false,
+      stationId: null,
+      scenarioId: null,
+      startTime: 0,
+      completedActions: [],
+      currentProgress: 0,
+      progressRequired: 0,
+      actionInProgress: null,
+    },
+    time: {
+      totalPlayTime: 0,
+      sessionTime: 0,
+      shiftTime: 0,
+      shiftCycle: 1,
+      lastTick: Date.now(),
+    },
+    bulletinBoard: {
+      activeIndices: {
+        teamRosters: [],
+        companyNews: [],
+        deployments: [],
+        suitsIntel: [],
+        conspiracyTheories: [],
+      },
+      mechanicOfTheMonthIndex: 0,
+      lastUpdate: 0,
+    },
+    procurement: { orders: [], catalogueUnlockLevel: 0 },
+    toolroom: { status: 'OPEN', unavailableTools: [], nextStatusChange: 0 },
+    pet: {
+      name: 'F.O.D.',
+      trust: 0,
+      hunger: 0,
+      location: 'HANGAR',
+      cooldowns: { pet: 0, feed: 0, play: 0 },
+      flags: { hasMet: false, isSleeping: false, isStaringAtNothing: false, foundGift: null },
+    },
+    playerName: '[REDACTED]',
+    employeeId: '000-0-00',
     rotables: [],
     anomalies: [],
     toolConditions: {},
@@ -195,8 +252,15 @@ export function createMinimalGameState(overrides: Partial<GameState> = {}): Game
       janitorPresent: false,
       ndtFinding: null,
       sls3Unlocked: false,
+      janitorArcStage: 0,
+      toolroomMasterArcStage: 0,
+      endingAlienConspiracyProgress: 0,
+      endingGovtConspiracyProgress: 0,
+      endingTriggered: null,
+      foundPhoto: false,
       storyFlags: {},
     },
+    notificationQueue: [],
     logs: [],
     mail: [],
     lastUpdate: Date.now(),
@@ -230,6 +294,7 @@ export function createMinimalGameState(overrides: Partial<GameState> = {}): Game
       rotablesRepaired: 0,
       rotablesScavenged: 0,
       eventsResolved: 0,
+      accessViolations: 0,
     },
     calibrationMinigame: {
       active: false,

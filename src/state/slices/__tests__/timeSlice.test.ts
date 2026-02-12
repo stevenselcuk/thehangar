@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { SHIFT_DURATION_MS, TIME_SCALE, initialTimeState, timeReducer } from '../timeSlice';
 
 describe('timeSlice', () => {

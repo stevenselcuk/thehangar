@@ -6,6 +6,7 @@ describe('aircraftSlice', () => {
   const baseState = createInitialState();
   const initialState: AircraftSliceState = {
     activeAircraft: null,
+    activeScenario: null,
     resources: { ...baseState.resources, sanity: 50, focus: 50 },
     inventory: baseState.inventory,
     personalInventory: { winston_pack: 1 },

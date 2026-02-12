@@ -42,10 +42,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_MANDATORY_COURSE',
         payload: {
           id: 'hfInitial',
-          label: 'Human Factors (Initial)',
-          costCredits: 200,
-          rewardXp: 500,
-          inventoryFlag: 'hasHfInitial',
         },
       });
 
@@ -65,10 +61,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_MANDATORY_COURSE',
         payload: {
           id: 'hfInitial',
-          label: 'Human Factors (Initial)',
-          costCredits: 200,
-          rewardXp: 500,
-          inventoryFlag: 'hasHfInitial',
         },
       });
 
@@ -85,10 +77,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_MANDATORY_COURSE',
         payload: {
           id: 'hfRecurrent',
-          label: 'Human Factors (Recurrent)',
-          costCredits: 100,
-          rewardXp: 250,
-          inventoryFlag: 'hasHfRecurrent',
         },
       });
 
@@ -106,10 +94,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_MANDATORY_COURSE',
         payload: {
           id: 'fts',
-          label: 'Fuel Tank Safety',
-          costCredits: 150,
-          rewardXp: 400,
-          inventoryFlag: 'hasFts',
         },
       });
 
@@ -128,8 +112,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_AP_EXAM',
         payload: {
           id: 'apWritten',
-          costCredits: 250,
-          rewardXp: 1000,
         },
       });
 
@@ -150,8 +132,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_AP_EXAM',
         payload: {
           id: 'apPractical',
-          costCredits: 500,
-          rewardXp: 2500,
         },
       });
 
@@ -170,8 +150,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_AP_EXAM',
         payload: {
           id: 'hasAPLicense',
-          costCredits: 0,
-          rewardXp: 0,
         },
       });
 
@@ -323,9 +301,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_NDT_EXAM',
         payload: {
           id: 'hasNdtLevel1',
-          label: 'NDT Level I',
-          costCredits: 500,
-          rewardXp: 1000,
         },
       });
 
@@ -345,9 +320,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_NDT_EXAM',
         payload: {
           id: 'hasNdtLevel2',
-          label: 'NDT Level II',
-          costCredits: 1000,
-          rewardXp: 2000,
         },
       });
 
@@ -368,9 +340,6 @@ describe('proficiencySlice', () => {
         type: 'TAKE_NDT_SUBTASK_EXAM',
         payload: {
           id: 'hfec',
-          label: 'HFEC Cert',
-          costCredits: 250,
-          rewardXp: 500,
         },
       });
 
@@ -391,19 +360,19 @@ describe('proficiencySlice', () => {
       // Certify HFEC
       state = proficiencyReducer(state, {
         type: 'TAKE_NDT_SUBTASK_EXAM',
-        payload: { id: 'hfec', label: 'HFEC Cert', costCredits: 250, rewardXp: 500 },
+        payload: { id: 'hfec' },
       });
 
       // Certify Eddy Current
       state = proficiencyReducer(state, {
         type: 'TAKE_NDT_SUBTASK_EXAM',
-        payload: { id: 'eddy', label: 'Eddy Current Cert', costCredits: 200, rewardXp: 400 },
+        payload: { id: 'eddy' },
       });
 
       // Certify Borescope
       state = proficiencyReducer(state, {
         type: 'TAKE_NDT_SUBTASK_EXAM',
-        payload: { id: 'borescope', label: 'Borescope Cert', costCredits: 150, rewardXp: 300 },
+        payload: { id: 'borescope' },
       });
 
       expect(state.inventory.ndtCerts).toEqual(['hfec', 'eddy', 'borescope']);
@@ -424,9 +393,6 @@ describe('proficiencySlice', () => {
         payload: {
           id: 1,
           family: '737',
-          label: '737 Familiarization',
-          costCredits: 300,
-          rewardXp: 500,
         },
       });
 
@@ -447,9 +413,6 @@ describe('proficiencySlice', () => {
         payload: {
           id: 2,
           family: 'A330',
-          label: 'A330 Level I',
-          costCredits: 800,
-          rewardXp: 1200,
         },
       });
 
@@ -470,9 +433,6 @@ describe('proficiencySlice', () => {
         payload: {
           id: 1,
           family: '737',
-          label: '737 Familiarization',
-          costCredits: 300,
-          rewardXp: 500,
         },
       });
       expect(state.inventory.typeRating737).toBe(1);
@@ -480,14 +440,14 @@ describe('proficiencySlice', () => {
       // Level 2
       state = proficiencyReducer(state, {
         type: 'TAKE_TYPE_RATING',
-        payload: { id: 2, family: '737', label: '737 Level I', costCredits: 600, rewardXp: 1000 },
+        payload: { id: 2, family: '737' },
       });
       expect(state.inventory.typeRating737).toBe(2);
 
       // Level 3
       state = proficiencyReducer(state, {
         type: 'TAKE_TYPE_RATING',
-        payload: { id: 3, family: '737', label: '737 Level II', costCredits: 1200, rewardXp: 2000 },
+        payload: { id: 3, family: '737' },
       });
       expect(state.inventory.typeRating737).toBe(3);
     });

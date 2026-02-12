@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import {
   AIRCRAFT_BASE_REWARDS,
   NDT_FINDING_REWARDS,
@@ -13,8 +12,9 @@ import {
   calculateTransitCheckIncome,
   calculateXpGain,
 } from '@/services/RewardCalculator.ts';
-import type { ResourceState } from '../../types.ts';
+import type { ResourceState } from '@/types';
 import { createMinimalGameState } from '@/utils/testHelpers.ts';
+import { describe, expect, it } from 'vitest';
 
 describe('RewardCalculator Service', () => {
   describe('AIRCRAFT_BASE_REWARDS', () => {

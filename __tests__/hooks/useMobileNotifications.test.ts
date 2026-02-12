@@ -30,7 +30,7 @@ describe('useMobileNotifications', () => {
     );
 
     const newLogs: LogMessage[] = [
-      { id: '1', text: 'Test log', type: 'info', timestamp: now + 1000 },
+      { id: '1', text: 'Test log', type: 'info' as const, timestamp: now + 1000 },
     ];
 
     rerender({ logs: newLogs });
@@ -40,7 +40,9 @@ describe('useMobileNotifications', () => {
 
   it('should trigger notification on mobile when new log with newer timestamp is added', () => {
     mockUseWindowSize.mockReturnValue({ width: 500, height: 800 });
-    const initialLogs: LogMessage[] = [{ id: '1', text: 'Old log', type: 'info', timestamp: now }];
+    const initialLogs: LogMessage[] = [
+      { id: '1', text: 'Old log', type: 'info' as const, timestamp: now },
+    ];
 
     const { rerender } = renderHook(
       ({ logs }) => useMobileNotifications(logs, mockAddNotification),
@@ -48,8 +50,8 @@ describe('useMobileNotifications', () => {
     );
 
     const newLogs: LogMessage[] = [
-      { id: '2', text: 'New mobile log', type: 'info', timestamp: now + 1000 }, // Newer
-      { id: '1', text: 'Old log', type: 'info', timestamp: now },
+      { id: '2', text: 'New mobile log', type: 'info' as const, timestamp: now + 1000 }, // Newer
+      { id: '1', text: 'Old log', type: 'info' as const, timestamp: now },
     ];
 
     rerender({ logs: newLogs });
@@ -66,7 +68,9 @@ describe('useMobileNotifications', () => {
 
   it('should ignore logs that are older than the last seen timestamp (e.g. initial load)', () => {
     mockUseWindowSize.mockReturnValue({ width: 500, height: 800 });
-    const existingLogs: LogMessage[] = [{ id: '1', text: 'Old log', type: 'info', timestamp: now }];
+    const existingLogs: LogMessage[] = [
+      { id: '1', text: 'Old log', type: 'info' as const, timestamp: now },
+    ];
 
     // Initial render sets baseline to 'now'
     const { rerender } = renderHook(
@@ -82,7 +86,7 @@ describe('useMobileNotifications', () => {
 
     // Rerender with an OLDER log inserted (should not trigger)
     const mixedLogs = [
-      { id: '0', text: 'Ancient log', type: 'info', timestamp: now - 1000 },
+      { id: '0', text: 'Ancient log', type: 'info' as const, timestamp: now - 1000 },
       ...existingLogs,
     ];
     rerender({ logs: mixedLogs });
@@ -100,8 +104,8 @@ describe('useMobileNotifications', () => {
 
     // Simulate unshift (prepended)
     const newLogs = [
-      { id: '2', text: 'Brand New', type: 'warning', timestamp: now + 500 },
-      { id: '1', text: 'Old', type: 'info', timestamp: now },
+      { id: '2', text: 'Brand New', type: 'warning' as const, timestamp: now + 500 },
+      { id: '1', text: 'Old', type: 'info' as const, timestamp: now },
     ];
 
     rerender({ logs: newLogs });
