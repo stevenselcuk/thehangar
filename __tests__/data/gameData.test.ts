@@ -78,6 +78,8 @@ describe('Game Data Integrity', () => {
         'THE_SUITS',
         'EASA_AUDITOR',
         'NONE',
+        'FEDERAL_AGENT',
+        'REGULATORY_OFFICIAL',
       ];
 
       const auditEvents = eventsData['audit'] || [];
