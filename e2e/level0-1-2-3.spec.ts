@@ -145,26 +145,42 @@ test.describe('Progression Level 0 to 3', () => {
 
     // We stay in Toolroom if it works, as it's most efficient for the test run time.
     // But let's verify Apron Line is unlocked to satisfy "Levels unlocked" requirement check.
-    const apronTab = page.locator('button:has-text("APRON LINE")').first();
+    const apronTab = page.locator('button:has-text("APRON")').first();
     await expect(apronTab).toBeVisible();
 
     // Determine strategy: Toolroom is 0 cost. Apron Line "Marshalling" is 15 cost.
-    // To respect "Play like a player", a player would use the most efficient method (Toolroom).
-    // If we want to test game breadth, we could switch.
-    // Given the "No manipulation" rule, utilizing a bug is borderline, but it IS the game state.
-    // I will stick to Toolroom for stability, but I'll click Apron Line just to visit it.
+    // Since Toolroom might be empty, we use Apron Line (unlocked at Level 2).
     await apronTab.click();
     await page.waitForTimeout(500);
-    await toolroomTab.click(); // Go back to efficiency
 
-    // Re-locate checkout button as we changed tabs
-    // Note: We went Apron -> Toolroom, so we are back in Toolroom.
-    const checkoutBtn2 = page.locator('button:has-text("Check Out")').first();
-    await expect(checkoutBtn2).toBeVisible();
+    const marshalBtn = page.locator('button:has-text("Marshal Aircraft")').first();
+    // Wait for it to be visible
+    await expect(marshalBtn).toBeVisible();
 
     currentLevel = await getLevel(page);
     while (currentLevel < 3) {
-        await checkoutBtn2.click();
+        if (await marshalBtn.isDisabled()) {
+             console.log("Marshalling disabled (Focus?), switching to Canteen...");
+             const canteenTab = page.locator('button:has-text("CANTEEN")').first();
+             await canteenTab.click();
+
+             const rummageBtn = page.locator('button:has-text("Rummage in Lost & Found")');
+             while (currentLevel < 3) {
+                 if (await rummageBtn.isDisabled()) {
+                     await page.waitForTimeout(1000);
+                     continue;
+                 }
+                 try {
+                    await rummageBtn.click({ timeout: 2000 });
+                 } catch {
+                    continue;
+                 }
+                 currentLevel = await getLevel(page);
+             }
+             break;
+        }
+
+        await marshalBtn.click();
         currentLevel = await getLevel(page);
     }
     console.log('Reached Level 3!');

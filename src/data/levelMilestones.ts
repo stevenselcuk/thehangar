@@ -43,7 +43,7 @@ export const MILESTONE_DATA: LevelMilestone[] = [
       'Welcome to [REDACTED] Aerospace. Please sign the attached documentation. Your compliance is appreciated.',
     unlocks: {
       tabs: [TabType.CANTEEN, TabType.HANGAR],
-      actions: ['INSPECT_VENDING_MACHINE'],
+      actions: ['INSPECT_VENDING_MACHINE', 'RUMMAGE_LOST_FOUND'],
       eventCategories: [],
     },
   },
@@ -62,7 +62,7 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     description: 'High-visibility vest issued. Stay clear of jet blast. Stay clear of the sedan.',
     unlocks: {
       tabs: [TabType.APRON_LINE],
-      actions: ['RUMMAGE_LOST_FOUND', 'MARSHALLING'],
+      actions: ['MARSHALLING'],
       eventCategories: ['incident'],
     },
   },

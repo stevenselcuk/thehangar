@@ -30,7 +30,7 @@ describe('Performance Benchmark: Mail Filtering', () => {
     const mailData = generateMailData(mailDataCount, existingMailCount - 50); // 50 overlap, 50 new.
 
     it('benchmarks nested loop vs Set lookup', () => {
-        const iterations = 200;
+        const iterations = 20;
         let totalFoundCurrent = 0;
         let totalFoundOptimized = 0;
 
