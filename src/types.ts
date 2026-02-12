@@ -36,12 +36,21 @@ export interface ResourceState {
   aimsData: number;
   ram: number;
   smokeDetector: number;
+  // New items from aircraft scenarios - Part 2
+  doorSeal: number;
+  balanceWeights: number;
+  autopilotComputer: number;
+  rudderFeelComputer: number;
+  emergencyBatteryPack: number;
+  adfReceiver: number;
 }
 
 export enum SuitType {
   FAA = 'FAA_INSPECTOR',
   EASA = 'EASA_AUDITOR',
   CORPORATE = 'INTERNAL_SECURITY',
+  FEDERAL = 'FEDERAL_AGENT',
+  REGULATORY = 'REGULATORY_OFFICIAL',
   NONE = 'NONE',
   VOID = 'THE_SUITS',
 }
@@ -72,6 +81,7 @@ export interface EventChoice {
   nextEventId?: string;
   storyFlag?: { key: string; value: boolean };
   log?: string;
+  event?: { type: string; id: string };
 }
 
 export interface EventOutcome {
@@ -79,6 +89,7 @@ export interface EventOutcome {
   effects?: Partial<Record<keyof ResourceState, number>>;
   nextEventId?: string;
   storyFlag?: { key: string; value: boolean };
+  event?: { type: string; id: string };
 }
 
 export interface GameEvent {

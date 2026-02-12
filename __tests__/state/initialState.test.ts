@@ -261,6 +261,12 @@ describe('initialState', () => {
           aimsData: 0,
           ram: 0,
           smokeDetector: 0,
+          doorSeal: 0,
+          balanceWeights: 0,
+          autopilotComputer: 0,
+          rudderFeelComputer: 0,
+          emergencyBatteryPack: 0,
+          adfReceiver: 0,
         },
         hfStats: {
           fatigue: 0,
