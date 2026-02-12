@@ -10,7 +10,7 @@ describe('shopSlice', () => {
 
     initialState = {
       resources: {
-        alclad: 0,
+        alclad: 500,
         titanium: 0,
         fiberglass: 0,
         rivets: 0,
@@ -27,7 +27,7 @@ describe('shopSlice', () => {
         focus: 100,
         experience: 0,
         level: 1,
-        credits: 0,
+        credits: 100,
         kardexFragments: 0,
         crystallineResonators: 0,
         bioFilament: 0,

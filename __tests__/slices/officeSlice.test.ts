@@ -68,7 +68,7 @@ describe('officeSlice', () => {
         focus: 100,
         experience: 0,
         level: 1,
-        credits: 0,
+        credits: 300,
         kardexFragments: 0,
         crystallineResonators: 0,
         bioFilament: 0,

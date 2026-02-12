@@ -227,7 +227,7 @@ describe('initialState', () => {
     it('should load saved state from localStorage', () => {
       const savedState: Partial<GameState> = {
         resources: {
-          alclad: 0,
+          alclad: 200,
           titanium: 0,
           fiberglass: 0,
           rivets: 0,
@@ -243,7 +243,7 @@ describe('initialState', () => {
           suspicion: 0,
           focus: 100,
           experience: 0,
-          level: 1,
+          level: 5,
           credits: 0,
           kardexFragments: 0,
           crystallineResonators: 0,
