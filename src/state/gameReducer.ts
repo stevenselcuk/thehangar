@@ -228,6 +228,7 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           'PLAY_WITH_CAT',
           'PET_RANDOM_MOVE',
           'SORT_HARDWARE',
+          'RESOLVE_SCENARIO', // Added
         ];
 
         if (composedActions.includes(type)) {

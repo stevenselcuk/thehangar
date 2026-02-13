@@ -957,6 +957,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
   ],
   eldritch_manifestation: [
     ...(aircraftEvents.eldritch_manifestation || []),
+
     {
       id: 'MEZZANINE_OBSERVATION',
       type: 'eldritch_manifestation',
