@@ -17,6 +17,7 @@ export interface AircraftSliceState {
   logs: GameState['logs'];
   activeScenario: GameState['activeScenario']; // Added
   activeChemicalProcess: ChemicalProcess | null;
+  rotables: GameState['rotables']; // Added for access to installed components
 }
 
 export type AircraftAction =
@@ -44,7 +45,24 @@ export type AircraftAction =
       type: 'PERFORM_CHEMICAL_STEP';
       payload: { itemId: string; triggerEvent?: (type: string, id?: string) => void };
     }
-  | { type: 'CHECK_CURE_PROGRESS'; payload: { timeDelta: number } };
+  | { type: 'CHECK_CURE_PROGRESS'; payload: { timeDelta: number } }
+  // New Actions
+  | {
+      type: 'RESEARCH_COMPONENT_HISTORY';
+      payload: { rotableId: string; triggerEvent?: (type: string, id?: string) => void };
+    }
+  | {
+      type: 'FABRICATE_PAPERWORK';
+      payload: { rotableId: string; triggerEvent?: (type: string, id?: string) => void };
+    }
+  | {
+      type: 'DOWNLOAD_DATA';
+      payload: { type: 'FDR' | 'AIMS'; triggerEvent?: (type: string, id?: string) => void };
+    }
+  | {
+      type: 'ANALYZE_DATA';
+      payload: { triggerEvent?: (type: string, id?: string) => void };
+    };
 
 // ==================== REDUCER ====================
 
@@ -438,6 +456,121 @@ export const aircraftReducer = (
             draft.resources.credits += 50;
             draft.activeChemicalProcess = null;
           }
+        }
+        break;
+      }
+
+      case 'RESEARCH_COMPONENT_HISTORY': {
+        const { rotableId, triggerEvent } = action.payload;
+        const rotable = draft.rotables?.find((r) => r.id === rotableId);
+
+        if (rotable) {
+          addLog(`Reviewing archival records for ${rotable.label} (SN: ${rotable.sn})...`, 'info');
+          draft.resources.focus = Math.max(0, draft.resources.focus - 5);
+
+          if (rotable.isUntraceable) {
+            addLog(
+              'ERR: RECORDS NOT FOUND. SYSTEM CORRUPTION DETECTED. The database refuses to acknowledge this serial number.',
+              'error'
+            );
+            draft.resources.suspicion += 5;
+          } else {
+            // Logic to show history would go here, simplified to log for now
+            // In a real UI we would open a modal with `rotable.history`
+            addLog(
+              `Records accessed. Manufactured: ${new Date(rotable.manufactureDate).getFullYear()}`,
+              'info'
+            );
+            const historyEvents = rotable.history.length;
+            addLog(`Component has ${historyEvents} recorded events in its lifecycle.`, 'info');
+
+            // Check for Paradox
+            if (Math.random() < 0.1 && triggerEvent) {
+              triggerEvent('eldritch_manifestation', 'PARADOXICAL_HISTORY');
+            }
+          }
+        }
+        break;
+      }
+
+      case 'FABRICATE_PAPERWORK': {
+        const { rotableId } = action.payload;
+        const rotableIndex = draft.rotables?.findIndex((r) => r.id === rotableId);
+
+        if (rotableIndex !== undefined && rotableIndex !== -1 && draft.rotables) {
+          const rotable = draft.rotables[rotableIndex];
+          if (rotable.isUntraceable) {
+            if (draft.resources.experience > 2000) {
+              // Requirement
+              draft.rotables[rotableIndex].isUntraceable = false;
+              draft.rotables[rotableIndex].sn =
+                `SN-F-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+              draft.rotables[rotableIndex].history.push({
+                date: Date.now(),
+                event: 'FALSIFIED',
+                description: 'Form 8130-3 generated. Authorized by [REDACTED].',
+              });
+
+              draft.resources.suspicion += 10;
+              draft.resources.sanity -= 5;
+              addLog('Paperwork fabricated. It looks cleaner than the real thing.', 'story');
+            } else {
+              addLog(
+                'You lack the bureaucratic knowledge to forgery this convincingly.',
+                'warning'
+              );
+            }
+          } else {
+            addLog('This component already has valid paperwork.', 'info');
+          }
+        }
+        break;
+      }
+
+      case 'DOWNLOAD_DATA': {
+        // 40% chance of success
+        if (Math.random() < 0.4) {
+          const dataTypes = ['fdrData', 'aimsData', 'flightComputerMemory'];
+          const type = dataTypes[
+            Math.floor(Math.random() * dataTypes.length)
+          ] as keyof GameState['resources'];
+          draft.resources[type] += 1;
+          addLog(`Download Complete. Acquired 1 unit of ${type}.`, 'levelup');
+          draft.resources.focus -= 10;
+        } else {
+          addLog('Download Failed. Connection timed out or port corrupted.', 'warning');
+          draft.resources.focus -= 5;
+        }
+        break;
+      }
+
+      case 'ANALYZE_DATA': {
+        if (draft.resources.fdrData > 0 || draft.resources.aimsData > 0) {
+          // Consume one
+          if (draft.resources.fdrData > 0) draft.resources.fdrData--;
+          else draft.resources.aimsData--;
+
+          draft.resources.experience += 150;
+          draft.resources.credits += 20; // Selling data logic? Or just "value generated"
+
+          const roll = Math.random();
+          if (roll < 0.1) {
+            draft.resources.kardexFragments += 1;
+            addLog(
+              'Hidden within the flight parameters, you find a fragment of the Old Archives.',
+              'levelup'
+            );
+          } else if (roll < 0.2) {
+            addLog(
+              'The altitude data shows the aircraft flying below ground level for 20 minutes.',
+              'vibration'
+            );
+            draft.resources.sanity -= 5;
+          } else {
+            addLog('Analysis complete. Standard operational parameters logged.', 'info');
+          }
+        } else {
+          addLog('No data available to analyze.', 'warning');
         }
         break;
       }

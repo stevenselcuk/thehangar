@@ -14,6 +14,7 @@ import {
 } from '../data/flavor';
 import { skillsData } from '../data/skills';
 import { Anomaly, GameState, JobCard, LogMessage, ResourceState, RotableItem } from '../types';
+import { generateComponentHistory } from './componentLogic';
 
 export const handleGameAction = (
   prev: GameState,
@@ -591,6 +592,14 @@ export const handleGameAction = (
       const isSus = Math.random() < 0.05;
       const isRed = Math.random() < 0.08;
       const p = payload as { label: string; pn: string };
+
+      // Need to import this function or move it to a shared helper if using in actionProcessor
+      // Since actionProcessor is in logic/, we can import from componentLogic
+      // Assuming imports are added at top
+
+      // For now, let's just create the object structure assuming logic handles it elsewhere?
+      // No, this IS the logic. I need to update the imports in actionProcessor.ts first.
+
       const newRot: RotableItem = {
         id: Math.random().toString(36),
         label: p.label,
@@ -600,7 +609,13 @@ export const handleGameAction = (
         isInstalled: false,
         isUntraceable: isSus,
         isRedTagged: isRed,
+        history: generateComponentHistory(Math.random().toString(36), isSus),
+        manufactureDate: Date.now() - 31536000000 * (1 + Math.floor(Math.random() * 10)),
       };
+
+      // I will add the history generation in a separate Replace call after adding imports
+      // or assume I will add imports in next step.
+
       nextRotables.push(newRot);
       addLog(
         isRed

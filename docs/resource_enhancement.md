@@ -42,34 +42,6 @@
 
 **Redaction Archaeology**: Physical KARDEX cards have sections blacked out with heavy marker. Implement chemical processes using MEK or specialty solvents to lift redactions, revealing forbidden information. However, lifting redactions triggers security alerts, increases suspicion dramatically, and sometimes reveals information so disturbing it causes immediate sanity loss—part numbers for components that don't exist, work orders signed by The Suits, or maintenance procedures written in languages that predate written communication.
 
-## Rotable Components & Aircraft-Specific Systems
-
-### Component Provenance and History
-
-**Serial Number Tracking**: Every rotable should have detailed history accessible through archive terminals. Players researching component serial numbers discover installation histories showing the component was simultaneously installed on multiple aircraft, or has accumulated more flight hours than physically possible given its manufacture date. Components with paradoxical histories have unusual properties—IDGs that never fail but emit disturbing sounds, ADIRS units that navigate perfectly but route to coordinates that don't exist on maps.
-
-**Component Relationships**: Certain rotable combinations create emergent effects. Installing an IDG and CSD from the same donor aircraft creates harmonic resonance improving efficiency. Installing components from different aircraft involved in the same incident creates antagonistic effects—systems fighting each other, increased electrical faults, or manifestations of accident victims appearing near the aircraft.
-
-**Untraceable Component Market**: Expand the existing untraceable rotable system. Black market components have no official documentation but superior performance and dramatically lower costs. However, installing untraceable components creates plausible deniability problems during audits—players must fabricate complete paper trails including Form 8130-3 tags, component maintenance manuals, and service bulletins. Failure to maintain documentation integrity triggers FAA raids and massive suspicion increases.
-
-### Aircraft-Specific Resource Expansion
-
-**System-Specific Data**: FDR data, AIMS data, and flight computer memory should contain playable information. Implement data analysis minigames where players review recorded parameters looking for anomalies. Data might show impossible flight attitudes, communication with non-existent ATC facilities, or passenger counts that don't match manifests. Anomalous data can be sold to various factions—government agents, union investigators, or The Suits—each paying different currencies and affecting reputation differently.
-
-**Avionics Integration**: Components like autopilot computers and rudder feel computers contain embedded software that could be extracted and modified. Allow players with sufficient digital clearance to access firmware, discovering Easter eggs, hidden subroutines, or self-modifying code that exhibits learning behavior. Modified firmware can improve aircraft performance but risks creating autonomous systems with unclear intentions.
-
-**Sensor Calibration Materials**: Air data systems require pitot-static testing with specialized equipment. Introduce calibration gases, pressure standard fluids, and reference transducers that expire or drift out of tolerance. Using out-of-tolerance calibration equipment produces acceptable test results for aircraft with actual sensor problems—creating time bombs where aircraft depart with faulty systems. Discovering you calibrated equipment using expired standards weeks ago creates ethical dilemmas and guilt-driven narrative branches.
-
-## Consumable Chemistry & Environmental Interaction
-
-### Chemical Complexity and Hazards
-
-**Multi-Stage Processes**: Sealant application currently uses simple consumption mechanics. Implement multi-step procedures requiring surface preparation (MEK cleaning), priming, sealant application, and curing under specific environmental conditions. Skipping steps saves time but causes premature failures. Using IR lamps for accelerated curing works but creates fire risks and toxic fume exposure requiring ventilation and PPE.
-
-**Chemical Incompatibility**: Certain chemical combinations create hazardous reactions. Mixing incompatible sealants causes exothermic reactions, toxic gas generation, or compounds that never cure—remaining liquid and contaminating fuel tanks. The horror element emerges when "safe" chemical combinations suddenly exhibit incompatibility after facility-wide reality shifts, forcing players to relearn basic chemistry.
-
-**Biological Contamination**: Skydrol and other fluids could become contaminated with bio-filament spores or unknown organisms. Contaminated fluids spread infection to hydraulic systems, causing components to become semi-organic. Aircraft with infected systems exhibit disturbing symptoms—hydraulic fluid that clots, pumps that pulse rhythmically, or actuators that contract like muscles. Players must source uncontaminated fluids from legacy stockpiles or the black market.
-
 ### Environmental Reactivity
 
 **Atmospheric Conditions**: Chemical consumables react to facility environmental conditions. High humidity affects sealant cure times and grease consistency. Temperature fluctuations cause materials to separate or crystallize. The supernatural atmospheric conditions (unexplained cold spots, zones of distorted time) dramatically alter material properties—sealant that cures instantly in chronologically accelerated areas, or grease that flows upward in gravitationally inverted zones.

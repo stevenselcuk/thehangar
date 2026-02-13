@@ -40,8 +40,19 @@ export const procurementReducer = produce(
       case 'PLACE_ORDER': {
         const { itemId, itemLabel, cost, etaSeconds } = action.payload;
 
+        // Black Market Check
+        const isBlackMarket =
+          itemId.startsWith('black_market_') || itemLabel.includes('Untraceable');
+        if (isBlackMarket && draft.procurement.catalogueUnlockLevel < 2) {
+          addLog('ACCESS DENIED: Black Market clearance required.', 'error');
+          break;
+        }
+
         if (draft.resources.credits >= cost) {
           draft.resources.credits -= cost;
+
+          // For untraceable items, we use a generic ID but might need to handle specific logic on delivery
+          // We'll handle that in DELIVER_ORDER
 
           const newOrder = {
             id: Math.random().toString(36).substr(2, 9),

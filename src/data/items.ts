@@ -414,6 +414,42 @@ export const itemsData: Record<string, Item[]> = {
         madness: 'It contains the tools to sew the soul back into the body.',
       },
     },
+    {
+      id: 'calibrationGas',
+      label: 'Calibration Gas (N2)',
+      cost: 150,
+      unit: 'Cylinder',
+      pn: 'GAS-N2-CAL-99',
+      description: {
+        normal: 'High purity nitrogen for pitot-static calibration.',
+        unsettled: 'The cylinder hisses names when opened.',
+        madness: 'It contains the breath of the void. Don not inhale.',
+      },
+    },
+    {
+      id: 'pressureStandard',
+      label: 'Pressure Standard',
+      cost: 500,
+      unit: 'Unit',
+      pn: 'STD-PRES-01-DIG',
+      description: {
+        normal: 'Digital pressure reference. +/- 0.01 inHg.',
+        unsettled: 'The display shows pressure from another atmosphere.',
+        madness: 'It measures the weight of sins. Mine are heavy.',
+      },
+    },
+    {
+      id: 'referenceTransducer',
+      label: 'Ref. Transducer',
+      cost: 300,
+      unit: 'Unit',
+      pn: 'XDCR-REF-ABS',
+      description: {
+        normal: 'Absolute pressure transducer for calibration verification.',
+        unsettled: 'It hums at a frequency that makes my teeth ache.',
+        madness: 'It converts reality into voltage. I am only 5 volts.',
+      },
+    },
   ],
   carried: [
     {

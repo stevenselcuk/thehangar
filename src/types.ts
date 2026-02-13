@@ -43,6 +43,8 @@ export interface ResourceState {
   rudderFeelComputer: number;
   emergencyBatteryPack: number;
   adfReceiver: number;
+  // Data Resources
+  flightComputerMemory: number;
   // Chemistry & Hazards
   health: number; // 0-100, physical condition
   contaminatedSkydrol: number;
@@ -68,6 +70,14 @@ export enum SuitType {
   VOID = 'THE_SUITS',
 }
 
+export interface ComponentHistoryEntry {
+  date: number;
+  event: 'MANUFACTURED' | 'INSTALLED' | 'REMOVED' | 'REPAIRED' | 'INCIDENT' | 'FALSIFIED';
+  description: string;
+  aircraftStart?: string; // e.g. "N12345"
+  aircraftEnd?: string;
+}
+
 export interface RotableItem {
   id: string;
   label: string;
@@ -77,6 +87,10 @@ export interface RotableItem {
   isInstalled: boolean;
   isUntraceable: boolean;
   isRedTagged?: boolean;
+  // Provenance
+  history: ComponentHistoryEntry[];
+  donorAircraft?: string; // Tail number of origin
+  manufactureDate: number;
 }
 
 export interface Anomaly {
