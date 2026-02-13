@@ -151,6 +151,7 @@ export interface EnvironmentalHazard {
     tarmacActionsDisabled?: boolean;
     focusCostModifier?: number;
     sanityDrain?: number;
+    healthDrain?: number;
     randomEvent?: { type: string; id: string; chance: number };
   };
   duration: number;

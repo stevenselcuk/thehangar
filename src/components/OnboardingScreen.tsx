@@ -294,8 +294,8 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ dispatch }) => {
           <p className="text-emerald-400 font-bold">Report to Hangar Bay 4 immediately.</p>
         </div>
 
-        <p className="text-emerald-700 text-xs italic">
-          "Remember: If you see something, say nothing. If you hear something, you didn't."
+        <p className="text-emerald-700 text-xs">
+          Remember: If you see something, say nothing. If you hear something, you didn't.
         </p>
 
         <button

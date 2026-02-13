@@ -35,6 +35,7 @@ export const hazardsData: EnvironmentalHazard[] = [
     type: 'containment',
     effects: {
       sanityDrain: 2,
+      healthDrain: 1.5,
       focusCostModifier: 2,
       randomEvent: { type: 'bureaucratic_horror', id: 'OSHA_VIOLATION', chance: 0.1 },
     },

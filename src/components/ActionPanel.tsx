@@ -72,6 +72,38 @@ const ActionPanel: React.FC<{
     };
   };
 
+  // Helper to check for hazard-blocked actions
+  const getHazardLockedProps = (actionId: string) => {
+    const activeHazards = state.activeHazards || [];
+    for (const hazard of activeHazards) {
+      if (hazard.effects.tarmacActionsDisabled) {
+        const blockedActions = [
+          'MARSHALLING',
+          'FOD_SWEEP',
+          'AIRCRAFT_ACTION',
+          'SERVICE_LAVATORY',
+          'SCAVENGE_GALLEYS',
+          'WATCH_RUNWAY',
+          // DEICING not explicitly in UI yet but good to list
+        ];
+
+        // Check if the generic 'AIRCRAFT_ACTION' covers specific buttons or if we need to check button contexts
+        // The buttons usually call onAction('AIRCRAFT_ACTION', ...) so passing 'AIRCRAFT_ACTION' is correct for them.
+        // For others like 'MARSHALLING' it matches the action string.
+
+        if (blockedActions.includes(actionId)) {
+          return {
+            disabled: true,
+            description: `[SUSPENDED] ${hazard.name} - Operations Halted`,
+            className:
+              'opacity-50 border-red-900/50 text-red-800/50 cursor-not-allowed bg-red-950/10 strip-hazard',
+          };
+        }
+      }
+    }
+    return {};
+  };
+
   const renderActiveEvent = () => {
     if (!state.activeEvent) return null;
     const event = state.activeEvent;
@@ -711,6 +743,7 @@ const ActionPanel: React.FC<{
                     cost={{ label: 'FOCUS', value: taskCost }}
                     className="border-amber-600 text-amber-400"
                     disabled={state.resources.focus < taskCost}
+                    {...getHazardLockedProps('AIRCRAFT_ACTION')}
                   />
                   <div className="grid grid-cols-2 gap-3 mt-4">
                     <ActionButton
@@ -722,6 +755,7 @@ const ActionPanel: React.FC<{
                         })
                       }
                       cost={{ label: 'FOCUS', value: 5 }}
+                      {...getHazardLockedProps('AIRCRAFT_ACTION')}
                     />
                     {activeAircraft.id !== AircraftType.A300_CARGO && (
                       <ActionButton
@@ -790,12 +824,14 @@ const ActionPanel: React.FC<{
                   cost={{ label: 'FOCUS', value: 15 }}
                   description="Guide aircraft to parking. Precision required."
                   {...getLockedProps('MARSHALLING')}
+                  {...getHazardLockedProps('MARSHALLING')}
                 />
                 <ActionButton
                   label="Apron FOD Sweep"
                   onClick={() => onAction('FOD_SWEEP')}
                   cost={{ label: 'FOCUS', value: 5 }}
                   description="Search for stray rivets and debris."
+                  {...getHazardLockedProps('FOD_SWEEP')}
                 />
                 <ActionButton
                   label="Listen to Radio"
@@ -835,6 +871,7 @@ const ActionPanel: React.FC<{
                   description="HIGH RISK. Rummage through parked aircraft galleys for leftovers. Increases suspicion."
                   className="border-amber-800 text-amber-500"
                   {...getLockedProps('SCAVENGE_GALLEYS')}
+                  {...getHazardLockedProps('SCAVENGE_GALLEYS')}
                 />
                 <ActionButton
                   label="Watch Runway Landings"
@@ -843,6 +880,7 @@ const ActionPanel: React.FC<{
                   cooldown={30000}
                   description="Take a moment to watch the arrivals and judge the pilots' skills. A brief distraction."
                   {...getLockedProps('WATCH_RUNWAY')}
+                  {...getHazardLockedProps('WATCH_RUNWAY')}
                 />
                 <ActionButton
                   label="Small Talk (Cabin Crew)"
@@ -855,6 +893,7 @@ const ActionPanel: React.FC<{
                   onClick={() => onAction('SERVICE_LAVATORY')}
                   cost={{ label: 'FOCUS', value: 15 }}
                   description="A disgusting but necessary job. Sometimes things get left behind."
+                  {...getHazardLockedProps('SERVICE_LAVATORY')}
                 />
                 <ActionButton
                   label="Observe Sedan"

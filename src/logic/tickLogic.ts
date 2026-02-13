@@ -1,6 +1,7 @@
 import { GAME_CONSTANTS, NOTIFICATION_DURATIONS } from '../data/constants.ts';
 import { eventsData } from '../data/events.ts';
 import { SYSTEM_LOGS } from '../data/flavor.ts';
+import { hazardsData } from '../data/hazards.ts';
 import { getMilestoneForLevel } from '../data/levelMilestones.ts';
 import {
   FatigueLevel,
@@ -12,6 +13,7 @@ import { mailData } from '../data/mail.ts';
 import { addLogToDraft } from '../services/logService.ts';
 import { createJob } from '../state/initialState.ts';
 import {
+  EnvironmentalHazard,
   GameState,
   Inventory,
   LogMessage,
@@ -297,6 +299,72 @@ export const processTick = (
   if (draft.flags.fuelContaminationRisk && Math.random() < 0.0002 * (delta / 1000)) {
     triggerEvent('accident', 'CATASTROPHIC_FAILURE');
     draft.flags.fuelContaminationRisk = false;
+  }
+
+  // --- Hazard Logic ---
+  // 1. Triggering (Small chance if no hazards active)
+  if (draft.activeHazards.length === 0 && Math.random() < 0.00005 * (delta / 1000)) {
+    // ~Every 4000s (approx once per hour)
+    // hazardsData is EnvironmentalHazard[], eventsData might be different.
+    // We prioritize hazardsData for now as it matches the type.
+    const availableHazards = hazardsData;
+    if (availableHazards && availableHazards.length > 0) {
+      const hazardTemplate = availableHazards[Math.floor(Math.random() * availableHazards.length)];
+      const newHazard: EnvironmentalHazard = {
+        ...hazardTemplate,
+        id: `${hazardTemplate.id}_${now}`,
+      };
+      draft.activeHazards.push(newHazard);
+      addLog(`WARNING: ${newHazard.name} detected. ${newHazard.description}`, 'warning');
+
+      // Notification
+      addNotification(draft, {
+        id: `hazard-${now}`,
+        title: 'ENVIRONMENTAL HAZARD',
+        message: newHazard.name,
+        variant: 'hazard',
+        duration: 10000,
+      });
+    }
+  }
+
+  // 2. Processing Active Hazards
+  if (draft.activeHazards.length > 0) {
+    // Iterate backwards to allow removal
+    for (let i = draft.activeHazards.length - 1; i >= 0; i--) {
+      const hazard = draft.activeHazards[i];
+      hazard.duration -= delta;
+
+      // Effects
+      if (hazard.effects.sanityDrain) {
+        draft.resources.sanity = Math.max(
+          0,
+          draft.resources.sanity - hazard.effects.sanityDrain * (delta / 1000)
+        );
+      }
+
+      // Health Drain (Toxic Fumes, etc)
+      if (hazard.effects.healthDrain) {
+        draft.resources.health = Math.max(
+          0,
+          draft.resources.health - hazard.effects.healthDrain * (delta / 1000)
+        );
+      }
+
+      // Random Events inside Hazards
+      if (
+        hazard.effects.randomEvent &&
+        Math.random() < hazard.effects.randomEvent.chance * (delta / 1000)
+      ) {
+        triggerEvent(hazard.effects.randomEvent.type, hazard.effects.randomEvent.id);
+      }
+
+      // Expiration
+      if (hazard.duration <= 0) {
+        addLog(`Condition Cleared: ${hazard.name}`, 'info');
+        draft.activeHazards.splice(i, 1);
+      }
+    }
   }
 
   // Timers

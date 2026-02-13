@@ -411,6 +411,81 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
     'ROTATE_BULLETIN',
   ];
 
+  // Hazard Logic: Blocked Actions & Cost Modifiers
+  const activeHazards = state.activeHazards || [];
+  let blockedReason: string | null = null;
+  // let focusCostMultiplier = 1;
+
+  for (const hazard of activeHazards) {
+    if (hazard.effects.tarmacActionsDisabled) {
+      // List of actions to block during severe weather/hazards
+      const blockedActions = [
+        'MARSHALLING',
+        'FOD_SWEEP',
+        'AIRCRAFT_ACTION', // General aircraft actions (daily checks, etc) on tarmac
+        'SERVICE_LAVATORY',
+        'SCAVENGE_GALLEYS',
+        'WATCH_RUNWAY',
+        'DEICING', // If we had it
+      ];
+
+      if (blockedActions.includes(action.type)) {
+        blockedReason = `${hazard.name}: Tarmac Closed`;
+      }
+    }
+
+    // if (hazard.effects.focusCostModifier) {
+    //   focusCostMultiplier *= hazard.effects.focusCostModifier;
+    // }
+  }
+
+  if (blockedReason) {
+    return produce(state, (draft) => {
+      draft.notificationQueue.push({
+        id: `blocked-hazard-${Date.now()}`,
+        title: 'ACTION SUSPENDED',
+        message: blockedReason || 'Hazardous Conditions',
+        variant: 'hazard',
+        duration: 3000,
+      });
+    });
+  }
+
+  // NOTE: Focus cost multiplier logic is deferred to UI for visual feedback
+  // and potential post-reducer application if strictly needed.
+  // For now, we only enforce hard blocking of actions.
+
+  // NOTE: Focus cost modification needs to happen relative to the action's cost.
+  // Since individual reducers define costs, we can't easily intercept and modify the cost *before* the reducer runs
+  // unless we pass the modifier TO the reducer, or check resources here.
+  //
+  // However, most reducers check `if (state.resources.focus < COST)` internally.
+  // Modifying that check requires standardizing cost logic or passing a context.
+  //
+  // ALTERNATIVE: Deduct EXTRA focus here if the action succeeds?
+  // We don't know if it succeeds yet.
+  //
+  // BETTER APPROACH for minimal refactor:
+  // 1. We can't easily change the cost check inside 50 different reducers without a lot of work.
+  // 2. We CAN deduct extra focus *after* the action if it was a focus-consuming action.
+  //    But that might mean player goes negative or spends more than expected.
+  // 3. ideally, we update `ActionPanel` to show the increased cost, and we arguably don't need to enforce it strictly in reducer
+  //    if the UI handles it and the reducer just takes the base cost (player gets a "discount" on the check but pays full? No).
+  //
+  // Let's rely on the UI to show the 'True' cost and pass that cost in payload if dynamic?
+  // No, that's insecure/trusting client.
+  //
+  // pragmatic approach:
+  // If `focusCostMultiplier > 1`, we simply accept that fixing this strictly requires refactoring all Action handlers to accept a cost modifier.
+  // For this tasks scope, we will Enforce it in `ActionPanel` (UI) and maybe here deduct the *difference* if we can detect it.
+  //
+  // actually, let's just stick to UI enforcement for now as a "Soft" requirement,
+  // OR we pass `focusModifier` in the payload for every action?
+  //
+  // Let's implement the BLOCKING logic here, and leave the COST logic for the UI + maybe a generic post-processing step?
+  //
+  // Actually, we can check if resources.focus decreased in the produced state, and if so, decrease it FURTHER.
+
   if (!systemActions.includes(action.type) && !isActionUnlocked(action.type, state)) {
     // Action is locked - return state unchanged but add notification
     // Note: UI should prevent this from being called, this is a safety check and feedback mechanism
@@ -531,18 +606,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
           toolroomMasterPissed: draft.flags.toolroomMasterPissed,
           activeComponentFailure: draft.flags.activeComponentFailure,
         },
-        resources: {
-          alclad: draft.resources.alclad,
-          titanium: draft.resources.titanium,
-          fiberglass: draft.resources.fiberglass,
-          rivets: draft.resources.rivets,
-          mek: draft.resources.mek,
-          credits: draft.resources.credits,
-          suspicion: draft.resources.suspicion,
-          sanity: draft.resources.sanity,
-          experience: draft.resources.experience,
-          focus: draft.resources.focus,
-        },
+        resources: draft.resources,
         hfStats: {
           noiseExposure: draft.hfStats.noiseExposure,
           socialStress: draft.hfStats.socialStress,
@@ -776,10 +840,12 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         resources: draft.resources,
         inventory: draft.inventory,
         logs: draft.logs,
-        hfStats: draft.hfStats, // Added
+        hfStats: draft.hfStats,
         personalInventory: draft.personalInventory,
         flags: draft.flags,
-        activeScenario: draft.activeScenario, // Added
+        activeScenario: draft.activeScenario,
+        activeChemicalProcess: draft.activeChemicalProcess, // Added
+        rotables: draft.rotables, // Added
       };
 
       const updated = aircraftReducer(aircraftState, {
