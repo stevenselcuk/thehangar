@@ -17,6 +17,7 @@ import { getActionRequiredLevel } from '../data/featureRegistry';
 import { checkLocationRequirements } from '../logic/locationRequirements';
 import { isActionUnlocked } from '../services/LevelManager';
 import BackroomModal from './BackroomModal';
+import ComponentInspectionModal from './ComponentInspectionModal';
 import PetInteraction from './PetInteraction';
 import ProcurementModal from './ProcurementModal';
 import ToolroomStatusWidget from './ToolroomStatusWidget';
@@ -32,11 +33,13 @@ const ActionPanel: React.FC<{
   const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
   const [isBackroomOpen, setIsBackroomOpen] = React.useState(false);
   const [isProcurementOpen, setIsProcurementOpen] = React.useState(false);
+  const [isComponentModalOpen, setIsComponentModalOpen] = React.useState(false);
 
   // Close modals when switching tabs
   React.useEffect(() => {
     setIsBackroomOpen(false);
     setIsProcurementOpen(false);
+    setIsComponentModalOpen(false);
 
     // Check for location triggers
     if (Math.random() > 0.3) return;
@@ -396,6 +399,14 @@ const ActionPanel: React.FC<{
                 />
               )}
 
+              {isComponentModalOpen && (
+                <ComponentInspectionModal
+                  state={state}
+                  onAction={onAction}
+                  onClose={() => setIsComponentModalOpen(false)}
+                />
+              )}
+
               <div className="grid grid-cols-1 gap-2">
                 {itemsData.shop
                   .filter((i) => i.category === 'tool')
@@ -743,6 +754,31 @@ const ActionPanel: React.FC<{
               </div>
             )}
 
+            {activeAircraft && (
+              <div className="p-4 border border-emerald-900/40 bg-black/40">
+                <h4 className="text-[10px] text-emerald-600 uppercase mb-4 font-bold tracking-widest">
+                  Engineering Technical Services
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <ActionButton
+                    label="Inspect Components"
+                    onClick={() => setIsComponentModalOpen(true)}
+                    description="Verify provenance and check for installed rotables."
+                    className="border-emerald-700/50 text-emerald-400"
+                  />
+                  <ActionButton
+                    label="Download Flight Data"
+                    onClick={() =>
+                      onAction('DOWNLOAD_DATA', { type: Math.random() > 0.5 ? 'FDR' : 'AIMS' })
+                    }
+                    cost={{ label: 'FOCUS', value: 10 }}
+                    description="Connect to the Data Loader. Extract raw parameters."
+                    className="border-blue-900/50 text-blue-400"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="p-4 border border-emerald-900/40 bg-black/40">
               <h4 className="text-[10px] text-emerald-600 uppercase mb-4 font-bold tracking-widest">
                 General Ramp Actions
@@ -882,6 +918,14 @@ const ActionPanel: React.FC<{
                   )}
               </div>
             </div>
+
+            {isComponentModalOpen && (
+              <ComponentInspectionModal
+                state={state}
+                onAction={onAction}
+                onClose={() => setIsComponentModalOpen(false)}
+              />
+            )}
           </div>
         );
       }

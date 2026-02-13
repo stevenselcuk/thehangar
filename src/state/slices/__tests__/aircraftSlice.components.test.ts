@@ -5,14 +5,8 @@ import { AircraftAction, aircraftReducer, AircraftSliceState } from '../aircraft
 // Mock initial state helper
 const createMockState = (overrides: Partial<AircraftSliceState> = {}): AircraftSliceState => ({
   activeAircraft: {
-    id: 'test-aircraft',
-    type: 'B737' as AircraftType,
-    tailNumber: 'N12345',
-    logbook: [],
-    workPackage: [],
-    installedRotables: [],
-    deferredItems: [],
-    openFaults: [],
+    id: AircraftType.B737_400,
+    task: 'TRANSIT_CHECK',
   },
   resources: {
     credits: 1000,
@@ -28,8 +22,8 @@ const createMockState = (overrides: Partial<AircraftSliceState> = {}): AircraftS
   } as unknown as GameState['resources'],
   inventory: {} as unknown as GameState['inventory'],
   personalInventory: {},
-  flags: {},
-  hfStats: {},
+  flags: {} as unknown as GameState['flags'],
+  hfStats: {} as unknown as GameState['hfStats'],
   logs: [],
   activeScenario: null,
   activeChemicalProcess: null,

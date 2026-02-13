@@ -16,6 +16,44 @@ export interface Item {
 }
 
 export const itemsData: Record<string, Item[]> = {
+  blackMarket: [
+    {
+      id: 'black_market_fms',
+      label: 'Untraceable FMS',
+      cost: 1200,
+      category: 'rotable',
+      pn: 'HON-FMS-X-BLK',
+      description: {
+        normal: 'A Flight Management System with filed-off serial numbers.',
+        unsettled: 'The nav database includes waypoints that do not exist.',
+        madness: 'It calculates routes through non-Euclidean space.',
+      },
+    },
+    {
+      id: 'black_market_transponder',
+      label: 'Ghost Transponder',
+      cost: 800,
+      category: 'rotable',
+      pn: 'XPNDR-GHOST-00',
+      description: {
+        normal: 'Transponder that can broadcast randomized hex codes.',
+        unsettled: "It replies to interrogations from stations that aren't there.",
+        madness: 'It broadcasts my true name on 1090MHz.',
+      },
+    },
+    {
+      id: 'black_market_pump',
+      label: ' "Refurbished" Hyd Pump',
+      cost: 400,
+      category: 'rotable',
+      pn: 'HYD-PUMP-UNK',
+      description: {
+        normal: 'Hydraulic pump. No paperwork. "Trust me" warranty.',
+        unsettled: 'It pumps fluid even when not connected to power.',
+        madness: 'The fluid coming out is redder than Skydrol should be.',
+      },
+    },
+  ],
   shop: [
     {
       id: 'laser_pointer',

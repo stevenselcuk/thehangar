@@ -137,6 +137,38 @@ const OfficeTab: React.FC<{
             )}
           </div>
 
+          {/* Data Analytics Station */}
+          {(state.resources.fdrData > 0 ||
+            state.resources.aimsData > 0 ||
+            state.resources.flightComputerMemory > 0) && (
+            <div className="p-5 border border-blue-900/60 bg-blue-950/10 mb-0">
+              <h4 className="text-[10px] text-blue-400 uppercase mb-4 font-bold tracking-widest border-l-2 border-blue-600 pl-3">
+                Flight Data Analysis
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-[10px] text-blue-200">
+                  <div className="flex justify-between border-b border-blue-900/30 pb-1 mb-1">
+                    <span>FDR RAW DATA:</span>
+                    <span className="font-mono text-blue-400">{state.resources.fdrData} UNITS</span>
+                  </div>
+                  <div className="flex justify-between border-b border-blue-900/30 pb-1 mb-1">
+                    <span>AIMS MEMORY:</span>
+                    <span className="font-mono text-blue-400">
+                      {state.resources.aimsData} UNITS
+                    </span>
+                  </div>
+                </div>
+                <ActionButton
+                  label="Analyze Data Telemetry"
+                  onClick={() => onAction('ANALYZE_DATA')}
+                  cost={{ label: 'FOCUS', value: 20 }}
+                  description="Process raw data for patterns. Generates XP and Credits. May reveal... anomalies."
+                  className="border-blue-700/50 text-blue-300 hover:bg-blue-900/20"
+                />
+              </div>
+            </div>
+          )}
+
           {/* PC Assembly Section */}
           <div className="p-5 border border-emerald-900/60 bg-black/60 relative overflow-hidden">
             <h4 className="text-[10px] text-emerald-500 uppercase mb-4 font-bold tracking-widest border-l-2 border-emerald-600 pl-3">

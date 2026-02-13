@@ -10,18 +10,24 @@ interface ProcurementModalProps {
 
 const ProcurementModal: React.FC<ProcurementModalProps> = ({ onClose, state, onAction }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'catalog' | 'orders'>('catalog');
+  const [activeTab, setActiveTab] = useState<'catalog' | 'orders' | 'black_market'>('catalog');
 
   const { resources } = state;
+
+  const showBlackMarket = state.procurement.catalogueUnlockLevel >= 2;
 
   // Filter items based on availability and search
   const availableItems = itemsData.shop.filter((item) => {
     const isOwned = state.inventory[item.id as keyof Inventory];
     const matchesSearch = item.label.toLowerCase().includes(searchTerm.toLowerCase());
-
-    // Simulate "advanced" items only appearing at higher levels or just all shop items for now
     return matchesSearch && !isOwned;
   });
+
+  const blackMarketItems =
+    itemsData.blackMarket?.filter((item) => {
+      const matchesSearch = item.label.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
+    }) || [];
 
   const activeOrders = state.procurement.orders.filter(
     (o) => o.status === 'ORDERED' || o.status === 'SHIPPED'
@@ -62,6 +68,18 @@ const ProcurementModal: React.FC<ProcurementModalProps> = ({ onClose, state, onA
             >
               Catalog
             </button>
+            {showBlackMarket && (
+              <button
+                onClick={() => setActiveTab('black_market')}
+                className={`px-4 py-2 text-xs font-bold uppercase tracking-wider border transition-all ${
+                  activeTab === 'black_market'
+                    ? 'bg-red-900/40 border-red-600 text-red-500'
+                    : 'bg-black/20 border-zinc-700 text-zinc-600 hover:border-red-900/50 hover:text-red-800'
+                }`}
+              >
+                [RESTRICTED]
+              </button>
+            )}
             <button
               onClick={() => setActiveTab('orders')}
               className={`px-4 py-2 text-xs font-bold uppercase tracking-wider border transition-all flex items-center gap-2 ${
@@ -184,6 +202,60 @@ const ProcurementModal: React.FC<ProcurementModalProps> = ({ onClose, state, onA
               {state.procurement.orders.length === 0 && (
                 <div className="text-center py-12 text-emerald-800 italic">
                   No active orders. Check the catalog to procure items.
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'black_market' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {blackMarketItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="relative group bg-red-950/20 border border-red-900/30 p-4 hover:border-red-500/50 transition-all hover:bg-red-900/10"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-red-400 uppercase">{item.label}</span>
+                    <span className="text-[10px] text-red-800 font-mono">P/N: {item.pn}</span>
+                  </div>
+
+                  <p className="text-[10px] text-red-900/80 mb-4 h-8 overflow-hidden">
+                    {item.description}
+                  </p>
+
+                  <div className="flex justify-between items-end mt-4">
+                    <div className="text-xs text-zinc-500">
+                      Cost:{' '}
+                      <span
+                        className={
+                          resources.credits >= item.cost ? 'text-amber-400' : 'text-red-500'
+                        }
+                      >
+                        {item.cost} CR
+                      </span>
+                    </div>
+                    <button
+                      onClick={() =>
+                        onAction('PLACE_ORDER', {
+                          itemId: item.id,
+                          itemLabel: item.label,
+                          cost: item.cost,
+                          etaSeconds: 120 + Math.random() * 180,
+                          isBlackMarket: true,
+                        })
+                      }
+                      disabled={resources.credits < item.cost}
+                      className="px-3 py-1.5 bg-red-900/30 border border-red-700/50 text-red-300 text-[10px] font-bold uppercase hover:bg-red-700/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      [ACQUIRE]
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {blackMarketItems.length === 0 && (
+                <div className="col-span-full text-center py-12 text-red-900 italic">
+                  The channels are quiet. No items available.
                 </div>
               )}
             </div>
