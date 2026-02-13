@@ -26,6 +26,18 @@ export const hazardsData: EnvironmentalHazard[] = [
       sanityDrain: 0.1,
       randomEvent: { type: 'eldritch_manifestation', id: 'MEZZANINE_OBSERVATION', chance: 0.01 },
     },
-    duration: 180000, // 3 minutes
+    duration: 120000,
+  },
+  {
+    id: 'TOXIC_FUMES',
+    name: 'Toxic Fumes',
+    description: 'Ventilation failure. Chemical vapors are accumulating.',
+    type: 'containment',
+    effects: {
+      sanityDrain: 2,
+      focusCostModifier: 2,
+      randomEvent: { type: 'bureaucratic_horror', id: 'OSHA_VIOLATION', chance: 0.1 },
+    },
+    duration: 60000,
   },
 ];

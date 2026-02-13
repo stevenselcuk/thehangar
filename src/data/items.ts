@@ -354,6 +354,66 @@ export const itemsData: Record<string, Item[]> = {
         madness: 'It smells like the ocean on a planet that died.',
       },
     },
+    {
+      id: 'paracetamol',
+      label: 'Paracetamol',
+      cost: 15,
+      unit: 'Pack',
+      pn: 'MED-PARA-500',
+      description: {
+        normal: 'Standard pain relief. 500mg tablets.',
+        unsettled: 'The pills rattle like teeth in the bottle.',
+        madness: 'They are not pills. They are eggs. I must not swallow them.',
+      },
+    },
+    {
+      id: 'ibuprofen',
+      label: 'Ibuprofen',
+      cost: 20,
+      unit: 'Pack',
+      pn: 'MED-IBU-400',
+      description: {
+        normal: 'Anti-inflammatory. 400mg.',
+        unsettled: 'Red coated tablets. They look like drops of blood.',
+        madness: 'They stop the swelling in my brain. The voices get quieter.',
+      },
+    },
+    {
+      id: 'naproxen',
+      label: 'Naproxen',
+      cost: 35,
+      unit: 'Pack',
+      pn: 'MED-NAP-500',
+      description: {
+        normal: 'Strong NSAID. For joint pain.',
+        unsettled: 'The bottle is heavy. Gravity pulls harder on it.',
+        madness: 'It dissolves the pain. It dissolves the joints. It dissolves me.',
+      },
+    },
+    {
+      id: 'ketamine',
+      label: 'Ketamine Solution',
+      cost: 200,
+      unit: 'Vial',
+      pn: 'MED-KET-10ML',
+      description: {
+        normal: 'Anesthetic agent. Veterinary grade.',
+        unsettled: 'The liquid moves on its own inside the vial.',
+        madness: 'The dissociate key. It unlocks the door between here and... there.',
+      },
+    },
+    {
+      id: 'firstAidKit',
+      label: 'First Aid Kit',
+      cost: 100,
+      unit: 'Kit',
+      pn: 'SAFETY-MED-KIT',
+      description: {
+        normal: 'Standard industrial first aid kit.',
+        unsettled: 'Some of the bandages are already stained.',
+        madness: 'It contains the tools to sew the soul back into the body.',
+      },
+    },
   ],
   carried: [
     {

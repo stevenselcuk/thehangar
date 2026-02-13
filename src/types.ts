@@ -43,6 +43,19 @@ export interface ResourceState {
   rudderFeelComputer: number;
   emergencyBatteryPack: number;
   adfReceiver: number;
+  // Chemistry & Hazards
+  health: number; // 0-100, physical condition
+  contaminatedSkydrol: number;
+  primer: number;
+  ventilationUnit: number;
+  ppeMask: number;
+  nitrileGloves: number;
+  // Medical
+  paracetamol: number;
+  ibuprofen: number;
+  naproxen: number;
+  ketamine: number;
+  firstAidKit: number;
 }
 
 export enum SuitType {
@@ -384,6 +397,27 @@ export interface AircraftScenario {
   choices: AircraftScenarioChoice[];
 }
 
+export interface ChemicalProcess {
+  id: string;
+  targetComponent: string; // e.g., "Left Wing Tank"
+  stage:
+    | 'dirty'
+    | 'cleaning'
+    | 'cleaned'
+    | 'priming'
+    | 'primed'
+    | 'sealing'
+    | 'sealed'
+    | 'curing'
+    | 'cured';
+  stepsCompleted: string[];
+  startTime: number;
+  cureProgress: number; // 0-100
+  contaminationRisk: number; // 0-100
+  fumeLevel: number; // 0-100
+  quality: number; // 0-100, affects outcome
+}
+
 export interface GameStats {
   jobsCompleted: number;
   srfsFiled: number;
@@ -467,6 +501,7 @@ export interface GameState {
       duration: number;
     } | null;
   };
+  activeChemicalProcess: ChemicalProcess | null;
   notificationQueue: NotificationRequest[];
   procurement: ProcurementState;
   toolroom: {

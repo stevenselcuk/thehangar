@@ -3,7 +3,6 @@ import { anomaliesData } from '../../data/anomalies.ts';
 import { eventsData } from '../../data/events.ts';
 import { ACTION_LOGS, SYSTEM_LOGS } from '../../data/flavor.ts';
 import { jobsData } from '../../data/jobs.ts';
-import { generateResolutionLog } from '../../logic/logGenerator.ts'; // Import
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { canSpawnEventCategory } from '../../services/LevelManager.ts';
 import { addLogToDraft } from '../../services/logService.ts';
@@ -264,62 +263,101 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
     case 'RESOLVE_EVENT': {
       if (!draft.activeEvent) break;
 
-      const eventId = draft.activeEvent.id;
+      const { choiceId } = action.payload as { choiceId?: string };
+      const event = draft.activeEvent;
 
-      // Handle special event resolutions
-      if (eventId === 'FUEL_CONTAM') {
+      // 1. Handle Choice Selection
+      if (choiceId && event.choices) {
+        const choice = event.choices.find((c) => c.id === choiceId);
+        if (choice) {
+          // Deduct Cost
+          if (choice.cost) {
+            const costResource = choice.cost.resource as keyof GameState['resources'];
+            if (draft.resources[costResource] >= choice.cost.amount) {
+              draft.resources[costResource] -= choice.cost.amount;
+            } else {
+              // Should have been disabled in UI, but safety check
+              addLog(`Not enough ${choice.cost.resource} to ${choice.label}`, 'warning');
+              return;
+            }
+          }
+
+          // Apply Effects
+          if (choice.effects) {
+            Object.entries(choice.effects).forEach(([key, val]) => {
+              const resKey = key as keyof GameState['resources'];
+              if (typeof val === 'number') {
+                // Check if resource exists on draft.resources to be safe
+                if (draft.resources[resKey] !== undefined) {
+                  draft.resources[resKey] += val;
+                  // Clamp values
+                  if (resKey === 'health')
+                    draft.resources.health = Math.max(0, Math.min(100, draft.resources.health));
+                  if (resKey === 'sanity')
+                    draft.resources.sanity = Math.max(0, Math.min(100, draft.resources.sanity));
+                  if (resKey === 'focus') draft.resources.focus = Math.max(0, 100); // Focus can go > 100? Assuming strictly managed elsewhere, but let's cap lower bound
+                  if (resKey === 'suspicion')
+                    draft.resources.suspicion = Math.max(
+                      0,
+                      Math.min(100, draft.resources.suspicion)
+                    );
+                }
+              }
+            });
+          }
+
+          // Log Result
+          if (choice.log) {
+            addLog(choice.log, 'story');
+          }
+        }
+      }
+      // 2. Handle Required Action Success (No choiceId)
+      else if (event.requiredAction && event.successOutcome) {
+        // Apply Success Effects
+        if (event.successOutcome.effects) {
+          Object.entries(event.successOutcome.effects).forEach(([key, val]) => {
+            const resKey = key as keyof GameState['resources'];
+            if (typeof val === 'number' && draft.resources[resKey] !== undefined) {
+              draft.resources[resKey] += val;
+              // Clamp
+              if (resKey === 'health')
+                draft.resources.health = Math.max(0, Math.min(100, draft.resources.health));
+            }
+          });
+        }
+
+        // Log Success
+        if (event.successOutcome.log) {
+          addLog(event.successOutcome.log, 'story');
+        } else {
+          // Fallback if no log
+          addLog(`You successfully completed: ${event.title}`, 'story');
+        }
+      }
+
+      // 3. Fallback / Legacy Handling (using generateResolutionLog for flavor if no explicit log)
+      // If we didn't log yet (no choice log or success log), use generator
+      // Actually, let's keep specific legacy handlers for now but move them to *after* generic handling
+      // or integrate them.
+
+      // Special Event Hooks (Legacy/Specific Logic)
+      if (event.id === 'FUEL_CONTAM') {
         draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 35);
-        addLog(
-          "You reported the fuel contamination. A HAZMAT team is on its way, and so is a full audit team. They'll be watching you closely.",
-          'warning'
-        );
-      } else if (eventId === 'CATERING_INCIDENT') {
-        draft.resources.credits -= 50;
-        addLog(ACTION_LOGS.CATERING_INCIDENT_RESOLVED, 'info');
-      } else if (eventId === 'GROUND_POWER_INOP') {
-        addLog(ACTION_LOGS.GROUND_POWER_RESOLVED, 'info');
-      } else if (eventId === 'BAGGAGE_LOADER_IMPACT') {
-        addLog(ACTION_LOGS.BAGGAGE_IMPACT_LOGGED, 'info');
-      } else if (eventId === 'FUELING_ERROR') {
-        addLog(ACTION_LOGS.FUEL_LOG_CORRECTED, 'info');
-      } else if (eventId === 'MGMT_PRESSURE') {
+        addLog("A HAZMAT team is on its way. They'll be watching you closely.", 'warning');
+      } else if (event.id === 'MGMT_PRESSURE') {
         draft.hfStats.compliancePressureTimer = 5 * 60 * 1000;
-        addLog(
-          "You can feel the lead's eyes on your back. Every move is being scrutinized.",
-          'warning'
-        );
-      } else if (eventId === 'PIP_WARNING') {
-        draft.flags.onPerformanceImprovementPlan = true;
-        addLog(
-          'Your file has been updated. All actions will require more focus until your performance improves.',
-          'error'
-        );
-      } else if (eventId === 'SCHEDULE_COMPRESSION') {
-        draft.hfStats.scheduleCompressionTimer = 30 * 60 * 1000;
-        addLog('The pace is frantic. Clocks seem to spin faster.', 'warning');
       }
-
-      // Component failures cannot be resolved here - must be repaired in toolroom
-      if (draft.activeEvent.type === 'component_failure') {
-        addLog(
-          'This issue cannot be resolved through standard channels. The component must be repaired in the toolroom.',
-          'error'
-        );
-        // Note: Focus cost was already deducted, so we don't refund here
-        return;
-      }
-
-      // Award experience for resolution
-      draft.resources.experience += 350;
-      const resolutionLog = generateResolutionLog(
-        draft,
-        draft.activeEvent.type,
-        draft.activeEvent.id
-      );
-      addLog(resolutionLog, 'story');
 
       // Increment stats
       draft.stats.eventsResolved += 1;
+
+      // Award generic XP if not specified in effects?
+      // standard was +350. Let's add it if no effects defined to avoid double dipping?
+      // Or just keep it as a bonus for resolving ANY event.
+      // Let's reduce it to 50 if effects were applied, or keep 350. 350 is high.
+      // Let's stick to 100 base for now + whatever effects gave.
+      draft.resources.experience += 100;
 
       // Clear active event
       draft.activeEvent = null;

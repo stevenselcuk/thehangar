@@ -391,6 +391,18 @@ export const eventsData: Record<string, EventTemplates[]> = {
       },
     },
     {
+      id: 'CHEMICAL_BURN',
+      title: 'Chemical Burn',
+      description: 'Spilled MEK acts... aggressively.',
+      type: 'accident',
+      totalTime: 15000,
+      requiredAction: 'WASH_HANDS',
+      failureOutcome: {
+        log: 'The skin is gone. The bone underneath is... shiny.',
+        effects: { health: -10, sanity: -5 },
+      },
+    },
+    {
       id: 'ELECTRICAL_ARC_FLASH',
       type: 'accident',
       title: 'ELECTRICAL ARC FLASH',
@@ -403,8 +415,20 @@ export const eventsData: Record<string, EventTemplates[]> = {
         effects: { experience: 200, sanity: -10 },
       },
       failureOutcome: {
-        log: 'The fire spread, damaging several key components before the automated systems kicked in. A major incident report has been filed.',
-        effects: { sanity: -40, suspicion: 15, credits: -300 },
+        log: 'The fire spread, damaging several key components before the automated systems kicked in. You have minor burns.',
+        effects: { sanity: -40, suspicion: 15, credits: -300, health: -10 },
+      },
+    },
+    {
+      id: 'CONTAINMENT_BREACH_ACCIDENT',
+      type: 'accident',
+      title: 'CONTAINMENT LEAK',
+      description: 'Something is leaking from the pressure vessel.',
+      totalTime: 45000,
+      requiredAction: 'SEAL BREACH',
+      failureOutcome: {
+        log: 'It sprayed you. Your skin is blistering.',
+        effects: { health: -20, sanity: -15 },
       },
     },
     {
@@ -788,6 +812,18 @@ export const eventsData: Record<string, EventTemplates[]> = {
     },
   ],
   bureaucratic_horror: [
+    {
+      id: 'OSHA_VIOLATION',
+      title: 'OSHA Violation',
+      description: 'An inspector catches you without proper PPE.',
+      type: 'bureaucratic_horror',
+      totalTime: 30000,
+      requiredAction: 'HIDE_IN_LOCKER', // Assuming this action exists or needs wiring
+      failureOutcome: {
+        log: 'Fined for "Willful Disregard of Safety".',
+        effects: { credits: -500, suspicion: 5 },
+      },
+    },
     {
       id: 'PAPERWORK_ERROR_INK',
       type: 'bureaucratic_horror',

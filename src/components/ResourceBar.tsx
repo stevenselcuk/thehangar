@@ -35,6 +35,26 @@ const ResourceBarComponent: React.FC<Props> = ({
       {/* Vitals Row */}
       <div className="px-4 py-3 flex items-center justify-between bg-[#0a0a0a]">
         <div className="flex space-x-12 overflow-x-auto scrollbar-hide w-full md:w-auto pb-2 md:pb-0">
+          {/* Health */}
+          <div className="flex flex-col space-y-1 w-48 flex-shrink-0">
+            <div className="flex justify-between items-center px-1">
+              <span className="text-red-700 text-[7px] font-bold uppercase tracking-widest">
+                Health
+              </span>
+              <span
+                className={`${resources.health < 20 ? 'text-red-500 animate-pulse font-black' : 'text-red-500'} text-[8px] font-mono`}
+              >
+                {Math.floor(resources.health)}%
+              </span>
+            </div>
+            <div className="h-1.5 bg-red-950/30 border border-red-900/50">
+              <div
+                className="h-full bg-red-600 shadow-[0_0_12px_rgba(220,38,38,0.7)] transition-all"
+                style={{ width: `${resources.health}%` }}
+              />
+            </div>
+          </div>
+
           {/* Sanity */}
           <div className="flex flex-col space-y-1 w-48 flex-shrink-0">
             <div className="flex justify-between items-center px-1">
@@ -59,19 +79,19 @@ const ResourceBarComponent: React.FC<Props> = ({
           <div className="flex flex-col space-y-1 w-48 flex-shrink-0">
             <div className="flex justify-between items-center px-1">
               <span
-                className={`text-red-900 text-[7px] font-bold uppercase tracking-widest ${isHighSuspicion ? 'animate-pulse' : ''}`}
+                className={`text-amber-700 text-[7px] font-bold uppercase tracking-widest ${isHighSuspicion ? 'animate-pulse' : ''}`}
               >
                 Suspicion
               </span>
               <span
-                className={`text-red-600 text-[8px] font-mono ${isHighSuspicion ? 'animate-pulse font-black' : ''}`}
+                className={`text-amber-500 text-[8px] font-mono ${isHighSuspicion ? 'animate-pulse font-black' : ''}`}
               >
                 {Math.floor(resources.suspicion)}%
               </span>
             </div>
-            <div className="h-1.5 bg-red-950/20 border border-red-900/30">
+            <div className="h-1.5 bg-amber-950/20 border border-amber-900/30">
               <div
-                className={`h-full bg-red-800 shadow-[0_0_10px_rgba(220,38,38,0.5)] transition-all ${isHighSuspicion ? 'animate-pulse' : ''}`}
+                className={`h-full bg-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.5)] transition-all ${isHighSuspicion ? 'animate-pulse' : ''}`}
                 style={{ width: `${resources.suspicion}%` }}
               />
             </div>

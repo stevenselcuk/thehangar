@@ -3,7 +3,7 @@ import { aircraftData } from '../../data/aircraft.ts';
 import { aircraftScenarios } from '../../data/aircraftScenarios.ts'; // Added import
 import { ACTION_LOGS } from '../../data/flavor.ts';
 import { addLogToDraft } from '../../services/logService.ts';
-import { ActiveAircraft, AircraftType, GameState } from '../../types.ts';
+import { ActiveAircraft, AircraftType, ChemicalProcess, GameState } from '../../types.ts';
 
 // ==================== TYPE DEFINITIONS ====================
 
@@ -16,6 +16,7 @@ export interface AircraftSliceState {
   hfStats: GameState['hfStats'];
   logs: GameState['logs'];
   activeScenario: GameState['activeScenario']; // Added
+  activeChemicalProcess: ChemicalProcess | null;
 }
 
 export type AircraftAction =
@@ -37,7 +38,13 @@ export type AircraftAction =
   | { type: 'SMOKE_CIGARETTE'; payload: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'DRINK_GALLEY_COFFEE'; payload: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'SCAVENGE_GALLEYS'; payload: { triggerEvent?: (type: string, id?: string) => void } }
-  | { type: 'WATCH_RUNWAY'; payload: Record<string, unknown> };
+  | { type: 'WATCH_RUNWAY'; payload: Record<string, unknown> }
+  | { type: 'START_CHEMICAL_PROCESS'; payload: { component: string } }
+  | {
+      type: 'PERFORM_CHEMICAL_STEP';
+      payload: { itemId: string; triggerEvent?: (type: string, id?: string) => void };
+    }
+  | { type: 'CHECK_CURE_PROGRESS'; payload: { timeDelta: number } };
 
 // ==================== REDUCER ====================
 
@@ -320,6 +327,118 @@ export const aircraftReducer = (
         const watchLogs = ['WATCH_RUNWAY_1', 'WATCH_RUNWAY_2', 'WATCH_RUNWAY_3', 'WATCH_RUNWAY_4'];
         const logKey = watchLogs[Math.floor(Math.random() * watchLogs.length)];
         addLog(ACTION_LOGS[logKey], 'info');
+        break;
+      }
+
+      case 'START_CHEMICAL_PROCESS': {
+        const { component } = action.payload;
+        if (draft.activeChemicalProcess) {
+          addLog('A chemical process is already active.', 'warning');
+          return;
+        }
+        draft.activeChemicalProcess = {
+          id: Math.random().toString(36).substr(2, 9),
+          targetComponent: component,
+          stage: 'dirty',
+          stepsCompleted: [],
+          startTime: Date.now(),
+          cureProgress: 0,
+          contaminationRisk: 0,
+          fumeLevel: 0,
+          quality: 100,
+        };
+        addLog(`Started maintenance on ${component}. Surface is dirty and needs cleaning.`, 'info');
+        break;
+      }
+
+      case 'PERFORM_CHEMICAL_STEP': {
+        const { itemId, triggerEvent } = action.payload;
+        const process = draft.activeChemicalProcess;
+
+        if (!process) {
+          addLog('No active chemical process to work on.', 'warning');
+          return;
+        }
+
+        // Check for PPE
+        const hasRespirator = (draft.resources.ppeMask || 0) > 0;
+        const hasVentilation = (draft.resources.ventilationUnit || 0) > 0;
+
+        // Fume/Health Check
+        if (!hasRespirator || !hasVentilation) {
+          process.fumeLevel += 20;
+          if (Math.random() < 0.3) {
+            draft.resources.health = Math.max(0, (draft.resources.health || 100) - 5);
+            draft.resources.sanity = Math.max(0, draft.resources.sanity - 5);
+            addLog("The fumes are making you dizzy. You utilize the 'safety squint'.", 'warning');
+            if (triggerEvent && Math.random() < 0.1)
+              triggerEvent('bureaucratic_horror', 'OSHA_VIOLATION');
+          }
+        }
+
+        // State Machine
+        if (itemId === 'mek') {
+          if (process.stage === 'dirty') {
+            process.stage = 'cleaned';
+            process.stepsCompleted.push('MEK_CLEAN');
+            addLog('Surface cleaned with MEK. Ready for primer.', 'info');
+            draft.resources.mek = Math.max(0, draft.resources.mek - 1);
+          } else {
+            addLog("Didn't need cleaning, but you just wasted solvent.", 'warning');
+            process.quality -= 10;
+          }
+        } else if (itemId === 'primer') {
+          if (process.stage === 'cleaned') {
+            process.stage = 'primed';
+            process.stepsCompleted.push('PRIMER_APPLY');
+            addLog('Primer applied. It needs to flash off before sealing.', 'info');
+            draft.resources.primer = Math.max(0, (draft.resources.primer || 0) - 1);
+          } else if (process.stage === 'dirty') {
+            addLog("You didn't clean it first! The primer bubbles and lifts.", 'error');
+            process.quality -= 50;
+            process.stage = 'primed'; // Technically primed, but badly
+          } else {
+            addLog('Cannot apply primer now.', 'warning');
+          }
+        } else if (itemId === 'sealant') {
+          if (process.stage === 'primed') {
+            process.stage = 'curing';
+            process.stepsCompleted.push('SEALANT_APPLY');
+            addLog('Sealant applied. Curing process started.', 'info');
+            draft.resources.sealant = Math.max(0, draft.resources.sealant - 1);
+          } else if (process.stage === 'dirty' || process.stage === 'cleaned') {
+            addLog("You skipped the primer! This won't stick.", 'error');
+            process.quality -= 60;
+            process.stage = 'curing';
+          } else {
+            addLog('Not ready for sealant.', 'warning');
+          }
+        } else {
+          // Check reaction with existing steps?
+          // Simplified for now
+          addLog(`That item (${itemId}) doesn't seem useful here.`, 'warning');
+        }
+        break;
+      }
+
+      case 'CHECK_CURE_PROGRESS': {
+        const { timeDelta } = action.payload;
+        if (draft.activeChemicalProcess && draft.activeChemicalProcess.stage === 'curing') {
+          // Base cure speed
+          let cureSpeed = 1;
+          if (draft.inventory['irLamp']) cureSpeed *= 3; // IR Lamp speeds it up
+
+          draft.activeChemicalProcess.cureProgress += (timeDelta / 1000) * cureSpeed; // simplified
+
+          if (draft.activeChemicalProcess.cureProgress >= 100) {
+            draft.activeChemicalProcess.stage = 'cured';
+            addLog(`Curing complete on ${draft.activeChemicalProcess.targetComponent}.`, 'levelup');
+            // Reward
+            draft.resources.experience += 200;
+            draft.resources.credits += 50;
+            draft.activeChemicalProcess = null;
+          }
+        }
         break;
       }
     }

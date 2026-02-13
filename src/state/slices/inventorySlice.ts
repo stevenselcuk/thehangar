@@ -1,8 +1,9 @@
 import { produce } from 'immer';
 
+import { getReaction } from '../../data/chemicalInteractions.ts';
 import { ACTION_LOGS, MASTER_LORE, TOOLROOM_MASTER_DIALOUGE } from '../../data/flavor.ts';
 import { addLogToDraft } from '../../services/logService.ts';
-import { Inventory, LogMessage, RotableItem } from '../../types.ts';
+import { Inventory, LogMessage, ResourceState, RotableItem } from '../../types.ts';
 
 /**
  * Inventory Slice - Manages toolroom, rotables, and equipment
@@ -27,18 +28,7 @@ export interface InventorySliceState {
     toolroomMasterPissed: boolean;
     activeComponentFailure: string | null;
   };
-  resources: {
-    alclad: number;
-    titanium: number;
-    fiberglass: number;
-    rivets: number;
-    mek: number;
-    credits: number;
-    suspicion: number;
-    sanity: number;
-    experience: number;
-    focus: number;
-  };
+  resources: ResourceState;
   hfStats: {
     noiseExposure: number;
     socialStress: number;
@@ -74,6 +64,7 @@ export type InventoryAction =
       type: 'DISPENSE_CONSUMABLE';
       payload: { id: string; label: string; unit: string; cost: number };
     }
+  | { type: 'USE_ITEM'; payload: { id: string; label: string } }
   | { type: 'REGISTER_ROTABLE'; payload: { label: string; pn: string } }
   | { type: 'MIX_PAINT'; payload: Record<string, unknown> }
   | { type: 'SONIC_CLEAN'; payload: Record<string, unknown> }
@@ -90,7 +81,8 @@ export type InventoryAction =
       payload: { status: 'OPEN' | 'CLOSED' | 'AUDIT' | 'LUNCH'; nextChange: number };
     }
   | { type: 'NPC_TOOL_ACTION'; payload: { toolId: string; action: 'CHECKOUT' | 'RETURN' } }
-  | { type: 'SORT_HARDWARE'; payload?: Record<string, unknown> };
+  | { type: 'SORT_HARDWARE'; payload?: Record<string, unknown> }
+  | { type: 'MIX_CHEMICALS'; payload: { ingredients: string[] } };
 
 // ===== HELPER FUNCTIONS =====
 
@@ -257,6 +249,53 @@ export const inventoryReducer = produce((draft: InventorySliceState, action: Inv
       } else {
         addLog('CREDIT LIMIT EXCEEDED.', 'error');
         // Note: Focus refund handled by cost validation in caller
+      }
+      break;
+    }
+
+    case 'USE_ITEM': {
+      const { id, label } = action.payload;
+      // Check if item exists
+      // TS cast hack because draft.resources is strictly typed but we treat consumables dynamically sometimes
+      const currentAmount =
+        ((draft.resources as unknown as Record<string, unknown>)[id] as number) || 0;
+
+      if (currentAmount > 0) {
+        // Remove one
+        (draft.resources as unknown as Record<string, unknown>)[id] = currentAmount - 1;
+
+        // Apply effects
+        let used = false;
+
+        if (id === 'paracetamol') {
+          addLog('You take a Paracetamol. The headache subsides slightly.', 'info');
+          draft.resources.health = Math.min(100, draft.resources.health + 5);
+          used = true;
+        } else if (id === 'ibuprofen') {
+          addLog('You take an Ibuprofen. The swelling in your joints decreases.', 'info');
+          draft.resources.health = Math.min(100, draft.resources.health + 10);
+          used = true;
+        } else if (id === 'naproxen') {
+          addLog('You take a Naproxen. You feel tougher.', 'info');
+          draft.resources.health = Math.min(100, draft.resources.health + 15);
+          used = true;
+        } else if (id === 'ketamine') {
+          addLog('You inject the Ketamine. The hangar dissolves into geometry.', 'vibration');
+          draft.resources.health = Math.min(100, draft.resources.health + 50);
+          draft.resources.sanity = Math.max(0, draft.resources.sanity - 20);
+          draft.resources.focus = Math.max(0, draft.resources.focus - 20);
+          used = true;
+        } else if (id === 'firstAidKit') {
+          addLog('You apply the First Aid Kit. Bandages, antiseptic, instant ice.', 'info');
+          draft.resources.health = Math.min(100, draft.resources.health + 25);
+          used = true;
+        }
+
+        if (!used) {
+          addLog(`You used ${label}, but nothing happened.`, 'warning');
+        }
+      } else {
+        addLog(`You don't have any ${label}.`, 'warning');
       }
       break;
     }
@@ -461,6 +500,47 @@ export const inventoryReducer = produce((draft: InventorySliceState, action: Inv
         draft.resources.experience += 150;
         draft.resources.credits += 10;
         draft.resources.sanity = Math.max(0, draft.resources.sanity - 10);
+      }
+      break;
+    }
+
+    case 'MIX_CHEMICALS': {
+      const { ingredients } = action.payload;
+      if (ingredients.length !== 2) {
+        addLog('You need exactly two ingredients to mess around with chemistry.', 'warning');
+        return;
+      }
+
+      const [itemA, itemB] = ingredients;
+      // Check resources
+      // Assuming ingredients are resource keys like 'skydrol', 'mek'
+      // Need a way to map them or assume they match resource keys or inventory keys
+
+      const reaction = getReaction(itemA, itemB);
+
+      if (reaction) {
+        addLog(`REACTION: ${reaction.description}`, 'warning');
+        if (reaction.audio) {
+          // Play audio if we had a system
+        }
+
+        // Apply effects
+        if (reaction.effects) {
+          Object.entries(reaction.effects).forEach(([key, val]) => {
+            // TS hack for dynamic key access on draft.resources
+            const resKey = key as keyof typeof draft.resources;
+            if (resKey in draft.resources && typeof val === 'number') {
+              (draft.resources as unknown as Record<string, number>)[resKey] += val;
+            }
+          });
+        }
+
+        if (reaction.result === 'ELDRITCH_BIRTH') {
+          draft.resources.contaminatedSkydrol = (draft.resources.contaminatedSkydrol || 0) + 10;
+          addLog('You have created... something. It is now in the contaminated storage.', 'story');
+        }
+      } else {
+        addLog('Nothing happened. Boring.', 'info');
       }
       break;
     }
