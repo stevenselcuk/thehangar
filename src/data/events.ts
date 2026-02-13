@@ -16,219 +16,7 @@ import { aircraftEvents } from './aircraftEvents';
 type EventTemplates = Omit<GameEvent, 'timeLeft'>;
 
 export const eventsData: Record<string, EventTemplates[]> = {
-  marshalling: [
-    {
-      id: 'MARSHALLING_GHOST_PLANE',
-      type: 'eldritch_manifestation',
-      title: 'GHOST ARRIVAL',
-      description:
-        'You are marshalling a 737. As it crosses the threshold, it begins to fade. By the time it reaches the stop bar, it is gone. The logs say it landed.',
-      totalTime: 30000,
-      choices: [
-        {
-          id: 'log_it',
-          label: 'Log the Arrival',
-          log: 'You fill out the paperwork for a ghost. The system accepts it. You feel heavy.',
-          effects: { sanity: -10, experience: 200 },
-        },
-        {
-          id: 'ignore',
-          label: 'Ignore It',
-          log: 'You walk away. There is no plane. There never was.',
-          effects: { suspicion: 5 },
-        },
-      ],
-      failureOutcome: {
-        log: 'You stood there too long. The wind from the non-existent engines knocked you over.',
-        effects: { sanity: -20 },
-      },
-    },
-    {
-      id: 'MARSHALLING_WRONG_GATE',
-      type: 'incident',
-      title: 'WRONG GATE',
-      description:
-        "The pilot is aiming for a gate that doesn't exist. Gate C-Infinity. He is persistent.",
-      totalTime: 40000,
-      choices: [
-        {
-          id: 'correct',
-          label: 'Force Turn',
-          cost: { resource: 'focus', amount: 20 },
-          log: 'You aggressively signal a turn. The pilot complies, looking confused. The gate vanishes.',
-          effects: { experience: 150 },
-        },
-      ],
-      failureOutcome: {
-        log: 'The plane taxies through the wall and disappears. No crash. Just silence.',
-        effects: { sanity: -30, suspicion: 20 },
-      },
-    },
-    {
-      id: 'MARSHALLING_NO_PILOT',
-      type: 'eldritch_manifestation',
-      title: 'UNMANNED',
-      description:
-        'The aircraft comes to a perfect stop. You look up at the cockpit. It is completely empty.',
-      totalTime: 30000,
-      choices: [
-        {
-          id: 'inspect',
-          label: 'Investigate',
-          cost: { resource: 'sanity', amount: 15 },
-          log: 'You climb the stairs. The flight deck is cold. The logbook entry is signed by you, dated tomorrow.',
-          effects: { experience: 300, suspicion: 10 },
-        },
-      ],
-      failureOutcome: {
-        log: 'You run away. The engines start up again on their own.',
-        effects: { suspicion: 15 },
-      },
-    },
-    {
-      id: 'MARSHALLING_FACE_IN_WINDOW',
-      type: 'eldritch_manifestation',
-      title: 'PASSENGER 57',
-      description:
-        'A face is pressed against a passenger window. It is screaming, but the glass is thick. Also, the face is three feet wide.',
-      totalTime: 25000,
-      choices: [
-        {
-          id: 'look_away',
-          label: 'Look Away',
-          cost: { resource: 'focus', amount: 10 },
-          log: 'You focus on the nose wheel line. You do not look up. You survive.',
-          effects: { sanity: -5 },
-        },
-      ],
-      failureOutcome: {
-        log: 'You looked. It saw you. It smiled.',
-        effects: { sanity: -50 },
-      },
-    },
-    {
-      id: 'MARSHALLING_STATIC_STORM',
-      type: 'accident',
-      title: 'STATIC DISCHARGE',
-      description:
-        "St. Elmo's fire is dancing on the wingtips. It's beautiful, until it starts spelling out words.",
-      totalTime: 35000,
-      choices: [
-        {
-          id: 'read',
-          label: 'Read the Lightning',
-          cost: { resource: 'sanity', amount: 20 },
-          log: 'It spells out "THEY ARE HERE". Then the power grid fails.',
-          effects: { experience: 400, credits: -50 },
-        },
-      ],
-      failureOutcome: {
-        log: 'The discharge arcs to your wands. You wake up ten minutes later.',
-        effects: { focus: -30 },
-      },
-    },
-    {
-      id: 'MARSHALLING_TIME_SLIP',
-      type: 'incident',
-      title: 'FLIGHT 19',
-      description:
-        'A DC-3 lands. It looks brand new. The pilot asks what year it is. He is smoking a pipe.',
-      totalTime: 45000,
-      choices: [
-        {
-          id: 'answer',
-          label: 'Tell the Truth',
-          log: "He nods, turns the plane around, and takes off into a cloud bank that isn't there.",
-          effects: { sanity: -10, experience: 200 },
-        },
-      ],
-      failureOutcome: {
-        log: "Security surrounds the plane. When they open the door, it's full of dust.",
-        effects: { suspicion: 20 },
-      },
-    },
-    {
-      id: 'MARSHALLING_SHADOW_CREW',
-      type: 'eldritch_manifestation',
-      title: 'SHADOW CREW',
-      description: 'You signal a turn. Your shadow signals a stop. The plane obeys your shadow.',
-      totalTime: 30000,
-      choices: [
-        {
-          id: 'fight',
-          label: 'Assert Dominance',
-          cost: { resource: 'focus', amount: 30 },
-          log: 'You scream at your shadow. It flinches and mirrors you again. The pilot looks terrified.',
-          effects: { experience: 250, suspicion: 10 },
-        },
-      ],
-      failureOutcome: {
-        log: 'Your shadow walks away. You are stuck here.',
-        effects: { sanity: -20 },
-      },
-    },
-    {
-      id: 'MARSHALLING_ENGINE_WHISPER',
-      type: 'eldritch_manifestation',
-      title: 'ENGINE SONG',
-      description:
-        "The engines spool down, but the sound doesn't stop. It turns into a low chanting.",
-      totalTime: 40000,
-      choices: [
-        {
-          id: 'listen',
-          label: 'Listen',
-          cost: { resource: 'sanity', amount: 15 },
-          log: 'They are chanting coordinates. You write them down.',
-          effects: { experience: 300, focus: -10 },
-        },
-      ],
-      failureOutcome: {
-        log: 'The chanting gets louder until your nose bleeds.',
-        effects: { focus: -20 },
-      },
-    },
-    {
-      id: 'MARSHALLING_CARGO_LEAK',
-      type: 'accident',
-      title: 'UNKNOWN FLUID',
-      description: 'Fluid is leaking from the cargo bay. It is flowing UP the fuselage.',
-      totalTime: 35000,
-      choices: [
-        {
-          id: 'contain',
-          label: 'Contain Scan',
-          cost: { resource: 'focus', amount: 20 },
-          log: 'You spray sealant. The fluid hisses and retreats back inside.',
-          effects: { experience: 200 },
-        },
-      ],
-      failureOutcome: {
-        log: 'The fluid touches your boot. You can no longer feel your toes.',
-        effects: { focus: -20, sanity: -10 },
-      },
-    },
-    {
-      id: 'MARSHALLING_PERFECT_ARRIVAL',
-      type: 'incident',
-      title: 'TOO PERFECT',
-      description:
-        "The plane parks exactly on the line. To the millimeter. The engines cut at the exact same millisecond. It's wrong.",
-      totalTime: 30000,
-      choices: [
-        {
-          id: ' sabotage',
-          label: 'Kick the Tire',
-          log: 'You scuff the tire. Chaos is restored. You feel better.',
-          effects: { sanity: 5 },
-        },
-      ],
-      failureOutcome: {
-        log: 'You stare at the perfection. It hurts your mind.',
-        effects: { sanity: -5 },
-      },
-    },
-  ],
+  marshalling: [],
   audit: [
     ...(aircraftEvents.audit || []),
     {
@@ -562,6 +350,47 @@ export const eventsData: Record<string, EventTemplates[]> = {
   accident: [
     ...(aircraftEvents.accident || []),
     {
+      id: 'MARSHALLING_STATIC_STORM',
+      type: 'accident',
+      title: 'STATIC DISCHARGE',
+      description:
+        "St. Elmo's fire is dancing on the wingtips. It's beautiful, until it starts spelling out words.",
+      totalTime: 35000,
+      choices: [
+        {
+          id: 'read',
+          label: 'Read the Lightning',
+          cost: { resource: 'sanity', amount: 20 },
+          log: 'It spells out "THEY ARE HERE". Then the power grid fails.',
+          effects: { experience: 400, credits: -50 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The discharge arcs to your wands. You wake up ten minutes later.',
+        effects: { focus: -30 },
+      },
+    },
+    {
+      id: 'MARSHALLING_CARGO_LEAK',
+      type: 'accident',
+      title: 'UNKNOWN FLUID',
+      description: 'Fluid is leaking from the cargo bay. It is flowing UP the fuselage.',
+      totalTime: 35000,
+      choices: [
+        {
+          id: 'contain',
+          label: 'Contain Scan',
+          cost: { resource: 'focus', amount: 20 },
+          log: 'You spray sealant. The fluid hisses and retreats back inside.',
+          effects: { experience: 200 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The fluid touches your boot. You can no longer feel your toes.',
+        effects: { focus: -20, sanity: -10 },
+      },
+    },
+    {
       id: 'ELECTRICAL_ARC_FLASH',
       type: 'accident',
       title: 'ELECTRICAL ARC FLASH',
@@ -598,6 +427,67 @@ export const eventsData: Record<string, EventTemplates[]> = {
   ],
   incident: [
     ...(aircraftEvents.incident || []),
+    {
+      id: 'MARSHALLING_WRONG_GATE',
+      type: 'incident',
+      title: 'WRONG GATE',
+      description:
+        "The pilot is aiming for a gate that doesn't exist. Gate C-Infinity. He is persistent.",
+      totalTime: 40000,
+      choices: [
+        {
+          id: 'correct',
+          label: 'Force Turn',
+          cost: { resource: 'focus', amount: 20 },
+          log: 'You aggressively signal a turn. The pilot complies, looking confused. The gate vanishes.',
+          effects: { experience: 150 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The plane taxies through the wall and disappears. No crash. Just silence.',
+        effects: { sanity: -30, suspicion: 20 },
+      },
+    },
+    {
+      id: 'MARSHALLING_TIME_SLIP',
+      type: 'incident',
+      title: 'FLIGHT 19',
+      description:
+        'A DC-3 lands. It looks brand new. The pilot asks what year it is. He is smoking a pipe.',
+      totalTime: 45000,
+      choices: [
+        {
+          id: 'answer',
+          label: 'Tell the Truth',
+          log: "He nods, turns the plane around, and takes off into a cloud bank that isn't there.",
+          effects: { sanity: -10, experience: 200 },
+        },
+      ],
+      failureOutcome: {
+        log: "Security surrounds the plane. When they open the door, it's full of dust.",
+        effects: { suspicion: 20 },
+      },
+    },
+    {
+      id: 'MARSHALLING_PERFECT_ARRIVAL',
+      type: 'incident',
+      title: 'TOO PERFECT',
+      description:
+        "The plane parks exactly on the line. To the millimeter. The engines cut at the exact same millisecond. It's wrong.",
+      totalTime: 30000,
+      choices: [
+        {
+          id: ' sabotage',
+          label: 'Kick the Tire',
+          log: 'You scuff the tire. Chaos is restored. You feel better.',
+          effects: { sanity: 5 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You stare at the perfection. It hurts your mind.',
+        effects: { sanity: -5 },
+      },
+    },
     {
       id: 'SUS_MEMO',
       type: 'incident',
@@ -957,6 +847,115 @@ export const eventsData: Record<string, EventTemplates[]> = {
   ],
   eldritch_manifestation: [
     ...(aircraftEvents.eldritch_manifestation || []),
+    {
+      id: 'MARSHALLING_GHOST_PLANE',
+      type: 'eldritch_manifestation',
+      title: 'GHOST ARRIVAL',
+      description:
+        'You are marshalling a 737. As it crosses the threshold, it begins to fade. By the time it reaches the stop bar, it is gone. The logs say it landed.',
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'log_it',
+          label: 'Log the Arrival',
+          log: 'You fill out the paperwork for a ghost. The system accepts it. You feel heavy.',
+          effects: { sanity: -10, experience: 200 },
+        },
+        {
+          id: 'ignore',
+          label: 'Ignore It',
+          log: 'You walk away. There is no plane. There never was.',
+          effects: { suspicion: 5 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You stood there too long. The wind from the non-existent engines knocked you over.',
+        effects: { sanity: -20 },
+      },
+    },
+    {
+      id: 'MARSHALLING_NO_PILOT',
+      type: 'eldritch_manifestation',
+      title: 'UNMANNED',
+      description:
+        'The aircraft comes to a perfect stop. You look up at the cockpit. It is completely empty.',
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'inspect',
+          label: 'Investigate',
+          cost: { resource: 'sanity', amount: 15 },
+          log: 'You climb the stairs. The flight deck is cold. The logbook entry is signed by you, dated tomorrow.',
+          effects: { experience: 300, suspicion: 10 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You run away. The engines start up again on their own.',
+        effects: { suspicion: 15 },
+      },
+    },
+    {
+      id: 'MARSHALLING_FACE_IN_WINDOW',
+      type: 'eldritch_manifestation',
+      title: 'PASSENGER 57',
+      description:
+        'A face is pressed against a passenger window. It is screaming, but the glass is thick. Also, the face is three feet wide.',
+      totalTime: 25000,
+      choices: [
+        {
+          id: 'look_away',
+          label: 'Look Away',
+          cost: { resource: 'focus', amount: 10 },
+          log: 'You focus on the nose wheel line. You do not look up. You survive.',
+          effects: { sanity: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You looked. It saw you. It smiled.',
+        effects: { sanity: -50 },
+      },
+    },
+    {
+      id: 'MARSHALLING_SHADOW_CREW',
+      type: 'eldritch_manifestation',
+      title: 'SHADOW CREW',
+      description: 'You signal a turn. Your shadow signals a stop. The plane obeys your shadow.',
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'fight',
+          label: 'Assert Dominance',
+          cost: { resource: 'focus', amount: 30 },
+          log: 'You scream at your shadow. It flinches and mirrors you again. The pilot looks terrified.',
+          effects: { experience: 250, suspicion: 10 },
+        },
+      ],
+      failureOutcome: {
+        log: 'Your shadow walks away. You are stuck here.',
+        effects: { sanity: -20 },
+      },
+    },
+    {
+      id: 'MARSHALLING_ENGINE_WHISPER',
+      type: 'eldritch_manifestation',
+      title: 'ENGINE SONG',
+      description:
+        "The engines spool down, but the sound doesn't stop. It turns into a low chanting.",
+      totalTime: 40000,
+      choices: [
+        {
+          id: 'listen',
+          label: 'Listen',
+          cost: { resource: 'sanity', amount: 15 },
+          log: 'They are chanting coordinates. You write them down.',
+          effects: { experience: 300, focus: -10 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The chanting gets louder until your nose bleeds.',
+        effects: { focus: -20 },
+      },
+    },
 
     {
       id: 'MEZZANINE_OBSERVATION',

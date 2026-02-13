@@ -896,6 +896,23 @@ const ActionPanel: React.FC<{
             {petWidget}
             {renderJobCard()}
 
+            {!state.activeJob && (
+              <div className="p-5 border border-emerald-900/40 bg-black/40 text-center mb-8">
+                <h4 className="text-sm text-emerald-600 uppercase mb-4 font-bold tracking-widest">
+                  Awaiting Work Order
+                </h4>
+                <p className="text-xs text-emerald-800 italic mb-6">
+                  The hangar is quiet. Too quiet. Request a new job packet from the supervisor.
+                </p>
+                <ActionButton
+                  label="Request Work Order"
+                  onClick={() => onAction('START_STANDARD_JOB')}
+                  cost={{ label: 'FOCUS', value: 5 }}
+                  description="Pull a standard maintenance task from the queue."
+                />
+              </div>
+            )}
+
             {/* Anomaly Analysis */}
             {state.anomalies.length > 0 && (
               <div className="p-5 border-2 border-purple-800 bg-purple-950/20 animate-pulse">

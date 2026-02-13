@@ -257,7 +257,12 @@ const PROFICIENCY_ACTIONS = [
 ] as const;
 
 // Event action types handled by eventsSlice
-const EVENT_ACTIONS = ['COMPLETE_JOB', 'RESOLVE_EVENT', 'TRIGGER_EVENT'] as const;
+const EVENT_ACTIONS = [
+  'COMPLETE_JOB',
+  'RESOLVE_EVENT',
+  'TRIGGER_EVENT',
+  'START_STANDARD_JOB',
+] as const;
 
 // Backshop action types handled by backshopSlice
 const BACKSHOP_ACTIONS = [

@@ -2,11 +2,12 @@ import { produce } from 'immer';
 import { anomaliesData } from '../../data/anomalies.ts';
 import { eventsData } from '../../data/events.ts';
 import { ACTION_LOGS, SYSTEM_LOGS } from '../../data/flavor.ts';
+import { jobsData } from '../../data/jobs.ts';
 import { generateResolutionLog } from '../../logic/logGenerator.ts'; // Import
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { canSpawnEventCategory } from '../../services/LevelManager.ts';
 import { addLogToDraft } from '../../services/logService.ts';
-import { Anomaly, GameEvent, GameState, Inventory } from '../../types.ts';
+import { Anomaly, GameEvent, GameState, Inventory, JobCard } from '../../types.ts';
 
 /**
  * eventsSlice.ts - Job and Event Lifecycle Management
@@ -49,7 +50,8 @@ export interface EventsSliceState {
 export type EventsAction =
   | { type: 'COMPLETE_JOB'; payload: Record<string, unknown> }
   | { type: 'RESOLVE_EVENT'; payload: Record<string, unknown> }
-  | { type: 'TRIGGER_EVENT'; payload: { type: string; id?: string } };
+  | { type: 'TRIGGER_EVENT'; payload: { type: string; id?: string } }
+  | { type: 'START_STANDARD_JOB'; payload: Record<string, unknown> };
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -197,6 +199,34 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
         }
       }
 
+      // Check and Consume Resources
+      const requirements = job.requirements;
+      // We need to cast or carefully check keys to avoid type errors with 'tools'
+      const resourceKeys = Object.keys(requirements).filter(
+        (k) => k !== 'tools'
+      ) as (keyof typeof requirements)[];
+
+      // First pass: Check sufficiency
+      for (const key of resourceKeys) {
+        const reqValue = requirements[key];
+        if (typeof reqValue === 'number' && reqValue > 0) {
+          const resourceKey = key as keyof GameState['resources'];
+          if ((draft.resources[resourceKey] || 0) < reqValue) {
+            addLog(`ERROR: Insufficient material: ${key.toUpperCase()}`, 'error');
+            return;
+          }
+        }
+      }
+
+      // Second pass: Consume
+      for (const key of resourceKeys) {
+        const reqValue = requirements[key];
+        if (typeof reqValue === 'number' && reqValue > 0) {
+          const resourceKey = key as keyof GameState['resources'];
+          draft.resources[resourceKey] -= reqValue;
+        }
+      }
+
       // Degrade tool conditions
       const hasHighTorque = hasSkill(draft as unknown as GameState, 'highTorqueMethods');
       for (const toolId of requiredTools) {
@@ -334,6 +364,26 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
 
       draft.activeEvent = newEvent;
       addLog(SYSTEM_LOGS.ALERT_DISRUPTION, 'warning');
+      break;
+    }
+
+    case 'START_STANDARD_JOB': {
+      if (draft.activeJob) {
+        addLog('Existing work order still active. Complete or discard it first.', 'warning');
+        return;
+      }
+
+      const template = jobsData[Math.floor(Math.random() * jobsData.length)];
+      const duration = 120000 + Math.random() * 240000;
+
+      draft.activeJob = {
+        ...template,
+        id: Math.random().toString(36).substr(2, 6),
+        timeLeft: duration,
+        totalTime: duration,
+      } as JobCard;
+
+      addLog(`Work Order ${draft.activeJob.id} initiated: ${draft.activeJob.title}`, 'info');
       break;
     }
   }
