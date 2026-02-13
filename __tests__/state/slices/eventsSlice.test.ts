@@ -399,7 +399,7 @@ describe('eventsSlice', () => {
       });
 
       expect(result.activeEvent).toBeNull();
-      expect(result.resources.experience).toBe(1350); // 1000 + 350
+      expect(result.resources.experience).toBe(1100); // 1000 + 100
       expect(result.stats.eventsResolved).toBe(1);
       expect(result.logs[0].text).toContain('Situation resolved');
     });

@@ -1,7 +1,7 @@
 import { produce } from 'immer';
 import { anomaliesData } from '../../data/anomalies.ts';
 import { eventsData } from '../../data/events.ts';
-import { ACTION_LOGS, SYSTEM_LOGS } from '../../data/flavor.ts';
+import { ACTION_LOGS, EVENT_RESOLUTION_TEMPLATES, SYSTEM_LOGS } from '../../data/flavor.ts';
 import { jobsData } from '../../data/jobs.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { canSpawnEventCategory } from '../../services/LevelManager.ts';
@@ -166,6 +166,48 @@ export const createEventFromTemplate = (
   };
 };
 
+/**
+ * Generates a flavor log for event resolution based on state
+ */
+export const generateResolutionLog = (
+  state: GameState | EventsSliceState,
+  event: GameEvent
+): string => {
+  // Determine context
+  const sanity = state.resources.sanity;
+  const suspicion = state.resources.suspicion;
+  let targetTone: 'MUNDANE' | 'BUREAUCRATIC' | 'ELDRITCH' = 'MUNDANE';
+
+  if (sanity < 30) targetTone = 'ELDRITCH';
+  else if (suspicion > 70) targetTone = 'BUREAUCRATIC';
+
+  // Filter templates
+  const validTemplates = EVENT_RESOLUTION_TEMPLATES.filter((t) => {
+    // 1. Filter by Event Type if specified in template
+    if (t.allowedEventTypes && !t.allowedEventTypes.includes(event.type)) {
+      return false;
+    }
+
+    // 2. Check conditions
+    if (t.conditions) {
+      if (t.conditions.minSanity !== undefined && sanity < t.conditions.minSanity) return false;
+      if (t.conditions.maxSanity !== undefined && sanity > t.conditions.maxSanity) return false;
+      if (t.conditions.minSuspicion !== undefined && suspicion < t.conditions.minSuspicion)
+        return false;
+    }
+    return true;
+  });
+
+  // Filter by tone if possible
+  const toneTemplates = validTemplates.filter((t) => t.tone === targetTone);
+  const pool = toneTemplates.length > 0 ? toneTemplates : validTemplates;
+
+  if (pool.length === 0) return 'Event resolved.';
+
+  const template = pool[Math.floor(Math.random() * pool.length)];
+  return template.text;
+};
+
 // ==================== REDUCER ====================
 
 export const eventsReducer = produce((draft: EventsSliceState, action: EventsAction) => {
@@ -265,6 +307,7 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
 
       const { choiceId } = action.payload as { choiceId?: string };
       const event = draft.activeEvent;
+      let logAdded = false;
 
       // 1. Handle Choice Selection
       if (choiceId && event.choices) {
@@ -309,6 +352,7 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
           // Log Result
           if (choice.log) {
             addLog(choice.log, 'story');
+            logAdded = true;
           }
         }
       }
@@ -331,15 +375,16 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
         if (event.successOutcome.log) {
           addLog(event.successOutcome.log, 'story');
         } else {
-          // Fallback if no log
           addLog(`You successfully completed: ${event.title}`, 'story');
+          logAdded = true;
         }
       }
 
-      // 3. Fallback / Legacy Handling (using generateResolutionLog for flavor if no explicit log)
-      // If we didn't log yet (no choice log or success log), use generator
-      // Actually, let's keep specific legacy handlers for now but move them to *after* generic handling
-      // or integrate them.
+      // 3. Fallback / Legacy Handling
+      if (!logAdded) {
+        const resolutionLog = generateResolutionLog(draft as GameState, event);
+        addLog(resolutionLog, 'story');
+      }
 
       // Special Event Hooks (Legacy/Specific Logic)
       if (event.id === 'FUEL_CONTAM') {
@@ -347,20 +392,31 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
         addLog("A HAZMAT team is on its way. They'll be watching you closely.", 'warning');
       } else if (event.id === 'MGMT_PRESSURE') {
         draft.hfStats.compliancePressureTimer = 5 * 60 * 1000;
+      } else if (event.id === 'CATERING_INCIDENT') {
+        draft.resources.credits = Math.max(0, draft.resources.credits - 50);
+        addLog('Refunds issued to hungry mechanics.', 'info');
+      } else if (event.id === 'PIP_WARNING') {
+        draft.flags.onPerformanceImprovementPlan = true;
+        addLog('You have been placed on a Performance Improvement Plan.', 'error');
+      } else if (event.id === 'SCHEDULE_COMPRESSION') {
+        draft.hfStats.scheduleCompressionTimer = 30 * 60 * 1000;
+        addLog('Schedule compressed. Efficiency targets increased.', 'warning');
       }
 
-      // Increment stats
-      draft.stats.eventsResolved += 1;
+      // Clear active event UNLESS it is a component failure (which requires specific repair actions)
+      // or if it explicitly says not to clear (not implemented yet, but safe default for failure)
+      if (event.type !== 'component_failure') {
+        // Increment stats & Award XP only if actually resolved
+        draft.stats.eventsResolved += 1;
+        draft.resources.experience += 100;
 
-      // Award generic XP if not specified in effects?
-      // standard was +350. Let's add it if no effects defined to avoid double dipping?
-      // Or just keep it as a bonus for resolving ANY event.
-      // Let's reduce it to 50 if effects were applied, or keep 350. 350 is high.
-      // Let's stick to 100 base for now + whatever effects gave.
-      draft.resources.experience += 100;
-
-      // Clear active event
-      draft.activeEvent = null;
+        draft.activeEvent = null;
+      } else {
+        addLog(
+          'Component failure persists until rectified. Check toolroom for replacement parts.',
+          'warning'
+        );
+      }
       break;
     }
 
