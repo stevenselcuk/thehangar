@@ -176,6 +176,8 @@ describe('eventsSlice', () => {
       state.resources.credits = 100;
       state.resources.experience = 500;
       state.resources.technicalLogbookHours = 10;
+      state.resources.alclad = 100;
+      state.resources.rivets = 100;
 
       const result = eventsReducer(state as unknown as EventsSliceState, {
         type: 'COMPLETE_JOB',
