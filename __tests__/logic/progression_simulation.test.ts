@@ -62,6 +62,9 @@ describe('Progression Simulation', () => {
 
       activeJob: null,
       activeEvent: null,
+      activeHazards: [],
+      activeAircraft: null,
+      activeChemicalProcess: null,
       rotables: [],
       mail: [],
       vendingPrices: {},
