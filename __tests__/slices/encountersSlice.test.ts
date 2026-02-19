@@ -15,6 +15,7 @@ describe('encountersSlice', () => {
     Math.random = seedrandom('test-encounters');
 
     initialState = createInitialState() as unknown as EncountersSliceState;
+    initialState.logs = [];
   });
 
   describe('OBSERVE_SEDAN', () => {
