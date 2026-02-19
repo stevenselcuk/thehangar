@@ -112,6 +112,7 @@ const CanteenTab: React.FC<{
               label="Talk to 'The Regular'"
               onClick={() => onAction('TALK_TO_REGULAR')}
               cost={{ label: 'FOCUS', value: 10 }}
+              disabled={state.resources.focus < 10}
               description="An old pilot sits in the corner, nursing a coffee. He looks like he's seen a ghost."
               className="h-20"
             />
@@ -119,8 +120,10 @@ const CanteenTab: React.FC<{
               label="Rummage in Lost & Found"
               onClick={() => onAction('RUMMAGE_LOST_FOUND')}
               cost={{ label: 'FOCUS', value: 5 }}
+              disabled={state.resources.focus < 5}
               description="A dusty box of forgotten items. Mostly junk, but maybe..."
               className="h-20"
+              data-testid="btn-rummage"
             />
           </div>
 

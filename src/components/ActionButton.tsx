@@ -11,6 +11,7 @@ export interface ActionButtonProps {
   description?: string;
   className?: string;
   sanity?: number; // Added sanity prop
+  [key: string]: any;
 }
 
 const playClick = () => {
@@ -72,6 +73,7 @@ const ActionButtonComponent: React.FC<ActionButtonProps> = ({
   description,
   className = '',
   sanity = 100, // Default to 100 if not provided
+  ...rest
 }) => {
   const [active, setActive] = useState(false);
   const { displayLabel, setIsHovered } = useHauntedLabel(label, sanity);
@@ -107,6 +109,7 @@ const ActionButtonComponent: React.FC<ActionButtonProps> = ({
   const buttonContent = (
     <div className={`group relative mb-4 ${className}`}>
       <button
+        {...rest}
         onClick={handleClick}
         disabled={disabled || active}
         onMouseEnter={() => setIsHovered(true)}

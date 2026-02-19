@@ -41,6 +41,11 @@ test.describe('Progression Level 0 to 3', () => {
     await page.fill('input[placeholder="Your initials here..."]', 'TP');
     await page.click('button:has-text("[ PRINT ID CARD ]")');
 
+    // Wait for the COLLECT ID CARD button (it appears after 3s print animation)
+    const collectBtn = page.locator('button:has-text("[ COLLECT ID CARD ]")');
+    await expect(collectBtn).toBeVisible({ timeout: 10000 });
+    await collectBtn.click();
+
     // 4. Complete
     // Text is animated with Matrix effect, so we wait for the button which appears after animations.
     const beginBtn = page.locator('button:has-text("[ BEGIN SHIFT ]")');
@@ -108,12 +113,29 @@ test.describe('Progression Level 0 to 3', () => {
 
       // "Inspect Vending Machine" is missing.
       // We fixed "Rummage in Lost & Found" to give XP. It is safer than Talking (Sanity+).
-      const rummageBtn = page.locator('button:has-text("Rummage in Lost & Found")');
+      const rummageBtn = page.locator('[data-testid="btn-rummage"]');
 
       // Wait for the button to appear in case of render delay
       await expect(rummageBtn).toBeVisible({ timeout: 5000 });
 
       while (currentLevel < 2) {
+        // Handle Random Events (Modals)
+        const modalBtn = page.locator('button:has-text("STORE IN ARCHIVES")');
+        if (await modalBtn.isVisible()) {
+          console.log('Closing Photo Modal...');
+          await modalBtn.click();
+          await page.waitForTimeout(500);
+          continue;
+        }
+
+        const discardBtn = page.locator('button:has-text("DISCARD")');
+        if (await discardBtn.isVisible()) {
+          console.log('Discarding Event...');
+          await discardBtn.click();
+          await page.waitForTimeout(500);
+          continue;
+        }
+
         if (await rummageBtn.isDisabled()) {
           const dead = await page.locator('text=SYSTEM FAILURE').count();
           if (dead > 0) throw new Error('Died during Level 1 grind');
@@ -129,7 +151,7 @@ test.describe('Progression Level 0 to 3', () => {
           console.log('Clicked Rummage');
         } catch {
           // Retry loop will handle it
-          console.log('Click Rummage failed');
+          console.log('Click Rummage failed (possibly covered or animating)');
           await page.waitForTimeout(500);
           continue;
         }
@@ -166,8 +188,25 @@ test.describe('Progression Level 0 to 3', () => {
         const canteenTab = page.locator('button:has-text("CANTEEN")').first();
         await canteenTab.click();
 
-        const rummageBtn = page.locator('button:has-text("Rummage in Lost & Found")');
+        const rummageBtn = page.locator('[data-testid="btn-rummage"]');
         while (currentLevel < 3) {
+          // Handle Random Events (Modals)
+          const modalBtn = page.locator('button:has-text("STORE IN ARCHIVES")');
+          if (await modalBtn.isVisible()) {
+            console.log('Closing Photo Modal...');
+            await modalBtn.click();
+            await page.waitForTimeout(500);
+            continue;
+          }
+
+          const discardBtn = page.locator('button:has-text("DISCARD")');
+          if (await discardBtn.isVisible()) {
+            console.log('Discarding Event...');
+            await discardBtn.click();
+            await page.waitForTimeout(500);
+            continue;
+          }
+
           if (await rummageBtn.isDisabled()) {
             await page.waitForTimeout(1000);
             continue;
