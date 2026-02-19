@@ -271,6 +271,7 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
             'MARSHALLING_ENGINE_WHISPER',
             'MARSHALLING_CARGO_LEAK',
             'MARSHALLING_PERFECT_ARRIVAL',
+            'EVENT_VANISHING_MARSHALLER', // Added photo event
           ];
           const eventId = marshallingEvents[Math.floor(Math.random() * marshallingEvents.length)];
 

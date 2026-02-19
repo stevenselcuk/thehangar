@@ -39,7 +39,10 @@ export type AircraftAction =
   | { type: 'SMOKE_CIGARETTE'; payload: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'DRINK_GALLEY_COFFEE'; payload: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'SCAVENGE_GALLEYS'; payload: { triggerEvent?: (type: string, id?: string) => void } }
-  | { type: 'WATCH_RUNWAY'; payload: Record<string, unknown> }
+  | {
+      type: 'WATCH_RUNWAY';
+      payload: { triggerEvent?: (type: string, id?: string) => void } & Record<string, unknown>;
+    }
   | { type: 'START_CHEMICAL_PROCESS'; payload: { component: string } }
   | {
       type: 'PERFORM_CHEMICAL_STEP';
@@ -177,6 +180,20 @@ export const aircraftReducer = (
           } else {
             // Standard events
             const findingRoll = Math.random();
+
+            // NEW: Apron Photo Events (Transit Check Specific)
+            if (actionType === 'TRANSIT_CHECK' && triggerEvent) {
+              if (Math.random() < 0.02) {
+                triggerEvent('story_event', 'EVENT_TRANSIT_CRATE');
+                addLog('You spot something unusual in the cargo hold...', 'story');
+                return;
+              } else if (Math.random() < 0.05) {
+                triggerEvent('story_event', 'EVENT_BLACK_SEDAN_OBSERVE');
+                addLog('Movement on the perimeter catches your eye.', 'story');
+                return;
+              }
+            }
+
             if (
               actionType === 'DAILY_CHECK' &&
               (aircraft.id === AircraftType.A330 || aircraft.id === AircraftType.B777_200ER) &&
@@ -340,11 +357,28 @@ export const aircraftReducer = (
       }
 
       case 'WATCH_RUNWAY': {
+        const { triggerEvent } = action.payload as {
+          triggerEvent?: (type: string, id?: string) => void;
+        };
         draft.resources.experience += 20;
         draft.resources.focus = Math.min(100, draft.resources.focus + 5);
         const watchLogs = ['WATCH_RUNWAY_1', 'WATCH_RUNWAY_2', 'WATCH_RUNWAY_3', 'WATCH_RUNWAY_4'];
         const logKey = watchLogs[Math.floor(Math.random() * watchLogs.length)];
         addLog(ACTION_LOGS[logKey], 'info');
+
+        // NEW: Photo Events for WATCH_RUNWAY
+        if (triggerEvent) {
+          const roll = Math.random();
+          if (roll < 0.4) {
+            triggerEvent('story_event', 'EVENT_VANISHING_MARSHALLER');
+            addLog('You see a marshaller signaling in a closed bay...', 'vibration');
+          } else if (roll < 0.6) {
+            triggerEvent('story_event', 'EVENT_BLACK_SEDAN_OBSERVE');
+          } else if (roll < 0.8) {
+            triggerEvent('story_event', 'EVENT_SEDAN_HANDOFF');
+            addLog('A vehicle stops near the landing gear of a parked heavy.', 'story');
+          }
+        }
         break;
       }
 

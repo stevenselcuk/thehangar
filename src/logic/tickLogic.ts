@@ -516,6 +516,10 @@ export const processTick = (
         draft.resources.sanity -= loss;
         draft.resources.suspicion += draft.activeEvent.type === 'audit' ? 30 : 5;
         addLog(`SITUATION FAILED: ${draft.activeEvent.title}`, 'error');
+        addLog(
+          `DEBUG: Event ${draft.activeEvent.id} cleared. Type: ${draft.activeEvent.type}, TimeLeft: ${draft.activeEvent.timeLeft}`,
+          'error'
+        );
         draft.activeEvent = null;
       }
     }

@@ -163,6 +163,7 @@ export const createEventFromTemplate = (
     successOutcome: template.successOutcome,
     failureOutcome: template.failureOutcome,
     suitType: template.suitType,
+    imagePath: template.imagePath,
   };
 };
 

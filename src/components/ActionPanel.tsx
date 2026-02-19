@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { aircraftData } from '../data/aircraft.ts';
 import { itemsData } from '../data/items.ts';
 import { AircraftType, GameState, Inventory, SuitType, TabType } from '../types.ts';
@@ -35,6 +35,15 @@ const ActionPanel: React.FC<{
   const [isProcurementOpen, setIsProcurementOpen] = React.useState(false);
   const [isComponentModalOpen, setIsComponentModalOpen] = React.useState(false);
 
+  const panelRef = React.useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to top when new event or scenario appears
+  React.useEffect(() => {
+    if ((state.activeEvent || state.activeScenario) && panelRef.current) {
+      panelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [state.activeEvent, state.activeScenario]);
+
   // Close modals when switching tabs
   React.useEffect(() => {
     setIsBackroomOpen(false);
@@ -56,6 +65,16 @@ const ActionPanel: React.FC<{
       }
     }
   }, [activeTab, onAction]);
+
+  // Effect to release photo modal when event changes
+  // Effect to release photo modal when event changes
+  // Effect to release photo modal when event changes
+  useEffect(() => {
+    if (state.activeEvent?.imagePath) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsPhotoModalOpen(true);
+    }
+  }, [state.activeEvent?.id, state.activeEvent?.imagePath]);
 
   // Check location requirements
   const locationCheck = checkLocationRequirements(activeTab, state.inventory);
@@ -162,6 +181,19 @@ const ActionPanel: React.FC<{
           "{event.description}"
         </div>
 
+        {/* Image Examination - Always visible if image exists */}
+        {(event.imagePath || event.id === 'FOUND_PHOTO_EVENT') && (
+          <div className="mb-4">
+            <ActionButton
+              label="EXAMINE ARTIFACT"
+              onClick={() => setIsPhotoModalOpen(true)}
+              className="border-amber-600/50 hover:bg-amber-900/20 text-amber-500 w-full"
+              description="Analyze the object closely."
+            />
+          </div>
+        )}
+
+        {/* Actions / Choices */}
         {event.choices && event.choices.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
             {event.choices.map((choice) => {
@@ -185,28 +217,23 @@ const ActionPanel: React.FC<{
               );
             })}
           </div>
-        ) : event.id === 'FOUND_PHOTO_EVENT' ? (
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <ActionButton
-              label="EXAMINE"
-              onClick={() => setIsPhotoModalOpen(true)}
-              className="border-amber-600/50 hover:bg-amber-900/20 text-amber-500"
-              description="Analyze the recovered material."
-            />
-            <ActionButton
-              label="DISCARD"
-              onClick={() => onAction('RESOLVE_EVENT')}
-              className="border-zinc-700 hover:bg-zinc-900/20 text-zinc-500"
-              description="Ignore the anomaly and return to work."
-            />
-          </div>
         ) : event.requiredAction ? (
           <ActionButton
             label={event.requiredAction.replace(/_/g, ' ')}
             onClick={() => onAction('RESOLVE_EVENT')}
             className={`border-2 ${borderColor} bg-black/40`}
           />
-        ) : null}
+        ) : (
+          /* Fallback / Discard for informative events */
+          <div className="mt-4">
+            <ActionButton
+              label="DISCARD"
+              onClick={() => onAction('RESOLVE_EVENT')}
+              className="border-zinc-700 hover:bg-zinc-900/20 text-zinc-500 w-full"
+              description="Ignore the anomaly and return to work."
+            />
+          </div>
+        )}
       </div>
     );
   };
@@ -1169,18 +1196,21 @@ const ActionPanel: React.FC<{
   };
 
   return (
-    <div className="w-full">
+    <div ref={panelRef} className="w-full">
       {renderActiveEvent()}
       {renderActiveScenario()}
       {renderContent()}
-      {state.activeEvent?.id === 'FOUND_PHOTO_EVENT' && (
+      {(state.activeEvent?.id === 'FOUND_PHOTO_EVENT' || state.activeEvent?.imagePath) && (
         <React.Suspense fallback={null}>
           <PhotoModal
             isOpen={isPhotoModalOpen}
             onClose={() => setIsPhotoModalOpen(false)}
-            imagePath="/images/found_photo.png"
-            title="RECOVERED ARCHIVE #770"
-            description="DATE: UNKNOWN // SUBJECT: UNKNOWN // STATUS: CLASSIFIED"
+            imagePath={state.activeEvent?.imagePath || '/images/found_photo.png'}
+            title={state.activeEvent?.title || 'RECOVERED ARCHIVE #770'}
+            description={
+              state.activeEvent?.description ||
+              'DATE: UNKNOWN // SUBJECT: UNKNOWN // STATUS: CLASSIFIED'
+            }
           />
         </React.Suspense>
       )}

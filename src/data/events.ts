@@ -13,6 +13,7 @@ import { unionEvents } from './unionEvents';
 
 import { aircraftEvents } from './aircraftEvents';
 
+import { photoEvents } from './photoEvents';
 type EventTemplates = Omit<GameEvent, 'timeLeft'>;
 
 export const eventsData: Record<string, EventTemplates[]> = {
@@ -171,6 +172,168 @@ export const eventsData: Record<string, EventTemplates[]> = {
       failureOutcome: {
         log: SAFA_CHECK_FLAVOR[9],
         effects: { credits: -500, suspicion: 10 },
+      },
+    },
+    // NEW EVENTS
+    {
+      id: 'EVENT_SUIT_OBSERVATION',
+      type: 'canteen_incident',
+      title: 'SILENT OBSERVATION',
+      description:
+        "A group of Suits enters the canteen. They don't eat. They occupy a table in the center and stare at everyone simultaneously.",
+      totalTime: 45000,
+      choices: [
+        {
+          id: 'leave',
+          label: 'Leave Immediately',
+          cost: { resource: 'focus', amount: 10 },
+          log: 'You abandon your meal and walk out. You feel their eyes on your back until you reach the hangar floor.',
+          effects: { sanity: -5, focus: -10 },
+        },
+        {
+          id: 'eat',
+          label: 'Continue Eating',
+          cost: { resource: 'sanity', amount: 15 },
+          log: 'You force yourself to finish your meal. The silence is deafening. You taste ash.',
+          effects: { sanity: -10, experience: 100 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You froze. One of them approached and whispered your employee ID number before leaving.',
+        effects: { sanity: -20, suspicion: 10 },
+      },
+    },
+    {
+      id: 'EVENT_EASA_AUDIT',
+      type: 'audit',
+      suitType: 'EASA_AUDITOR',
+      title: 'SURREAL AUDIT',
+      description:
+        "An EASA auditor demands to see the maintenance logs for a plane that hasn't landed yet. He's holding a stopwatch that runs backwards.",
+      totalTime: 50000,
+      choices: [
+        {
+          id: 'show_future',
+          label: 'Show Blank Log',
+          cost: { resource: 'focus', amount: 20 },
+          log: "You hand him a blank logbook. 'Excellent,' he says, 'The future is compliant.'",
+          effects: { experience: 300, suspicion: -5 },
+        },
+        {
+          id: 'question',
+          label: 'Question Logic',
+          cost: { resource: 'sanity', amount: 10 },
+          log: "You point out the plane isn't here. He looks at you with pity. 'You still believe in linear time?'",
+          effects: { sanity: -15 },
+        },
+      ],
+      failureOutcome: {
+        log: "He marks you down for 'Temporal Incompetence'.",
+        effects: { suspicion: 15, credits: -100 },
+      },
+    },
+    {
+      id: 'EVENT_KARDEX_GLITCH',
+      type: 'canteen_incident',
+      title: 'MEMORY LEAK',
+      description:
+        'The digital menu board glitches, replaced by a KARDEX file. It details your employment history, including your termination date... next week.',
+      totalTime: 30000,
+      choices: [
+        {
+          id: 'memorize',
+          label: 'Memorize the Reason',
+          cost: { resource: 'sanity', amount: 20 },
+          log: "Reason: 'Unauthorized interaction with the Grey'. You now know what to avoid. Maybe.",
+          effects: { experience: 400, sanity: -20 },
+        },
+        {
+          id: 'look_away',
+          label: 'Look Away',
+          cost: { resource: 'focus', amount: 5 },
+          log: 'You stare at your coffee until the glitch passes. Ignorance is bliss.',
+          effects: { sanity: 5 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The screen burns the image into your retinas. You see the termination date every time you blink.',
+        effects: { sanity: -10, focus: -10 },
+      },
+    },
+    {
+      id: 'EVENT_VOID_LEAK',
+      type: 'canteen_incident',
+      title: 'REALITY LEAK',
+      description:
+        'Black, viscous oil starts dripping from the ceiling tiles onto your table. It rises instead of pooling.',
+      totalTime: 25000,
+      choices: [
+        {
+          id: 'collect',
+          label: 'Collect Sample',
+          cost: { resource: 'sanity', amount: 25 },
+          log: 'You catch a drop in a napkin. It sings a faint melody. This is valuable material.',
+          effects: { bioFilament: 1, experience: 200 },
+        },
+        {
+          id: 'move',
+          label: 'Move Table',
+          cost: { resource: 'focus', amount: 5 },
+          log: 'You move your tray. The oil eats through the table where you were sitting.',
+          effects: { focus: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The oil touches your uniform. It spreads, turning the fabric into glass. You have to discard the shirt.',
+        effects: { credits: -50, sanity: -10 },
+      },
+    },
+    {
+      id: 'EVENT_LOST_PASSENGER_ITEM',
+      type: 'canteen_incident',
+      title: 'LOST & FOUND',
+      description: "You find a child's backpack under a table. It's pulsating gently.",
+      totalTime: 40000,
+      choices: [
+        {
+          id: 'open',
+          label: 'Open It',
+          cost: { resource: 'sanity', amount: 20 },
+          log: 'Inside is a snow globe containing a model of the hangar. You see yourself inside, looking at the backpack.',
+          effects: { experience: 500, sanity: -30 },
+        },
+        {
+          id: 'turn_in',
+          label: 'Turn It In',
+          cost: { resource: 'focus', amount: 10 },
+          log: "You hand it to the Lost & Found. The clerk recoils. 'Not another one,' they whisper.",
+          effects: { suspicion: -5 },
+        },
+      ],
+      failureOutcome: {
+        log: 'The backpack vanishes when you look away, leaving a burn mark on the floor.',
+        effects: { sanity: -5 },
+      },
+    },
+    {
+      id: 'EVENT_RARE_POSTCARD',
+      type: 'story_event',
+      title: 'A MESSAGE FROM ELSEWHERE',
+      description:
+        "Buried at the bottom of the Lost & Found box, beneath layers of dust and forgotten gloves, you find a postcard. It depicts a place that is impossibly bright. It's addressed to you.",
+      totalTime: 0, // Instant resolution via checking it out
+      imagePath: '/images/postcard.png',
+      choices: [
+        {
+          id: 'keep',
+          label: 'Keep It',
+          log: "As you touch the card, a flood of memories that aren't yours washes over you. You understand everything. You are ready for what comes next.",
+          effects: { sanity: 100, experience: 5000 }, // XP will be overridden by custom logic
+        },
+      ],
+      failureOutcome: {
+        log: 'You lost it.',
+        effects: {},
       },
     },
     {
@@ -1219,6 +1382,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
     },
   ],
   story_event: [
+    ...photoEvents,
     {
       id: 'TRUTH_PROXIMATE_REVELATION',
       type: 'story_event',
@@ -1512,4 +1676,27 @@ export const eventsData: Record<string, EventTemplates[]> = {
   ],
   syndicate: syndicateEvents,
   union: unionEvents,
+  story: [
+    {
+      id: 'EVENT_RARE_POSTCARD',
+      type: 'story_event',
+      title: 'A MESSAGE FROM ELSEWHERE',
+      description:
+        "Buried at the bottom of the Lost & Found box, beneath layers of dust and forgotten gloves, you find a postcard. It depicts a place that is impossibly bright. It's addressed to you.",
+      totalTime: 0,
+      imagePath: '/images/postcard.png',
+      choices: [
+        {
+          id: 'keep',
+          label: 'Keep It',
+          log: "As you touch the card, a flood of memories that aren't yours washes over you. You understand everything. You are ready for what comes next.",
+          effects: { sanity: 100, experience: 5000 },
+        },
+      ],
+      failureOutcome: {
+        log: 'You lost it.',
+        effects: {},
+      },
+    },
+  ],
 };

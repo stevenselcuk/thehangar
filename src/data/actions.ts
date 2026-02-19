@@ -1,5 +1,5 @@
 import { GameFlags, GameState, Inventory, ResourceState, RotableItem } from '../types';
-import { ACTION_LOGS, REGULAR_TALK_LOGS } from './flavor';
+import { ACTION_LOGS, REGULAR_TALK_LOGS, RUMMAGE_FLAVOR_TEXTS } from './flavor';
 import { itemsData } from './items';
 
 export interface ActionEffect {
@@ -262,30 +262,51 @@ export const actionsData: Record<string, ActionDefinition> = {
     baseCost: { focus: 5 },
     effects: [
       {
-        chance: 0.2,
-        log: ACTION_LOGS.RUMMAGE_LOST_FOUND_CREDITS,
-        logType: 'info',
-        customEffect: (state) => ({
-          resources: {
-            ...state.resources,
-            credits: state.resources.credits + Math.floor(Math.random() * 20) + 5,
-            experience: state.resources.experience + 40,
-          },
-        }),
+        chance: 0.1, // 10% chance for Rare Event
+        log: 'You find something strange at the bottom of the box...',
+        logType: 'story',
+        eventTrigger: 'EVENT_RARE_POSTCARD',
+        customEffect: (state) => {
+          // Calculate XP needed to level up
+          // XP formula from LevelManager: currentLevel * 500 + 500
+          const currentLevel = state.resources.level;
+          const xpForCurrentLevel = currentLevel * 500 + 500;
+          const currentXP = state.resources.experience;
+          const xpToNextLevel = Math.max(0, xpForCurrentLevel - (currentXP % xpForCurrentLevel));
+
+          return {
+            resources: {
+              ...state.resources,
+              experience: state.resources.experience + xpToNextLevel + 1, // Ensure level up
+              sanity: Math.min(100, state.resources.sanity + 50),
+              credits: state.resources.credits + 100,
+            },
+            // Add postcard finding to story flags if needed, or rely on event
+            flags: {
+              ...state.flags,
+              foundPhoto: true,
+            },
+          };
+        },
       },
       {
-        chance: 0.5,
-        log: ACTION_LOGS.RUMMAGE_LOST_FOUND_SANITY,
-        logType: 'story',
-        resourceModifiers: { sanity: 10, experience: 40 },
+        chance: 0.9, // 90% chance for flavor text
+        log: 'RUMMAGE_FLAVOR', // Placeholder, handled by customEffect
+        logType: 'info',
+        customEffect: (state) => {
+          const flavor =
+            RUMMAGE_FLAVOR_TEXTS[Math.floor(Math.random() * RUMMAGE_FLAVOR_TEXTS.length)];
+          return {
+            logOverride: flavor,
+            resources: {
+              ...state.resources,
+              credits: state.resources.credits + Math.floor(Math.random() * 10),
+              experience: state.resources.experience + 50,
+            },
+          };
+        },
       },
     ],
-    failureEffect: {
-      chance: 1.0,
-      log: ACTION_LOGS.RUMMAGE_LOST_FOUND_WEIRD,
-      logType: 'vibration',
-      resourceModifiers: { sanity: -5, experience: 80 },
-    },
   },
   LISTEN_FUSELAGE: {
     id: 'LISTEN_FUSELAGE',
@@ -436,6 +457,8 @@ export const actionsData: Record<string, ActionDefinition> = {
             isInstalled: false,
             isUntraceable: true,
             isRedTagged: Math.random() < 0.3,
+            history: [],
+            manufactureDate: Date.now(),
           };
           return { rotables: [...state.rotables, newPart] };
         },

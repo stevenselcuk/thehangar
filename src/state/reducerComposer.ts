@@ -1025,6 +1025,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         hfStats: draft.hfStats,
         logs: draft.logs,
         inventory: draft.inventory,
+        activeEvent: draft.activeEvent,
       };
 
       const updated = encountersReducer(encountersState, {
@@ -1037,6 +1038,9 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs;
       draft.inventory = updated.inventory;
+      if (updated.activeEvent !== undefined) {
+        draft.activeEvent = updated.activeEvent as typeof draft.activeEvent;
+      }
     });
   }
 

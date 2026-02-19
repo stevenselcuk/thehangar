@@ -612,6 +612,24 @@ export const CANTEEN_INCIDENT_FLAVOR = [
   'You pay for a meal, but the coins disappear from the register before they hit the drawer.',
 ];
 
+export const RUMMAGE_FLAVOR_TEXTS = [
+  'You find a left-handed screwdriver. The handle is warm.',
+  "Under a seat cushion, you discover a flight manual for an aircraft that doesn't exist.",
+  "You pull out a crumpled receipt from 1999. The items listed are 'Silence' and 'Entropy'.",
+  "A small, sealed box labeled 'Do Not Open' rattles when you shake it. You put it back.",
+  'You find a pair of aviator sunglasses. When you put them on, the hangar is empty.',
+  'A single, perfect rivet made of bone.',
+  'You find a sandwich wrapped in foil. The foil is hot. The sandwich is frozen.',
+  'A pocket watch that runs backwards. The ticking sound is a human heartbeat.',
+  'You discover a set of keys. Each one is labeled with a fear.',
+  "A heavily redacted letter to 'The Management'. The only visible words are 'they know'.",
+  "You find a can of 'Void Cola'. It's empty, but feels heavy.",
+  'A toy plane that flies on its own, circling your head before crashing.',
+  'You find a badge for an employee who has your face but a different name.',
+  'A diary entry written in a language that makes your eyes water.',
+  "You find a single playing card. It's the King of Void.",
+];
+
 export const FAA_INSPECTION_FLAVOR = [
   "The inspector's tie is a fractal pattern that moves.",
   "He asks for the 'Shadow Logs'. You pretend to check a file.",

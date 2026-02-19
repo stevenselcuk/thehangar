@@ -2,6 +2,7 @@ import { produce } from 'immer';
 import { ACTION_LOGS } from '../../data/flavor.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
+import { createEventFromTemplate } from './eventsSlice.ts';
 
 /**
  * encountersSlice.ts - Special Encounters Domain
@@ -26,6 +27,7 @@ export interface EncountersSliceState {
   flags: GameState['flags'];
   hfStats: GameState['hfStats'];
   logs: GameState['logs'];
+  activeEvent: GameState['activeEvent'];
 }
 
 export type EncountersAction =
@@ -48,29 +50,14 @@ export const encountersReducer = (
 
     switch (action.type) {
       case 'OBSERVE_SEDAN': {
-        draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 5);
-        draft.resources.experience += 150;
-        const sedanRoll = Math.random();
-        if (sedanRoll < 0.1) {
-          addLog(
-            'The license plate on the sedan shifts, the characters rearranging into impossible geometry before snapping back. You feel sick.',
-            'vibration'
-          );
-          draft.resources.sanity -= 15;
-          draft.flags.isAfraid = true;
-          draft.hfStats.fearTimer = 20000;
-        } else if (sedanRoll < 0.3) {
-          addLog(
-            'A rear door on the sedan opens a few inches, then clicks shut. No one gets in or out. The air smells like ozone.',
-            'story'
-          );
-          draft.resources.sanity -= 8;
+        const event = createEventFromTemplate('story_event', 'EVENT_BLACK_SEDAN_OBSERVE');
+        if (event) {
+          draft.activeEvent = event;
+          draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 5);
+          draft.resources.experience += 150;
+          addLog('You focus your lens on the black sedan...', 'story');
         } else {
-          addLog(
-            "The sedan is empty. You can't see the driver's seat through the windshield, just... darkness.",
-            'info'
-          );
-          draft.resources.sanity -= 2;
+          addLog('The sedan is gone.', 'info');
         }
         break;
       }

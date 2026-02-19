@@ -200,6 +200,11 @@ Events are triggered based on level and actions. They have categories, choices, 
   - `THE_ARCHIVIST`: A figure stealing files.
   - `TIMELINE_CORRUPTION`: Logs show work on future aircraft.
 - **Canteen Incidents**: `CANTEEN_SUITS_LUNCH`, `CANTEEN_VENDING_PROPHECY`.
+- **Photo Events** (Visual Storytelling):
+  - `EVENT_TRANSIT_CRATE`: Discovering unmanifested cargo during a **Transit Check**.
+  - `EVENT_BLACK_SEDAN_OBSERVE`: Witnessing "The Arrival" on the apron. Triggered by **Observe Sedan** or **Watch Runway**.
+  - `EVENT_VANISHING_MARSHALLER`: A ghost on the ramp. Triggered by **Marshalling** or **Watch Runway**.
+  - `EVENT_SEDAN_HANDOFF`: A suspicious exchange. Triggered by **Watch Runway**.
 
 ### Environmental Hazards
 
@@ -230,53 +235,53 @@ _Note: The `metallicSphere` is a rare item likely found via high-level explorati
 
 A comprehensive list of user actions and their unlock requirements.
 
-| Action ID                   | Level | Requirement/Context        |
-| :-------------------------- | :---- | :------------------------- |
-| `INSPECT_VENDING_MACHINE`   | 0     | Canteen                    |
-| `GET/RETURN_TOOLROOM_ITEM`  | 1     | Toolroom                   |
-| `RUMMAGE_LOST_FOUND`        | 2     | Apron/Terminal             |
-| `TALK_TO_REGULAR`           | 3     | Office                     |
-| `CHECK_INTERNAL_MAIL`       | 3     | Office                     |
-| `CREATE_SRF`                | 3     | Office                     |
-| `DEEP_CLEAN_VENTS`          | 4     | Maintenance                |
-| `INSTALL_RIVETS`            | 4     | Maintenance                |
-| `HARVEST_ROTABLE`           | 4     | Maintenance                |
-| `PET/FEED/PLAY_CAT`         | 5     | General (Pet)              |
-| `CHECK_DELAYED_GATE`        | 5     | Canteen/Terminal           |
-| `DELEGATE_NIGHT_CREW`       | 6     | Night Logic                |
-| `LISTEN_FUSELAGE`           | 8     | Structure/Ramp             |
-| `USE_PAYPHONE`              | 8     | Terminal                   |
-| `SCAVENGE_CORROSION_CORNER` | 10    | HR Floor                   |
-| `PERFORMANCE_REVIEW`        | 10    | HR Floor                   |
-| `START_EASA_MODULE`         | 12    | Training                   |
-| `TAKE_AP_WRITTEN`           | 12    | Training                   |
-| `CHECK_REDACTED_LOGS`       | 15    | Backshops                  |
-| `ANALYZE_ANOMALY`           | 15    | Backshops                  |
-| `OBSERVE_SEDAN`             | 18    | Apron/Ramp                 |
-| `REVIEW_SURVEILLANCE_LOGS`  | 20    | Office/Security            |
-| `PRINT_FORBIDDEN_PAGE`      | 22    | Digital/Terminal           |
-| `DECRYPT_AMM`               | 22    | Digital/Terminal           |
-| `UPLOAD_CLEAN_PROTOCOL`     | 25    | AOG                        |
-| `CROSS_REFERENCE_KARDEX`    | 28    | KARDEX System              |
-| `CONSULT_LEGACY_ARCHIVES`   | 30    | Archive Terminal           |
-| `CHECK_BLACK_MARKET`        | 35    | **Item**: `metallicSphere` |
-| `TRIGGER_ENDINGS`           | 49    | Endgame                    |
-| `FEED_CAT`                  | 5     | Structure Shop (F.O.D.)    |
-| `PLAY_WITH_CAT`             | 5     | Structure Shop (F.O.D.)    |
-| `PET_CAT`                   | 5     | Structure Shop (F.O.D.)    |
-| `BRIBE_AUDITOR`             | -     | Context: Audit Event       |
-| `SUBMIT_FAKE_LOGS`          | -     | Context: Audit Event       |
-| `EAT_VOID_BURGER`           | -     | Canteen                    |
-| `LISTEN_TO_WALLS`           | -     | General                    |
-| `SACRIFICE_TOOL`            | -     | Toolroom (Requires Tool)   |
-| `TALK_TO_SUITS`             | -     | Canteen / Special          |
-| `INSPECT_SHADOWS`           | -     | General                    |
-| `CHECK_FOR_BUGS`            | -     | Maintenance / Office       |
-| `CLEAR_CACHE`               | -     | Terminal / Digital         |
-| `BRIBE_SYSADMIN`            | -     | Terminal / Digital         |
-| `APPEAL_VIOLATION`          | -     | Digital (Access Violation) |
-| `FORCE_OVERRIDE`            | -     | Digital (High Sanity Cost) |
-| `ACCEPT_REEDUCATION`        | -     | Digital (Reset Violations) |
+| Action ID                   | Level | Requirement/Context               |
+| :-------------------------- | :---- | :-------------------------------- |
+| `INSPECT_VENDING_MACHINE`   | 0     | Canteen                           |
+| `GET/RETURN_TOOLROOM_ITEM`  | 1     | Toolroom                          |
+| `RUMMAGE_LOST_FOUND`        | 2     | Apron/Terminal                    |
+| `TALK_TO_REGULAR`           | 3     | Office                            |
+| `CHECK_INTERNAL_MAIL`       | 3     | Office                            |
+| `CREATE_SRF`                | 3     | Office                            |
+| `DEEP_CLEAN_VENTS`          | 4     | Maintenance                       |
+| `INSTALL_RIVETS`            | 4     | Maintenance                       |
+| `HARVEST_ROTABLE`           | 4     | Maintenance                       |
+| `PET/FEED/PLAY_CAT`         | 5     | General (Pet)                     |
+| `CHECK_DELAYED_GATE`        | 5     | Canteen/Terminal                  |
+| `DELEGATE_NIGHT_CREW`       | 6     | Night Logic                       |
+| `LISTEN_FUSELAGE`           | 8     | Structure/Ramp                    |
+| `USE_PAYPHONE`              | 8     | Terminal                          |
+| `SCAVENGE_CORROSION_CORNER` | 10    | HR Floor                          |
+| `PERFORMANCE_REVIEW`        | 10    | HR Floor                          |
+| `START_EASA_MODULE`         | 12    | Training                          |
+| `TAKE_AP_WRITTEN`           | 12    | Training                          |
+| `CHECK_REDACTED_LOGS`       | 15    | Backshops                         |
+| `ANALYZE_ANOMALY`           | 15    | Backshops                         |
+| `OBSERVE_SEDAN`             | 18    | Apron/Ramp (Triggers Photo Event) |
+| `REVIEW_SURVEILLANCE_LOGS`  | 20    | Office/Security                   |
+| `PRINT_FORBIDDEN_PAGE`      | 22    | Digital/Terminal                  |
+| `DECRYPT_AMM`               | 22    | Digital/Terminal                  |
+| `UPLOAD_CLEAN_PROTOCOL`     | 25    | AOG                               |
+| `CROSS_REFERENCE_KARDEX`    | 28    | KARDEX System                     |
+| `CONSULT_LEGACY_ARCHIVES`   | 30    | Archive Terminal                  |
+| `CHECK_BLACK_MARKET`        | 35    | **Item**: `metallicSphere`        |
+| `TRIGGER_ENDINGS`           | 49    | Endgame                           |
+| `FEED_CAT`                  | 5     | Structure Shop (F.O.D.)           |
+| `PLAY_WITH_CAT`             | 5     | Structure Shop (F.O.D.)           |
+| `PET_CAT`                   | 5     | Structure Shop (F.O.D.)           |
+| `BRIBE_AUDITOR`             | -     | Context: Audit Event              |
+| `SUBMIT_FAKE_LOGS`          | -     | Context: Audit Event              |
+| `EAT_VOID_BURGER`           | -     | Canteen                           |
+| `LISTEN_TO_WALLS`           | -     | General                           |
+| `SACRIFICE_TOOL`            | -     | Toolroom (Requires Tool)          |
+| `TALK_TO_SUITS`             | -     | Canteen / Special                 |
+| `INSPECT_SHADOWS`           | -     | General                           |
+| `CHECK_FOR_BUGS`            | -     | Maintenance / Office              |
+| `CLEAR_CACHE`               | -     | Terminal / Digital                |
+| `BRIBE_SYSADMIN`            | -     | Terminal / Digital                |
+| `APPEAL_VIOLATION`          | -     | Digital (Access Violation)        |
+| `FORCE_OVERRIDE`            | -     | Digital (High Sanity Cost)        |
+| `ACCEPT_REEDUCATION`        | -     | Digital (Reset Violations)        |
 
 ---
 

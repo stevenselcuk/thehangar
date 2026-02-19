@@ -3,8 +3,10 @@ import {
   ACTION_LOGS,
   PAYPHONE_FLAVOR_TEXTS,
   REGULAR_TALK_LOGS,
+  RUMMAGE_FLAVOR_TEXTS,
   SMALL_TALK_PERSONNEL_LOGS,
 } from '../../data/flavor.ts';
+import { photoEvents } from '../../data/photoEvents.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
@@ -59,7 +61,13 @@ export type TerminalLocationAction =
   | { type: 'OFFER_ASSISTANCE'; payload?: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'USE_PAYPHONE'; payload?: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'TALK_TO_REGULAR'; payload?: Record<string, unknown> }
-  | { type: 'RUMMAGE_LOST_FOUND'; payload?: Record<string, unknown> }
+  | {
+      type: 'RUMMAGE_LOST_FOUND';
+      payload?: {
+        triggerEvent?: (type: string, id?: string) => void;
+        [key: string]: unknown;
+      };
+    }
   | { type: 'CHECK_DELAYED_GATE'; payload?: Record<string, unknown> }
   | {
       type: 'INSPECT_VENDING_MACHINE';
@@ -325,20 +333,61 @@ export const terminalLocationReducer = (
 
       case 'RUMMAGE_LOST_FOUND': {
         const roll = Math.random();
-        // Award XP for the action (consistent with actionsData definition)
-        draft.resources.experience += 40;
 
-        if (roll < 0.2) {
-          addLog(ACTION_LOGS.RUMMAGE_LOST_FOUND_CREDITS, 'info');
-          draft.resources.credits += Math.floor(Math.random() * 20) + 5;
-        } else if (roll < 0.5) {
-          addLog(ACTION_LOGS.RUMMAGE_LOST_FOUND_SANITY, 'story');
-          draft.resources.sanity = Math.min(100, draft.resources.sanity + 10);
+        // 30% Chance for a Photo Event (increased for testing/visibility as requested)
+        // User requested "dynamic and ready to use" and "triggered by action"
+        if (roll < 0.3) {
+          // Import would technically be needed at top of file, but we can't do that easily inside a reducer function switch without top-level import.
+          // We will assume `photoEvents` is imported at the top of this file in the next step.
+          // For now, I'll write the logic assuming `photoEvents` is available.
+
+          // Filter triggers
+          const availableEvents = photoEvents.filter((e) => e.triggerCondition === 'rummage_only');
+
+          // Weighted Random Selection
+          const totalWeight = availableEvents.reduce((sum, e) => sum + (e.weight || 1), 0);
+          let randomWeight = Math.random() * totalWeight;
+          let selectedEvent = availableEvents[0];
+
+          for (const event of availableEvents) {
+            randomWeight -= event.weight || 1;
+            if (randomWeight <= 0) {
+              selectedEvent = event;
+              break;
+            }
+          }
+
+          if (selectedEvent && action.payload?.triggerEvent) {
+            addLog(`You find something interesting: ${selectedEvent.title}`, 'story');
+            // We need to pass the full event object or ID.
+            // The system usually takes ID and looks it up in `eventsData`.
+            // BUT `photoEvents` are in a separate file.
+            // We need to ensure `ActionPanel` or `gameReducer` can handle this.
+            // Best approach: "Inject" the event into the activeEvent state directly if possible,
+            // OR add these events to the main `eventsData` object if it's extensible,
+            // OR make `triggerEvent` capable of accepting a raw event object.
+            // Looking at `tickLogic.ts` -> `triggerEvent` just passes (type, id).
+            // Look at `gameReducer.ts`:
+            // case 'TRIGGER_EVENT':
+            //   const eventPool = eventsData[action.payload.type];
+            //   const event = eventPool.find(e => e.id === action.payload.id);
+            //   draft.activeEvent = { ...event, ... };
+
+            // Problem: `eventsData` doesn't have our new events.
+            // Solution: We should merge `photoEvents` into `eventsData` or handle a special type.
+            // Let's use a special type 'story_event' and ensure `eventsData['story_event']` includes our new events.
+            // For now, in this file, we just trigger it. We will ensure `eventsData` includes `photoEvents`.
+
+            action.payload.triggerEvent('story_event', selectedEvent.id);
+          }
         } else {
-          addLog(ACTION_LOGS.RUMMAGE_LOST_FOUND_WEIRD, 'vibration');
-          draft.resources.sanity -= 5;
-          // Bonus XP for the weirdness?
-          draft.resources.experience += 40;
+          // Flavor Text (70%)
+          const flavor =
+            RUMMAGE_FLAVOR_TEXTS[Math.floor(Math.random() * RUMMAGE_FLAVOR_TEXTS.length)];
+          addLog(flavor, 'info');
+
+          draft.resources.credits += Math.floor(Math.random() * 10);
+          draft.resources.experience += 50;
         }
         break;
       }

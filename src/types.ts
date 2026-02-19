@@ -140,6 +140,7 @@ export interface GameEvent {
   requiredAction?: string; // For single-action, time-sensitive tasks
   successOutcome?: EventOutcome; // If a requiredAction is completed in time
   failureOutcome: EventOutcome; // What happens on timeout.
+  imagePath?: string; // Optional path to an image asset for the event
 }
 
 export interface EnvironmentalHazard {
