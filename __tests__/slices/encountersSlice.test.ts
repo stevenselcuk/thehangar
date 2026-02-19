@@ -6,178 +6,19 @@ import {
 import seedrandom from 'seedrandom';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { createInitialState } from '@/state/initialState';
+
 describe('encountersSlice', () => {
   let initialState: EncountersSliceState;
 
   beforeEach(() => {
     Math.random = seedrandom('test-encounters');
 
-    initialState = {
-      resources: {
-        alclad: 0,
-        titanium: 0,
-        fiberglass: 0,
-        rivets: 0,
-        hiloks: 0,
-        collars: 0,
-        grommets: 0,
-        steelWire: 0,
-        skydrol: 0,
-        mek: 0,
-        grease: 0,
-        sealant: 0,
-        sanity: 100,
-        suspicion: 0,
-        focus: 100,
-        experience: 0,
-        level: 1,
-        credits: 0,
-        kardexFragments: 0,
-        crystallineResonators: 0,
-        bioFilament: 0,
-        technicalLogbookHours: 0,
-        syndicateReputation: 0,
-        unionReputation: 0,
-        canned_tuna: 0,
-        hardwareBolts: 0,
-        threadlocker: 0,
-        cableTools: 0,
-        fdrData: 0,
-        fqpu: 0,
-        pressureTransducer: 0,
-        aimsData: 0,
-        ram: 0,
-        smokeDetector: 0,
-        doorSeal: 0,
-        balanceWeights: 0,
-        autopilotComputer: 0,
-        rudderFeelComputer: 0,
-        emergencyBatteryPack: 0,
-        adfReceiver: 0,
-      },
-      inventory: {
-        flashlight: false,
-        pencil: true,
-        ruler: false,
-        inspectionMirror: false,
-        notebook: true,
-        leatherman: false,
-        radio: false,
-        technicianToolbox: false,
-        torxScrewdriver: false,
-        snapOnWrenchSet: false,
-        hammer: false,
-        atlasCopcoDrill: false,
-        rivetGun: false,
-        allenKeys: false,
-        torquemeter: false,
-        malabar: false,
-        greaseGun: false,
-        airDataTestBox: false,
-        hfecDevice: false,
-        rototestDevice: false,
-        orbitalSander: false,
-        irLamp: false,
-        sonicCleaner: false,
-        hasAPLicense: false,
-        apWrittenPassed: false,
-        apPracticalPassed: false,
-        hasAvionicsCert: false,
-        isToolboxWithPlayer: false,
-        pcAssembled: false,
-        pcGpuUpgrade: false,
-        pcHddUpgrade: false,
-        foundRetiredIDCard: false,
-        ford150: false,
-        tireKit: false,
-        mixedTouchUpPaint: 0,
-        mainboard: false,
-        graphicCard: false,
-        cdRom: false,
-        floppyDrive: false,
-        metallicSphere: false,
-        earmuffs: false,
-        hasTruckLockbox: false,
-        hasHfInitial: false,
-        hasHfRecurrent: false,
-        hasFts: false,
-        hasHdi: false,
-        hasNdtLevel1: false,
-        hasNdtLevel2: false,
-        hasNdtLevel3: false,
-        ndtCerts: [],
-        hasEasaB1_1: false,
-        hasEasaB2: false,
-        hasEasaC: false,
-        typeRating737: 0,
-        typeRatingA330: 0,
-        wrench: false,
-        canned_tuna: false,
-      },
-      flags: {
-        foundNote: false,
-        lightsFlickered: false,
-        officeUnlocked: false,
-        hangarUnlocked: false,
-        tarmacUnlocked: false,
-        foundManifest: false,
-        revealedTruth: false,
-        kardexActive: false,
-        suitsVisiting: false,
-        underSurveillance: false,
-        nightCrewActive: false,
-        nightCrewUnlocked: false,
-        transitCheckDelegationActive: false,
-        activeComponentFailure: null,
-        suspicionEvent30Triggered: false,
-        suspicionEvent60Triggered: false,
-        suspicionEvent90Triggered: false,
-        autoSrfActive: false,
-        venomSurgeActive: false,
-        fuelContaminationRisk: false,
-        migraineActive: false,
-        toolroomMasterPissed: false,
-        janitorPresent: true,
-        ndtFinding: null,
-        sls3Unlocked: false,
-        onPerformanceImprovementPlan: false,
-        janitorArcStage: 0,
-        toolroomMasterArcStage: 0,
-        endingAlienConspiracyProgress: 0,
-        endingGovtConspiracyProgress: 0,
-        endingTriggered: null,
-        foundPhoto: false,
-        isHallucinating: false,
-        isAfraid: false,
-        storyFlags: { fdrDeconstructed: false },
-      },
-      hfStats: {
-        fatigue: 0,
-        noiseExposure: 0,
-        socialStress: 0,
-        trainingProgress: 0,
-        compliancePressureTimer: 0,
-        efficiencyBoost: 0,
-        temperature: 20,
-        lightingLevel: 100,
-        fearTimer: 0,
-        venomSurgeTimer: 0,
-        toolroomMasterCooldown: 0,
-        migraineTimer: 0,
-        performanceReviewCooldown: 0,
-        janitorCooldown: 0,
-        scheduleCompressionTimer: 0,
-        sanityShieldTimer: 0,
-        foundLoopholeTimer: 0,
-        clearanceLevel: 0,
-        hfRecurrentDueDate: 0,
-      },
-      logs: [],
-    };
+    initialState = createInitialState() as unknown as EncountersSliceState;
   });
 
   describe('OBSERVE_SEDAN', () => {
-    it('should always increase suspicion and award experience', () => {
+    it('should trigger EVENT_BLACK_SEDAN_OBSERVE', () => {
       const action: EncountersAction = {
         type: 'OBSERVE_SEDAN',
         payload: {},
@@ -187,55 +28,9 @@ describe('encountersSlice', () => {
 
       expect(result.resources.suspicion).toBe(5);
       expect(result.resources.experience).toBe(150);
-      expect(result.logs).toHaveLength(1);
-    });
-
-    it('should trigger fear and high sanity drain 10% of time', () => {
-      Math.random = seedrandom('sedan-fear');
-
-      const action: EncountersAction = {
-        type: 'OBSERVE_SEDAN',
-        payload: {},
-      };
-
-      const result = encountersReducer(initialState, action);
-
-      if (result.flags.isAfraid) {
-        expect(result.resources.sanity).toBeLessThan(90);
-        expect(result.hfStats.fearTimer).toBe(20000);
-        expect(result.logs[0].type).toBe('vibration');
-        expect(result.logs[0].text).toContain('license plate');
-      }
-    });
-
-    it('should reduce sanity in different amounts based on roll', () => {
-      Math.random = seedrandom('sedan-medium');
-
-      const action: EncountersAction = {
-        type: 'OBSERVE_SEDAN',
-        payload: {},
-      };
-
-      const result = encountersReducer(initialState, action);
-
-      // Should reduce sanity (85, 92, or 98)
-      expect(result.resources.sanity).toBeLessThan(100);
-      expect(result.logs[0].type).toMatch(/info|story|vibration/);
-    });
-
-    it('should have low sanity drain 70% of time', () => {
-      Math.random = seedrandom('sedan-normal');
-
-      const action: EncountersAction = {
-        type: 'OBSERVE_SEDAN',
-        payload: {},
-      };
-
-      const result = encountersReducer(initialState, action);
-
-      if (result.resources.sanity === 98) {
-        expect(result.logs[0].type).toBe('info');
-      }
+      expect(result.activeEvent).toBeDefined();
+      expect(result.activeEvent?.id).toBe('EVENT_BLACK_SEDAN_OBSERVE');
+      expect(result.logs[0].type).toBe('story');
     });
   });
 
