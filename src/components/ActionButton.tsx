@@ -1,17 +1,15 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Tooltip } from './common/Tooltip';
 
-export interface ActionButtonProps {
+export interface ActionButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   label: string;
   onClick: () => void;
   onStart?: () => void;
   cooldown?: number;
-  disabled?: boolean;
   cost?: { label: string; value: number };
   description?: string;
-  className?: string;
   sanity?: number; // Added sanity prop
-  [key: string]: any;
 }
 
 const playClick = () => {
