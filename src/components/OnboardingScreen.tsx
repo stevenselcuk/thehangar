@@ -30,8 +30,7 @@ const DecipherText: React.FC<{
 }> = ({ text, className = '', onComplete, speed = 50 }) => {
   const [displayed, setDisplayed] = useState('');
   const iteration = useRef(0);
-  // Removed unused hasCompleted ref as per lint
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
 
   const onCompleteRef = useRef(onComplete);
 
