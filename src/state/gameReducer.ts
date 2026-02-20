@@ -229,6 +229,14 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           'PET_RANDOM_MOVE',
           'SORT_HARDWARE',
           'RESOLVE_SCENARIO', // Added
+          // Aircraft/Maintenance Additions
+          'START_CHEMICAL_PROCESS',
+          'PERFORM_CHEMICAL_STEP',
+          'CHECK_CURE_PROGRESS',
+          'RESEARCH_COMPONENT_HISTORY',
+          'FABRICATE_PAPERWORK',
+          'DOWNLOAD_DATA',
+          'ANALYZE_DATA',
         ];
 
         if (composedActions.includes(type)) {

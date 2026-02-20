@@ -305,6 +305,13 @@ const AIRCRAFT_ACTIONS = [
   'SCAVENGE_GALLEYS',
   'WATCH_RUNWAY',
   'RESOLVE_SCENARIO', // Added
+  'START_CHEMICAL_PROCESS',
+  'PERFORM_CHEMICAL_STEP',
+  'CHECK_CURE_PROGRESS',
+  'RESEARCH_COMPONENT_HISTORY',
+  'FABRICATE_PAPERWORK',
+  'DOWNLOAD_DATA',
+  'ANALYZE_DATA',
 ] as const;
 
 // Terminal location action types handled by terminalLocationSlice
