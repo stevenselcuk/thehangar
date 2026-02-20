@@ -9,7 +9,7 @@
 
 **Play Now**: [Production (Weekly Updates)](https://hangar.tabbythecat.com) | [Staging (Nightly Builds)](https://stevenselcuk.github.io/thehangar/)
 
-![The Hangar Screenshot](https://i.imgur.com/TZZUnPv.png)
+![The Hangar Screenshot](https://i.imgur.com/GM5oKUo.png)
 
 ---
 
@@ -28,6 +28,8 @@
 > **⚠️ IMPORTANT**: ONCE AGAIN! THIS DOCUMENTATION IS INCLUDES SPOILERS. THIS IS THE LAST WARNING.
 
 ---
+
+![Narrative Detail](https://i.imgur.com/xJp1mlJ.png)
 
 # What is The Hangar?
 
@@ -48,6 +50,8 @@
 - **Gradual Dread**: Subtle wrongness escalates into existential terror
 - **Multiple Endings**: Uncover the truth, go mad, or become complicit
 - **Environmental Storytelling**: Piece together the facility's dark history through maintenance logs, surveillance footage, and KARDEX archives
+
+![Narrative Detail](https://i.imgur.com/YwWJSJh.png)
 
 #### ✈️ For Aviation Professionals
 
