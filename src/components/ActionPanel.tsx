@@ -77,7 +77,10 @@ const ActionPanel: React.FC<{
   }, [state.activeEvent?.id, state.activeEvent?.imagePath]);
 
   // Check location requirements
-  const locationCheck = checkLocationRequirements(activeTab, state.inventory);
+  const locationCheck = React.useMemo(
+    () => checkLocationRequirements(activeTab, state.inventory),
+    [activeTab, state.inventory]
+  );
   const showLocationWarning = !locationCheck.satisfied || locationCheck.missingSoft.length > 0;
 
   // Helper to generate props for level-locked actions
