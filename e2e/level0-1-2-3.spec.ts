@@ -10,6 +10,27 @@ async function getLevel(page: Page): Promise<number> {
   return parseInt(match[1], 10);
 }
 
+// Helper to dismiss blocking modals
+async function dismissModals(page: Page): Promise<boolean> {
+  // PhotoModal: STORE IN ARCHIVES
+  const storeBtn = page.locator('button:has-text("STORE IN ARCHIVES")');
+  if (await storeBtn.isVisible()) {
+    console.log('Dismissing PhotoModal (STORE IN ARCHIVES)');
+    await storeBtn.click();
+    return true;
+  }
+
+  // PhotoModal: DISCARD
+  const discardBtn = page.locator('button:has-text("DISCARD")');
+  if (await discardBtn.isVisible()) {
+    console.log('Dismissing PhotoModal (DISCARD)');
+    await discardBtn.click();
+    return true;
+  }
+
+  return false;
+}
+
 test.describe('Progression Level 0 to 3', () => {
   test.beforeEach(async ({ page }) => {
     // Clear state
@@ -78,7 +99,11 @@ test.describe('Progression Level 0 to 3', () => {
         try {
             await checkoutBtn.click({ timeout: 2000 });
         } catch {
-            console.log('Click failed or timed out. Checking state...');
+            console.log('Click failed or timed out. Checking modals...');
+            if (await dismissModals(page)) {
+                continue;
+            }
+            console.log('Checking state...');
             const count = await page.locator('button:has-text("Check Out")').count();
             console.log(`Remaining Check Out buttons: ${count}`);
             if (count === 0) {
@@ -113,6 +138,12 @@ test.describe('Progression Level 0 to 3', () => {
 
          while (currentLevel < 2) {
              if (await rummageBtn.isDisabled()) {
+                 // Check if it's disabled because of a modal blocking it (wait, isDisabled usually means attribute disabled)
+                 // But we should check for modals anyway while waiting
+                 if (await dismissModals(page)) {
+                     continue;
+                 }
+
                  const dead = await page.locator('text=SYSTEM FAILURE').count();
                  if (dead > 0) throw new Error('Died during Level 1 grind');
 
@@ -127,7 +158,10 @@ test.describe('Progression Level 0 to 3', () => {
                 console.log('Clicked Rummage');
              } catch {
                 // Retry loop will handle it
-                console.log('Click Rummage failed');
+                console.log('Click Rummage failed, checking modals...');
+                if (await dismissModals(page)) {
+                    continue;
+                }
                 await page.waitForTimeout(500);
                 continue;
              }
@@ -160,6 +194,9 @@ test.describe('Progression Level 0 to 3', () => {
     currentLevel = await getLevel(page);
     while (currentLevel < 3) {
         if (await marshalBtn.isDisabled()) {
+             if (await dismissModals(page)) {
+                 continue;
+             }
              console.log("Marshalling disabled (Focus?), switching to Canteen...");
              const canteenTab = page.locator('button:has-text("CANTEEN")').first();
              await canteenTab.click();
@@ -167,12 +204,18 @@ test.describe('Progression Level 0 to 3', () => {
              const rummageBtn = page.locator('button:has-text("Rummage in Lost & Found")');
              while (currentLevel < 3) {
                  if (await rummageBtn.isDisabled()) {
+                     if (await dismissModals(page)) {
+                         continue;
+                     }
                      await page.waitForTimeout(1000);
                      continue;
                  }
                  try {
                     await rummageBtn.click({ timeout: 2000 });
                  } catch {
+                    if (await dismissModals(page)) {
+                        continue;
+                    }
                     continue;
                  }
                  currentLevel = await getLevel(page);
@@ -180,7 +223,14 @@ test.describe('Progression Level 0 to 3', () => {
              break;
         }
 
-        await marshalBtn.click();
+        try {
+            await marshalBtn.click({ timeout: 2000 });
+        } catch {
+            if (await dismissModals(page)) {
+                continue;
+            }
+            // If simple timeout, just retry loop
+        }
         currentLevel = await getLevel(page);
     }
     console.log('Reached Level 3!');
