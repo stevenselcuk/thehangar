@@ -103,6 +103,21 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           break;
         }
 
+        // Handle Spam Penalty globally
+        if (type === 'ACTION_SPAM_PENALTY') {
+          draft.resources.health = Math.max(0, draft.resources.health - 25);
+          draft.resources.focus = Math.max(0, draft.resources.focus - 50);
+          draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 75);
+          draft.notificationQueue.push({
+            id: `spam-penalty-${Date.now()}`,
+            title: 'SYSTEM OVERLOAD',
+            message: 'Excessive rapid requests detected. Neural feedback loop engaged.',
+            variant: 'hazard',
+            duration: 8000,
+          });
+          break;
+        }
+
         // Route actions through composer first
         const composedActions = [
           'ARCHIVE_ACTION',

@@ -41,8 +41,8 @@ import { useNotification } from './hooks/useNotification.ts';
 
 import ReloadPrompt from './components/ReloadPrompt.tsx';
 
-const SAVE_KEY = 'the_hangar_save__build_135';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_135';
+const SAVE_KEY = 'the_hangar_save__build_137';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_137';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -269,6 +269,15 @@ const AppContent: React.FC = () => {
     },
     [dispatch, play]
   );
+
+  // Handle action-spam-penalty event globally
+  useEffect(() => {
+    const handleSpamPenalty = () => {
+      onAction('ACTION_SPAM_PENALTY');
+    };
+    window.addEventListener('action-spam-penalty', handleSpamPenalty);
+    return () => window.removeEventListener('action-spam-penalty', handleSpamPenalty);
+  }, [onAction]);
 
   const handleAppReset = () => {
     isRebootingRef.current = true;
