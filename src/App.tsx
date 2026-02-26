@@ -41,8 +41,8 @@ import { useNotification } from './hooks/useNotification.ts';
 
 import ReloadPrompt from './components/ReloadPrompt.tsx';
 
-const SAVE_KEY = 'the_hangar_save__build_137';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_137';
+const SAVE_KEY = 'the_hangar_save__build_138';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_138';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -67,7 +67,7 @@ const AppContent: React.FC = () => {
     return TabType.APRON_LINE;
   });
 
-  const { play } = useSound();
+  const { play, playUrl } = useSound();
   const [mobileView, setMobileView] = useState<'ACTIONS' | 'LOGS'>('ACTIONS');
   const [isResourceDrawerOpen, setIsResourceDrawerOpen] = useState(false);
 
@@ -195,6 +195,24 @@ const AppContent: React.FC = () => {
       hasPlayedGameOverSoundRef.current = true;
     }
   }, [state.resources.suspicion, state.resources.sanity, play]);
+
+  // Effect for Suspicion reaching 50%
+  const hasPlayedSuspicionThemeRef = useRef(false);
+  useEffect(() => {
+    if (state.resources.suspicion >= 50 && !hasPlayedSuspicionThemeRef.current) {
+      playUrl('/sounds/theme_1.mp3', 0.2); // Low volume
+      hasPlayedSuspicionThemeRef.current = true;
+    }
+  }, [state.resources.suspicion, playUrl]);
+
+  // Effect for Health decrease
+  const prevHealthRef = useRef(state.resources.health);
+  useEffect(() => {
+    if (state.resources.health < prevHealthRef.current) {
+      play('SHOCKED');
+    }
+    prevHealthRef.current = state.resources.health;
+  }, [state.resources.health, play]);
 
   // Redirect if active tab is locked
   useEffect(() => {
