@@ -91,7 +91,7 @@ describe('Tooltip', () => {
   });
 
   it('renders complex content', () => {
-      render(
+    render(
       <Tooltip content={<span data-testid="complex">Complex</span>} delay={0}>
         <button>Hover Me</button>
       </Tooltip>
@@ -101,7 +101,7 @@ describe('Tooltip', () => {
     fireEvent.mouseEnter(trigger);
 
     act(() => {
-        vi.runAllTimers();
+      vi.runAllTimers();
     });
 
     expect(screen.getByTestId('complex')).toBeInTheDocument();

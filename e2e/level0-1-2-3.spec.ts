@@ -74,68 +74,68 @@ test.describe('Progression Level 0 to 3', () => {
 
     let currentLevel = await getLevel(page);
     while (currentLevel < 2) {
-        // Try to click Check Out
-        try {
-            await checkoutBtn.click({ timeout: 2000 });
-        } catch {
-            console.log('Click failed or timed out. Checking state...');
-            const count = await page.locator('button:has-text("Check Out")').count();
-            console.log(`Remaining Check Out buttons: ${count}`);
-            if (count === 0) {
-                 console.log('No buttons left! Breaking loop.');
-                 break;
-            }
-            // Retry
-            continue;
+      // Try to click Check Out
+      try {
+        await checkoutBtn.click({ timeout: 2000 });
+      } catch {
+        console.log('Click failed or timed out. Checking state...');
+        const count = await page.locator('button:has-text("Check Out")').count();
+        console.log(`Remaining Check Out buttons: ${count}`);
+        if (count === 0) {
+          console.log('No buttons left! Breaking loop.');
+          break;
         }
+        // Retry
+        continue;
+      }
 
-        currentLevel = await getLevel(page);
-        const xpText = await page.locator('text=/LVL \\d+/').textContent(); // approximate
-        console.log(`Current Status: ${xpText}`);
+      currentLevel = await getLevel(page);
+      const xpText = await page.locator('text=/LVL \\d+/').textContent(); // approximate
+      console.log(`Current Status: ${xpText}`);
     }
     console.log('Loop finished. Level:', currentLevel);
 
     // Fallback to Canteen if Level 2 not reached (ran out of tools)
     if (currentLevel < 2) {
-         console.log('Falling back to Canteen for remaining XP...');
+      console.log('Falling back to Canteen for remaining XP...');
 
-         // Check if Canteen tab is available before clicking
-         const canteenTab = page.locator('button:has-text("CANTEEN")').first();
-         await expect(canteenTab).toBeVisible({ timeout: 5000 });
-         await canteenTab.click();
+      // Check if Canteen tab is available before clicking
+      const canteenTab = page.locator('button:has-text("CANTEEN")').first();
+      await expect(canteenTab).toBeVisible({ timeout: 5000 });
+      await canteenTab.click();
 
-         // "Inspect Vending Machine" is missing.
-         // We fixed "Rummage in Lost & Found" to give XP. It is safer than Talking (Sanity+).
-         const rummageBtn = page.locator('button:has-text("Rummage in Lost & Found")');
+      // "Inspect Vending Machine" is missing.
+      // We fixed "Rummage in Lost & Found" to give XP. It is safer than Talking (Sanity+).
+      const rummageBtn = page.locator('button:has-text("Rummage in Lost & Found")');
 
-         // Wait for the button to appear in case of render delay
-         await expect(rummageBtn).toBeVisible({ timeout: 5000 });
+      // Wait for the button to appear in case of render delay
+      await expect(rummageBtn).toBeVisible({ timeout: 5000 });
 
-         while (currentLevel < 2) {
-             if (await rummageBtn.isDisabled()) {
-                 const dead = await page.locator('text=SYSTEM FAILURE').count();
-                 if (dead > 0) throw new Error('Died during Level 1 grind');
+      while (currentLevel < 2) {
+        if (await rummageBtn.isDisabled()) {
+          const dead = await page.locator('text=SYSTEM FAILURE').count();
+          if (dead > 0) throw new Error('Died during Level 1 grind');
 
-                 console.log('Waiting for Focus...');
-                 await page.waitForTimeout(1500); // Shorter wait to be more responsive
-                 continue;
-             }
+          console.log('Waiting for Focus...');
+          await page.waitForTimeout(1500); // Shorter wait to be more responsive
+          continue;
+        }
 
-             // Ensure element is stable before clicking to avoid detachment errors
-             try {
-                await rummageBtn.click({ timeout: 2000 });
-                console.log('Clicked Rummage');
-             } catch {
-                // Retry loop will handle it
-                console.log('Click Rummage failed');
-                await page.waitForTimeout(500);
-                continue;
-             }
+        // Ensure element is stable before clicking to avoid detachment errors
+        try {
+          await rummageBtn.click({ timeout: 2000 });
+          console.log('Clicked Rummage');
+        } catch {
+          // Retry loop will handle it
+          console.log('Click Rummage failed');
+          await page.waitForTimeout(500);
+          continue;
+        }
 
-             await page.waitForTimeout(200); // Slightly longer wait for state update
-             currentLevel = await getLevel(page);
-             console.log(`Canteen Loop: Level ${currentLevel}`);
-         }
+        await page.waitForTimeout(200); // Slightly longer wait for state update
+        currentLevel = await getLevel(page);
+        console.log(`Canteen Loop: Level ${currentLevel}`);
+      }
     }
     console.log('Reached Level 2!');
 
@@ -159,29 +159,29 @@ test.describe('Progression Level 0 to 3', () => {
 
     currentLevel = await getLevel(page);
     while (currentLevel < 3) {
-        if (await marshalBtn.isDisabled()) {
-             console.log("Marshalling disabled (Focus?), switching to Canteen...");
-             const canteenTab = page.locator('button:has-text("CANTEEN")').first();
-             await canteenTab.click();
+      if (await marshalBtn.isDisabled()) {
+        console.log('Marshalling disabled (Focus?), switching to Canteen...');
+        const canteenTab = page.locator('button:has-text("CANTEEN")').first();
+        await canteenTab.click();
 
-             const rummageBtn = page.locator('button:has-text("Rummage in Lost & Found")');
-             while (currentLevel < 3) {
-                 if (await rummageBtn.isDisabled()) {
-                     await page.waitForTimeout(1000);
-                     continue;
-                 }
-                 try {
-                    await rummageBtn.click({ timeout: 2000 });
-                 } catch {
-                    continue;
-                 }
-                 currentLevel = await getLevel(page);
-             }
-             break;
+        const rummageBtn = page.locator('button:has-text("Rummage in Lost & Found")');
+        while (currentLevel < 3) {
+          if (await rummageBtn.isDisabled()) {
+            await page.waitForTimeout(1000);
+            continue;
+          }
+          try {
+            await rummageBtn.click({ timeout: 2000 });
+          } catch {
+            continue;
+          }
+          currentLevel = await getLevel(page);
         }
+        break;
+      }
 
-        await marshalBtn.click();
-        currentLevel = await getLevel(page);
+      await marshalBtn.click();
+      currentLevel = await getLevel(page);
     }
     console.log('Reached Level 3!');
 
