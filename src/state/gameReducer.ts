@@ -1,5 +1,6 @@
 import { produce } from 'immer';
 
+import { getMilestoneForLevel } from '../data/levelMilestones.ts';
 import { GameState } from '../types.ts';
 import { createJob } from './initialState.ts';
 
@@ -278,6 +279,29 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
       // Dev Mode Actions - Direct state manipulation for debugging
       case 'UPDATE_RESOURCE': {
         Object.assign(draft.resources, action.payload);
+
+        // If level was updated manually in Dev Mode, retroactively grant missing flags
+        if (action.payload.level !== undefined) {
+          const allMilestones = Array.from({ length: action.payload.level + 1 }, (_, i) =>
+            getMilestoneForLevel(i)
+          ).filter((m) => m !== undefined);
+          allMilestones.forEach((milestone) => {
+            if (milestone?.unlocks.flags) {
+              milestone.unlocks.flags.forEach((flagKey) => {
+                const key = flagKey as keyof GameState['flags'];
+                if (typeof draft.flags[key] === 'boolean' && draft.flags[key] !== true) {
+                  (
+                    draft.flags as unknown as Record<
+                      string,
+                      boolean | number | string | null | object
+                    >
+                  )[key] = true;
+                }
+              });
+            }
+          });
+        }
+
         break;
       }
       case 'UPDATE_INVENTORY': {

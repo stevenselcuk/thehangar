@@ -1,5 +1,6 @@
 import { SYSTEM_LOGS } from '../data/flavor.ts';
 import { jobsData } from '../data/jobs.ts';
+import { getMilestoneForLevel } from '../data/levelMilestones.ts';
 import { vendingData } from '../data/vending.ts';
 import { GameState, JobCard } from '../types.ts';
 
@@ -387,6 +388,28 @@ export const loadState = (saveKey: string): GameState => {
       loadedFlags.isHallucinating = false;
       loadedFlags.isAfraid = false;
       loadedFlags.storyFlags = parsed.flags.storyFlags || {};
+
+      const loadedLevel = parsed.resources?.level || defaults.resources.level;
+      if (loadedLevel > 0) {
+        const allMilestones = Array.from({ length: loadedLevel + 1 }, (_, i) =>
+          getMilestoneForLevel(i)
+        ).filter((m) => m !== undefined);
+        allMilestones.forEach((milestone) => {
+          if (milestone?.unlocks.flags) {
+            milestone.unlocks.flags.forEach((flagKey) => {
+              const key = flagKey as keyof GameState['flags'];
+              if (typeof loadedFlags[key] === 'boolean' && loadedFlags[key] !== true) {
+                (
+                  loadedFlags as unknown as Record<
+                    string,
+                    boolean | number | string | null | object
+                  >
+                )[key] = true;
+              }
+            });
+          }
+        });
+      }
 
       return {
         ...defaults,
