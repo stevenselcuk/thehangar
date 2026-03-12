@@ -51,7 +51,6 @@ export const TAB_FEATURES: Record<TabType, FeatureDefinition> = {
     type: 'tab',
     requiredLevel: 3,
     description: 'Office level - paperwork and paranoia',
-    requiredFlags: ['officeUnlocked'],
   },
   [TabType.STRUCTURE_SHOP]: {
     id: 'TAB_STRUCTURE',

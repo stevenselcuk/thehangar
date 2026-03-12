@@ -52,16 +52,15 @@ describe('LevelManager', () => {
       expect(isTabUnlocked(TabType.OFFICE, baseState)).toBe(false);
     });
 
-    it('should unlock OFFICE at level 3 with flag', () => {
+    it('should unlock OFFICE at level 3', () => {
       baseState.resources.level = 3;
-      baseState.flags.officeUnlocked = true;
       expect(isTabUnlocked(TabType.OFFICE, baseState)).toBe(true);
     });
 
-    it('should NOT unlock OFFICE at level 3 without flag', () => {
+    it('should unlock OFFICE at level 3 regardless of officeUnlocked flag', () => {
       baseState.resources.level = 3;
       baseState.flags.officeUnlocked = false;
-      expect(isTabUnlocked(TabType.OFFICE, baseState)).toBe(false);
+      expect(isTabUnlocked(TabType.OFFICE, baseState)).toBe(true);
     });
 
     it('should NOT unlock BACKSHOPS below level 15', () => {

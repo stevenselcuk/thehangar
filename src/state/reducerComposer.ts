@@ -1,5 +1,6 @@
 import { produce } from 'immer';
 import { eventsData } from '../data/events.ts';
+import { getAllUnlockedFlags } from '../data/levelMilestones.ts';
 import { getLockedFeatureMessage, isActionUnlocked } from '../services/LevelManager.ts';
 import { GameEvent, GameState, TabType } from '../types.ts';
 import { AircraftAction, aircraftReducer } from './slices/aircraftSlice.ts';
@@ -741,6 +742,16 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.inventory = updated.inventory;
       draft.hfStats.hfRecurrentDueDate = updated.hfStats.hfRecurrentDueDate;
       draft.logs = updated.logs;
+
+      // Apply milestone flags for ACKNOWLEDGE_LEVEL_UP
+      // When a player confirms a level-up, ensure all flags unlocked up to
+      // their current level are set in state (e.g., officeUnlocked at level 3).
+      if (action.type === 'ACKNOWLEDGE_LEVEL_UP') {
+        const flagsToUnlock = getAllUnlockedFlags(draft.resources.level);
+        for (const flag of flagsToUnlock) {
+          (draft.flags as unknown as Record<string, unknown>)[flag] = true;
+        }
+      }
     });
   }
 
