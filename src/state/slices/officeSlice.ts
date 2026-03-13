@@ -69,6 +69,7 @@ export type OfficeAction =
     }
   | { type: 'DEEP_CLEAN_VENTS'; payload: Record<string, unknown> }
   | { type: 'INSPECT_PRINTER'; payload: Record<string, unknown> }
+  | { type: 'PRINT_FORBIDDEN_PAGE'; payload: Record<string, unknown> }
   | { type: 'READ_EMAIL'; payload: { id: string } }
   | { type: 'TRIGGER_CRAZY_ENDING'; payload: Record<string, unknown> }
   | { type: 'TRIGGER_GOVT_ENDING'; payload: Record<string, unknown> }
@@ -305,6 +306,33 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
           );
           draft.resources.sanity -= 5;
           draft.resources.experience += 100;
+        }
+        break;
+      }
+
+      case 'PRINT_FORBIDDEN_PAGE': {
+        if (draft.resources.focus < 15) {
+          addLog(SYSTEM_LOGS.LOW_FOCUS, 'warning');
+          break;
+        }
+        draft.resources.focus -= 15;
+
+        const roll = Math.random();
+        if (roll < 0.2) {
+          addLog(
+            "The printer jams. When you pull the paper out, it's covered in a substance that looks like oil but smells like blood.",
+            'vibration'
+          );
+          draft.resources.sanity = Math.max(0, draft.resources.sanity - 10);
+          draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 5);
+        } else {
+          addLog(
+            "You print the page. It's a list of names. Yours is at the bottom, crossed out.",
+            'story'
+          );
+          draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 15);
+          draft.resources.experience += 200;
+          draft.resources.sanity = Math.max(0, draft.resources.sanity - 5);
         }
         break;
       }
