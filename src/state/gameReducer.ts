@@ -178,6 +178,8 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           'UPGRADE_PC_HDD',
           'NAP_TABLE',
           'READ_MAGAZINE',
+          'INSPECT_PRINTER',
+          'PRINT_FORBIDDEN_PAGE',
           'REVIEW_SURVEILLANCE_LOGS',
           'DEEP_CLEAN_VENTS',
           'LISTEN_RADIO',
