@@ -14,6 +14,7 @@ import { unionEvents } from './unionEvents';
 import { aircraftEvents } from './aircraftEvents';
 
 import { photoEvents } from './photoEvents';
+import { managementEvents } from './managementEvents';
 type EventTemplates = Omit<GameEvent, 'timeLeft'>;
 
 export const eventsData: Record<string, EventTemplates[]> = {
@@ -1699,4 +1700,5 @@ export const eventsData: Record<string, EventTemplates[]> = {
       },
     },
   ],
+  management: [...managementEvents],
 };

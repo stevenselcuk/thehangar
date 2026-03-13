@@ -131,7 +131,8 @@ export interface GameEvent {
     | 'eldritch_manifestation'
     | 'canteen_incident'
     | 'component_failure'
-    | 'story_event';
+    | 'story_event'
+    | 'management';
   suitType?: SuitType | string;
   timeLeft: number;
   totalTime: number;
@@ -347,11 +348,7 @@ export interface MailMessage {
   subject: string;
   body: string;
   read: boolean;
-  effects?: {
-    suspicion?: number;
-    sanity?: number;
-    focus?: number;
-  };
+  effects?: Partial<Record<keyof ResourceState, number>>;
 }
 
 export interface ProficiencyState {
