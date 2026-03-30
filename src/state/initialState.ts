@@ -102,6 +102,7 @@ export const createInitialState = (): GameState => ({
     technicianToolbox: false,
     torxScrewdriver: false,
     snapOnWrenchSet: false,
+    snaponToolbox: false,
     hammer: false,
     atlasCopcoDrill: false,
     rivetGun: false,
@@ -203,6 +204,7 @@ export const createInitialState = (): GameState => ({
     endingGovtConspiracyProgress: 0,
     endingTriggered: null,
     foundPhoto: false,
+    foundSnapon: false,
   },
 
   hfStats: {

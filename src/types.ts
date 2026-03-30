@@ -170,6 +170,7 @@ export interface Inventory {
   technicianToolbox: boolean;
   torxScrewdriver: boolean;
   snapOnWrenchSet: boolean;
+  snaponToolbox: boolean;
   hammer: boolean;
   atlasCopcoDrill: boolean;
   rivetGun: boolean;
@@ -277,6 +278,7 @@ export interface GameFlags {
   endingGovtConspiracyProgress: number;
   endingTriggered: 'ALIEN' | 'GOVT' | 'CRAZY' | 'TRY_AGAIN' | null;
   foundPhoto: boolean;
+  foundSnapon: boolean;
 }
 
 export interface JobCard {

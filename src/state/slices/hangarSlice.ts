@@ -112,6 +112,30 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
         draft.resources.rivets += 15;
         draft.resources.experience += 40;
         draft.resources.focus = Math.max(0, draft.resources.focus - 5);
+        if (!draft.flags.foundSnapon && !draft.activeEvent) {
+          draft.flags.foundSnapon = true;
+          draft.activeEvent = {
+            id: 'FOUND_SNAPON_EVENT',
+            title: 'Unearthed Relic',
+            description:
+              "You stumbled upon an old Snap-on toolbox half-buried in the tarmac. You've added it to your toolbox.",
+            type: 'story_event',
+            timeLeft: 0,
+            totalTime: 0,
+            imagePath: '/models/snapon.glb',
+            choices: [
+              {
+                id: 'claim',
+                label: 'Claim Toolbox',
+                log: 'You brush off the dirt and add the tools to your own collection. They feel heavier than they look.',
+                effects: { experience: 150 },
+              },
+            ],
+            failureOutcome: { log: 'The toolbox vanished.' },
+          };
+          draft.inventory.snaponToolbox = true;
+          addLog('You found a hidden toolbox! Examine it.', 'levelup');
+        }
         break;
 
       case 'PERFORM_NDT':
