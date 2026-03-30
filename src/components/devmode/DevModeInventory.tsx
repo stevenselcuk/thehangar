@@ -39,6 +39,8 @@ export const DevModeInventory: React.FC<DevModeInventoryProps> = ({ gameState, d
       condition: 100,
       isInstalled: false,
       isUntraceable: false,
+      history: [],
+      manufactureDate: Date.now(),
     };
 
     const updatedRotables = [...gameState.rotables, newRotable];

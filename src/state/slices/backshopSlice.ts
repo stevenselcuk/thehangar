@@ -67,6 +67,8 @@ export const createUntraceableRotable = (conditionMax: number = 50): RotableItem
     isInstalled: false,
     isUntraceable: true,
     isRedTagged: Math.random() < 0.3,
+    history: [],
+    manufactureDate: Date.now(),
   };
 };
 

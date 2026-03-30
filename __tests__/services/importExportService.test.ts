@@ -60,6 +60,8 @@ describe('importExportService', () => {
           condition: 75,
           isInstalled: false,
           isUntraceable: false,
+          history: [],
+          manufactureDate: 0,
         },
       ];
 

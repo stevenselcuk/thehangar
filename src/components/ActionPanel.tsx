@@ -68,7 +68,6 @@ const ActionPanel: React.FC<{
 
   // Effect to release photo modal when event changes
   // Effect to release photo modal when event changes
-  // Effect to release photo modal when event changes
   useEffect(() => {
     if (state.activeEvent?.imagePath) {
       // eslint-disable-next-line react-hooks/set-state-in-effect

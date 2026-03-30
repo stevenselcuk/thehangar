@@ -16,6 +16,7 @@ describe('inventoryReducer - SORT_HARDWARE', () => {
         activeComponentFailure: null,
       },
       resources: {
+        ...createMinimalGameState().resources,
         alclad: 0,
         titanium: 0,
         fiberglass: 0,

@@ -288,10 +288,36 @@ export interface JobCard {
     rivets?: number;
     titanium?: number;
     tools?: (keyof Inventory)[];
-    // FIX: Add missing resource types to job requirements to support retrofit jobs from anomalies.
     crystallineResonators?: number;
     bioFilament?: number;
     skydrol?: number;
+    // Anomaly-specific retrofit requirements
+    phosphorescentAccumulator?: number;
+    torqueWrench?: number;
+    neuralCircuitBreaker?: number;
+    electricalTape?: number;
+    wirelock?: number;
+    regenerativeRivets?: number;
+    rivetGun?: number;
+    buckingBar?: number;
+    whisperingBlade?: number;
+    safetywire?: number;
+    engineOil?: number;
+    recursiveCVR?: number;
+    coaxCable?: number;
+    cannonPlugs?: number;
+    impossibleFuel?: number;
+    fuelTestKit?: number;
+    bonding?: number;
+    paradoxTorqueLink?: number;
+    locknut?: number;
+    hydraulicFluid?: number;
+    breathingACM?: number;
+    pneumaticDuct?: number;
+    packValve?: number;
+    antiCausalityBrakes?: number;
+    brakeFluid?: number;
+    torqueMeter?: number;
   };
   rewardXP: number;
   timeLeft: number;

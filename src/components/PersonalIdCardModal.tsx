@@ -42,7 +42,7 @@ const PersonalIdCardModal: React.FC<{ state: GameState; onClose: () => void }> =
           <div className="flex-shrink-0">
             <div className="w-32 h-40 relative border-4 border-zinc-400 bg-zinc-500">
               <img
-                src="/images/photo.png"
+                src="/images/ID_photo.png"
                 alt="Employee ID photo"
                 style={{ filter: photoFilter }}
                 className="w-full h-full object-cover"

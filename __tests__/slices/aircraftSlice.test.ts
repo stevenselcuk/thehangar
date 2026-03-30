@@ -19,6 +19,8 @@ describe('aircraftSlice', () => {
     const baseState = createInitialState();
     initialState = {
       activeAircraft: null,
+      activeChemicalProcess: null,
+      rotables: baseState.rotables,
       resources: { ...baseState.resources, credits: 0, alclad: 0 },
       inventory: baseState.inventory,
       personalInventory: baseState.personalInventory,

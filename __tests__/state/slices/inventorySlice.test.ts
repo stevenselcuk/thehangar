@@ -30,6 +30,7 @@ const createInventoryState = (
       activeComponentFailure: null,
     },
     resources: {
+      ...createMinimalGameState().resources,
       alclad: 100,
       titanium: 50,
       fiberglass: 50,
@@ -75,6 +76,8 @@ const createTestRotable = (overrides: Partial<RotableItem> = {}): RotableItem =>
   isInstalled: false,
   isUntraceable: false,
   isRedTagged: false,
+  history: [],
+  manufactureDate: 0,
   ...overrides,
 });
 

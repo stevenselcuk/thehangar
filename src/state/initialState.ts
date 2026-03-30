@@ -89,6 +89,7 @@ export const createInitialState = (): GameState => ({
     rudderFeelComputer: 0,
     emergencyBatteryPack: 0,
     adfReceiver: 0,
+    flightComputerMemory: 0,
   },
   inventory: {
     flashlight: true,

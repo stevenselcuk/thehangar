@@ -315,6 +315,8 @@ export const inventoryReducer = produce((draft: InventorySliceState, action: Inv
         isInstalled: false,
         isUntraceable: isSus,
         isRedTagged: isRed,
+        history: [],
+        manufactureDate: Date.now(),
       };
 
       draft.rotables.push(newRotable);

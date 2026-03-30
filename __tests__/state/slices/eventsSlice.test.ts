@@ -587,6 +587,8 @@ describe('eventsSlice', () => {
         condition: 10,
         isInstalled: false,
         isUntraceable: false,
+        history: [],
+        manufactureDate: 0,
       });
 
       const result = eventsReducer(state as unknown as EventsSliceState, {

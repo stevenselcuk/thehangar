@@ -167,10 +167,7 @@ export const processTick = (
     if (currentMilestone) {
       // 2. Trigger Narrative Event for the exact level reached
       if (currentMilestone.narrativeEvent) {
-        // We trigger it immediately. The event system should handle queuing or overriding.
-        // triggerEvent('story_event', currentMilestone.narrativeEvent);
-        // HACK: We need to pass this out or rely on the effect.
-        // `triggerEvent` is a callback passed from Reducer -> tickProcessor -> processTick
+        // triggerEvent is passed from Reducer → tickProcessor → processTick
         triggerEvent('story_event', currentMilestone.narrativeEvent);
       }
     }

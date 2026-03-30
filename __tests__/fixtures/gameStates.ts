@@ -57,6 +57,18 @@ export const initialGameState: GameState = {
     rudderFeelComputer: 0,
     emergencyBatteryPack: 0,
     adfReceiver: 0,
+    flightComputerMemory: 0,
+    health: 100,
+    contaminatedSkydrol: 0,
+    primer: 0,
+    ventilationUnit: 0,
+    ppeMask: 0,
+    nitrileGloves: 0,
+    paracetamol: 0,
+    ibuprofen: 0,
+    naproxen: 0,
+    ketamine: 0,
+    firstAidKit: 0,
   },
   inventory: {
     flashlight: false,
@@ -190,6 +202,7 @@ export const initialGameState: GameState = {
   activeHazards: [],
   activeAircraft: null,
   activeScenario: null,
+  activeChemicalProcess: null,
   vendingPrices: {
     coffee: 2,
     energyDrink: 3,
@@ -561,6 +574,8 @@ export const multipleRotablesState: GameState = {
       condition: 85,
       isInstalled: false,
       isUntraceable: false,
+      history: [],
+      manufactureDate: 0,
     },
     {
       id: 'rotable-002',
@@ -570,6 +585,8 @@ export const multipleRotablesState: GameState = {
       condition: 60,
       isInstalled: false,
       isUntraceable: false,
+      history: [],
+      manufactureDate: 0,
     },
     {
       id: 'rotable-003',
@@ -579,6 +596,8 @@ export const multipleRotablesState: GameState = {
       condition: 25,
       isInstalled: false,
       isUntraceable: true,
+      history: [],
+      manufactureDate: 0,
     },
     {
       id: 'rotable-004',
@@ -588,6 +607,8 @@ export const multipleRotablesState: GameState = {
       condition: 95,
       isInstalled: false,
       isUntraceable: false,
+      history: [],
+      manufactureDate: 0,
     },
   ],
 };

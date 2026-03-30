@@ -21,7 +21,7 @@ interface OnboardingScreenProps {
   dispatch: React.Dispatch<GameReducerAction>;
 }
 
-type OnboardingStep = 'NDA' | 'OFFER' | 'ID_CARD' | 'COMPLETE';
+type OnboardingStep = 'NDA' | 'ID_CARD' | 'COMPLETE';
 
 const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ dispatch }) => {
   const [step, setStep] = useState<OnboardingStep>('NDA');
@@ -60,8 +60,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ dispatch }) => {
 
     setTimeout(() => {
       setIsTyping(false);
-      if (step === 'NDA') setStep('OFFER');
-      else if (step === 'OFFER') setStep('ID_CARD');
+      if (step === 'NDA') setStep('ID_CARD');
       else if (step === 'ID_CARD') setStep('COMPLETE');
       setSignature('');
     }, 1500);
@@ -133,76 +132,6 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ dispatch }) => {
     );
   }
 
-  // Offer Letter Screen
-  if (step === 'OFFER') {
-    return (
-      <div className="fixed inset-0 z-[3000] bg-black flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full bg-black border-2 border-emerald-800 p-6 space-y-6">
-          <div className="border-b border-emerald-800 pb-4">
-            <h1 className="text-emerald-400 text-xl font-bold uppercase tracking-widest">
-              OFFER OF EMPLOYMENT
-            </h1>
-            <p className="text-emerald-600 text-xs mt-1">
-              FORM HR-12 • NIGHT SHIFT MAINTENANCE TECHNICIAN
-            </p>
-          </div>
-
-          <div className="space-y-4 text-emerald-500 text-sm leading-relaxed">
-            <p>Dear Candidate,</p>
-            <p>
-              We are pleased to offer you a position as{' '}
-              <span className="text-emerald-300 font-bold">Night Shift Maintenance Technician</span>{' '}
-              at [REDACTED] Aerospace Facility.
-            </p>
-            <div className="bg-emerald-950/30 border border-emerald-800 p-4 space-y-2">
-              <p>
-                <span className="text-emerald-600">Position:</span> AMT III - Line Maintenance
-              </p>
-              <p>
-                <span className="text-emerald-600">Shift:</span> 2200-0600 (Graveyard)
-              </p>
-              <p>
-                <span className="text-emerald-600">Start Date:</span> Immediately
-              </p>
-              <p>
-                <span className="text-emerald-600">Compensation:</span> [CLASSIFIED]
-              </p>
-            </div>
-            <p className="text-emerald-700 text-xs italic">
-              Note: Position includes mandatory Human Factors training and periodic psychological
-              evaluations. This is standard procedure. Do not be alarmed.
-            </p>
-          </div>
-
-          <div className="border-t border-emerald-800 pt-4 space-y-4">
-            <div className="flex items-center gap-4">
-              <label className="text-emerald-600 text-sm w-24">ACCEPT:</label>
-              <input
-                type="text"
-                value={signature}
-                onChange={(e) => setSignature(e.target.value)}
-                placeholder="Type your name to accept..."
-                disabled={isTyping}
-                className="flex-1 bg-black border border-emerald-700 text-emerald-400 px-3 py-2 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-            <button
-              onClick={handleSign}
-              disabled={signature.length < 2 || isTyping}
-              className={`w-full py-3 font-bold uppercase tracking-widest transition-all ${
-                signature.length >= 2 && !isTyping
-                  ? 'bg-emerald-900 text-emerald-300 border border-emerald-600 hover:bg-emerald-800'
-                  : 'bg-zinc-900 text-zinc-600 border border-zinc-700 cursor-not-allowed'
-              }`}
-            >
-              {isTyping ? '[ PROCESSING... ]' : '[ ACCEPT OFFER ]'}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // ID Card Generation & Complete Screen (Merged)
   if (step === 'ID_CARD' || step === 'COMPLETE') {
     const isComplete = step === 'COMPLETE';
@@ -242,9 +171,11 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ dispatch }) => {
                 {/* ID Photo */}
                 <div className="relative w-24 h-32 bg-black border border-emerald-700 flex flex-col items-center justify-center overflow-hidden shrink-0">
                   <div className="absolute inset-0 bg-emerald-950/30"></div>
-                  <span className="text-5xl opacity-80 mix-blend-screen drop-shadow-[0_0_10px_rgba(16,185,129,0.4)] relative z-10">
-                    👤
-                  </span>
+                  <img
+                    src="/images/ID_photo.png"
+                    alt="ID Photo"
+                    className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-screen drop-shadow-[0_0_10px_rgba(16,185,129,0.4)] z-10"
+                  />
                   {!isComplete && isTyping && (
                     <div className="absolute inset-0 bg-emerald-400/20 mix-blend-overlay animate-pulse z-20"></div>
                   )}
