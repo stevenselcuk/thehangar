@@ -199,6 +199,24 @@ describe('hangarSlice', () => {
 
   describe('FOD_SWEEP', () => {
     it('should award rivets and experience', () => {
+      const stateWithSnaponFound = {
+        ...initialState,
+        flags: { ...initialState.flags, foundSnapon: true },
+      };
+
+      const action: HangarAction = {
+        type: 'FOD_SWEEP',
+        payload: {},
+      };
+
+      const result = hangarReducer(stateWithSnaponFound, action);
+
+      expect(result.resources.rivets).toBe(15);
+      expect(result.resources.experience).toBe(40);
+      expect(result.logs).toHaveLength(1);
+    });
+
+    it('should trigger FOUND_SNAPON_EVENT if not found yet', () => {
       const action: HangarAction = {
         type: 'FOD_SWEEP',
         payload: {},
@@ -206,9 +224,11 @@ describe('hangarSlice', () => {
 
       const result = hangarReducer(initialState, action);
 
-      expect(result.resources.rivets).toBe(15);
-      expect(result.resources.experience).toBe(40);
-      expect(result.logs).toHaveLength(1);
+      expect(result.flags.foundSnapon).toBe(true);
+      expect(result.activeEvent).toBeDefined();
+      expect(result.activeEvent?.id).toBe('FOUND_SNAPON_EVENT');
+      expect(result.inventory.snaponToolbox).toBe(true);
+      expect(result.logs).toHaveLength(2);
     });
   });
 
