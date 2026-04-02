@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import React, { memo, useEffect, useState } from 'react';
 import { Tooltip } from './common/Tooltip';
 
@@ -122,55 +123,57 @@ const ActionButtonComponent: React.FC<ActionButtonProps> = ({
   const handleClick = () => {
     if (disabled || active || isSpamLocked) return;
 
-    const now = Date.now();
-    const state = spamRegistry[label] || {
-      tier: 0,
-      rapidClicks: 0,
-      lastClickTime: 0,
-      lockedUntil: 0,
-    };
+    if (!import.meta.env.DEV) {
+      const now = Date.now();
+      const state = spamRegistry[label] || {
+        tier: 0,
+        rapidClicks: 0,
+        lastClickTime: 0,
+        lockedUntil: 0,
+      };
 
-    if (state.lockedUntil > now) {
-      setIsSpamLocked(true);
-      setSpamLockRemaining(Math.ceil((state.lockedUntil - Date.now()) / 1000));
-      return;
-    }
-
-    if (now - Math.max(state.lastClickTime, state.lockedUntil) > RESET_IDLE_TIME) {
-      state.tier = 0;
-      state.rapidClicks = 0;
-    }
-
-    if (now - Math.max(state.lastClickTime, state.lockedUntil) < SPAM_THRESHOLD_MS) {
-      state.rapidClicks++;
-      if (state.rapidClicks >= CLICKS_TO_ESCALATE) {
-        state.tier++;
-        if (state.tier > MAX_TIER) {
-          window.dispatchEvent(new CustomEvent('action-spam-penalty'));
-          state.tier = 0;
-          state.rapidClicks = 0;
-          state.lockedUntil = 0;
-
-          state.lastClickTime = now;
-          spamRegistry[label] = state;
-          return;
-        } else {
-          state.lockedUntil = now + TIER_DURATIONS[state.tier];
-          state.rapidClicks = 0;
-          setIsSpamLocked(true);
-          setSpamLockRemaining(Math.ceil((state.lockedUntil - Date.now()) / 1000));
-
-          state.lastClickTime = now;
-          spamRegistry[label] = state;
-          return;
-        }
+      if (state.lockedUntil > now) {
+        setIsSpamLocked(true);
+        setSpamLockRemaining(Math.ceil((state.lockedUntil - Date.now()) / 1000));
+        return;
       }
-    } else {
-      state.rapidClicks = 1;
-    }
 
-    state.lastClickTime = now;
-    spamRegistry[label] = state;
+      if (now - Math.max(state.lastClickTime, state.lockedUntil) > RESET_IDLE_TIME) {
+        state.tier = 0;
+        state.rapidClicks = 0;
+      }
+
+      if (now - Math.max(state.lastClickTime, state.lockedUntil) < SPAM_THRESHOLD_MS) {
+        state.rapidClicks++;
+        if (state.rapidClicks >= CLICKS_TO_ESCALATE) {
+          state.tier++;
+          if (state.tier > MAX_TIER) {
+            window.dispatchEvent(new CustomEvent('action-spam-penalty'));
+            state.tier = 0;
+            state.rapidClicks = 0;
+            state.lockedUntil = 0;
+
+            state.lastClickTime = now;
+            spamRegistry[label] = state;
+            return;
+          } else {
+            state.lockedUntil = now + TIER_DURATIONS[state.tier];
+            state.rapidClicks = 0;
+            setIsSpamLocked(true);
+            setSpamLockRemaining(Math.ceil((state.lockedUntil - Date.now()) / 1000));
+
+            state.lastClickTime = now;
+            spamRegistry[label] = state;
+            return;
+          }
+        }
+      } else {
+        state.rapidClicks = 1;
+      }
+
+      state.lastClickTime = now;
+      spamRegistry[label] = state;
+    }
 
     playClick();
 

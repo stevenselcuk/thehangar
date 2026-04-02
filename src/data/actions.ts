@@ -1,5 +1,5 @@
 import { GameFlags, GameState, Inventory, ResourceState, RotableItem } from '../types';
-import { ACTION_LOGS, REGULAR_TALK_LOGS, RUMMAGE_FLAVOR_TEXTS } from './flavor';
+import { ACTION_LOGS, REGULAR_TALK_LOGS, RUMMAGE_FLAVOR_TEXTS, SRF_FLAVOR_TEXTS } from './flavor';
 import { itemsData } from './items';
 
 export interface ActionEffect {
@@ -61,10 +61,26 @@ export const actionsData: Record<string, ActionDefinition> = {
     baseCost: { focus: 20 },
     effects: [
       {
-        chance: 1.0,
-        log: 'You file a Service Request Form. The paperwork is accepted.',
+        chance: 0.1,
+        log: 'You file a Service Request Form, but something feels off...',
+        logType: 'vibration',
+        eventTrigger: 'SRF_CHAIN_1',
+      },
+      {
+        chance: 0.9,
+        log: 'SRF_FLAVOR',
         logType: 'info',
-        resourceModifiers: { experience: 150, credits: 75 },
+        customEffect: (state) => {
+          const flavor = SRF_FLAVOR_TEXTS[Math.floor(Math.random() * SRF_FLAVOR_TEXTS.length)];
+          return {
+            logOverride: flavor,
+            resources: {
+              ...state.resources,
+              experience: state.resources.experience + 150,
+              credits: state.resources.credits + 75,
+            },
+          };
+        },
       },
     ],
   },

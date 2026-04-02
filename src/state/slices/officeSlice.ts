@@ -3,6 +3,7 @@ import {
   ACTION_LOGS,
   DIGITAL_AMM_FLAVOR,
   MAGAZINE_FLAVOR_TEXTS,
+  SRF_FLAVOR_TEXTS,
   SYSTEM_LOGS,
 } from '../../data/flavor.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
@@ -53,7 +54,10 @@ export type OfficeAction =
   | { type: 'CHECK_INTERNAL_MAIL'; payload: Record<string, unknown> }
   | { type: 'CROSS_REFERENCE_MANIFESTS'; payload: Record<string, unknown> }
   | { type: 'DIGITAL_STUDY'; payload: Record<string, unknown> }
-  | { type: 'CREATE_SRF'; payload: Record<string, unknown> }
+  | {
+      type: 'CREATE_SRF';
+      payload?: { triggerEvent?: (type: string, id?: string) => void };
+    }
   | { type: 'SEARCH_MANUALS'; payload: Record<string, unknown> }
   | { type: 'ASSEMBLE_PC'; payload: { cost: number } }
   | { type: 'UPGRADE_PC_GPU'; payload: Record<string, unknown> }
@@ -143,12 +147,22 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
         break;
       }
 
-      case 'CREATE_SRF':
-        addLog(ACTION_LOGS.SRF_FILED, 'info');
-        draft.resources.credits += 35;
-        draft.resources.experience += 120;
+      case 'CREATE_SRF': {
         draft.stats.srfsFiled += 1;
+        const roll = Math.random();
+        if (roll < 0.1) {
+          addLog('You file a Service Request Form, but something feels off...', 'vibration');
+          if (action.payload?.triggerEvent) {
+            action.payload.triggerEvent('incident', 'SRF_CHAIN_1');
+          }
+        } else {
+          const flavor = SRF_FLAVOR_TEXTS[Math.floor(Math.random() * SRF_FLAVOR_TEXTS.length)];
+          addLog(flavor, 'info');
+          draft.resources.credits += 75;
+          draft.resources.experience += 150;
+        }
         break;
+      }
 
       case 'SEARCH_MANUALS': {
         addLog('Digging through the archive. The paper is brittle and yellowed.', 'info');

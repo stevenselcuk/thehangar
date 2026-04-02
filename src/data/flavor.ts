@@ -771,6 +771,29 @@ export const PAYPHONE_FLAVOR_TEXTS = [
   'You hear the ocean. Someone is drowning. They say your name.',
   'You hang up, but the voice keeps talking from the receiver.',
 ];
+export const SRF_FLAVOR_TEXTS = [
+  'SRF Form #8130-3 generated. The bogus part number matches an EASA Form 1 signed by a dead inspector.',
+  "You file the form. The printer spits out a Boeing RDAS request marked 'CONFIDENTIAL: LIQUIDATE ON SIGHT'.",
+  'You submit the request. The neon signs outside buzz louder. A drop of blood appears on the signature line.',
+  "The digital form accepts your input, auto-filling the 'cause' as 'Whistleblower Error'.",
+  'You file it in triplicate. The third copy turns to ash, just like the security footage from last night.',
+  "Form submitted. The system whispers 'They are watching'—you check the parking lot; the black sedan is still there.",
+  'The SRF is logged. Your focus wanes as the screen displays non-Euclidean geometry and a hit contract.',
+  "A papercut from the form. The cut doesn't bleed, but it hums with the frequency of a distant gunshot.",
+  'You attach a photo to the SRF. The person in the background of the picture is holding a silenced pistol.',
+  'You hit submit. The lights flicker and the hangar temperature drops. Someone just framed you for the engine failure.',
+  "The form asks for the aircraft's serial number. It only accepts the ones Boeing officially claims don't exist.",
+  "You file the SRF. A voice from the vent says, 'Enjoy the severance package.' A laser sight dances on your wall.",
+  "The ink on the printed EASA Form 1 crawls across the page, forming a single word: 'SET-UP'.",
+  "You file the form under 'Routine Maintenance'. The system corrects it to 'Cover-Up Protocol 4'.",
+  'The SRF prints on yellowed paper that smells of old ozone, cordite, and cheap motel whiskey.',
+  'You submit the SRF. For a split second, the screen reflects a man in a trench coat standing behind you.',
+  'The form is accepted. You gain a small amount of credits, but a massive amount of legal liability.',
+  'You type the issue. The keys stick. Someone wiped the keyboard down. Professional clean-up, leaving no prints.',
+  'The submitted SRF vanishes from the database immediately. The RDAS system replaces it with a falsified death certificate.',
+  'You file the SRF. The driver in the black sedan parked outside rolls down the window and lights a cigarette.',
+];
+
 export type LogCategory = 'GENERAL' | 'HR' | 'MAINTENANCE' | 'LOGISTICS';
 export type LogTone = 'MUNDANE' | 'BUREAUCRATIC' | 'ELDRITCH';
 

@@ -12,6 +12,7 @@ import { syndicateEvents } from './syndicateEvents';
 import { unionEvents } from './unionEvents';
 
 import { aircraftEvents } from './aircraftEvents';
+import { srfEvents } from './srfEvents';
 
 import { photoEvents } from './photoEvents';
 import { managementEvents } from './managementEvents';
@@ -21,6 +22,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
   marshalling: [],
   audit: [
     ...(aircraftEvents.audit || []),
+    ...srfEvents.filter((e) => e.type === 'audit'),
     {
       id: 'FAA_INSPECTOR',
       type: 'audit',
@@ -615,6 +617,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
   ],
   incident: [
     ...(aircraftEvents.incident || []),
+    ...srfEvents.filter((e) => e.type === 'incident'),
     {
       id: 'MARSHALLING_WRONG_GATE',
       type: 'incident',
@@ -1383,7 +1386,8 @@ export const eventsData: Record<string, EventTemplates[]> = {
     },
   ],
   story_event: [
-    ...photoEvents,
+    ...(photoEvents || []),
+    ...srfEvents.filter((e) => e.type === 'story_event'),
     {
       id: 'TRUTH_PROXIMATE_REVELATION',
       type: 'story_event',
