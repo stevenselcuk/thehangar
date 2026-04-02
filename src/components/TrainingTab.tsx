@@ -71,7 +71,7 @@ const TrainingTab: React.FC<{
           );
         })}
         {inv.hasHfInitial && !inv.hasHfRecurrent && (
-          <p className="text-[9px] text-amber-500 uppercase italic border border-amber-900/20 p-3 bg-amber-950/5 text-center">
+          <p className="text-[9px] text-amber-500 uppercase border border-amber-900/20 p-3 bg-amber-950/5 text-center">
             [ WARNING: Human Factors Recurrent Training is due. ]
           </p>
         )}
@@ -113,7 +113,7 @@ const TrainingTab: React.FC<{
             description={trainingData.faaLicense.license.description}
           />
         ) : (
-          <div className="text-[10px] text-emerald-400 uppercase italic border border-emerald-900/20 p-3 bg-emerald-950/20 text-center">
+          <div className="text-[10px] text-emerald-400 uppercase border border-emerald-900/20 p-3 bg-emerald-950/20 text-center">
             [ FAA Airframe & Powerplant License Certified ]
           </div>
         )}
@@ -219,7 +219,7 @@ const TrainingTab: React.FC<{
             />
           </>
         ) : (
-          <div className="text-[10px] text-emerald-400 uppercase italic border border-emerald-900/20 p-3 bg-emerald-950/20 text-center">
+          <div className="text-[10px] text-emerald-400 uppercase border border-emerald-900/20 p-3 bg-emerald-950/20 text-center">
             [ EASA B1.1 License Certified ]
           </div>
         )}

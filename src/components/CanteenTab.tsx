@@ -124,7 +124,7 @@ const CanteenTab: React.FC<{
             />
           </div>
 
-          <p className="mt-6 text-[9px] text-emerald-900 uppercase italic leading-relaxed border-t border-emerald-900/10 pt-4">
+          <p className="mt-6 text-[9px] text-emerald-900 uppercase leading-relaxed border-t border-emerald-900/10 pt-4">
             The fluorescent lights hum with a high-pitched frequency that makes your sinus cavity
             ache. The air smells of stale coffee, copper, and a faint hint of ozone from the nearby
             avionics test bench. In the corner, an old shadow-board is empty, its silhouette of a

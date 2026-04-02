@@ -55,7 +55,7 @@ const PetInteraction: React.FC<PetInteractionProps> = ({ state, onAction }) => {
       </div>
 
       {/* Status Description */}
-      <div className="text-[10px] text-zinc-400 mb-4 font-serif italic border-l-2 border-zinc-700 pl-3 py-1 bg-black/20">
+      <div className="text-[10px] text-zinc-400 mb-4 border-l-2 border-zinc-700 pl-3 py-1 bg-black/20">
         "
         {pet.flags.isSleeping
           ? `${pet.name} is curled up on a pile of rags, twitching slightly.`

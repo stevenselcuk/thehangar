@@ -794,6 +794,60 @@ export const SRF_FLAVOR_TEXTS = [
   'You file the SRF. The driver in the black sedan parked outside rolls down the window and lights a cigarette.',
 ];
 
+// --- PAGE TITLE FEED ---
+// Rotating "what is happening right now" ticker for the browser tab.
+// Deliberately unreliable — some are real, most are not.
+export const PAGE_TITLE_FEEDS = [
+  // HANGAR
+  'HANGAR BAY 3: fuel smell. no source found.',
+  'HANGAR: aircraft logged out at 03:17. no crew on shift.',
+  'HANGAR: floor panel 44-C is warm to the touch. do not remove.',
+  'HANGAR BAY 1: count is off by one. always by one.',
+  'HANGAR: the plane breathed. log entry filed. log entry deleted.',
+  'NDT: subsurface anomaly in FR.40. geometry non-standard.',
+  // APRON
+  'APRON: tow truck moving. driver seat empty.',
+  'APRON STAND 7: aircraft arrived. no flight plan on record.',
+  'APRON: bird strike on inbound. the bird was not a bird.',
+  'APRON: fuel truck at stand 9. fuel quantity: negative.',
+  'APRON STAND 12: pushback complete. aircraft did not move.',
+  'APRON: marshaller reported shadow on taxiway. taxiway was empty.',
+  // OFFICE
+  'OFFICE: memo circulated. contents redacted. recipients: everyone.',
+  'OFFICE: printer active at 02:44 AM. no job in queue.',
+  'OFFICE: HR system flagged YOUR file. reason: unknown.',
+  'OFFICE: the phone rang for 40 minutes. no one called.',
+  'OFFICE: attendance log shows you clocked out. you did not.',
+  'OFFICE: performance review scheduled. reviewer: [REDACTED].',
+  // CANTEEN
+  'CANTEEN: soup of the day changed at midnight. no staff present.',
+  'CANTEEN: vending machine dispensed item E-7. E-7 does not exist.',
+  'CANTEEN: someone left a meal at table 4. 3 weeks ago. untouched.',
+  // TOOLROOM
+  'TOOLROOM: 10mm socket checked out. borrower: nobody.',
+  'TOOLROOM: calibration log shows an extra entry. in your handwriting.',
+  'TOOLROOM: the master is counting tools. he has been counting since Tuesday.',
+  // TRAINING / HR FLOOR
+  'TRAINING: mandatory module assigned. topic: compliance with the silence.',
+  'HR FLOOR: your medical file has been updated. you were not consulted.',
+  'HR FLOOR: psychological profile complete. score: inadvisable.',
+  // SURVEILLANCE / SYSTEMS
+  'CCTV FEED 7: motion detected. no source. feed archived.',
+  'SYSTEM: email sent from your account at 04:12 AM. you were asleep.',
+  'SYSTEM: login attempt from YOUR terminal. timestamp: before you were hired.',
+  'SECURITY: badge access log shows you in TWO places simultaneously.',
+  'COMMS: radio signal received on 121.5 MHz. content: your name.',
+  'SYSTEM: SRF #8130-3 auto-submitted. you did not submit it.',
+  // GENERAL UNRELIABLE FEED
+  'ALL STATIONS: headcount is off. the discrepancy resolves itself nightly.',
+  'SHIFT LOG: activity normal. no anomalies. the suits reviewed this entry.',
+  'MAINTENANCE FEED: a task was completed that was not assigned.',
+  'NIGHT LOG: the hangar was silent at 03:00. that has never happened before.',
+  'STATUS: everything is fine. the status system has been compromised.',
+  'FEED UPDATE: the thing under the west taxiway moved again. logging suspended.',
+  'CURRENT STATUS: you are being watched. this is routine.',
+];
+
 export type LogCategory = 'GENERAL' | 'HR' | 'MAINTENANCE' | 'LOGISTICS';
 export type LogTone = 'MUNDANE' | 'BUREAUCRATIC' | 'ELDRITCH';
 

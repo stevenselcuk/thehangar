@@ -381,7 +381,7 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
                       <span className="text-[9px] text-emerald-400">x{quantity}</span>
                     )}
                   </div>
-                  <p className="text-[9px] text-emerald-400/80 leading-relaxed italic">
+                  <p className="text-[9px] text-emerald-400/80 leading-relaxed">
                     {sanity < 50 ? item.description.unsettled : item.description.normal}
                   </p>
                 </div>
@@ -414,7 +414,7 @@ const PlayerProfileView: React.FC<{ state: GameState }> = ({ state }) => {
                       {item.label}
                     </h5>
                   </div>
-                  <p className="text-[9px] text-emerald-400/80 leading-relaxed italic">
+                  <p className="text-[9px] text-emerald-400/80 leading-relaxed">
                     {sanity < 50 ? item.description.unsettled : item.description.normal}
                   </p>
                 </div>
@@ -544,7 +544,7 @@ interface AboutModalProps {
 const AboutModal: React.FC<AboutModalProps> = ({ state, onClose, onAction }) => {
   const { play } = useSound();
   const [activeSection, setActiveSection] = useState<ModalSection>('FILE');
-  const BUILD_NUMBER = 'Build v.{_build_113}';
+  const BUILD_NUMBER = 'Build v.{_build_114}';
 
   const handleSectionClick = (section: ModalSection) => {
     play('CLICK');

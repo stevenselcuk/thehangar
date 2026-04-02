@@ -98,7 +98,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ dispatch }) => {
               <li>The door behind the component cage</li>
               <li>The sounds from Storage 4C</li>
             </ul>
-            <p className="text-emerald-700 text-xs italic">
+            <p className="text-emerald-700 text-xs">
               Violation of this agreement may result in termination, reassignment, or [REDACTED].
             </p>
           </div>

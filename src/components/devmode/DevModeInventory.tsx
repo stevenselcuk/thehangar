@@ -121,7 +121,7 @@ export const DevModeInventory: React.FC<DevModeInventoryProps> = ({ gameState, d
 
         <div className="space-y-2 max-h-60 overflow-y-auto">
           {gameState.rotables.length === 0 && (
-            <p className="text-emerald-600 italic">No rotables in inventory.</p>
+            <p className="text-emerald-600">No rotables in inventory.</p>
           )}
           {gameState.rotables.map((rotable) => (
             <div
@@ -157,7 +157,7 @@ export const DevModeInventory: React.FC<DevModeInventoryProps> = ({ gameState, d
         </h2>
         <div className="space-y-2">
           {gameState.anomalies.length === 0 && (
-            <p className="text-emerald-600 italic">No active anomalies.</p>
+            <p className="text-emerald-600">No active anomalies.</p>
           )}
           {gameState.anomalies.map((anomaly) => (
             <div key={anomaly.id} className="bg-emerald-950/30 p-2 border border-emerald-800">

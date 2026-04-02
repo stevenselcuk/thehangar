@@ -89,7 +89,7 @@ const ToolroomStatusWidget: React.FC<ToolroomStatusWidgetProps> = ({ state }) =>
               ))}
             </div>
           ) : (
-            <p className="text-[9px] text-emerald-800/80 italic">All tools accounted for.</p>
+            <p className="text-[9px] text-emerald-800/80">All tools accounted for.</p>
           )}
         </div>
       )}

@@ -72,7 +72,7 @@ const BulletinBoardModal: React.FC<BulletinBoardModalProps> = ({ state, onClose 
                     </span>
                   </div>
 
-                  <p className="text-xs text-emerald-200/80 italic font-mono border-l-2 border-emerald-800/50 pl-3 py-1">
+                  <p className="text-xs text-emerald-200/80 font-mono border-l-2 border-emerald-800/50 pl-3 py-1">
                     "{mechanic.quote}"
                   </p>
 

@@ -187,7 +187,7 @@ export const DevModeSystems: React.FC<DevModeSystemsProps> = ({ gameState, dispa
           </div>
         ) : (
           <div>
-            <p className="text-emerald-600 italic mb-2">No active job</p>
+            <p className="text-emerald-600 mb-2">No active job</p>
             <button
               onClick={generateJob}
               className="bg-emerald-800/50 text-emerald-300 text-xs px-3 py-1 border border-emerald-600"

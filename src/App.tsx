@@ -11,6 +11,7 @@ import SEO from './components/SEO.tsx';
 import Sidebar from './components/Sidebar.tsx';
 import { DevModeProvider } from './context/DevModeContext.tsx';
 import { generateNightShiftLogs } from './data/nightShiftLogs.ts';
+import { PAGE_TITLE_FEEDS } from './data/flavor.ts';
 import { useDevMode } from './hooks/useDevMode.ts';
 
 import { useMobileNotifications } from './hooks/useMobileNotifications.ts';
@@ -41,8 +42,8 @@ import { useNotification } from './hooks/useNotification.ts';
 
 import ReloadPrompt from './components/ReloadPrompt.tsx';
 
-const SAVE_KEY = 'the_hangar_save__build_150';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_150';
+const SAVE_KEY = 'the_hangar_save__build_151';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_151';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -225,9 +226,68 @@ const AppContent: React.FC = () => {
     }
   }, [activeTab, state]);
 
-  // FIX: Force title update when tab changes
+  // ── Browser-tab marquee ticker ─────────────────────────────────────────
+  // Scrolls each feed text character-by-character across the tab title,
+  // then pauses briefly showing the location before starting the next item.
+  const titleFeedIndexRef = useRef(0);
+  const titleFeedOrderRef = useRef<number[]>([]);
+  const titleTickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const titlePauseRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
-    document.title = `The Hangar - ${activeTab.replace(/_/g, ' ')}`;
+    // Build a shuffled play-order once per session
+    if (titleFeedOrderRef.current.length === 0) {
+      const order = PAGE_TITLE_FEEDS.map((_, i) => i);
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      titleFeedOrderRef.current = order;
+    }
+
+    const TAB_WIDTH = 38; // visible chars in a typical browser tab
+    const FRAME_MS = 120; // ms per character shift
+    const PAUSE_MS = 1800; // ms to show location between items
+
+    const locationTitle = `THE HANGAR // ${activeTab.replace(/_/g, ' ')}`;
+
+    const stopAll = () => {
+      if (titleTickerRef.current) clearInterval(titleTickerRef.current);
+      if (titlePauseRef.current) clearTimeout(titlePauseRef.current);
+    };
+
+    const scrollText = (raw: string) => {
+      // Pad the string so it scrolls fully in from the right and out to the left
+      const padded = ' '.repeat(TAB_WIDTH) + raw + ' '.repeat(TAB_WIDTH);
+      let pos = 0;
+
+      titleTickerRef.current = setInterval(() => {
+        document.title = padded.slice(pos, pos + TAB_WIDTH);
+        pos += 1;
+
+        if (pos >= padded.length - TAB_WIDTH) {
+          // Text has scrolled off — pause, show location, then start next item
+          stopAll();
+          document.title = locationTitle;
+          titlePauseRef.current = setTimeout(() => {
+            titleFeedIndexRef.current += 1;
+            const order = titleFeedOrderRef.current;
+            const idx = order[titleFeedIndexRef.current % order.length];
+            scrollText(PAGE_TITLE_FEEDS[idx]);
+          }, PAUSE_MS);
+        }
+      }, FRAME_MS);
+    };
+
+    // Kick off immediately with a short pause after mount / tab change
+    document.title = locationTitle;
+    titlePauseRef.current = setTimeout(() => {
+      const order = titleFeedOrderRef.current;
+      const idx = order[titleFeedIndexRef.current % order.length];
+      scrollText(PAGE_TITLE_FEEDS[idx]);
+    }, PAUSE_MS);
+
+    return stopAll;
   }, [activeTab]);
 
   const [isBlackout, setIsBlackout] = useState(false);
@@ -355,7 +415,7 @@ const AppContent: React.FC = () => {
       <h1 className="sr-only">The Hangar: An Incremental Mystery RPG</h1>
 
       <SEO
-        title={`The Hangar - ${activeTab.replace(/_/g, ' ')}`}
+        title={`THE HANGAR // ${activeTab.replace(/_/g, ' ')}`}
         description="Uncover a terrifying conspiracy in this text-based incremental mystery game."
         keywords="incremental game, text rpg, mystery, horror, aviation, mechanic"
       />

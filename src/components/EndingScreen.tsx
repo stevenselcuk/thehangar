@@ -65,9 +65,7 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ endingType, onReset }) => {
         </div>
 
         <div className="mt-8 text-center space-y-8">
-          <p
-            className={`text-lg md:text-xl font-serif italic leading-relaxed ${content.color} opacity-90`}
-          >
+          <p className={`text-lg md:text-xl leading-relaxed ${content.color} opacity-90`}>
             "{content.description}"
           </p>
 

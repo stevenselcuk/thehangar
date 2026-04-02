@@ -157,7 +157,7 @@ const ProcurementModal: React.FC<ProcurementModalProps> = ({ onClose, state, onA
               ))}
 
               {availableItems.length === 0 && (
-                <div className="col-span-full text-center py-12 text-emerald-800 italic">
+                <div className="col-span-full text-center py-12 text-emerald-800">
                   No items found matching criteria.
                 </div>
               )}
@@ -200,7 +200,7 @@ const ProcurementModal: React.FC<ProcurementModalProps> = ({ onClose, state, onA
               ))}
 
               {state.procurement.orders.length === 0 && (
-                <div className="text-center py-12 text-emerald-800 italic">
+                <div className="text-center py-12 text-emerald-800">
                   No active orders. Check the catalog to procure items.
                 </div>
               )}
@@ -254,7 +254,7 @@ const ProcurementModal: React.FC<ProcurementModalProps> = ({ onClose, state, onA
               ))}
 
               {blackMarketItems.length === 0 && (
-                <div className="col-span-full text-center py-12 text-red-900 italic">
+                <div className="col-span-full text-center py-12 text-red-900">
                   The channels are quiet. No items available.
                 </div>
               )}

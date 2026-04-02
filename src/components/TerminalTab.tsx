@@ -94,7 +94,7 @@ const TerminalTab: React.FC<{
           />
         </div>
 
-        <p className="mt-6 text-[9px] text-emerald-900 uppercase italic leading-relaxed border-t border-emerald-900/10 pt-4">
+        <p className="mt-6 text-[9px] text-emerald-900 uppercase leading-relaxed border-t border-emerald-900/10 pt-4">
           The terminal is a ghost town at this hour. The only sounds are the hum of the floor
           polishers and the distant, automated announcements for flights that will never depart.
         </p>

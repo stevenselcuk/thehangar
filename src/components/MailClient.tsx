@@ -44,9 +44,7 @@ const MailClient: React.FC<MailClientProps> = ({ messages, onRead, onClose }) =>
         {/* Message List */}
         <div className="w-1/3 border-r border-emerald-900/50 overflow-y-auto bg-black/80">
           {messages.length === 0 && (
-            <div className="p-4 text-[10px] text-emerald-800 italic text-center mt-10">
-              Folder Empty
-            </div>
+            <div className="p-4 text-[10px] text-emerald-800 text-center mt-10">Folder Empty</div>
           )}
           {messages.map((msg) => (
             <button

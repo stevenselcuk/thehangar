@@ -57,7 +57,7 @@ const HRFloorTab: React.FC<{
             className="border-purple-700 text-purple-400"
           />
         </div>
-        <p className="mt-3 text-[8px] text-red-900 uppercase italic">
+        <p className="mt-3 text-[8px] text-red-900 uppercase">
           The silence in this white room is absolute. A single, wall-mounted terminal glows with a
           compliance checklist. Your name is already on it.
         </p>

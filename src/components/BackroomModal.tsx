@@ -33,7 +33,7 @@ const BackroomModal: React.FC<BackroomModalProps> = ({ state, onAction, onClose 
 
         {/* Room Description / Atmosphere */}
         <div className="p-6 bg-black/20 border-b border-emerald-900/10">
-          <p className="text-emerald-100/80 text-sm font-serif italic mb-4 leading-relaxed">
+          <p className="text-emerald-100/80 text-sm mb-4 leading-relaxed">
             The air here is stagnant, thick with the smell of ozone and stored chemicals. Dust motes
             dance in the flickering light of a single fluorescent bulb. In the shadows, rows of
             metal shelving units groan under the weight of industrial supplies.
@@ -91,7 +91,7 @@ const BackroomModal: React.FC<BackroomModalProps> = ({ state, onAction, onClose 
                 <h4 className="text-[10px] font-bold text-emerald-500 uppercase mb-2">
                   Notice Board
                 </h4>
-                <p className="text-[10px] text-zinc-500 italic mb-2">
+                <p className="text-[10px] text-zinc-500 mb-2">
                   "CLEAN YOUR OWN MESS. THE JANITOR IS NOT YOUR MOTHER."
                 </p>
                 <p className="text-[10px] text-zinc-600 font-mono">- MGMT</p>

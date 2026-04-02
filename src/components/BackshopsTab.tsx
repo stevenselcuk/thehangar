@@ -27,7 +27,7 @@ const BackshopsTab: React.FC<{
           Backshops - Component Overhaul
         </h3>
       </div>
-      <p className="text-[10px] text-zinc-500 italic">
+      <p className="text-[10px] text-zinc-500">
         The air here is cold and still, thick with the smell of hydraulic fluid and ozone. The only
         sounds are the hum of a distant transformer and the scuttling of unseen things in the walls.
         Every camera seems to follow you. Nobody works here at night.

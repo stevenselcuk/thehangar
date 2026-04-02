@@ -111,7 +111,7 @@ const AogTab: React.FC<AogTabProps> = ({ state, onAction }) => {
             <div className="text-[10px] text-zinc-400 uppercase tracking-widest">DEPLOYED</div>
           </div>
         </div>
-        <p className="text-xs text-zinc-400 italic border-l-2 border-zinc-600 pl-3">
+        <p className="text-xs text-zinc-400 border-l-2 border-zinc-600 pl-3">
           "{station.description}"
         </p>
       </div>
@@ -216,7 +216,7 @@ const AogTab: React.FC<AogTabProps> = ({ state, onAction }) => {
                 <span
                   className={`${
                     log.type === 'story'
-                      ? 'text-amber-200/90 italic'
+                      ? 'text-amber-200/90'
                       : log.type === 'warning'
                         ? 'text-orange-400'
                         : log.type === 'error'
@@ -229,7 +229,7 @@ const AogTab: React.FC<AogTabProps> = ({ state, onAction }) => {
               </div>
             ))}
           {state.logs.filter((log) => log.timestamp >= startTime).length === 0 && (
-            <div className="text-[10px] text-zinc-700 italic">No signals received.</div>
+            <div className="text-[10px] text-zinc-700">No signals received.</div>
           )}
         </div>
       </div>

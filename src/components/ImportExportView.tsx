@@ -120,7 +120,7 @@ const ImportExportView: React.FC<ImportExportViewProps> = ({ state, onImport }) 
             <span className="animate-pulse">_</span>
           </p>
         ) : (
-          <p className="text-emerald-800 italic">&gt;&gt; Awaiting command input...</p>
+          <p className="text-emerald-800">&gt;&gt; Awaiting command input...</p>
         )}
       </div>
 

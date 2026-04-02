@@ -49,7 +49,7 @@ const ComponentInspectionModal: React.FC<ComponentInspectionModalProps> = ({
               Installed Components
             </div>
             {rotables.length === 0 ? (
-              <div className="p-4 text-amber-800 text-xs italic">
+              <div className="p-4 text-amber-800 text-xs">
                 No rotables detected on this aircraft.
               </div>
             ) : (
@@ -149,7 +149,7 @@ const ComponentInspectionModal: React.FC<ComponentInspectionModalProps> = ({
                   </h4>
                   <div className="space-y-0">
                     {selectedRotable.history.length === 0 ? (
-                      <div className="text-zinc-500 italic text-sm">No recorded history.</div>
+                      <div className="text-zinc-500 text-sm">No recorded history.</div>
                     ) : (
                       [...selectedRotable.history].reverse().map((entry, idx) => (
                         <div key={idx} className="flex gap-4 relative pb-6 last:pb-0">

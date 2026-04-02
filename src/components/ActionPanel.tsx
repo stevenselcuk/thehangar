@@ -179,7 +179,7 @@ const ActionPanel: React.FC<{
             </span>
           )}
         </div>
-        <div className="text-[10px] text-zinc-400 mb-4 leading-relaxed italic border-l-2 border-current pl-2">
+        <div className="text-[10px] text-zinc-400 mb-4 leading-relaxed border-l-2 border-current pl-2">
           "{event.description}"
         </div>
 
@@ -254,7 +254,7 @@ const ActionPanel: React.FC<{
             REF: {scenario.id}
           </span>
         </div>
-        <div className="text-sm text-blue-100 mb-6 leading-relaxed border-l-4 border-blue-600 pl-4 font-serif italic bg-black/20 p-4">
+        <div className="text-sm text-blue-100 mb-6 leading-relaxed border-l-4 border-blue-600 pl-4 bg-black/20 p-4">
           "{scenario.description}"
         </div>
 
@@ -299,7 +299,7 @@ const ActionPanel: React.FC<{
           </span>
         </div>
         <p
-          className={`text-[10px] ${isRetrofit ? 'text-purple-300' : 'text-emerald-800'} mb-4 italic leading-tight`}
+          className={`text-[10px] ${isRetrofit ? 'text-purple-300' : 'text-emerald-800'} mb-4 leading-tight`}
         >
           "{state.activeJob.description}"
         </p>
@@ -631,7 +631,7 @@ const ActionPanel: React.FC<{
                     );
                   })
                 ) : (
-                  <p className="text-[9px] text-emerald-800 italic text-center py-4">
+                  <p className="text-[9px] text-emerald-800 text-center py-4">
                     No tools with tracked conditions owned. Purchase or check-out tools to maintain
                     them here.
                   </p>
@@ -667,7 +667,7 @@ const ActionPanel: React.FC<{
                     </div>
                   ))
                 ) : (
-                  <p className="text-[9px] text-emerald-800 italic text-center py-4">
+                  <p className="text-[9px] text-emerald-800 text-center py-4">
                     All precision tools checked out.
                   </p>
                 )}
@@ -753,7 +753,7 @@ const ActionPanel: React.FC<{
                     {activeAircraft.name}
                   </h4>
                   <p
-                    className={`text-[10px] ${activeAircraft.isSuspicious ? 'text-red-700' : 'text-emerald-800'} italic mb-4`}
+                    className={`text-[10px] ${activeAircraft.isSuspicious ? 'text-red-700' : 'text-emerald-800'} mb-4`}
                   >
                     {activeAircraft.description}
                   </p>
@@ -806,7 +806,7 @@ const ActionPanel: React.FC<{
                 <h4 className="text-sm text-emerald-600 uppercase mb-4 font-bold tracking-widest">
                   Awaiting Assignment
                 </h4>
-                <p className="text-xs text-emerald-800 italic mb-6">
+                <p className="text-xs text-emerald-800 mb-6">
                   Report to the line lead to get your next task.
                 </p>
                 <ActionButton
@@ -1013,7 +1013,7 @@ const ActionPanel: React.FC<{
                 <h4 className="text-sm text-emerald-600 uppercase mb-4 font-bold tracking-widest">
                   Awaiting Work Order
                 </h4>
-                <p className="text-xs text-emerald-800 italic mb-6">
+                <p className="text-xs text-emerald-800 mb-6">
                   The hangar is quiet. Too quiet. Request a new job packet from the supervisor.
                 </p>
                 <ActionButton
@@ -1034,9 +1034,7 @@ const ActionPanel: React.FC<{
                 {state.anomalies.map((anomaly) => (
                   <div key={anomaly.id} className="mb-3 p-3 bg-black/30 border border-purple-900">
                     <p className="text-purple-300 font-bold">{anomaly.name}</p>
-                    <p className="text-[9px] text-purple-400 italic mt-1">
-                      "{anomaly.description}"
-                    </p>
+                    <p className="text-[9px] text-purple-400 mt-1">"{anomaly.description}"</p>
                   </div>
                 ))}
                 <ActionButton
@@ -1109,7 +1107,7 @@ const ActionPanel: React.FC<{
                   <p className="text-amber-300 font-bold uppercase text-sm">
                     [{finding.severity}] {finding.type} Finding
                   </p>
-                  <p className="text-[10px] text-amber-400 italic mt-1">"{finding.description}"</p>
+                  <p className="text-[10px] text-amber-400 mt-1">"{finding.description}"</p>
                 </div>
                 <ActionButton
                   label="File Non-Routine Report"
@@ -1126,7 +1124,7 @@ const ActionPanel: React.FC<{
                 <h4 className="text-[10px] text-red-500 uppercase mb-4 font-bold tracking-widest border-l-2 border-red-600 pl-3">
                   Sub-Level Storage 3 Access
                 </h4>
-                <p className="text-[9px] text-red-800 mb-4 italic">
+                <p className="text-[9px] text-red-800 mb-4">
                   A heavy steel hatch, almost completely hidden. The air that seeps from the cracks
                   smells of rust and ozone. This place is not on any official schematic.
                 </p>
@@ -1142,7 +1140,7 @@ const ActionPanel: React.FC<{
             )}
 
             <div className="p-4 border border-emerald-900/20 bg-emerald-950/5 mt-4">
-              <h4 className="text-[10px] text-emerald-900 uppercase mb-2 font-bold italic tracking-widest">
+              <h4 className="text-[10px] text-emerald-900 uppercase mb-2 font-bold tracking-widest">
                 Hangar Environment
               </h4>
               <p className="text-[9px] text-emerald-900 opacity-60 mb-4">

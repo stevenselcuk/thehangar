@@ -1,11 +1,36 @@
 @import 'tailwindcss';
 
+@font-face {
+  font-family: 'VCROSDMono';
+  src:
+    url('/fonts/VCROSDMono/VCROSDMono.woff2') format('woff2'),
+    url('/fonts/VCROSDMono/VCROSDMono.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CygnitoMono';
+  src:
+    url('/fonts/CygnitoMono/CygnitoMono.woff2') format('woff2'),
+    url('/fonts/CygnitoMono/CygnitoMono.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Override Tailwind's font-mono to use CygnitoMono */
+@theme {
+  --font-mono: 'CygnitoMono', monospace;
+}
+
 :root {
   color-scheme: dark;
 }
 
 body {
-  font-family: 'Fira Code', monospace;
+  font-family: 'VCROSDMono', monospace;
   background-color: #1a1a1a;
   color: #10b981;
   /* terminal-green */
@@ -236,7 +261,7 @@ body {
 .terminal {
   background-color: #050806;
   color: #33ff99;
-  font-family: 'Fira Code', monospace;
+  font-family: 'VCROSDMono', monospace;
   text-shadow: 0 0 5px rgba(51, 255, 153, 0.4);
 }
 
@@ -382,3 +407,5 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+

@@ -93,7 +93,7 @@ const OfficeTab: React.FC<{
                 className="border-amber-800 text-amber-500"
               />
             </div>
-            <p className="mt-3 text-[8px] text-emerald-900 uppercase italic">
+            <p className="mt-3 text-[8px] text-emerald-900 uppercase">
               Dusty cabinets filled with Boeing 737 and Airbus A320 diagrams from the 90s.
             </p>
           </div>
@@ -103,7 +103,7 @@ const OfficeTab: React.FC<{
             <h4 className="text-[10px] text-emerald-500 uppercase mb-4 font-bold tracking-widest border-l-2 border-emerald-600 pl-3">
               Zebra MC9300 Terminal
             </h4>
-            <p className="text-[9px] text-emerald-800 mb-4 italic">
+            <p className="text-[9px] text-emerald-800 mb-4">
               A ruggedized handheld computer for accessing the Maintenance Log & Archive. Standard
               issue.
             </p>
@@ -308,7 +308,7 @@ const OfficeTab: React.FC<{
                       />
                     )}
                     {inv.pcGpuUpgrade && inv.pcHddUpgrade && (
-                      <div className="text-[8px] text-emerald-900 uppercase italic text-center py-2 border border-emerald-900/20">
+                      <div className="text-[8px] text-emerald-900 uppercase text-center py-2 border border-emerald-900/20">
                         Hardware fully optimized for high-speed archival retrieval.
                       </div>
                     )}
@@ -324,7 +324,7 @@ const OfficeTab: React.FC<{
               Automation Control
             </h4>
             {!state.inventory.hasAPLicense ? (
-              <div className="text-[9px] text-red-900 uppercase italic border border-red-900/20 p-3 bg-red-950/5">
+              <div className="text-[9px] text-red-900 uppercase border border-red-900/20 p-3 bg-red-950/5">
                 [ UNLOCK REQUIRED: A&P License required for staff delegation ]
               </div>
             ) : (

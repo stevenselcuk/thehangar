@@ -27,7 +27,7 @@ export const DevModeEvents: React.FC<DevModeEventsProps> = ({ gameState, dispatc
           <div>
             <div className="mb-3 relative z-10">
               <p className="text-sm font-bold text-emerald-300">{gameState.activeEvent.title}</p>
-              <p className="text-xs text-emerald-500 italic">
+              <p className="text-xs text-emerald-500">
                 ID: {gameState.activeEvent.id} | Type: {gameState.activeEvent.type}
               </p>
               <p className="text-xs text-emerald-500">
@@ -47,7 +47,7 @@ export const DevModeEvents: React.FC<DevModeEventsProps> = ({ gameState, dispatc
             </button>
           </div>
         ) : (
-          <p className="text-emerald-600 italic text-sm">No active event</p>
+          <p className="text-emerald-600 text-sm">No active event</p>
         )}
       </div>
 
