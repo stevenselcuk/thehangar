@@ -49,6 +49,7 @@ describe('officeSlice', () => {
         isHallucinating: false,
         isAfraid: false,
         storyFlags: { fdrDeconstructed: false },
+        foundSnapon: false,
       },
       resources: {
         alclad: 0,
@@ -161,6 +162,7 @@ describe('officeSlice', () => {
         typeRatingA330: 0,
         wrench: false,
         technicianToolbox: false,
+        snaponToolbox: false,
         canned_tuna: false,
       },
       hfStats: {
