@@ -292,8 +292,8 @@ describe('officeSlice', () => {
 
       const result = officeReducer(initialState, action);
 
-      expect(result.resources.credits).toBe(335);
-      expect(result.resources.experience).toBe(120);
+      expect(result.resources.credits).toBe(375);
+      expect(result.resources.experience).toBe(150);
       expect(result.stats.srfsFiled).toBe(1);
     });
   });
