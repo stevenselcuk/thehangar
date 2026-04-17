@@ -1,37 +1,61 @@
 import { describe, expect, it } from 'vitest';
-import { aircraftReducer } from '../aircraftSlice';
-import { InventoryAction, inventoryReducer } from '../inventorySlice';
+import { aircraftReducer, AircraftSliceState } from '../aircraftSlice';
+import { InventoryAction, inventoryReducer, InventorySliceState } from '../inventorySlice';
 
-import { GameState, Inventory } from '../../../types';
+import { GameFlags, Inventory, ResourceState } from '../../../types';
 
-// Mock initial state
-const mockInitialState: Partial<GameState> = {
+const baseResources = {
+  mek: 5,
+  primer: 5,
+  sealant: 5,
+  credits: 1000,
+  health: 100,
+  sanity: 100,
+  contaminatedSkydrol: 0,
+  skydrol: 10,
+  bioFilament: 5,
+  experience: 0,
+  ppeMask: 1,
+  nitrileGloves: 1,
+  ventilationUnit: 1,
+};
+
+const mockAircraftState: Partial<AircraftSliceState> = {
   activeAircraft: null,
   activeChemicalProcess: null,
-  resources: {
-    mek: 5,
-    primer: 5,
-    sealant: 5,
-    credits: 1000,
-    health: 100,
-    sanity: 100,
-    contaminatedSkydrol: 0,
-    skydrol: 10,
-    bioFilament: 5,
-    experience: 0,
-    ppeMask: 1,
-    nitrileGloves: 1,
-    ventilationUnit: 1,
-  },
-  inventory: {
-    irLamp: false,
-  } as unknown as Inventory,
+  resources: baseResources as unknown as ResourceState,
+  inventory: { irLamp: false } as unknown as Inventory,
   logs: [],
-} as unknown as GameState;
+  flags: {} as unknown as GameFlags,
+  hfStats: {} as unknown as AircraftSliceState['hfStats'],
+  rotables: [],
+  activeScenario: null,
+  personalInventory: {},
+};
+
+const mockInventoryState: Partial<InventorySliceState> = {
+  inventory: { irLamp: false } as unknown as Inventory,
+  personalInventory: {},
+  rotables: [],
+  toolConditions: {},
+  flags: { toolroomMasterPissed: false, activeComponentFailure: null },
+  resources: baseResources as unknown as ResourceState,
+  hfStats: {
+    noiseExposure: 0,
+    socialStress: 0,
+    efficiencyBoost: 0,
+    toolroomMasterCooldown: 0,
+  },
+  calibrationMinigame: { active: false, toolId: null, toolLabel: null },
+  activeEvent: null,
+  stats: { rotablesRepaired: 0 },
+  logs: [],
+  toolroom: { status: 'OPEN', unavailableTools: [], nextStatusChange: 0 },
+};
 
 describe('Chemical Interations', () => {
   describe('Aircraft Chemical Process', () => {
-    let state = JSON.parse(JSON.stringify(mockInitialState));
+    let state = JSON.parse(JSON.stringify(mockAircraftState)) as AircraftSliceState;
 
     it('should start a chemical process', () => {
       const action = {
@@ -85,14 +109,7 @@ describe('Chemical Interations', () => {
   });
 
   describe('Inventory Mixing', () => {
-    let state = JSON.parse(JSON.stringify(mockInitialState));
-
-    // Fix: Inventory slice expects different structure potentially, but let's test the reducer
-    // The specific reducer needs to be called with its specific state slice mostly,
-    // but the reducer implementation I wrote used `draft.resources` etc. which implies it operates on the whole state
-    // OR the slice state has resources.
-    // In inventorySlice.ts: export const inventoryReducer = produce((draft: InventorySliceState, action: InventoryAction) => {
-    // InventorySliceState has resources, inventory, etc.
+    let state = JSON.parse(JSON.stringify(mockInventoryState)) as InventorySliceState;
 
     it('should create contaminated skydrol', () => {
       const action = {
