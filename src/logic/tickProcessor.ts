@@ -310,9 +310,8 @@ export const processTick = (
   ) {
     if (Math.random() < 0.05 * (delta / 1000)) {
       const unreadMailCount = nextMail.filter((m) => !m.read).length;
-      const availableMail = mailData.filter(
-        (m) => !nextMail.some((existing) => existing.subject === m.subject)
-      );
+      const existingSubjects = new Set(nextMail.map((m) => m.subject));
+      const availableMail = mailData.filter((m) => !existingSubjects.has(m.subject));
       if (unreadMailCount < 5 && availableMail.length > 0) {
         const newMailTemplate = availableMail[Math.floor(Math.random() * availableMail.length)];
         const newMail: MailMessage = {
