@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { aircraftReducer, AircraftSliceState } from '../aircraftSlice';
 import { InventoryAction, inventoryReducer, InventorySliceState } from '../inventorySlice';
 
-import { GameState, Inventory } from '../../../types';
+import { GameFlags, Inventory, ResourceState } from '../../../types';
 
 const baseResources = {
   mek: 5,
@@ -23,23 +23,23 @@ const baseResources = {
 const mockAircraftState: Partial<AircraftSliceState> = {
   activeAircraft: null,
   activeChemicalProcess: null,
-  resources: baseResources as any,
-  inventory: { irLamp: false } as any,
+  resources: baseResources as unknown as ResourceState,
+  inventory: { irLamp: false } as unknown as Inventory,
   logs: [],
-  flags: {} as any,
-  hfStats: {} as any,
+  flags: {} as unknown as GameFlags,
+  hfStats: {} as unknown as AircraftSliceState['hfStats'],
   rotables: [],
   activeScenario: null,
   personalInventory: {},
 };
 
 const mockInventoryState: Partial<InventorySliceState> = {
-  inventory: { irLamp: false } as any,
+  inventory: { irLamp: false } as unknown as Inventory,
   personalInventory: {},
   rotables: [],
   toolConditions: {},
   flags: { toolroomMasterPissed: false, activeComponentFailure: null },
-  resources: baseResources as any,
+  resources: baseResources as unknown as ResourceState,
   hfStats: {
     noiseExposure: 0,
     socialStress: 0,
