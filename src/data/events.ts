@@ -26,7 +26,6 @@ export const eventsData: Record<string, EventTemplates[]> = {
     {
       id: 'FAA_INSPECTOR',
       type: 'audit',
-      // FIX: Changed 'suit' to 'suitType' to match the GameEvent interface.
       suitType: 'FAA_INSPECTOR',
       title: 'FAA Spot-Check',
       description:
