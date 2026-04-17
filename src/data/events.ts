@@ -70,7 +70,6 @@ export const eventsData: Record<string, EventTemplates[]> = {
     {
       id: 'AUDIT_SUITS',
       type: 'audit',
-      // FIX: Changed 'suit' to 'suitType' to match the GameEvent interface.
       suitType: 'THE_SUITS',
       title: 'Unscheduled Oversight',
       description:
