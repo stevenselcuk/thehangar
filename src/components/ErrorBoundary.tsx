@@ -34,7 +34,6 @@ class ErrorBoundary extends Component<Props, State> {
     window.location.reload();
   };
 
-  // FIX: Changed `render` from an arrow function to a standard class method to ensure the correct `this` context for `this.props` as handled by React's class component lifecycle.
   public render() {
     if (this.state.hasError) {
       return (
@@ -56,7 +55,7 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    return (this as unknown as React.Component<Props, State>).props.children;
+    return this.props.children;
   }
 }
 
