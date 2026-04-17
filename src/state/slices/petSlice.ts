@@ -87,17 +87,18 @@ export const petReducer = produce((draft: PetSliceState, action: PetAction) => {
         draft.pet.hunger = Math.max(0, draft.pet.hunger - 40);
         draft.pet.trust = Math.min(100, draft.pet.trust + 10);
         draft.resources.sanity = Math.min(100, draft.resources.sanity + 5);
-
-        // Consume item
-        if (draft.resources.canned_tuna > 0) {
-          draft.resources.canned_tuna -= 1;
-        }
       } else if (itemId === 'vending_sardines' || itemId === 'tuna') {
         draft.pet.hunger = Math.max(0, draft.pet.hunger - 30);
         draft.pet.trust = Math.min(100, draft.pet.trust + 5);
       } else {
         addLog(draft, `${draft.pet.name} sniffs it and looks offended.`, 'story');
         draft.pet.trust = Math.max(0, draft.pet.trust - 1);
+      }
+
+      // Dynamically consume item if it exists in resources
+      const resourceKey = itemId as keyof PetSliceState['resources'];
+      if (typeof draft.resources[resourceKey] === 'number' && (draft.resources[resourceKey] as number) > 0) {
+        draft.resources[resourceKey] = (draft.resources[resourceKey] as number) - 1;
       }
 
       draft.pet.cooldowns.feed = now + 1000 * 60 * 60; // 1 hour cooldown
