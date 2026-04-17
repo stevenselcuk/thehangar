@@ -554,7 +554,10 @@ export const processTick = (
     if (Math.random() < 0.05 * (delta / 1000)) {
       const unreadMailCount = draft.mail.filter((m) => !m.read).length;
       // Optimization: Use Set for O(1) lookups instead of O(N) nested loop
-      const existingSubjects = new Set(draft.mail.map((m) => m.subject));
+      const existingSubjects = new Set<string>();
+      for (const m of draft.mail) {
+        existingSubjects.add(m.subject);
+      }
       const availableMail = mailData.filter((m) => !existingSubjects.has(m.subject));
       if (unreadMailCount < 5 && availableMail.length > 0) {
         const newMailTemplate = availableMail[Math.floor(Math.random() * availableMail.length)];
