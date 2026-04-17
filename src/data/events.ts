@@ -49,7 +49,6 @@ export const eventsData: Record<string, EventTemplates[]> = {
     {
       id: 'AUDIT_INTERNAL',
       type: 'audit',
-      // FIX: Changed 'suit' to 'suitType' to match the GameEvent interface.
       suitType: 'INTERNAL_SECURITY',
       title: 'Internal Log Review',
       description:
