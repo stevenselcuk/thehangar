@@ -36,4 +36,24 @@ describe('event spawn coverage', () => {
     expect(categoriesTriggered()).toContain('syndicate');
     vi.restoreAllMocks();
   });
+
+  it('does not spawn syndicate events at the sanity threshold, even with every roll forced open', () => {
+    state.resources.sanity = 50;
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    processTick(state, 1000, triggerEvent, TabType.HANGAR);
+
+    expect(categoriesTriggered()).not.toContain('syndicate');
+    vi.restoreAllMocks();
+  });
+
+  it('does not spawn syndicate events at high sanity, even with every roll forced open', () => {
+    state.resources.sanity = 80;
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+
+    processTick(state, 1000, triggerEvent, TabType.HANGAR);
+
+    expect(categoriesTriggered()).not.toContain('syndicate');
+    vi.restoreAllMocks();
+  });
 });
