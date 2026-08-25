@@ -404,28 +404,6 @@ describe('eventsSlice', () => {
       expect(result.logs[0].text).toContain('Situation resolved');
     });
 
-    it('handles FUEL_CONTAM special resolution', () => {
-      const state = createMinimalGameState();
-      state.activeEvent = {
-        id: 'FUEL_CONTAM',
-        type: 'incident',
-        title: 'Fuel Contamination',
-        description: 'Bad fuel',
-        timeLeft: 30000,
-        totalTime: 60000,
-        failureOutcome: { log: 'Failed' },
-      };
-      state.resources.suspicion = 20;
-
-      const result = eventsReducer(state as unknown as EventsSliceState, {
-        type: 'RESOLVE_EVENT',
-        payload: {},
-      });
-
-      expect(result.resources.suspicion).toBe(55); // 20 + 35
-      expect(result.logs.some((log) => log.text.includes('HAZMAT team'))).toBe(true);
-    });
-
     it('handles CATERING_INCIDENT special resolution', () => {
       const state = createMinimalGameState();
       state.activeEvent = {

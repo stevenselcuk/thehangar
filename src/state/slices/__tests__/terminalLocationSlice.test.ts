@@ -72,14 +72,9 @@ describe('terminalLocationReducer', () => {
   });
 
   describe('WATCH_BOARDS', () => {
-    it('should trigger vibration log (<0.1) and suit sighting (<0.05)', () => {
+    it('should trigger vibration log (<0.1)', () => {
       // 1. watchRoll < 0.1
-      // 2. addLog ID
-      // 3. eventRoll < 0.05
-      vi.spyOn(Math, 'random')
-        .mockReturnValueOnce(0.05)
-        .mockReturnValueOnce(ID_ROLL)
-        .mockReturnValueOnce(0.01);
+      vi.spyOn(Math, 'random').mockReturnValueOnce(0.05);
 
       const action = {
         type: 'WATCH_BOARDS',
@@ -90,7 +85,9 @@ describe('terminalLocationReducer', () => {
       expect(newState.logs[0].text).toBe('WB2');
       expect(newState.logs[0].type).toBe('vibration');
       expect(newState.resources.suspicion).toBe(15);
-      expect(mockTriggerEvent).toHaveBeenCalledWith('incident', 'SUIT_SIGHTING_TERMINAL');
+      // SUIT_SIGHTING_TERMINAL was a dangling reference (no such event in
+      // incident); WATCH_BOARDS no longer promises a follow-up.
+      expect(mockTriggerEvent).not.toHaveBeenCalled();
     });
 
     it('should trigger story log (<0.2) and no event', () => {
@@ -190,7 +187,7 @@ describe('terminalLocationReducer', () => {
   });
 
   describe('SLEEP_AT_GATE', () => {
-    it('should reset stats and trigger security wakeup', () => {
+    it('should reset stats and log security wakeup without a follow-up event', () => {
       // 1. addLog ID (SG1)
       // 2. Random < 0.33
       // 3. Incident Roll < 0.5
@@ -215,9 +212,12 @@ describe('terminalLocationReducer', () => {
         type: 'SLEEP_AT_GATE',
         payload: { triggerEvent: mockTriggerEvent },
       } as const;
-      terminalLocationReducer(initialState, action);
+      const newState = terminalLocationReducer(initialState, action);
 
-      expect(mockTriggerEvent).toHaveBeenCalledWith('incident', 'SECURITY_WAKEUP');
+      // SECURITY_WAKEUP was a dangling reference (no such event in incident);
+      // the wakeup outcome keeps its log but no longer promises a follow-up.
+      expect(newState.logs.some((log) => log.text === 'SG3')).toBe(true);
+      expect(mockTriggerEvent).not.toHaveBeenCalled();
     });
 
     it('should trigger audit', () => {
@@ -276,7 +276,7 @@ describe('terminalLocationReducer', () => {
       } as const;
       terminalLocationReducer(initialState, action);
 
-      expect(mockTriggerEvent).toHaveBeenCalledWith('audit', 'EASA_AUDIT_SURPRISE');
+      expect(mockTriggerEvent).toHaveBeenCalledWith('audit', 'EVENT_EASA_AUDIT');
     });
   });
 

@@ -246,27 +246,7 @@ describe('complianceSlice - Actions', () => {
       expect(result.logs[0].type).toBe('vibration');
     });
 
-    it('should trigger audit event 20% of the time on suspicious finding', () => {
-      const state = createComplianceState();
-      let callCount = 0;
-      Math.random = () => {
-        callCount++;
-        if (callCount === 1) return 0.95; // suspicious outcome
-        return 0.1; // < 0.2, trigger event
-      };
-      const triggerEvent = mockTriggerEvent();
-
-      const result = complianceReducer(state, {
-        type: 'PERFORM_HFEC_SCAN',
-        payload: { triggerEvent: triggerEvent.fn },
-      });
-
-      expect(result.flags.ndtFinding?.severity).toBe('suspicious');
-      expect(triggerEvent.calls).toHaveLength(1);
-      expect(triggerEvent.calls[0]).toEqual({ type: 'audit', id: 'AUDIT_NDT_LOGS' });
-    });
-
-    it('should not trigger audit event 80% of the time on suspicious finding', () => {
+    it('should not trigger any follow-up event on suspicious finding', () => {
       const state = createComplianceState();
       let callCount = 0;
       Math.random = () => {
@@ -371,27 +351,7 @@ describe('complianceSlice - Actions', () => {
       expect(result.logs[0].type).toBe('vibration');
     });
 
-    it('should trigger audit event 25% of the time on suspicious finding', () => {
-      const state = createComplianceState();
-      let callCount = 0;
-      Math.random = () => {
-        callCount++;
-        if (callCount === 1) return 0.9; // suspicious outcome
-        return 0.2; // < 0.25, trigger event
-      };
-      const triggerEvent = mockTriggerEvent();
-
-      const result = complianceReducer(state, {
-        type: 'PERFORM_BORESCOPE_INSPECTION',
-        payload: { triggerEvent: triggerEvent.fn },
-      });
-
-      expect(result.flags.ndtFinding?.severity).toBe('suspicious');
-      expect(triggerEvent.calls).toHaveLength(1);
-      expect(triggerEvent.calls[0]).toEqual({ type: 'audit', id: 'AUDIT_NDT_LOGS' });
-    });
-
-    it('should not trigger audit event 75% of the time on suspicious finding', () => {
+    it('should not trigger any follow-up event on suspicious finding', () => {
       const state = createComplianceState();
       let callCount = 0;
       Math.random = () => {
@@ -475,7 +435,7 @@ describe('complianceSlice - Actions', () => {
       expect(result.logs[0].type).toBe('story');
     });
 
-    it('should trigger security sweep on 20% roll (suspicion +35)', () => {
+    it('should trigger security sweep on 20% roll (suspicion +35, no follow-up event)', () => {
       const state = createComplianceState();
       Math.random = () => 0.4; // >= 0.3 and < 0.5, security sweep
       const triggerEvent = mockTriggerEvent();
@@ -489,8 +449,9 @@ describe('complianceSlice - Actions', () => {
       expect(result.resources.suspicion).toBe(35);
       expect(result.logs).toHaveLength(1);
       expect(result.logs[0].type).toBe('error');
-      expect(triggerEvent.calls).toHaveLength(1);
-      expect(triggerEvent.calls[0]).toEqual({ type: 'audit', id: 'INTERNAL_SWEEP' });
+      // INTERNAL_SWEEP was a dangling reference (no such event in audit);
+      // the security sweep outcome no longer promises a follow-up.
+      expect(triggerEvent.calls).toHaveLength(0);
     });
 
     it('should trigger suits encounter on 20% roll (sanity -50 total, suspicion +50, fear)', () => {
@@ -1074,24 +1035,13 @@ describe('complianceSlice - Actions', () => {
 
     it('should find kardex fragment on 25% roll', () => {
       const state = createComplianceState();
-      const calls: number[] = [];
-      Math.random = () => {
-        // Calls: log ID #1, kardex check, log ID #2, audit check
-        const values = [0.5, 0.2, 0.5, 0.5]; // log ID, kardex (<0.25), log ID, no audit (>=0.1)
-        const value = values[calls.length] || 0.5;
-        calls.push(value);
-        return value;
-      };
+      Math.random = () => 0.2; // < 0.25, kardex fragment found
       const triggerEvent = mockTriggerEvent();
 
       const result = complianceReducer(state, {
         type: 'DESTROY_DOCUMENTS',
         payload: { triggerEvent: triggerEvent.fn },
       });
-
-      // Math.random is called: once for first log ID, once for kardex check, once for second log ID, once for audit check
-      expect(calls.length).toBeGreaterThanOrEqual(4);
-      expect(calls[1]).toBe(0.2); // kardex roll (after first log ID)
 
       expect(result.resources.kardexFragments).toBe(1);
       expect(result.logs).toHaveLength(2); // main log + kardex log
@@ -1116,25 +1066,6 @@ describe('complianceSlice - Actions', () => {
 
       expect(result.resources.kardexFragments).toBe(0);
       expect(result.logs).toHaveLength(1); // only main log
-    });
-
-    it('should trigger audit on 10% roll', () => {
-      const state = createComplianceState();
-      let callCount = 0;
-      Math.random = () => {
-        callCount++;
-        if (callCount === 1) return 0.5; // no kardex
-        return 0.05; // < 0.1, trigger audit
-      };
-      const triggerEvent = mockTriggerEvent();
-
-      complianceReducer(state, {
-        type: 'DESTROY_DOCUMENTS',
-        payload: { triggerEvent: triggerEvent.fn },
-      });
-
-      expect(triggerEvent.calls).toHaveLength(1);
-      expect(triggerEvent.calls[0]).toEqual({ type: 'audit', id: 'AUDIT_SHREDDER_LOGS' });
     });
 
     it('should not trigger audit on 90% roll', () => {

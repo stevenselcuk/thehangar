@@ -102,9 +102,6 @@ export const terminalLocationReducer = (
         } else {
           addLog(ACTION_LOGS.WATCH_BOARDS_1, 'info');
         }
-        if (Math.random() < 0.05 && action.payload?.triggerEvent) {
-          action.payload.triggerEvent('incident', 'SUIT_SIGHTING_TERMINAL');
-        }
         break;
       }
 
@@ -147,9 +144,8 @@ export const terminalLocationReducer = (
 
         if (Math.random() < 0.33) {
           const incidentRoll = Math.random();
-          if (incidentRoll < 0.5 && action.payload?.triggerEvent) {
+          if (incidentRoll < 0.5) {
             addLog(ACTION_LOGS.SLEEP_GATE_3, 'warning');
-            action.payload.triggerEvent('incident', 'SECURITY_WAKEUP');
           } else if (action.payload?.triggerEvent) {
             addLog('A suit-clad figure watches you from the boarding bridge.', 'warning');
             action.payload.triggerEvent('audit', 'AUDIT_INTERNAL');
@@ -185,7 +181,7 @@ export const terminalLocationReducer = (
 
           // 5% Chance: EASA Audit
           if (roll < 0.05) {
-            action.payload.triggerEvent('audit', 'EASA_AUDIT_SURPRISE');
+            action.payload.triggerEvent('audit', 'EVENT_EASA_AUDIT');
           }
           // 5% Chance: Suit Encounter (using existing or new)
           else if (roll < 0.1) {
@@ -202,16 +198,9 @@ export const terminalLocationReducer = (
           }
           // 5% Chance: New Incident
           else if (roll < 0.25) {
-            const incidentRoll = Math.random();
-            if (incidentRoll < 0.33) {
+            if (Math.random() < 0.33) {
               action.payload.triggerEvent('canteen_incident', 'CASUAL_CHAT_GONE_WRONG');
-            } else if (incidentRoll < 0.66) {
-              action.payload.triggerEvent('canteen_incident', 'CRYPTIC_WARNING');
-            } else {
-              action.payload.triggerEvent('canteen_incident', 'LOST_ITEM_RETURN');
             }
-          } else if (roll < 0.3) {
-            action.payload.triggerEvent('incident', 'RAMP_DELAY');
           }
         }
         break;

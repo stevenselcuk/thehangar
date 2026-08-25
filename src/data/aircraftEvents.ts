@@ -21,7 +21,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'The line ruptures completely. Skydrol cascades onto the #2 engine fire detection loop. FALSE FIRE warning triggers. Emergency services called. Aircraft grounded 48 hours. Cost: $47,000. The FAA wants a report.',
         effects: { credits: -47000, suspicion: 25, sanity: -10 },
-        event: { type: 'investigation', id: 'FAA_INCIDENT_REVIEW' },
       },
     },
     {
@@ -56,7 +55,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You call Engineering without proper inspection. They ferry the aircraft anyway. At FL370, the pressure dome cracks. Emergency descent. 14 injuries. NTSB preliminary: "Maintenance failure to properly assess damage." Your A&P is suspended.',
         effects: { experience: -1000, suspicion: 200, sanity: -60, credits: -500000 },
-        event: { type: 'catastrophic', id: 'LICENSE_SUSPENSION' },
       },
     },
 
@@ -76,7 +74,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You attempt override but strip the valve actuator (P/N: 452T1031-1, torque exceeds 80 ft-lbs). Valve stuck closed. Aircraft cannot fly with >1,000 lb imbalance per AFM. Part lead time: 6 days. Minimum 14 cancelled flights. Cost: $280,000.',
         effects: { credits: -280000, suspicion: 40, experience: -200 },
-        event: { type: 'grounding', id: 'EXTENDED_AOG' },
       },
     },
     {
@@ -141,7 +138,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You panic, attempt to force the door. Emergency egress handle: non-functional. You are trapped for 2 hours. When Security finally cuts the power and opens the door, the FMC screen displays your home address and a timestamp: "2300 LOCAL TONIGHT."',
         effects: { sanity: -50, suspicion: 60, focus: -30 },
-        event: { type: 'stalking', id: 'SYSTEM_THREAT' },
       },
     },
 
@@ -161,7 +157,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You attempt to secure it, but the pallet shifts again during towing. It impacts the bulkhead—0.060" dent detected. Structural inspection required: 8 hours. But worse: the pallet contents are breached. Clear fluid leaking. Hazmat team called. The fluid evaporates before they arrive. No residue.',
         effects: { credits: -34000, suspicion: 40, sanity: -20 },
-        event: { type: 'hazmat', id: 'UNKNOWN_SUBSTANCE' },
       },
     },
     {
@@ -198,7 +193,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'Temperature continues dropping: -120°C. The cargo in that zone (pharmaceutical shipment worth $340,000) is destroyed. Insurance investigation: "Improper maintenance response." But the real mystery: the temperature sensor reads -273.15°C for exactly 0.4 seconds. Absolute zero. Then returns to normal.',
         effects: { credits: -340000, suspicion: 70, sanity: -30 },
-        event: { type: 'investigation', id: 'INSURANCE_FRAUD_INQUIRY' },
       },
     },
     {
@@ -216,7 +210,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: "You attempt to force the breaker open manually (not procedure). The breaker housing cracks, internal arc flash: 480VAC across the wrench. You're thrown 6 feet. Electrical burn: right hand. Three weeks medical leave. The breaker fuses permanently closed. Electrical system redesign required: $95,000.",
         effects: { credits: -95000, suspicion: 40, sanity: -35, experience: -400 },
-        event: { type: 'injury', id: 'ELECTRICAL_BURN' },
       },
     },
 
@@ -247,7 +240,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You ignore the displacement, assuming loading error. During taxi, the container shifts again—impacts the forward pressure bulkhead with 4,200 ft-lbs of force. Bulkhead integrity compromised. Aircraft grounded pending structural inspection: minimum 10 days, $750,000 repair.',
         effects: { credits: -750000, suspicion: 100, experience: -600 },
-        event: { type: 'grounding', id: 'STRUCTURAL_DAMAGE' },
       },
     },
     {
@@ -325,7 +317,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You sign off the write-up as "unable to duplicate." The engine fails during climb-out 48 hours later: fan blade liberation, uncontained failure. FOD damage: $1.2M. NTSB finds the blade failed due to "undetected harmonic fatigue." Your signature is on the log.',
         effects: { credits: -1200000, suspicion: 200, sanity: -40, experience: -800 },
-        event: { type: 'catastrophic', id: 'UNCONTAINED_ENGINE_FAILURE' },
       },
     },
     {
@@ -347,7 +338,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'Unable to isolate fault. You defer per MEL 22-11-01 (autopilot inop). Flight operations accepts. But during the first flight, the autopilot disconnects at precisely 17:00 into the flight. Then again at 34:00. Then 51:00. The crew reports: each disconnect, they hear a voice on the intercom. Counting down.',
         effects: { suspicion: 45, sanity: -30, experience: 150 },
-        event: { type: 'anomaly', id: 'TEMPORAL_PATTERN' },
       },
     },
 
@@ -394,7 +384,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'focus', amount: 20 },
           log: 'You sand down to bare metal with 120-grit. The metal beneath is pristine—no corrosion. But the sanding dust is magnetic. Aluminum is non-magnetic. You send a sample to metallurgy: "SAMPLE COMPOSITION UNKNOWN. Contains elements not on periodic table." The report is classified.',
           effects: { experience: 400, suspicion: 40, sanity: -18, alclad: -2 },
-          event: { type: 'discovery', id: 'ANOMALOUS_MATERIAL' },
         },
         {
           id: 'paint',
@@ -428,7 +417,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You defer it per MEL 27-72-01 (augmented rudder pressure, Category C). Flight ops accepts. During the first flight, at FL370, the rudder oscillates at 0.33 Hz. Pilots fight it for 8 minutes before it stops. Passenger injuries: 3 (turbulence). Your MEL application is investigated.',
         effects: { suspicion: 60, sanity: -20, credits: -25000 },
-        event: { type: 'incident', id: 'PASSENGER_INJURY' },
       },
     },
 
@@ -454,13 +442,11 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 30 },
           log: 'You photograph the printout, Google the terms. PROJECT BLUE SUN: a rumored DoD black-ops program, 1987-1991, officially denied. RED KING: no results. You dig deeper: a physics forum mentions "Red King Equations" related to retrocausality—effects preceding causes. Time flowing backwards. Then your research window closes. Your account is locked.',
           effects: { experience: 600, sanity: -35, suspicion: 50 },
-          event: { type: 'surveillance', id: 'NETWORK_MONITORING' },
         },
       ],
       failureOutcome: {
         log: 'You leave the printout on the printer. 45 minutes later, two men in grey suits arrive. No names. No badges. They take the printout, the printer, and the ACARS radio. They inspect your toolbox. They leave. You are told: "This conversation never happened." That night, your computer won\'t boot.',
         effects: { suspicion: 80, sanity: -25, experience: 300 },
-        event: { type: 'audit', id: 'SPECIAL_ACCESS_PROGRAM' },
       },
     },
     {
@@ -512,7 +498,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You sign off the ETOPS cert without verification, trusting dispatch interpretation. The aircraft departs on ETOPS routing (nearest suitable airport: 180 minutes). At mid-Atlantic, an engine fails. Single-engine ETOPS requires functional APU. APU fails to start. Emergency diversion, barely makes it. Your signature is on the cert.',
         effects: { suspicion: 180, sanity: -40, experience: -600, credits: -500000 },
-        event: { type: 'catastrophic', id: 'ETOPS_VIOLATION_INCIDENT' },
       },
     },
     {
@@ -536,7 +521,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 25 },
           log: 'You copy the FDR data to USB drive, open it in flight analysis software. The flight appears normal until TOD (Top of Descent). Then: 14 seconds of physically impossible data. Pitch: -90° (straight down). Altitude: -22,000 ft (below sea level). Airspeed: 1,200 knots. Then: data ends.',
           effects: { experience: 700, sanity: -40, suspicion: 40, fdrData: 1 },
-          event: { type: 'precognition', id: 'FUTURE_CRASH_WARNING' },
         },
       ],
       failureOutcome: {
@@ -563,7 +547,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: "You defer per MEL 27-51-01 (slat asymmetry monitoring inop). Flight ops accepts. During takeoff rotation, the right slats retract to 0° uncommanded—exactly as the SFCC predicted. The aircraft rolls right, rejected takeoff, blown tires. The SFCC was warning you about the future. You didn't listen.",
         effects: { credits: -180000, suspicion: 120, sanity: -50, experience: -500 },
-        event: { type: 'incident', id: 'REJECTED_TAKEOFF_DAMAGE' },
       },
     },
 
@@ -617,7 +600,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 30 },
           log: 'You enter a test route: KJFK NOWHERE EGLL. The FMC accepts it. Calculated flight time: -4 hours. Negative time. Fuel required: 0.0 lbs. Distance: NaN (Not a Number). The FMC is calculating a route through non-Euclidean space. You clear the route. The FMC displays: "ROUTE SAVED."',
           effects: { experience: 600, sanity: -35, suspicion: 25 },
-          event: { type: 'navigation_anomaly', id: 'IMPOSSIBLE_COORDINATES' },
         },
       ],
       failureOutcome: {
@@ -644,7 +626,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You defer per MEL 27-21-08 (feel shift monitoring inop). Flight test pilot required before passenger ops. Test flight: at 320 KIAS, the pilot applies 10 lbs of aileron pressure—aircraft rolls 60° in 1.2 seconds. Nearly uncontrollable. Test aborted. Aircraft grounded pending full flight control system replacement: $240,000, 10 days.',
         effects: { credits: -240000, suspicion: 80, experience: -400 },
-        event: { type: 'grounding', id: 'FLIGHT_CONTROL_UNSAFE' },
       },
     },
 
@@ -675,7 +656,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You ignore the sound entirely. During a heavy cargo flight (67,000 lbs payload), frame 485 cracks—catastrophic structural failure at FL290. Emergency landing, aircraft destroyed. Miraculously, both pilots survive. NTSB finds: "Pre-existing fatigue crack, not detected during inspections." Your name is in the report.',
         effects: { credits: -5000000, suspicion: 200, sanity: -60, experience: -1000 },
-        event: { type: 'catastrophic', id: 'HULL_LOSS_STRUCTURAL' },
       },
     },
     {
@@ -699,7 +679,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'credits', amount: 400 },
           log: "You install a data logger ($400) to capture detector output. After 8 triggers, you analyze: each trigger, the detector reports temperature of 451°C (Fahrenheit 451—paper combustion temp). But the cargo bay temp is 18°C. The detector is measuring something that isn't there. Or will be there.",
           effects: { experience: 400, credits: -400, sanity: -18, suspicion: 20 },
-          event: { type: 'precognition', id: 'FUTURE_FIRE_WARNING' },
         },
       ],
       failureOutcome: {
@@ -788,7 +767,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: "The ball touches you. No pain. No heat. But you see: your death. Not how. When. Date and time. Precise. The ball dissipates. You collapse. When you wake (3 hours later), you remember nothing. But you've written on your arm in Sharpie: a date.You don't recognize the handwriting.",
         effects: { sanity: -60, suspicion: 10, experience: 400 },
-        event: { type: 'precognition', id: 'DEATH_PREMONITION' },
       },
     },
     {
@@ -817,7 +795,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: "You ignore it, continue working. The shadows multiply. Dozens. Filling the cabin. When you finish your work and turn around, every seat is occupied. By shadows. They don't move. You run. You resign the next day. You never return to aviation. The shadows were waiting. And patient.",
         effects: { sanity: -80, suspicion: 60, experience: -500 },
-        event: { type: 'resignation', id: 'PSYCHOLOGICAL_BREAK' },
       },
     },
 
@@ -836,7 +813,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 40 },
           log: 'You watch. The FMC screen scrolls data—faster than readable. Coordinates. Millions of them. Then: text. "WE KNOW WHERE YOU ARE. WE KNOW WHERE YOU WILL BE. WE KNOW WHERE YOU HAVE BEEN." The upload completes. File size: 0 bytes. The file is empty. But the FMC has gained 17 new waypoints. None in the nav database. All named after people you know.',
           effects: { experience: 1200, sanity: -60, suspicion: 40 },
-          event: { type: 'surveillance', id: 'OMNISCIENT_SYSTEM' },
         },
         {
           id: 'sever',
@@ -844,13 +820,11 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'focus', amount: 15 },
           log: 'You yank the dataloader cable. The connector port: hot. Smoking. You pull your hand back—2nd degree burn. The FMC reboots. Screen displays: "UPLOAD INTERRUPTED AT 99.97%." Then: "RESUMING." The cable is disconnected. The upload continues. From nowhere.',
           effects: { experience: 500, sanity: -35, suspicion: 20 },
-          event: { type: 'injury', id: 'THERMAL_BURN' },
         },
       ],
       failureOutcome: {
         log: 'You power off the FMC—pull circuit breakers C-17 and C-18. The FMC screen goes black. Then: it powers back on. Breakers still open. The FMC is running on no power. The file completes uploading. The screen displays your home address. And your bedroom window view. Photographed from inside your house. Yesterday.',
         effects: { sanity: -70, suspicion: 80, experience: 600 },
-        event: { type: 'stalking', id: 'HOME_INVASION_EVIDENCE' },
       },
     },
     {
@@ -867,7 +841,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 30 },
           log: "You tap: shave-and-a-haircut (tap-tap-tap-tap-tap...pause). The fuselage waits. 3 seconds. Then completes: two-bits (tap-tap). It knows the pattern. You tap the Fibonacci sequence: 1-1-2-3-5-8. The fuselage taps: 13-21-34. It continues the sequence. It's doing math.",
           effects: { experience: 900, sanity: -40, suspicion: 15 },
-          event: { type: 'first_contact', id: 'AIRCRAFT_SENTIENCE_CONFIRMED' },
         },
         {
           id: 'stop',
@@ -880,7 +853,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You continue tapping, convinced it\'s an echo effect. But the echo stops matching. It taps its own patterns. Rhythms you don\'t recognize.Then: Morse code.You translate: "HELP US." You ask: "Who are you?" It taps: "WE ARE THE ALUMINUM." The material is alive.You drop your tools.You quit.',
         effects: { sanity: -70, suspicion: 50, experience: -300 },
-        event: { type: 'psychological', id: 'MATERIAL_CONSCIOUSNESS' },
       },
     },
 
@@ -899,7 +871,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 35 },
           log: 'You say: "Who is this?" Your voice answers: "I AM YOU. FROM WEDNESDAY. THE AIRCRAFT CRASHES. HYDRAULIC FAILURE AT FL310. DON\'T FLY IT.YOU DIE AT 14: 17 UTC." The call ends. You check the schedule: you\'re assigned to Wednesday\'s flight. Departure: 13:00 UTC. Flight time: 2.5 hours. The timing is exact.',
           effects: { experience: 800, sanity: -50, suspicion: 25 },
-          event: { type: 'precognition', id: 'SELF_WARNING' },
         },
         {
           id: 'ignore',
@@ -928,7 +899,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 15 },
           log: "You check: your phone (18:47), hangar clock (18:47), aircraft chronometer (18:47). All synchronized. You check the CCTV: it shows you entering at 14:30, exiting at 18:47. But the footage is continuous—you worked for 4 hours. Doing what? The tape shows you sitting motionless in the captain's seat for 3 hours, 52 minutes.Not moving.Not blinking.",
           effects: { experience: 500, sanity: -45, suspicion: 30 },
-          event: { type: 'lost_time', id: 'MISSING_MEMORY' },
         },
         {
           id: 'dismiss',
@@ -957,7 +927,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 50 },
           log: 'You walk. 10 steps. 20. 50. The mirrors reflect infinitely. You see yourself at every age: child, teenager, elderly. You reach the end: a door. The door is labeled "EXIT". You open it. You\'re back in the lavatory.Normal size.The door behind you is the aircraft door.You\'ve been inside 8 minutes. Your reflection looks older.',
           effects: { experience: 1000, sanity: -70, suspicion: 10 },
-          event: { type: 'dimensional_shift', id: 'MIRROR_SPACE' },
         },
         {
           id: 'scream',
@@ -970,7 +939,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You freeze, paralyzed by impossibility. You stand in the mirror corridor until your legs give out. You collapse. You wake in the hospital—12 hours later. Diagnosis: "Found unconscious in aircraft lavatory, possible carbon monoxide exposure." But CO levels were zero. They don\'t believe your story. You\'re not sure you believe it either.',
         effects: { sanity: -80, suspicion: 60, experience: 400 },
-        event: { type: 'medical', id: 'HOSPITALIZATION' },
       },
     },
 
@@ -989,7 +957,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 45 },
           log: "You see: stock prices, lottery numbers, death dates. Information encoded in the blade rotation. You grab a notepad, write frantically. The patterns tell you everything. The date of your death. The name of the person who kills you. The winning lottery numbers for the next 400 draws. Then: the fan stops. Wind still blowing. The fan is motionless. You have 14 pages of notes. In a language you don't know.",
           effects: { experience: 1500, sanity: -60, suspicion: 25, focus: 30 },
-          event: { type: 'forbidden_knowledge', id: 'AKASHIC_ENGINE' },
         },
         {
           id: 'look_away',
@@ -1002,7 +969,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: "You stare until you collapse—6 hours later. Ground crew finds you unconscious, 3 feet from the intake. One step closer: you'd have been ingested. Medical evaluation: severe dehydration, retinal damage (like staring at the sun). Your eyes see afterimages of the fan blades for 3 weeks. Even when you close them. Especially when you close them.",
         effects: { sanity: -90, suspicion: 70, experience: 600 },
-        event: { type: 'injury', id: 'OPTICAL_DAMAGE' },
       },
     },
     {
@@ -1019,7 +985,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 20 },
           log: "You use two additional ADFs to triangulate. The signal originates: Lat 40.6413°N, Lon 73.7781°W, Altitude: -200 feet MSL. That's 200 feet underground, directly beneath Gate 12. You research: nothing there.No tunnels, no basements, no infrastructure.Just bedrock.The signal is transmitting from solid granite.At 385 KHz. 500 watts.Continuously.",
           effects: { experience: 700, sanity: -30, suspicion: 35 },
-          event: { type: 'discovery', id: 'SUBTERRANEAN_BEACON' },
         },
         {
           id: 'ignore',
@@ -1032,7 +997,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You report it to Engineering: "Unknown beacon interference." They investigate, find no signal. When you demonstrate, the ADF shows normal operation—JFK beacon only. N0WHERE is gone. Engineering thinks you fabricated the fault. Your credibility is damaged. But that night, you receive a text: coordinates. The same coordinates. From an unknown number.',
         effects: { suspicion: 50, sanity: -25, experience: 300 },
-        event: { type: 'stalking', id: 'COORDINATE_TRANSMISSION' },
       },
     },
     {
@@ -1049,7 +1013,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 40 },
           log: "You unbolt the container (no seal—unusual). You open it. Inside: empty. Completely empty. But the container weighs 900 lbs (scale confirms). Empty containers weigh 150 lbs. Where is the extra 750 lbs? You step inside to inspect. The door closes behind you. From inside. You are trapped. For 6 hours. No one hears you. When they finally open it: you're catatonic.You never speak of what you saw.",
           effects: { experience: 1200, sanity: -80, suspicion: 40 },
-          event: { type: 'containment', id: 'CONTAINER_ENTITY' },
         },
         {
           id: 'seal',
@@ -1087,13 +1050,11 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'credits', amount: 20 },
           log: 'You place your lunch (sandwich, chips, water) beside pallet 14. You step back. You watch. The food disappears. Not eaten—vanishes. Instantly. The pallet exhales. A sound: "THANK YOU." Not words. A vibration that forms meaning in your mind. You back away slowly. The breathing continues. Calmer now.',
           effects: { experience: 600, sanity: -15, suspicion: 10, focus: 20 },
-          event: { type: 'contact', id: 'CARGO_ENTITY_FED' },
         },
       ],
       failureOutcome: {
         log: 'You stand paralyzed, staring at pallet 14. The breathing accelerates. 3-second cycles. 2-second. 1-second. Hyperventilating. Then: the pallet moves. Slides forward 6 inches. No forklift. No person. It moved on its own. You run. You don\'t stop running until you\'re outside. You resign the next day. No explanation. Just: "I quit."',
         effects: { sanity: -70, suspicion: 60, experience: -500 },
-        event: { type: 'resignation', id: 'CARGO_TERROR' },
       },
     },
     {
@@ -1122,7 +1083,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You open crate #3 (curiosity wins). Inside: nothing. Empty. But the crate weighs 400 lbs (scale confirms). You step back. The crate lid closes. On its own. You hear breathing from inside the empty crate. You run. You file no report. That night: scratching at your bedroom window. You live on the 4th floor.',
         effects: { sanity: -60, suspicion: 30, experience: 300 },
-        event: { type: 'haunting', id: 'FOLLOWED_HOME' },
       },
     },
   ],
@@ -1151,13 +1111,12 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'sanity', amount: 20 },
           log: 'You provide your maintenance logs, inspection reports, work orders. They review—15 minutes. They redact 40% of your logs with black marker. Right in front of you. They hand the logs back: "These are your official records now. You performed no work on sections 34, 46, or 77. Understood?" You look: those sections are redacted. You did work there. Didn\'t you?',
           effects: { experience: 700, suspicion: 10, sanity: -30 },
-          event: { type: 'memory_alteration', id: 'RECORD_MODIFICATION' },
         },
       ],
       failureOutcome: {
         log: 'You ask: "What is Equipment Package Delta?" Wrong question. They exchange glances. One makes a phone call. 30 minutes later: you\'re escorted to a secure room. 8 hours of interrogation. "Who did you tell?" "No one." "Who else knows?" "No one." They don\'t believe you.You\'re placed on administrative leave: 6 months.No explanation.Your clearance is revoked.What clearance? ',
         effects: { suspicion: 100, sanity: -40, credits: -25000, experience: -300 },
-        event: { type: 'termination', id: 'SECURITY_VIOLATION' },
+        event: { type: 'audit', id: 'SECURITY_VIOLATION_SCAN' },
       },
     },
     {
@@ -1180,7 +1139,6 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       failureOutcome: {
         log: 'You refuse to answer without a lawyer. Bad move. They detain you: "PATRIOT Act, Section 215." 18 hours in federal holding. No lawyer. No phone call. Finally: release. No charges. No explanation. Your employment record now shows: "SECURITY INCIDENT - RESOLVED." Future employers see it. You\'re unemployable in aviation.Your career is over.',
         effects: { suspicion: 150, sanity: -50, credits: -50000, experience: -1000 },
-        event: { type: 'termination', id: 'FEDERAL_BLACKLIST' },
       },
     },
     {
@@ -1198,13 +1156,11 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
           cost: { resource: 'focus', amount: 40 },
           log: 'You pull up: the work order, the pilot log, the hangar security footage. All show the aircraft: N739BA. The inspector checks the FAA registry: "N739BA - REGISTRATION CANCELLED 1997." But you worked on it yesterday. He confiscates your documentation: "Evidence of fraudulent record-keeping." You face license suspension. But the aircraft is real. You saw it. Touched it. Worked on it.',
           effects: { experience: 600, suspicion: 80, sanity: -35 },
-          event: { type: 'investigation', id: 'LICENSE_REVIEW' },
         },
       ],
       failureOutcome: {
         log: 'You have no defense. The inspector issues: Notice of Proposed Certificate Action (NPCA). 60-day license suspension. You appeal. The appeal is denied. Evidence: "Falsification of maintenance records, FAR 43.12 violation." Your A&P license is suspended. 6 months no work. $0 income. Your career hangs by a thread. And the aircraft? You never see it again.',
         effects: { suspicion: 120, credits: -35000, experience: -800, sanity: -40 },
-        event: { type: 'suspension', id: 'LICENSE_SUSPENDED' },
       },
     },
   ],

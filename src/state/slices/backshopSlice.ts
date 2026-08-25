@@ -248,7 +248,6 @@ export const backshopReducer = (
 
           case 'trapped': {
             // 15% - Trapped event
-            action.payload.triggerEvent('eldritch_manifestation', 'TRAPPED_IN_SLS3');
             break;
           }
 
@@ -312,7 +311,6 @@ export const backshopReducer = (
           // Failure - trigger containment breach
           addLog(ACTION_LOGS.ANALYZE_ANOMALY_FAIL, 'error');
           draft.anomalies.shift(); // Anomaly is destroyed
-          action.payload.triggerEvent('eldritch_manifestation', 'CONTAINMENT_BREACH');
         }
         break;
       }

@@ -83,10 +83,6 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
           const eventTypes = ['accident', 'incident', 'eldritch_manifestation'];
           triggerEvent(eventTypes[Math.floor(Math.random() * eventTypes.length)]);
         }
-        if (!draft.activeEvent && Math.random() < 0.0001) {
-          triggerEvent('incident', 'FUEL_CONTAM');
-        }
-
         // Random price fluctuation logic removed (handled in processTick)
 
         break;

@@ -101,31 +101,6 @@ describe('gameReducer', () => {
       expect(mockTriggerEvent).toHaveBeenCalled();
       randomSpy.mockRestore();
     });
-
-    it('should trigger FUEL_CONTAM event based on probability', () => {
-      const action = {
-        type: 'TICK',
-        payload: {
-          delta: 1000,
-          triggerEvent: mockTriggerEvent,
-          activeTab: 'terminal' as const,
-        },
-      } as const;
-
-      // Need to fail the first check (>= 0.0003) but pass the second (< 0.0001)
-      // Math.random() is called multiple times.
-      // 1. First check (< 0.0003) -> Return 0.5 (fail)
-      // 2. Second check (< 0.0001) -> Return 0.00005 (pass)
-      const randomSpy = vi
-        .spyOn(Math, 'random')
-        .mockReturnValueOnce(0.5)
-        .mockReturnValueOnce(0.00005);
-
-      gameReducer(initialState, action as unknown as GameReducerAction);
-
-      expect(mockTriggerEvent).toHaveBeenCalledWith('incident', 'FUEL_CONTAM');
-      randomSpy.mockRestore();
-    });
   });
 
   describe('ACTION action', () => {

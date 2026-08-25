@@ -262,7 +262,7 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
           const incidentRoll = Math.random();
           if (incidentRoll < 0.5 && action.payload?.triggerEvent) {
             addLog('A suit-clad figure watches you from the shadows.', 'warning');
-            action.payload.triggerEvent('incident', 'SUIT_SIGHTING_CANTEEN');
+            action.payload.triggerEvent('audit', 'EVENT_SUIT_OBSERVATION');
           } else if (action.payload?.triggerEvent) {
             addLog('You wake up to an urgent notification.', 'warning');
             action.payload.triggerEvent('audit', 'AUDIT_INTERNAL');

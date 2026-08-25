@@ -150,7 +150,15 @@ export const createEventFromTemplate = (
     ? templates.find((t) => t.id === specificId)
     : templates[Math.floor(Math.random() * templates.length)];
 
-  if (!template) return null;
+  if (!template) {
+    if (import.meta.env.DEV && specificId) {
+      console.error(
+        `[eventsSlice] No event '${specificId}' in category '${eventType}'. ` +
+          `This reference is dangling and will silently do nothing.`
+      );
+    }
+    return null;
+  }
 
   return {
     id: template.id,
@@ -442,10 +450,7 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
       }
 
       // Special Event Hooks (Legacy/Specific Logic)
-      if (event.id === 'FUEL_CONTAM') {
-        draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 35);
-        addLog("A HAZMAT team is on its way. They'll be watching you closely.", 'warning');
-      } else if (event.id === 'MGMT_PRESSURE') {
+      if (event.id === 'MGMT_PRESSURE') {
         draft.hfStats.compliancePressureTimer = 5 * 60 * 1000;
       } else if (event.id === 'CATERING_INCIDENT') {
         draft.resources.credits = Math.max(0, draft.resources.credits - 50);

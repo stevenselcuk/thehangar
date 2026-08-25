@@ -119,9 +119,6 @@ export const complianceReducer = (
           };
           addLog(ACTION_LOGS.HFEC_SCAN_SUSPICIOUS_BURN, 'vibration');
           draft.resources.sanity -= 15;
-          if (Math.random() < 0.2 && action.payload?.triggerEvent) {
-            action.payload.triggerEvent('audit', 'AUDIT_NDT_LOGS');
-          }
         }
         break;
       }
@@ -146,9 +143,6 @@ export const complianceReducer = (
           };
           addLog(ACTION_LOGS.BORESCOPE_SUSPICIOUS_RESIDUE, 'vibration');
           draft.resources.sanity -= 20;
-          if (Math.random() < 0.25 && action.payload?.triggerEvent) {
-            action.payload.triggerEvent('audit', 'AUDIT_NDT_LOGS');
-          }
         }
         break;
       }
@@ -167,9 +161,6 @@ export const complianceReducer = (
         } else if (reportRoll < 0.5) {
           addLog(ACTION_LOGS.REPORT_ANOMALOUS_SECURITY_SWEEP, 'error');
           draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 35);
-          if (action.payload?.triggerEvent) {
-            action.payload.triggerEvent('audit', 'INTERNAL_SWEEP');
-          }
         } else if (reportRoll < 0.7) {
           addLog(ACTION_LOGS.REPORT_ANOMALOUS_SUITS, 'vibration');
           draft.resources.sanity = Math.max(0, draft.resources.sanity - 30);
@@ -276,9 +267,6 @@ export const complianceReducer = (
             'vibration'
           );
           draft.resources.kardexFragments += 1;
-        }
-        if (Math.random() < 0.1 && action.payload?.triggerEvent) {
-          action.payload.triggerEvent('audit', 'AUDIT_SHREDDER_LOGS');
         }
         break;
       }

@@ -188,7 +188,9 @@ describe('terminalSlice', () => {
           'SECURITY ALERT: Unauthorized access attempt logged.'
         );
         expect(result.resources.suspicion).toBe(25); // +15 for unauthorized access
-        expect(mockTriggerEvent).toHaveBeenCalledWith('audit', 'INTERNAL_SWEEP');
+        // INTERNAL_SWEEP was a dangling reference (no such event in audit);
+        // the access-denied outcome no longer promises a follow-up.
+        expect(mockTriggerEvent).not.toHaveBeenCalled();
       });
 
       it('should deny access when insufficient kardex fragments', () => {

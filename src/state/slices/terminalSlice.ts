@@ -58,10 +58,7 @@ export const terminalReducer = (
 
     switch (action.type) {
       case 'ARCHIVE_COMMAND': {
-        const { command: commandFull } = action.payload; // triggerEvent removed from payload in reducerComposer? Check.
-        // reducerComposer passes: payload: action.payload as { command: string; triggerEvent... }
-        // We can access triggerEvent if needed.
-        const { triggerEvent } = action.payload;
+        const { command: commandFull } = action.payload;
 
         const [command, ...args] = commandFull.trim().toLowerCase().split(/\s+/);
 
@@ -196,7 +193,6 @@ export const terminalReducer = (
                   'SECURITY ALERT: Unauthorized access attempt logged.'
                 );
                 draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 15);
-                triggerEvent('audit', 'INTERNAL_SWEEP');
                 break;
               }
               if (archive.cost && draft.resources.kardexFragments < archive.cost.amount) {

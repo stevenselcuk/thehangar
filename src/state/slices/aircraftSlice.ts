@@ -321,10 +321,6 @@ export const aircraftReducer = (
           draft.resources.focus = Math.min(100, draft.resources.focus + 5);
 
           addLog('You light up a Winston Light. The harsh smoke clears your head.', 'story');
-
-          if (Math.random() < 0.05 && action.payload?.triggerEvent) {
-            action.payload.triggerEvent('incident', 'SMOKING_VIOLATION');
-          }
         } else {
           addLog('You pat your pockets, but you are out of smokes.', 'warning');
         }
@@ -335,9 +331,6 @@ export const aircraftReducer = (
         draft.resources.focus = Math.min(100, draft.resources.focus + 10);
         draft.resources.sanity = Math.max(0, draft.resources.sanity - 5);
         addLog(ACTION_LOGS.DRINK_COFFEE, 'info');
-        if (Math.random() < 0.05 && action.payload?.triggerEvent) {
-          action.payload.triggerEvent('incident', 'CONTAMINATED_COFFEE');
-        }
         break;
       }
 
@@ -349,9 +342,6 @@ export const aircraftReducer = (
           draft.resources.credits += 15;
         } else {
           addLog(ACTION_LOGS.SCAVENGE_FAIL, 'info');
-        }
-        if (Math.random() < 0.1 && action.payload?.triggerEvent) {
-          action.payload.triggerEvent('incident', 'CAUGHT_SCAVENGING');
         }
         break;
       }
@@ -495,7 +485,7 @@ export const aircraftReducer = (
       }
 
       case 'RESEARCH_COMPONENT_HISTORY': {
-        const { rotableId, triggerEvent } = action.payload;
+        const { rotableId } = action.payload;
         const rotable = draft.rotables?.find((r) => r.id === rotableId);
 
         if (rotable) {
@@ -517,11 +507,6 @@ export const aircraftReducer = (
             );
             const historyEvents = rotable.history.length;
             addLog(`Component has ${historyEvents} recorded events in its lifecycle.`, 'info');
-
-            // Check for Paradox
-            if (Math.random() < 0.1 && triggerEvent) {
-              triggerEvent('eldritch_manifestation', 'PARADOXICAL_HISTORY');
-            }
           }
         }
         break;

@@ -18,7 +18,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: "You draw a sample into a clean vial. Under fluorescent light, the fluid exhibits a faint bioluminescence. The lab report comes back: 'SAMPLE COMPOSITION UNKNOWN. DO NOT SERVICE AIRCRAFT.' You've obtained a strange material.",
             effects: { experience: 180, bioFilament: 8, suspicion: 12, sanity: -15 },
-            event: { type: 'incident', id: 'MD80_HYDRAULIC_CONTAMINATION' },
           },
         },
         {
@@ -26,7 +25,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You pencil-whip the log entry. The reservoir is still 0.8 qts low. Three days later, the aircraft experiences an uncommanded flap retraction at V2+10. The NTSB will want to talk.',
             effects: { sanity: -25, suspicion: 35 },
-            event: { type: 'incident', id: 'FAA_INVESTIGATION' },
           },
         },
       ],
@@ -55,7 +53,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You red-tag the aircraft. The engine is pulled and shipped to the overhaul shop. Cost: $340,000. The teardown report: "NO FAULT FOUND." Your name is now on a list.',
             effects: { experience: 300, suspicion: 45, credits: -100000 },
-            event: { type: 'audit', id: 'COST_OVERRUN_REVIEW' },
           },
         },
       ],
@@ -70,7 +67,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You access the Flight Warning Computer, initiate BIT with the overhead test panel. After reset, the message clears. Then reappears. Same timestamp: 03:17:19. Your watch still reads 03:17:19. Time has stopped moving.',
             effects: { experience: 150, sanity: -35 },
-            event: { type: 'temporal_anomaly', id: 'TIME_LOOP_ALPHA' },
           },
         },
         {
@@ -102,7 +98,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You depressurize the hydraulic systems per AMM 29-10-00, access the left aileron PCU. The servo valve filter is clogged with metallic debris—but the metal is not aluminum. Spectrographic analysis reads "ELEMENT NOT IN PERIODIC TABLE."',
             effects: { experience: 350, suspicion: 15, sanity: -25, crystallineResonators: 3 },
-            event: { type: 'discovery', id: 'UNKNOWN_ALLOY' },
           },
         },
         {
@@ -110,7 +105,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You apply MEL relief allowing 5° aileron asymmetry for up to 3 days. You placard the flight deck. The aircraft departs. At FL350, the left aileron separates from the wing. 180 souls. Your name is on the 8130-3.',
             effects: { experience: -500, suspicion: 100, sanity: -80, credits: -1000000 },
-            event: { type: 'catastrophic', id: 'ACCIDENT_INVESTIGATION' },
           },
         },
       ],
@@ -139,7 +133,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You decide this is above your pay grade. You torque the panel fasteners to 20-25 in-lbs per spec and sign the log. That night, you dream of flying. Your hands are on the controls. But you are also watching yourself from the passenger cabin.',
             effects: { sanity: -45, suspicion: -10 },
-            event: { type: 'psychological', id: 'RECURRING_DREAM_ALPHA' },
           },
         },
       ],
@@ -157,7 +150,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You follow electrostatic discharge procedures, don the grounding strap, pull the card. The moment it disconnects, every screen in the E&E bay—FMC, EICAS, TCAS—displays your employee photo. The same photo from your badge. Then: static.',
             effects: { experience: 400, sanity: -50, suspicion: 25 },
-            event: { type: 'containment_breach', id: 'SYSTEM_SENTIENCE' },
           },
         },
         {
@@ -165,7 +157,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You follow the ARINC 629 wiring from the unknown card. It connects to the Digital Flight Data Acquisition Unit (DFDAU). You download the FDR data. Playback shows: normal flight parameters. But the audio track contains 19 hours of whispering. You cannot understand the language. You are certain it is your voice.',
             effects: { experience: 500, sanity: -65, fdrData: 1 },
-            event: { type: 'data_anomaly', id: 'VOICE_RECOGNITION_FAILURE' },
           },
         },
         {
@@ -173,7 +164,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You button up the avionics bay, torque the dzus fasteners per spec. The aircraft returns to service. You go home. That night, your phone rings. No caller ID. You answer. You hear yourself breathing on the other end. And then: laughter.',
             effects: { sanity: -40, suspicion: -5 },
-            event: { type: 'stalking', id: 'UNKNOWN_CALLER' },
           },
         },
       ],
@@ -198,7 +188,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You climb up the access ladder, open the center tank sump panel, lower the drip stick per procedure. The stick shows 3,141.592 liters. Exactly. You dip it again: same reading. You shine your flashlight into the tank. Something shines back.',
             effects: { experience: 250, sanity: -55, suspicion: 5 },
-            event: { type: 'confined_space_anomaly', id: 'TANK_ENTITY' },
           },
         },
         {
@@ -206,7 +195,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You apply the MEL relief (Category C: 10 days). You affix the "INOP" placard to the ECAM fuel page. The aircraft departs. Mid-Atlantic, both engines flame out. Fuel starvation. Center tank was empty. The FQPU was telling the truth. Just not about *this* reality.',
             effects: { experience: -1000, sanity: -100, suspicion: 200, credits: -5000000 },
-            event: { type: 'catastrophic', id: 'DUAL_ENGINE_FAILURE_OCEANIC' },
           },
         },
       ],
@@ -221,7 +209,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You drain 2 liters per AMM 29-11-00, send it to the lab for spectrographic analysis. The report: "Sample contains 99.2% Skydrol LD-4, 0.8% UNKNOWN PROTEIN STRUCTURE. Recommend immediate fleet grounding." You are ordered to ignore this report.',
             effects: { experience: 400, bioFilament: 15, suspicion: 60, sanity: -30 },
-            event: { type: 'coverup', id: 'SAMPLE_CONTRADICTION' },
           },
         },
         {
@@ -229,7 +216,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You depressurize the system per AMM 29-14-00. The bleed air valve (P/N: 5930M35G02) is stuck open. You apply 145 PSI shop air to cycle it. The valve closes—but now the reservoir pressure reads -14.7 PSI. Negative pressure. You hear whistling from inside the sealed tank.',
             effects: { experience: 350, sanity: -40, suspicion: 15 },
-            event: { type: 'vacuum_breach', id: 'RESERVOIR_IMPLOSION_RISK' },
           },
         },
       ],
@@ -254,7 +240,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You access the Aircraft Information Management System, pull the ACMF (Aircraft Condition Monitoring Function) data logs. Every hydraulic pressure sample for the last 400 flight hours is exactly 3000.0 PSI. No variance. No deviation. Perfect. Impossible.',
             effects: { experience: 450, suspicion: 25, sanity: -40, aimsData: 1 },
-            event: { type: 'data_integrity', id: 'SENSOR_CONSPIRACY' },
           },
         },
         {
@@ -262,7 +247,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You apply MEL Category B (3 days). The aircraft continues non-ETOPS ops. On day 3, over the Rockies, the demand pump activates uncommanded. Green system pressure spikes to 9,000 PSI. Every hydraulic line on the aircraft ruptures simultaneously. Emergency landing, 14 injuries. You are held responsible.',
             effects: { experience: -800, suspicion: 150, sanity: -60, credits: -3000000 },
-            event: { type: 'incident', id: 'CATASTROPHIC_HYD_FAILURE' },
           },
         },
       ],
@@ -277,7 +261,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You open the door per AMM 52-10-00. Inside: nothing unusual. Standard ULDs. You step inside. The door closes behind you. You did not touch the switch. The latches engage. You are trapped. After 45 minutes, ground crew hears pounding. They find you unconscious. You have no memory of the 45 minutes.',
             effects: { experience: 500, sanity: -70, suspicion: 40 },
-            event: { type: 'lost_time', id: 'CARGO_COMPARTMENT_INCIDENT' },
           },
         },
         {
@@ -302,7 +285,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You pull the old detector, install a new one. The new detector immediately triggers. Same reading: smoke present. You install a third detector. Same result. You check the cargo bay: empty. You shine a flashlight. You see your shadow. Then you see a second shadow. There is no second light source.',
             effects: { experience: 350, smokeDetector: -2, sanity: -50 },
-            event: { type: 'paranormal', id: 'SHADOW_ENTITY' },
           },
         },
         {
@@ -310,7 +292,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You inspect the Halon 1301 bottles per AMM 26-21-00. Pressure gauge: 600 PSI (green arc). But the bottles are cold. Frost forms on the valve body. In a heated hangar. You touch the bottle. Your hand sticks. Frozen. You pull away, leaving skin behind.',
             effects: { experience: 300, sanity: -55, suspicion: 15 },
-            event: { type: 'injury', id: 'CRYOGENIC_EXPOSURE' },
           },
         },
         {
@@ -318,7 +299,6 @@ export const aircraftScenarios: Record<AircraftType, AircraftScenario[]> = {
           outcome: {
             log: 'You pull the D1 circuit breaker, placard the system INOP. The aircraft departs with cargo. At FL250, the cargo bay fills with smoke. Real smoke. The crew initiates an emergency descent. Emergency landing, aircraft destroyed by fire. The smoke detector was trying to warn you. About the future.',
             effects: { experience: -1000, sanity: -90, suspicion: 180, credits: -8000000 },
-            event: { type: 'catastrophic', id: 'CARGO_FIRE_LOSS' },
           },
         },
       ],

@@ -431,7 +431,7 @@ describe('backshopSlice - Actions', () => {
       expect(result.logs[0].type).toBe('vibration');
     });
 
-    it('should handle trapped outcome (15% - trigger event)', () => {
+    it('should handle trapped outcome (15% - no follow-up event)', () => {
       const state = createBackshopState();
       Math.random = () => 0.15; // >= 0.05 and < 0.2, trapped
       const triggerEvent = mockTriggerEvent();
@@ -443,11 +443,9 @@ describe('backshopSlice - Actions', () => {
 
       expect(result.resources.sanity).toBe(95); // 100 - 5
       expect(result.resources.suspicion).toBe(5); // 0 + 5
-      expect(triggerEvent.calls).toHaveLength(1);
-      expect(triggerEvent.calls[0]).toEqual({
-        type: 'eldritch_manifestation',
-        id: 'TRAPPED_IN_SLS3',
-      });
+      // TRAPPED_IN_SLS3 was a dangling reference (no such event); the
+      // trapped outcome no longer promises a follow-up.
+      expect(triggerEvent.calls).toHaveLength(0);
     });
 
     it('should handle clue outcome (20% - kardex +1, xp +500)', () => {
@@ -627,7 +625,7 @@ describe('backshopSlice - Actions', () => {
       expect(result.resources.bioFilament).toBe(10);
     });
 
-    it('should fail on 30% roll (trigger containment breach, remove anomaly)', () => {
+    it('should fail on 30% roll (remove anomaly, no follow-up event)', () => {
       const anomaly = createTestAnomaly('ANOM_RESONATOR_1');
       const state = createBackshopState({ anomalies: [anomaly] });
       Math.random = () => 0.1; // <= 0.3, failure
@@ -644,11 +642,10 @@ describe('backshopSlice - Actions', () => {
       expect(result.activeJob).toBeNull(); // no job created
       expect(result.logs).toHaveLength(1);
       expect(result.logs[0].type).toBe('error');
-      expect(triggerEvent.calls).toHaveLength(1);
-      expect(triggerEvent.calls[0]).toEqual({
-        type: 'eldritch_manifestation',
-        id: 'CONTAINMENT_BREACH',
-      });
+      // CONTAINMENT_BREACH was a dangling reference (no such event in
+      // eldritch_manifestation); the failure outcome no longer promises
+      // a follow-up.
+      expect(triggerEvent.calls).toHaveLength(0);
     });
 
     it('should only analyze first anomaly in queue', () => {
