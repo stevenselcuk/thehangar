@@ -375,6 +375,7 @@ const SHOP_ACTIONS = [
   'FLUCTUATE_PRICES',
   'BUY_VENDING_ITEM',
   'KICK_VENDING_MACHINE',
+  'RUMMAGE_SHELVES',
 ] as const;
 
 // Encounters action types handled by encountersSlice
@@ -387,7 +388,6 @@ const PROCUREMENT_ACTIONS = [
   'DELIVER_ORDER',
   'CHECK_DELIVERIES',
   'UNLOCK_CATALOGUE_LEVEL',
-  'UNLOCK_CATALOGUE_LEVEL',
 ] as const;
 
 // Bulletin Board action types handled by bulletinBoardSlice
@@ -398,6 +398,44 @@ const RESOURCE_ACTIONS = ['LOG_FLAVOR'] as const;
 
 // Pet action types handled by petSlice
 const PET_ACTIONS = ['PET_CAT', 'FEED_CAT', 'PLAY_WITH_CAT', 'PET_RANDOM_MOVE'] as const;
+
+// Terminal action types handled by terminalSlice
+const TERMINAL_ACTIONS = ['ARCHIVE_ACTION', 'MAINTENANCE_ARCHIVE_ACTION'] as const;
+
+// AOG action types handled by aogSlice
+const AOG_ACTIONS = [
+  'ACCEPT_AOG_DEPLOYMENT',
+  'START_AOG_ACTION',
+  'RESOLVE_AOG_ACTION',
+  'COMPLETE_AOG_DEPLOYMENT',
+] as const;
+
+/**
+ * Every action type composeAction knows how to route.
+ *
+ * Derived from the group consts above so that registering an action in
+ * its slice group is the only step needed to make it routable. Do not
+ * maintain a second copy of this list anywhere.
+ */
+export const ROUTED_ACTIONS: ReadonlySet<string> = new Set<string>([
+  ...RESOURCE_ACTIONS,
+  ...INVENTORY_ACTIONS,
+  ...PROFICIENCY_ACTIONS,
+  ...EVENT_ACTIONS,
+  ...BACKSHOP_ACTIONS,
+  ...COMPLIANCE_ACTIONS,
+  ...AIRCRAFT_ACTIONS,
+  ...TERMINAL_LOCATION_ACTIONS,
+  ...TERMINAL_ACTIONS,
+  ...OFFICE_ACTIONS,
+  ...HANGAR_ACTIONS,
+  ...SHOP_ACTIONS,
+  ...ENCOUNTERS_ACTIONS,
+  ...AOG_ACTIONS,
+  ...PROCUREMENT_ACTIONS,
+  ...BULLETIN_BOARD_ACTIONS,
+  ...PET_ACTIONS,
+]);
 
 /**
  * Compose reducers for ACTION events
@@ -668,7 +706,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
   }
 
   // Route terminal commands to terminalSlice
-  if (action.type === 'ARCHIVE_ACTION' || action.type === 'MAINTENANCE_ARCHIVE_ACTION') {
+  if (TERMINAL_ACTIONS.includes(action.type as (typeof TERMINAL_ACTIONS)[number])) {
     return produce(state, (draft) => {
       const terminalState = {
         archiveTerminal: draft.archiveTerminal,
@@ -1064,14 +1102,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
   }
 
   // Route AOG actions to aogSlice
-  if (
-    [
-      'ACCEPT_AOG_DEPLOYMENT',
-      'START_AOG_ACTION',
-      'RESOLVE_AOG_ACTION',
-      'COMPLETE_AOG_DEPLOYMENT',
-    ].includes(action.type)
-  ) {
+  if (AOG_ACTIONS.includes(action.type as (typeof AOG_ACTIONS)[number])) {
     return produce(state, (draft) => {
       const aogState = {
         aog: draft.aog,
