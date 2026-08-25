@@ -12,6 +12,7 @@ vi.mock('../../logic/tickLogic', () => ({
 vi.mock('../reducerComposer', () => ({
   composeAction: vi.fn(() => ({})), // Return empty object to avoid proxy issues with Immer
   composeTick: vi.fn(() => ({})), // Return empty object
+  ROUTED_ACTIONS: new Set(['COMPLETE_JOB', 'RESOLVE_EVENT', 'TRIGGER_EVENT']),
 }));
 
 describe('gameReducer', () => {
@@ -129,10 +130,11 @@ describe('gameReducer', () => {
 
   describe('ACTION action', () => {
     it('should route known actions to composeAction', () => {
+      // 'COMPLETE_JOB' is one of the actions in the mocked ROUTED_ACTIONS set above.
       const action = {
         type: 'ACTION',
         payload: {
-          type: 'PET_CAT',
+          type: 'COMPLETE_JOB',
           payload: { someData: 'test' },
         },
       } as const;
@@ -142,7 +144,7 @@ describe('gameReducer', () => {
       const composeActionCalls = vi.mocked(composeAction).mock.calls;
       expect(composeActionCalls).toHaveLength(1);
       expect(composeActionCalls[0][1]).toEqual({
-        type: 'PET_CAT',
+        type: 'COMPLETE_JOB',
         payload: { someData: 'test' },
       });
     });
@@ -175,9 +177,9 @@ describe('gameReducer', () => {
       expect(newState.calibrationMinigame.active).toBe(false);
     });
 
-    it('should warn on unknown actions', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
+    it('should throw on unknown actions (unrouted action guard)', () => {
+      // 'UNKNOWN_ACTION' is not in the mocked ROUTED_ACTIONS set above, so it falls
+      // through to handleGameAction, which throws in dev to catch wiring bugs loudly.
       const action = {
         type: 'ACTION',
         payload: {
@@ -185,10 +187,9 @@ describe('gameReducer', () => {
         },
       } as const;
 
-      gameReducer(initialState, action as unknown as GameReducerAction);
-
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Unhandled action type'));
-      consoleSpy.mockRestore();
+      expect(() => gameReducer(initialState, action as unknown as GameReducerAction)).toThrow(
+        "Action 'UNKNOWN_ACTION' is not routed."
+      );
     });
   });
 

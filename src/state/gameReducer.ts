@@ -2,28 +2,36 @@ import { produce } from 'immer';
 
 import { getMilestoneForLevel } from '../data/levelMilestones.ts';
 import { GameState } from '../types.ts';
-import { createJob } from './initialState.ts';
 
 // Service layer imports
-import { composeAction, composeTick } from './reducerComposer.ts';
+import { composeAction, composeTick, ROUTED_ACTIONS } from './reducerComposer.ts';
 
 // --- Logic from tickProcessor.ts ---
 // --- Logic from tickProcessor.ts ---
 import { processTick } from '../logic/tickLogic.ts';
-import { JobCard, TabType } from '../types.ts';
+import { TabType } from '../types.ts';
 
-// Legacy action handler - all actions now routed through domain slices
-// This function remains as a fallback but should not be called in normal operation
-const handleGameAction = (
-  _draft: GameState,
-  type: string,
-  _payload: Record<string, unknown>,
-  _createJob: () => JobCard,
-  _triggerEvent: (type: string, id?: string) => void
-): void => {
-  console.warn(
-    `[handleGameAction] Unhandled action type: ${type} - should be routed through a slice`
-  );
+/**
+ * Terminal handler for actions that reached the reducer but matched no
+ * slice group. This is always a wiring bug: the action has a button and
+ * probably a handler, but was never added to its group const in
+ * reducerComposer.ts. Fail loudly in development so it cannot ship.
+ */
+const handleGameAction = (draft: GameState, type: string): void => {
+  const message = `Action '${type}' is not routed. Add it to its slice group in reducerComposer.ts.`;
+
+  if (import.meta.env.DEV) {
+    throw new Error(`[handleGameAction] ${message}`);
+  }
+
+  console.error(`[handleGameAction] ${message}`);
+  draft.notificationQueue.push({
+    id: `unrouted-${type}-${Date.now()}`,
+    title: 'SYSTEM FAULT',
+    message: 'That control is not responding. The incident has been logged.',
+    variant: 'danger',
+    duration: 5000,
+  });
 };
 
 export type GameReducerAction =
@@ -120,153 +128,14 @@ export const gameReducer = (state: GameState, action: GameReducerAction): GameSt
         }
 
         // Route actions through composer first
-        const composedActions = [
-          'ARCHIVE_ACTION',
-          'MAINTENANCE_ARCHIVE_ACTION',
-          'COMPLETE_JOB',
-          'RESOLVE_EVENT',
-          'TRIGGER_EVENT',
-          'CLEAN_ULD',
-          'XRAY_WELDS',
-          'DECONSTRUCT_FDR',
-          'DESCEND_INTO_SLS3',
-          'ANALYZE_ANOMALY',
-          'SCAVENGE_CORROSION_CORNER',
-          'OBSERVE_CORROSION_CORNER',
-          'WASH_CUSHIONS',
-          'RENEW_DATABUS',
-          'CREATE_NON_ROUTINE_REPORT',
-          'PERFORM_HFEC_SCAN',
-          'PERFORM_BORESCOPE_INSPECTION',
-          'REPORT_ANOMALOUS',
-          'REPORT_MUNDANE',
-          'FORGE_SAMPLE',
-          'PERFORMANCE_REVIEW',
-          'REQUEST_LEAVE',
-          'ALTER_DOCUMENTS',
-          'DESTROY_DOCUMENTS',
-          'REVIEW_COMPLIANCE',
-          'GIVE_URINE_SAMPLE',
-          'MAINTAIN_LOW_PROFILE',
-          'GET_NEW_AIRCRAFT_TASK',
-          'AIRCRAFT_ACTION',
-          'SERVICE_LAVATORY',
-          'SMALL_TALK_CABIN',
-          'SMOKE_CIGARETTE',
-          'DRINK_GALLEY_COFFEE',
-          'SCAVENGE_GALLEYS',
-          'WATCH_RUNWAY',
-          'WATCH_BOARDS',
-          'GO_TERMINAL_RESTROOM',
-          'EAT_TERMINAL_BURGER',
-          'SLEEP_AT_GATE',
-          'SMALL_TALK_PERSONNEL',
-          'OFFER_ASSISTANCE',
-          'USE_PAYPHONE',
-          'TALK_TO_REGULAR',
-          'RUMMAGE_LOST_FOUND',
-          'CHECK_DELAYED_GATE',
-          'INSPECT_VENDING_MACHINE',
-          'TOGGLE_AUTO_SRF',
-          'CHECK_INTERNAL_MAIL',
-          'CROSS_REFERENCE_MANIFESTS',
-          'DIGITAL_STUDY',
-          'CREATE_SRF',
-          'SEARCH_MANUALS',
-          'ASSEMBLE_PC',
-          'UPGRADE_PC_GPU',
-          'UPGRADE_PC_HDD',
-          'NAP_TABLE',
-          'READ_MAGAZINE',
-          'INSPECT_PRINTER',
-          'PRINT_FORBIDDEN_PAGE',
-          'REVIEW_SURVEILLANCE_LOGS',
-          'DEEP_CLEAN_VENTS',
-          'LISTEN_RADIO',
-          'FOD_SWEEP',
-          'PERFORM_NDT',
-          'ORBITAL_SAND',
-          'TIGHTEN_BOLT',
-          'BOEING_SUPPORT',
-          'TOGGLE_NIGHT_CREW',
-          'TOGGLE_TRANSIT_CHECK_DELEGATION',
-          'LISTEN_FUSELAGE',
-          'CHECK_REDACTED_LOGS',
-          'MARSHALLING',
-          'BUY_SHOP_ITEM',
-          'BUY_VENDING',
-          'OBSERVE_SEDAN',
-          'JANITOR_INTERACTION',
-          'GET_TOOLROOM_ITEM',
-          'ASK_MASTER_LORE',
-          'TAKE_MANDATORY_COURSE',
-          'TAKE_AP_EXAM',
-          'TAKE_AVIONICS_EXAM',
-          'TAKE_EASA_EXAM',
-          'CERTIFY_EASA_LICENSE',
-          'TAKE_NDT_EXAM',
-          'TAKE_NDT_SUBTASK_EXAM',
-          'TAKE_TYPE_RATING',
-          'UNLOCK_SKILL',
-          'ACKNOWLEDGE_LEVEL_UP',
-          // Inventory actions (inventorySlice)
-          'HARVEST_ROTABLE',
-          'DISPOSE_ROTABLE',
-          'REPAIR_ROTABLE',
-          'DISPENSE_CONSUMABLE',
-          'REGISTER_ROTABLE',
-          'MIX_PAINT',
-          'SONIC_CLEAN',
-          'REPAIR_TOOL',
-          'START_CALIBRATION_MINIGAME',
-          'FINISH_CALIBRATION_MINIGAME',
-          'TOOLROOM_MASTER_TALK',
-          // AOG Actions
-          'ACCEPT_AOG_DEPLOYMENT',
-          'START_AOG_ACTION',
-          'RESOLVE_AOG_ACTION',
-          'COMPLETE_AOG_DEPLOYMENT',
-          // Procurement Actions
-          'PLACE_ORDER',
-          'CANCEL_ORDER',
-          'DELIVER_ORDER',
-          'CHECK_DELIVERIES',
-          'UNLOCK_CATALOGUE_LEVEL',
-          // Backroom Actions
-          'BUY_VENDING_ITEM',
-          'RUMMAGE_SHELVES',
-          'KICK_VENDING_MACHINE',
-          // Office
-          'READ_EMAIL',
-          // Resources
-          'LOG_FLAVOR',
-          // Pet
-          'PET_CAT',
-          'FEED_CAT',
-          'PLAY_WITH_CAT',
-          'PET_RANDOM_MOVE',
-          'SORT_HARDWARE',
-          'RESOLVE_SCENARIO', // Added
-          // Aircraft/Maintenance Additions
-          'START_CHEMICAL_PROCESS',
-          'PERFORM_CHEMICAL_STEP',
-          'CHECK_CURE_PROGRESS',
-          'RESEARCH_COMPONENT_HISTORY',
-          'FABRICATE_PAPERWORK',
-          'DOWNLOAD_DATA',
-          'ANALYZE_DATA',
-        ];
-
-        if (composedActions.includes(type)) {
+        if (ROUTED_ACTIONS.has(type)) {
           const updatedState = composeAction(draft as unknown as GameState, { type, payload });
           Object.assign(draft, updatedState);
           break;
         }
 
         // Route all other actions through handleGameAction
-        // triggerEvent is passed via payload from App.tsx onAction wrapper
-        const triggerFn = (payload?.triggerEvent as (t: string, id?: string) => void) || (() => {});
-        handleGameAction(draft, type, payload || {}, createJob, triggerFn);
+        handleGameAction(draft, type);
         break;
       }
       case 'TRIGGER_EVENT': {
