@@ -387,7 +387,7 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
         }
       }
       // 2. Handle Required Action Success (No choiceId)
-      else if (event.requiredAction && event.successOutcome) {
+      else if (event.requiredAction && event.successOutcome && action.payload?.viaRequiredAction) {
         // Apply Success Effects
         if (event.successOutcome.effects) {
           Object.entries(event.successOutcome.effects).forEach(([key, val]) => {
@@ -424,6 +424,15 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
           addLog(`You successfully completed: ${event.title}`, 'story');
           logAdded = true;
         }
+      }
+
+      // A requiredAction event that wasn't resolved through a valid choice
+      // or the internal viaRequiredAction dispatch is not actually
+      // resolved: bare RESOLVE_EVENT clicks (or a stray dispatch with no
+      // payload) must not fall through to the legacy fallback below and
+      // clear it for free.
+      if (event.requiredAction && !logAdded) {
+        return;
       }
 
       // 3. Fallback / Legacy Handling

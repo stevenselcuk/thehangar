@@ -220,11 +220,14 @@ const ActionPanel: React.FC<{
             })}
           </div>
         ) : event.requiredAction ? (
-          <ActionButton
-            label={event.requiredAction.replace(/_/g, ' ')}
-            onClick={() => onAction('RESOLVE_EVENT')}
-            className={`border-2 ${borderColor} bg-black/40`}
-          />
+          <div
+            className={`mt-4 border-2 ${borderColor} bg-black/40 px-4 py-3 text-[10px] uppercase tracking-[0.15em] ${textColor}`}
+          >
+            Required: {event.requiredAction.replace(/_/g, ' ')}
+            <div className="mt-1 text-[9px] normal-case tracking-normal text-zinc-500">
+              Complete this task before the timer expires.
+            </div>
+          </div>
         ) : (
           /* Fallback / Discard for informative events */
           <div className="mt-4">

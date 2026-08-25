@@ -444,6 +444,30 @@ export const ROUTED_ACTIONS: ReadonlySet<string> = new Set<string>([
 ]);
 
 /**
+ * After a routed action runs, an active event whose requiredAction names
+ * that action is satisfied. This is what makes timed tasks real: the
+ * player has to do the work, not press a button on the event panel.
+ *
+ * Guard against recursion is the first statement: this helper dispatches
+ * RESOLVE_EVENT back through composeAction, and must never re-enter itself
+ * off the back of that dispatch (whether the resolution clears the event
+ * outright or chains a fresh successor into activeEvent).
+ */
+const resolveRequiredAction = (state: GameState, actionType: string): GameState => {
+  if (actionType === 'RESOLVE_EVENT') return state;
+
+  const event = state.activeEvent;
+  if (!event || event.requiredAction !== actionType || !event.successOutcome) {
+    return state;
+  }
+
+  return composeAction(state, {
+    type: 'RESOLVE_EVENT',
+    payload: { viaRequiredAction: true },
+  });
+};
+
+/**
  * Compose reducers for ACTION events
  * Routes specific actions to appropriate domain slices
  *
@@ -452,6 +476,16 @@ export const ROUTED_ACTIONS: ReadonlySet<string> = new Set<string>([
  * @returns Updated game state
  */
 export const composeAction = (state: GameState, action: ReducerAction): GameState => {
+  const nextState = routeAction(state, action);
+  return resolveRequiredAction(nextState, action.type);
+};
+
+/**
+ * The routing logic composeAction wraps. Kept as a separate, non-exported
+ * function so composeAction can apply resolveRequiredAction uniformly to
+ * every routed action's result without duplicating the routing itself.
+ */
+const routeAction = (state: GameState, action: ReducerAction): GameState => {
   // Level gating check - block actions if player doesn't meet level requirements
   // Skip check for system actions and events that are already active
   const systemActions = [
