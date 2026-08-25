@@ -17,17 +17,6 @@ const UI_INTERCEPTED = new Set([
 /** Actions gameReducer handles directly, before consulting the router. */
 const REDUCER_LEVEL = new Set(['IMPORT_STATE', 'ACTION_SPAM_PENALTY']);
 
-/**
- * Actions with a rendered button but no handler anywhere. Implemented in
- * Phase 2 (Tasks 5-7); each is removed from this list by its own task.
- */
-const PENDING_IMPLEMENTATION = new Set([
-  'OVERHAUL_IDG',
-  'REPAIR_HP_VALVE',
-  'RECONFIGURE_ADIRS',
-  'REPAIR_GALLEY_UNIT',
-]);
-
 const SRC = path.resolve(__dirname, '../../src');
 
 function walk(dir: string): string[] {
@@ -63,7 +52,6 @@ describe('dispatch coverage', () => {
       .filter(([action]) => !ROUTED_ACTIONS.has(action))
       .filter(([action]) => !UI_INTERCEPTED.has(action))
       .filter(([action]) => !REDUCER_LEVEL.has(action))
-      .filter(([action]) => !PENDING_IMPLEMENTATION.has(action))
       .map(([action, files]) => `${action} (${files.join(', ')})`);
 
     expect(unroutable).toEqual([]);

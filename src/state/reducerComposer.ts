@@ -276,6 +276,10 @@ const BACKSHOP_ACTIONS = [
   'OBSERVE_CORROSION_CORNER',
   'WASH_CUSHIONS',
   'RENEW_DATABUS',
+  'OVERHAUL_IDG',
+  'REPAIR_HP_VALVE',
+  'RECONFIGURE_ADIRS',
+  'REPAIR_GALLEY_UNIT',
 ] as const;
 
 // Compliance action types handled by complianceSlice

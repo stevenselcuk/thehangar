@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { anomaliesData } from '@/data/anomalies.ts';
 import { Anomaly } from '@/types.ts';
 import {
+  BackshopAction,
   backshopReducer,
   BackshopSliceState,
   createRetrofitJob,
@@ -877,6 +878,85 @@ describe('backshopSlice - Actions', () => {
       expect(result).not.toBe(state);
       expect(result.resources).not.toBe(state.resources);
       expect(result.logs).not.toBe(state.logs);
+    });
+  });
+
+  describe('red-tag overhauls', () => {
+    let initialState: BackshopSliceState;
+
+    beforeEach(() => {
+      initialState = createBackshopState();
+    });
+
+    const makeRotable = (pn: string) => ({
+      id: `rot-${pn}`,
+      label: pn,
+      pn,
+      sn: 'SN-TEST-1',
+      condition: 10,
+      isInstalled: false,
+      isUntraceable: false,
+      isRedTagged: true,
+      history: [],
+      manufactureDate: 0,
+    });
+
+    it('restores the target rotable and clears its red tag', () => {
+      initialState.rotables = [makeRotable('IDG-757-A')];
+      initialState.resources.experience = 0;
+      initialState.resources.credits = 0;
+      initialState.stats.rotablesRepaired = 0;
+
+      const next = backshopReducer(initialState, {
+        type: 'OVERHAUL_IDG',
+        payload: {},
+      } as BackshopAction);
+
+      expect(next.rotables[0].condition).toBe(100);
+      expect(next.rotables[0].isRedTagged).toBe(false);
+      expect(next.resources.experience).toBe(900);
+      expect(next.resources.credits).toBe(400);
+      expect(next.stats.rotablesRepaired).toBe(1);
+    });
+
+    it('does nothing when no matching red-tagged rotable is present', () => {
+      initialState.rotables = [];
+      initialState.resources.experience = 0;
+
+      const next = backshopReducer(initialState, {
+        type: 'OVERHAUL_IDG',
+        payload: {},
+      } as BackshopAction);
+
+      expect(next.resources.experience).toBe(0);
+      expect(next.logs[0].type).toBe('error');
+    });
+
+    it('ignores a rotable of the right type that is not red-tagged', () => {
+      const healthy = { ...makeRotable('IDG-757-A'), isRedTagged: false, condition: 90 };
+      initialState.rotables = [healthy];
+      initialState.resources.experience = 0;
+
+      const next = backshopReducer(initialState, {
+        type: 'OVERHAUL_IDG',
+        payload: {},
+      } as BackshopAction);
+
+      expect(next.resources.experience).toBe(0);
+      expect(next.rotables[0].condition).toBe(90);
+    });
+
+    it('routes each action to its own part number', () => {
+      initialState.rotables = [makeRotable('BREW-MASTER')];
+      initialState.resources.experience = 0;
+
+      const next = backshopReducer(initialState, {
+        type: 'REPAIR_GALLEY_UNIT',
+        payload: {},
+      } as BackshopAction);
+
+      expect(next.resources.experience).toBe(400);
+      expect(next.rotables[0].isRedTagged).toBe(false);
     });
   });
 });

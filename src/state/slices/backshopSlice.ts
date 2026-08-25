@@ -49,7 +49,11 @@ export type BackshopAction =
   | { type: 'SCAVENGE_CORROSION_CORNER'; payload: Record<string, unknown> }
   | { type: 'OBSERVE_CORROSION_CORNER'; payload: Record<string, unknown> }
   | { type: 'WASH_CUSHIONS'; payload: Record<string, unknown> }
-  | { type: 'RENEW_DATABUS'; payload: Record<string, unknown> };
+  | { type: 'RENEW_DATABUS'; payload: Record<string, unknown> }
+  | { type: 'OVERHAUL_IDG'; payload: Record<string, unknown> }
+  | { type: 'REPAIR_HP_VALVE'; payload: Record<string, unknown> }
+  | { type: 'RECONFIGURE_ADIRS'; payload: Record<string, unknown> }
+  | { type: 'REPAIR_GALLEY_UNIT'; payload: Record<string, unknown> };
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -97,6 +101,45 @@ export const createRetrofitJob = (anomaly: Anomaly, duration: number) => {
     timeLeft: duration,
     totalTime: duration,
   };
+};
+
+/**
+ * The four Backshops overhaul actions, keyed by the part number that
+ * BackshopsTab uses to enable each button. Keep the focus values in
+ * sync with the cost labels rendered in BackshopsTab.tsx.
+ */
+export const OVERHAUL_TARGETS: Record<
+  string,
+  { pn: string; focus: number; xp: number; credits: number; log: string }
+> = {
+  OVERHAUL_IDG: {
+    pn: 'IDG-757-A',
+    focus: 80,
+    xp: 900,
+    credits: 400,
+    log: 'The Integrated Drive Generator comes apart in your hands like something that wanted to. Reassembled, it spins true.',
+  },
+  REPAIR_HP_VALVE: {
+    pn: 'PRV-ENG-HP1',
+    focus: 60,
+    xp: 600,
+    credits: 250,
+    log: 'You lap the valve seat until the leak stops. It takes four hours and you do not remember three of them.',
+  },
+  RECONFIGURE_ADIRS: {
+    pn: 'ADIRS-HG2030',
+    focus: 90,
+    xp: 1100,
+    credits: 500,
+    log: 'The inertial reference unit aligns. It reports a position eleven kilometres from where you are standing, then corrects itself.',
+  },
+  REPAIR_GALLEY_UNIT: {
+    pn: 'BREW-MASTER',
+    focus: 50,
+    xp: 400,
+    credits: 180,
+    log: 'Descaled, resealed, tested. The galley unit brews one cup you did not ask for.',
+  },
 };
 
 // ==================== REDUCER ====================
@@ -340,6 +383,39 @@ export const backshopReducer = (
           'You carefully strip and replace the burnt ARINC 429 databus wiring. Tedious, but profitable.',
           'info'
         );
+        break;
+      }
+
+      case 'OVERHAUL_IDG':
+      case 'REPAIR_HP_VALVE':
+      case 'RECONFIGURE_ADIRS':
+      case 'REPAIR_GALLEY_UNIT': {
+        const target = OVERHAUL_TARGETS[action.type];
+        const index = draft.rotables.findIndex((r) => r.pn === target.pn && r.isRedTagged);
+
+        if (index === -1) {
+          addLog(`TASK REJECTED: No red-tagged ${target.pn} on the bench.`, 'error');
+          break;
+        }
+
+        const rotable = draft.rotables[index];
+        rotable.condition = 100;
+        rotable.isRedTagged = false;
+        rotable.history.push({
+          date: Date.now(),
+          event: 'REPAIRED',
+          description: `Overhauled in backshop. Serviceable tag issued.`,
+        });
+
+        draft.resources.experience += target.xp;
+        draft.resources.credits += target.credits;
+        draft.stats.rotablesRepaired += 1;
+
+        if (draft.flags.activeComponentFailure === rotable.id) {
+          draft.flags.activeComponentFailure = null;
+        }
+
+        addLog(target.log, 'story');
         break;
       }
     }
