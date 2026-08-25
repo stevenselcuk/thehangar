@@ -60,14 +60,14 @@ export const shopReducer = (state: ShopSliceState, action: ShopAction): ShopSlic
 
     switch (action.type) {
       case 'BUY_SHOP_ITEM':
-        if (draft.resources.alclad >= action.payload.cost) {
-          draft.resources.alclad -= action.payload.cost;
+        if (draft.resources.credits >= action.payload.cost) {
+          draft.resources.credits -= action.payload.cost;
           (draft.inventory as unknown as Record<string, boolean | number>)[action.payload.item] =
             true;
           draft.toolConditions[action.payload.item] = 100;
           addLog(`PURCHASED: ${action.payload.item.toUpperCase()}`);
         } else {
-          addLog('NOT ENOUGH ALCLAD SCRAP.', 'error');
+          addLog('INSUFFICIENT CREDITS.', 'error');
         }
         break;
 

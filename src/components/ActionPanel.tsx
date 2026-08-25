@@ -480,7 +480,7 @@ const ActionPanel: React.FC<{
                         <ActionButton
                           key={item.id}
                           label={`Buy ${item.label}`}
-                          cost={{ label: 'Alclad', value: item.cost }}
+                          cost={{ label: 'Credits', value: item.cost }}
                           onClick={() =>
                             onAction('BUY_SHOP_ITEM', { item: item.id, cost: item.cost })
                           }
@@ -979,7 +979,7 @@ const ActionPanel: React.FC<{
                         <ActionButton
                           key={item.id}
                           label={`Purchase ${item.label}`}
-                          cost={{ label: 'Alclad', value: item.cost }}
+                          cost={{ label: 'Credits', value: item.cost }}
                           onClick={() =>
                             onAction('BUY_SHOP_ITEM', { item: item.id, cost: item.cost })
                           }

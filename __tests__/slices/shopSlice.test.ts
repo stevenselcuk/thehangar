@@ -188,24 +188,24 @@ describe('shopSlice', () => {
   });
 
   describe('BUY_SHOP_ITEM', () => {
-    it('should purchase item with sufficient alclad', () => {
+    it('should purchase item with sufficient credits', () => {
       const action: ShopAction = {
         type: 'BUY_SHOP_ITEM',
-        payload: { item: 'rivetGun', cost: 200 },
+        payload: { item: 'rivetGun', cost: 75 },
       };
 
       const result = shopReducer(initialState, action);
 
-      expect(result.resources.alclad).toBe(300);
+      expect(result.resources.credits).toBe(25);
       expect((result.inventory as unknown as Record<string, unknown>).pencil).toBe(true);
       expect(result.toolConditions.rivetGun).toBe(100);
       expect(result.logs[0].text).toContain('PURCHASED');
     });
 
-    it('should fail with insufficient alclad', () => {
+    it('should fail with insufficient credits', () => {
       const poorState = {
         ...initialState,
-        resources: { ...initialState.resources, alclad: 50 },
+        resources: { ...initialState.resources, credits: 50 },
       };
 
       const action: ShopAction = {
@@ -215,9 +215,9 @@ describe('shopSlice', () => {
 
       const result = shopReducer(poorState, action);
 
-      expect(result.resources.alclad).toBe(50);
+      expect(result.resources.credits).toBe(50);
       expect((result.inventory as unknown as Record<string, unknown>).rivetGun).toBe(false);
-      expect(result.logs[0].text).toContain('NOT ENOUGH');
+      expect(result.logs[0].text).toContain('INSUFFICIENT');
       expect(result.logs[0].type).toBe('error');
     });
 
@@ -230,6 +230,35 @@ describe('shopSlice', () => {
       const result = shopReducer(initialState, action);
 
       expect(result.toolConditions.hammer).toBe(100);
+    });
+  });
+
+  describe('BUY_SHOP_ITEM currency', () => {
+    it('spends credits, not alclad', () => {
+      initialState.resources.credits = 500;
+      initialState.resources.alclad = 500;
+
+      const next = shopReducer(initialState, {
+        type: 'BUY_SHOP_ITEM',
+        payload: { item: 'hammer', cost: 25 },
+      });
+
+      expect(next.resources.credits).toBe(475);
+      expect(next.resources.alclad).toBe(500);
+      expect(next.inventory.hammer).toBe(true);
+    });
+
+    it('refuses when credits are short even with plenty of alclad', () => {
+      initialState.resources.credits = 10;
+      initialState.resources.alclad = 9999;
+
+      const next = shopReducer(initialState, {
+        type: 'BUY_SHOP_ITEM',
+        payload: { item: 'irLamp', cost: 400 },
+      });
+
+      expect(next.inventory.irLamp).toBeFalsy();
+      expect(next.resources.alclad).toBe(9999);
     });
   });
 
