@@ -447,8 +447,8 @@ export const loadState = (saveKey: string): GameState => {
           janitorCooldown: 0,
           sanityShieldTimer: 0,
           foundLoopholeTimer: 0,
-          clearanceLevel: parsed.hfStats?.clearanceLevel || 1,
-          hfRecurrentDueDate: parsed.hfStats?.hfRecurrentDueDate || 0,
+          clearanceLevel: parsed.hfStats?.clearanceLevel ?? 1,
+          hfRecurrentDueDate: parsed.hfStats?.hfRecurrentDueDate ?? 0,
         },
         proficiency: {
           ...defaults.proficiency,

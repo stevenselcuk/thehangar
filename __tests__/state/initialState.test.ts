@@ -4,9 +4,10 @@ import {
   generateVendingPrices,
   loadState,
 } from '@/state/initialState';
+import { getAllUnlockedTabs } from '@/data/levelMilestones.ts';
+import { isTabUnlocked } from '@/services/LevelManager.ts';
 import type { GameState } from '@/types';
 import { mockMathRandom } from '@/utils/testHelpers';
-import { getAllUnlockedFlags } from '@/data/levelMilestones.ts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('initialState', () => {
@@ -220,11 +221,16 @@ describe('initialState', () => {
       expect(state.resources.level).toBe(0);
     });
 
-    it('grants the level-0 milestone flags at init', () => {
+    it('grants the level-0 milestone tabs (HANGAR, CANTEEN) at init', () => {
       const state = createInitialState();
-      const expected = getAllUnlockedFlags(0);
-      for (const flag of expected) {
-        expect(state.flags[flag as keyof typeof state.flags]).toBe(true);
+      const expectedTabs = getAllUnlockedTabs(0);
+
+      // Level 0's milestone genuinely unlocks tabs (unlike flags, which it
+      // has none of) — assert the fresh state actually reflects that, so a
+      // regression that stops applying level-0 unlocks would fail this.
+      expect(expectedTabs.length).toBeGreaterThan(0);
+      for (const tab of expectedTabs) {
+        expect(isTabUnlocked(tab, state)).toBe(true);
       }
     });
   });
@@ -447,6 +453,49 @@ describe('initialState', () => {
       expect(loaded.flags.isAfraid).toBe(false);
       expect(loaded.flags.janitorPresent).toBe(false);
       expect(loaded.flags.ndtFinding).toBeNull();
+    });
+
+    it('preserves a legitimate level 0 on load, and still loads other levels correctly', () => {
+      // Regression guard for the `||` vs `??` falsy-fallback bug: `0` is a
+      // real, distinct level (ORIENTATION DAY) and must not be silently
+      // replaced by a fallback. Asserting only the level-0 case would pass
+      // even if the fix were reverted, purely because `createInitialState`
+      // now also defaults to level 0 — so this also asserts a save at a
+      // different level (5) still loads as 5, which a broken fallback that
+      // always forced the default would fail.
+      const zeroLevelSave = {
+        ...createInitialState(),
+        resources: { ...createInitialState().resources, level: 0 },
+      };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(zeroLevelSave));
+      expect(loadState(SAVE_KEY).resources.level).toBe(0);
+
+      const level5Save = {
+        ...createInitialState(),
+        resources: { ...createInitialState().resources, level: 5 },
+      };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(level5Save));
+      expect(loadState(SAVE_KEY).resources.level).toBe(5);
+    });
+
+    it('preserves a legitimate clearanceLevel of 0 (REVOKED) on load, distinct from a missing value', () => {
+      // clearanceLevel's fallback literal is 1, not 0, so this directly
+      // distinguishes `??` from `||`: `0 || 1` would wrongly produce 1,
+      // while `0 ?? 1` correctly keeps 0. AboutModal.tsx renders
+      // clearanceLevel 0 as "REVOKED" — a distinct, meaningful UI state.
+      const revokedSave = {
+        ...createInitialState(),
+        hfStats: { ...createInitialState().hfStats, clearanceLevel: 0 },
+      };
+      localStorage.setItem(SAVE_KEY, JSON.stringify(revokedSave));
+      expect(loadState(SAVE_KEY).hfStats.clearanceLevel).toBe(0);
+
+      // A save genuinely missing hfStats entirely still falls back to the
+      // default clearanceLevel of 1, showing the fallback itself still works.
+      const missingClearance: Record<string, unknown> = { ...createInitialState() };
+      delete missingClearance.hfStats;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(missingClearance));
+      expect(loadState(SAVE_KEY).hfStats.clearanceLevel).toBe(1);
     });
 
     it('should reset transient timers on load', () => {
