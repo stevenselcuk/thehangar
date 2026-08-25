@@ -500,25 +500,57 @@ export const processTick = (
     if (draft.activeEvent.type !== 'story_event') {
       draft.activeEvent.timeLeft -= delta;
       if (draft.activeEvent.timeLeft <= 0) {
-        if (draft.activeEvent.id === 'FUEL_CONTAM') {
+        const expired = draft.activeEvent;
+
+        if (expired.id === 'FUEL_CONTAM') {
           draft.flags.fuelContaminationRisk = true;
           addLog("You flushed the contaminated sample. Let's hope nobody finds out.", 'warning');
         }
 
-        const sanityLossMap: Partial<Record<string, number>> = {
-          accident: 40,
-          eldritch_manifestation: 45,
-          canteen_incident: 25,
-        };
-        // Custom generic fallback
-        let loss = 5;
-        if (draft.activeEvent.suitType === 'THE_SUITS') loss = 35;
-        else if (sanityLossMap[draft.activeEvent.type])
-          loss = sanityLossMap[draft.activeEvent.type]!;
+        const outcome = expired.failureOutcome;
+        let appliedAuthoredEffects = false;
 
-        draft.resources.sanity -= loss;
-        draft.resources.suspicion += draft.activeEvent.type === 'audit' ? 30 : 5;
-        addLog(`SITUATION FAILED: ${draft.activeEvent.title}`, 'error');
+        if (outcome?.effects) {
+          Object.entries(outcome.effects).forEach(([key, value]) => {
+            const resKey = key as keyof GameState['resources'];
+            if (typeof value === 'number' && typeof draft.resources[resKey] === 'number') {
+              (draft.resources[resKey] as number) += value;
+              appliedAuthoredEffects = true;
+            }
+          });
+        }
+
+        if (outcome?.storyFlag) {
+          if (!draft.flags.storyFlags) {
+            draft.flags.storyFlags = {};
+          }
+          draft.flags.storyFlags[outcome.storyFlag.key] = outcome.storyFlag.value;
+        }
+
+        if (!appliedAuthoredEffects) {
+          // No authored effects: fall back to the generic penalty by event type.
+          const sanityLossMap: Partial<Record<string, number>> = {
+            accident: 40,
+            eldritch_manifestation: 45,
+            canteen_incident: 25,
+          };
+          let loss = 5;
+          if (expired.suitType === 'THE_SUITS') loss = 35;
+          else if (sanityLossMap[expired.type]) loss = sanityLossMap[expired.type]!;
+
+          draft.resources.sanity -= loss;
+          draft.resources.suspicion += expired.type === 'audit' ? 30 : 5;
+        }
+
+        draft.resources.sanity = Math.max(0, Math.min(100, draft.resources.sanity));
+        draft.resources.suspicion = Math.max(
+          0,
+          Math.min(GAME_CONSTANTS.MAX_SUSPICION, draft.resources.suspicion)
+        );
+        draft.resources.focus = Math.max(0, Math.min(100, draft.resources.focus));
+        draft.resources.health = Math.max(0, Math.min(100, draft.resources.health));
+
+        addLog(outcome?.log || `SITUATION FAILED: ${expired.title}`, 'error');
         draft.activeEvent = null;
       }
     }
