@@ -338,6 +338,7 @@ export function createMinimalGameState(overrides: Partial<GameState> = {}): Game
       foundLoopholeTimer: 0,
       clearanceLevel: 0,
       hfRecurrentDueDate: 0,
+      restCooldown: 0,
     },
   };
 

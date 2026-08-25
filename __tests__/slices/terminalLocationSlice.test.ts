@@ -124,6 +124,7 @@ describe('terminalLocationSlice', () => {
         foundLoopholeTimer: 0,
         clearanceLevel: 0,
         hfRecurrentDueDate: 0,
+        restCooldown: 0,
       },
       proficiency: {
         unlocked: [],
@@ -205,7 +206,7 @@ describe('terminalLocationSlice', () => {
   });
 
   describe('SLEEP_AT_GATE', () => {
-    it('should restore focus and sanity but increase suspicion', () => {
+    it('should restore focus and sanity partially but increase suspicion', () => {
       const tired = {
         ...initialState,
         resources: { ...initialState.resources, focus: 30, sanity: 50 },
@@ -220,10 +221,52 @@ describe('terminalLocationSlice', () => {
 
       const result = terminalLocationReducer(tired, action);
 
-      expect(result.resources.focus).toBe(100);
-      expect(result.resources.sanity).toBe(100);
+      expect(result.resources.focus).toBe(70);
+      expect(result.resources.sanity).toBe(75);
       expect(result.resources.suspicion).toBe(20);
       expect(result.logs).toHaveLength(1);
+    });
+
+    it('reduces fatigue and starts the cooldown', () => {
+      initialState.hfStats.fatigue = 80;
+      initialState.hfStats.restCooldown = 0;
+
+      const next = terminalLocationReducer(initialState, {
+        type: 'SLEEP_AT_GATE',
+        payload: {},
+      } as TerminalLocationAction);
+
+      expect(next.hfStats.fatigue).toBe(40);
+      expect(next.hfStats.restCooldown).toBeGreaterThan(0);
+    });
+
+    it('refuses while the cooldown is running', () => {
+      initialState.resources.focus = 20;
+      initialState.hfStats.restCooldown = 60000;
+
+      const next = terminalLocationReducer(initialState, {
+        type: 'SLEEP_AT_GATE',
+        payload: {},
+      } as TerminalLocationAction);
+
+      expect(next.resources.focus).toBe(20);
+      expect(next.logs[0].type).toBe('warning');
+    });
+
+    it('clamps restores at 100', () => {
+      initialState.resources.focus = 90;
+      initialState.resources.sanity = 95;
+      initialState.hfStats.fatigue = 10;
+      initialState.hfStats.restCooldown = 0;
+
+      const next = terminalLocationReducer(initialState, {
+        type: 'SLEEP_AT_GATE',
+        payload: {},
+      } as TerminalLocationAction);
+
+      expect(next.resources.focus).toBe(100);
+      expect(next.resources.sanity).toBe(100);
+      expect(next.hfStats.fatigue).toBe(0);
     });
   });
 

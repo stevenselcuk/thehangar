@@ -81,9 +81,9 @@ describe('composeAction focus charging', () => {
   });
 
   it('does not claw back focus an action restored', () => {
-    // NAP_TABLE sets focus to 100 and has no registered cost.
+    // NAP_TABLE restores +40 focus and has no registered cost.
     const next = composeAction(stateWith({ focus: 20 }), { type: 'NAP_TABLE' });
-    expect(next.resources.focus).toBe(100);
+    expect(next.resources.focus).toBe(60);
   });
 
   it('never drives focus below zero', () => {

@@ -184,6 +184,7 @@ describe('officeSlice', () => {
         foundLoopholeTimer: 0,
         clearanceLevel: 0,
         hfRecurrentDueDate: 0,
+        restCooldown: 0,
       },
       stats: {
         anomaliesAnalyzed: 0,
@@ -514,7 +515,7 @@ describe('officeSlice', () => {
   });
 
   describe('NAP_TABLE', () => {
-    it('should restore focus and sanity but increase suspicion', () => {
+    it('should restore focus and sanity partially but increase suspicion', () => {
       const tired = {
         ...initialState,
         resources: { ...initialState.resources, focus: 30, sanity: 40 },
@@ -527,9 +528,55 @@ describe('officeSlice', () => {
 
       const result = officeReducer(tired, action);
 
-      expect(result.resources.focus).toBe(100);
-      expect(result.resources.sanity).toBe(100);
+      expect(result.resources.focus).toBe(70);
+      expect(result.resources.sanity).toBe(65);
       expect(result.resources.suspicion).toBe(15);
+    });
+
+    it('restores partially rather than to full', () => {
+      initialState.resources.focus = 20;
+      initialState.resources.sanity = 30;
+      initialState.hfStats.fatigue = 80;
+      initialState.hfStats.restCooldown = 0;
+
+      const next = officeReducer(initialState, {
+        type: 'NAP_TABLE',
+        payload: {},
+      } as OfficeAction);
+
+      expect(next.resources.focus).toBe(60);
+      expect(next.resources.sanity).toBe(55);
+      expect(next.hfStats.fatigue).toBe(40);
+      expect(next.hfStats.restCooldown).toBeGreaterThan(0);
+    });
+
+    it('refuses while the cooldown is running', () => {
+      initialState.resources.focus = 20;
+      initialState.hfStats.restCooldown = 60000;
+
+      const next = officeReducer(initialState, {
+        type: 'NAP_TABLE',
+        payload: {},
+      } as OfficeAction);
+
+      expect(next.resources.focus).toBe(20);
+      expect(next.logs[0].type).toBe('warning');
+    });
+
+    it('clamps restores at 100', () => {
+      initialState.resources.focus = 90;
+      initialState.resources.sanity = 95;
+      initialState.hfStats.fatigue = 10;
+      initialState.hfStats.restCooldown = 0;
+
+      const next = officeReducer(initialState, {
+        type: 'NAP_TABLE',
+        payload: {},
+      } as OfficeAction);
+
+      expect(next.resources.focus).toBe(100);
+      expect(next.resources.sanity).toBe(100);
+      expect(next.hfStats.fatigue).toBe(0);
     });
   });
 

@@ -225,6 +225,7 @@ export const createInitialState = (): GameState => ({
     foundLoopholeTimer: 0,
     clearanceLevel: 1,
     hfRecurrentDueDate: 0,
+    restCooldown: 0,
   },
   proficiency: {
     skillPoints: 0,

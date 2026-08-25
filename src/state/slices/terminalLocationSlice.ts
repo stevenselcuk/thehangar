@@ -1,4 +1,5 @@
 import { produce } from 'immer';
+import { GAME_CONSTANTS } from '../../data/constants.ts';
 import {
   ACTION_LOGS,
   PAYPHONE_FLAVOR_TEXTS,
@@ -136,10 +137,17 @@ export const terminalLocationReducer = (
       }
 
       case 'SLEEP_AT_GATE': {
+        if (draft.hfStats.restCooldown > 0) {
+          addLog('The bench is occupied by your own recent absence. Not yet.', 'warning');
+          break;
+        }
+
         addLog(ACTION_LOGS.SLEEP_GATE_1, 'info');
-        draft.resources.focus = 100;
-        draft.resources.sanity = 100;
-        draft.hfStats.socialStress = 0;
+        draft.resources.focus = Math.min(100, draft.resources.focus + 40);
+        draft.resources.sanity = Math.min(100, draft.resources.sanity + 25);
+        draft.hfStats.fatigue = Math.max(0, draft.hfStats.fatigue - 40);
+        draft.hfStats.socialStress = Math.floor(draft.hfStats.socialStress / 2);
+        draft.hfStats.restCooldown = GAME_CONSTANTS.REST_COOLDOWN;
         draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 20);
 
         if (Math.random() < 0.33) {

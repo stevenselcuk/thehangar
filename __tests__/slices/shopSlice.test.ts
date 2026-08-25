@@ -180,6 +180,7 @@ describe('shopSlice', () => {
         sanityShieldTimer: 0,
         clearanceLevel: 1,
         hfRecurrentDueDate: 0,
+        restCooldown: 0,
       },
       vendingPrices: {},
       logs: [],

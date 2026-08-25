@@ -410,6 +410,9 @@ export const processTick = (
   if (draft.hfStats.foundLoopholeTimer > 0) {
     draft.hfStats.foundLoopholeTimer -= delta;
   }
+  if (draft.hfStats.restCooldown > 0) {
+    draft.hfStats.restCooldown = Math.max(0, draft.hfStats.restCooldown - delta);
+  }
 
   if (draft.hfStats.toolroomMasterCooldown > 0) {
     draft.hfStats.toolroomMasterCooldown -= delta;

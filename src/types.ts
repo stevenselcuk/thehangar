@@ -525,6 +525,7 @@ export interface GameState {
     foundLoopholeTimer: number;
     clearanceLevel: number;
     hfRecurrentDueDate: number;
+    restCooldown: number;
   };
   aog: {
     active: boolean;

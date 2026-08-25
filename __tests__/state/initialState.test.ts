@@ -300,6 +300,7 @@ describe('initialState', () => {
           foundLoopholeTimer: 0,
           clearanceLevel: 0,
           hfRecurrentDueDate: 0,
+          restCooldown: 0,
         },
         inventory: {
           flashlight: true,

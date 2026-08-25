@@ -1,6 +1,6 @@
 export const GAME_CONSTANTS = {
   FPS: 15,
-  SAVE_KEY: 'the_hangar_save__build_176',
+  SAVE_KEY: 'the_hangar_save__build_177',
 
   // Resources
   FOCUS_REGEN_BASE: 3.0,
@@ -15,6 +15,7 @@ export const GAME_CONSTANTS = {
   MAIL_COOLDOWN: 3 * 60 * 1000,
   JANITOR_COOLDOWN: 10 * 60 * 1000,
   TOOLROOM_MASTER_COOLDOWN: 5 * 60 * 1000, // Estimated default
+  REST_COOLDOWN: 5 * 60 * 1000,
 
   // Probability
   RANDOM_EVENT_CHANCE: 0.0003,

@@ -257,6 +257,7 @@ export const initialGameState: GameState = {
     foundLoopholeTimer: 0,
     clearanceLevel: 0,
     hfRecurrentDueDate: 0,
+    restCooldown: 0,
   },
   time: {
     totalPlayTime: 0,

@@ -1,4 +1,5 @@
 import { produce } from 'immer';
+import { GAME_CONSTANTS } from '../../data/constants.ts';
 import {
   ACTION_LOGS,
   DIGITAL_AMM_FLAVOR,
@@ -252,10 +253,17 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
         break;
 
       case 'NAP_TABLE':
+        if (draft.hfStats.restCooldown > 0) {
+          addLog('You are not tired enough to sleep again. The chair knows it too.', 'warning');
+          break;
+        }
+
         addLog(ACTION_LOGS.NAP_TABLE, 'info');
-        draft.resources.focus = 100;
-        draft.resources.sanity = 100;
-        draft.hfStats.socialStress = 0;
+        draft.resources.focus = Math.min(100, draft.resources.focus + 40);
+        draft.resources.sanity = Math.min(100, draft.resources.sanity + 25);
+        draft.hfStats.fatigue = Math.max(0, draft.hfStats.fatigue - 40);
+        draft.hfStats.socialStress = Math.floor(draft.hfStats.socialStress / 2);
+        draft.hfStats.restCooldown = GAME_CONSTANTS.REST_COOLDOWN;
         draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 15);
 
         if (Math.random() < 0.33) {
