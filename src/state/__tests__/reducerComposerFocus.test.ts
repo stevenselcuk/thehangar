@@ -7,7 +7,6 @@ import { composeAction } from '../reducerComposer.ts';
 /**
  * These tests run against composeAction — the function gameReducer's ACTION
  * case actually calls (see gameReducer.ts, `if (ROUTED_ACTIONS.has(type))`).
- * composeReducers is not on the dispatch path and is not exercised here.
  */
 
 const stateWith = (overrides: {

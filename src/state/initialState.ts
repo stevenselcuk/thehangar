@@ -192,7 +192,6 @@ export const createInitialState = (): GameState => {
       suspicionEvent90Triggered: false,
       autoSrfActive: false,
       venomSurgeActive: false,
-      fuelContaminationRisk: false,
       migraineActive: false,
       onPerformanceImprovementPlan: false,
       janitorPresent: false,

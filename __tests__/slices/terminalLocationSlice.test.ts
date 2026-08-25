@@ -89,7 +89,6 @@ describe('terminalLocationSlice', () => {
         suspicionEvent90Triggered: false,
         autoSrfActive: false,
         venomSurgeActive: false,
-        fuelContaminationRisk: false,
         migraineActive: false,
         toolroomMasterPissed: false,
         janitorPresent: false,

@@ -6,8 +6,6 @@ import { GameState } from '../types.ts';
 // Service layer imports
 import { composeAction, composeTick, ROUTED_ACTIONS } from './reducerComposer.ts';
 
-// --- Logic from tickProcessor.ts ---
-// --- Logic from tickProcessor.ts ---
 import { processTick } from '../logic/tickLogic.ts';
 import { TabType } from '../types.ts';
 

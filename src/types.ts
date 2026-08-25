@@ -259,7 +259,6 @@ export interface GameFlags {
   suspicionEvent90Triggered: boolean;
   autoSrfActive: boolean;
   venomSurgeActive: boolean;
-  fuelContaminationRisk: boolean;
   migraineActive: boolean;
   onPerformanceImprovementPlan: boolean;
   janitorPresent: boolean;

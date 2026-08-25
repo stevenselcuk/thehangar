@@ -1243,24 +1243,3 @@ const routeAction = (state: GameState, action: ReducerAction): GameState => {
 
   return state;
 };
-
-/**
- * Main composer entry point
- * Determines action type and routes to appropriate composer
- */
-export const composeReducers = (
-  state: GameState,
-  action: ReducerAction,
-  activeTab: TabType
-): GameState => {
-  let nextState = state;
-
-  if (action.type === 'TICK') {
-    const { delta } = action.payload as { delta: number };
-    nextState = composeTick(state, delta, activeTab);
-  } else if (action.type === 'ACTION') {
-    nextState = composeAction(state, action.payload as ReducerAction);
-  }
-
-  return nextState;
-};

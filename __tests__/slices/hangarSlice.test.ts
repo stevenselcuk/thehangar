@@ -73,7 +73,6 @@ describe('hangarSlice', () => {
         transitCheckDelegationActive: false,
         autoSrfActive: false,
         isAfraid: false,
-        fuelContaminationRisk: false,
         ndtFinding: null,
         venomSurgeActive: false,
         sls3Unlocked: false,

@@ -5,9 +5,6 @@ import { eventsData } from '@/data/events.ts';
 
 const SRC = path.resolve(__dirname, '../../src');
 
-/** Files retired by the refactor; deleted in Phase 6. Not part of the build. */
-const IGNORED = ['logic/actionProcessor.ts', 'logic/tickProcessor.ts', 'data/actions.ts'];
-
 function walk(dir: string): string[] {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = path.join(dir, entry.name);
@@ -55,7 +52,7 @@ function referencedIds(): Map<string, string[]> {
 
   for (const file of walk(SRC)) {
     const rel = path.relative(SRC, file);
-    if (IGNORED.includes(rel) || /\.test\.tsx?$/.test(rel)) continue;
+    if (/\.test\.tsx?$/.test(rel)) continue;
 
     const source = fs.readFileSync(file, 'utf8');
     for (const pattern of patterns) {
