@@ -310,6 +310,49 @@ describe('hangarSlice', () => {
     });
   });
 
+  describe('INSTALL_RIVETS', () => {
+    it('awards experience and consumes rivets when a rivet gun is held', () => {
+      initialState.inventory.rivetGun = true;
+      initialState.resources.rivets = 50;
+      initialState.resources.experience = 0;
+
+      const next = hangarReducer(initialState, {
+        type: 'INSTALL_RIVETS',
+        payload: {},
+      });
+
+      expect(next.resources.experience).toBe(200);
+      expect(next.resources.rivets).toBe(30);
+    });
+
+    it('refuses without a rivet gun', () => {
+      initialState.inventory.rivetGun = false;
+      initialState.resources.rivets = 50;
+      initialState.resources.experience = 0;
+
+      const next = hangarReducer(initialState, {
+        type: 'INSTALL_RIVETS',
+        payload: {},
+      });
+
+      expect(next.resources.experience).toBe(0);
+      expect(next.resources.rivets).toBe(50);
+    });
+
+    it('refuses without enough rivets', () => {
+      initialState.inventory.rivetGun = true;
+      initialState.resources.rivets = 5;
+
+      const next = hangarReducer(initialState, {
+        type: 'INSTALL_RIVETS',
+        payload: {},
+      });
+
+      expect(next.resources.experience).toBe(0);
+      expect(next.resources.rivets).toBe(5);
+    });
+  });
+
   describe('BOEING_SUPPORT', () => {
     it('should award experience, reduce sanity, increase suspicion', () => {
       const action: HangarAction = {

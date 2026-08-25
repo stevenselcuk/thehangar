@@ -55,6 +55,7 @@ export type HangarAction =
   | { type: 'PERFORM_NDT'; payload: Record<string, unknown> }
   | { type: 'ORBITAL_SAND'; payload: Record<string, unknown> }
   | { type: 'TIGHTEN_BOLT'; payload: Record<string, unknown> }
+  | { type: 'INSTALL_RIVETS'; payload: Record<string, unknown> }
   | { type: 'BOEING_SUPPORT'; payload: Record<string, unknown> }
   | { type: 'TOGGLE_NIGHT_CREW'; payload: Record<string, unknown> }
   | { type: 'TOGGLE_TRANSIT_CHECK_DELEGATION'; payload: Record<string, unknown> }
@@ -163,6 +164,23 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
           draft.resources.rivets += 1;
         }
         break;
+
+      case 'INSTALL_RIVETS': {
+        if (!draft.inventory.rivetGun) {
+          addLog('ERROR: MISSING PNEUMATIC RIVET GUN.', 'error');
+          break;
+        }
+        if (draft.resources.rivets < 20) {
+          addLog('ERROR: INSUFFICIENT RIVETS. 20 REQUIRED.', 'error');
+          break;
+        }
+
+        draft.resources.rivets -= 20;
+        draft.resources.experience += 200;
+        draft.toolConditions.rivetGun = Math.max(0, (draft.toolConditions.rivetGun || 100) - 1.5);
+        addLog('You install the rivets. The metal holds. For now.', 'info');
+        break;
+      }
 
       case 'BOEING_SUPPORT': {
         const bmsg = BOEING_REPLIES[Math.floor(Math.random() * BOEING_REPLIES.length)];
