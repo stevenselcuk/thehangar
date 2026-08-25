@@ -542,6 +542,52 @@ describe('eventsSlice', () => {
     });
   });
 
+  describe('focus effects on event choices', () => {
+    it('subtracts a negative focus effect instead of refilling to full', () => {
+      const state = createMinimalGameState();
+      state.resources.focus = 60;
+      state.activeEvent = {
+        id: 'TEST_FOCUS_COST',
+        type: 'incident',
+        title: 'Focus Drain',
+        description: 'test',
+        timeLeft: 10000,
+        totalTime: 10000,
+        failureOutcome: { log: 'failed' },
+        choices: [{ id: 'drain', label: 'Drain', effects: { focus: -25 } }],
+      };
+
+      const next = eventsReducer(state as unknown as EventsSliceState, {
+        type: 'RESOLVE_EVENT',
+        payload: { choiceId: 'drain' },
+      });
+
+      expect(next.resources.focus).toBe(35);
+    });
+
+    it('clamps a positive focus effect at 100', () => {
+      const state = createMinimalGameState();
+      state.resources.focus = 90;
+      state.activeEvent = {
+        id: 'TEST_FOCUS_GAIN',
+        type: 'incident',
+        title: 'Focus Gain',
+        description: 'test',
+        timeLeft: 10000,
+        totalTime: 10000,
+        failureOutcome: { log: 'failed' },
+        choices: [{ id: 'rest', label: 'Rest', effects: { focus: 30 } }],
+      };
+
+      const next = eventsReducer(state as unknown as EventsSliceState, {
+        type: 'RESOLVE_EVENT',
+        payload: { choiceId: 'rest' },
+      });
+
+      expect(next.resources.focus).toBe(100);
+    });
+  });
+
   // ==================== TRIGGER_EVENT ====================
 
   describe('TRIGGER_EVENT', () => {

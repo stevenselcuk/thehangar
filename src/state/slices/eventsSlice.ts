@@ -339,7 +339,8 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
                     draft.resources.health = Math.max(0, Math.min(100, draft.resources.health));
                   if (resKey === 'sanity')
                     draft.resources.sanity = Math.max(0, Math.min(100, draft.resources.sanity));
-                  if (resKey === 'focus') draft.resources.focus = Math.max(0, 100); // Focus can go > 100? Assuming strictly managed elsewhere, but let's cap lower bound
+                  if (resKey === 'focus')
+                    draft.resources.focus = Math.max(0, Math.min(100, draft.resources.focus));
                   if (resKey === 'suspicion')
                     draft.resources.suspicion = Math.max(
                       0,
