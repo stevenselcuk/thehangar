@@ -42,8 +42,8 @@ import { useNotification } from './hooks/useNotification.ts';
 
 import ReloadPrompt from './components/ReloadPrompt.tsx';
 
-const SAVE_KEY = 'the_hangar_save__build_152';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_152';
+const SAVE_KEY = 'the_hangar_save__build_153';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_153';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
