@@ -5,6 +5,27 @@ import { vendingData } from '../data/vending.ts';
 import { GameState, JobCard } from '../types.ts';
 import { sanitizeGameState } from './stateValidator.ts';
 
+/**
+ * Merges saved data onto a defaults object, keeping only keys that exist on
+ * the defaults object. Plain object spread merge (`{ ...defaults, ...saved }`)
+ * fills in missing fields but can never remove one: if a schema field was
+ * later deleted, a save written while it still existed reintroduces it as an
+ * orphan key on every load. This allowlist merge guarantees both directions:
+ * a field missing from `saved` takes the default, and a field present in
+ * `saved` but absent from `defaultsObj` is dropped.
+ */
+const mergeKnownFields = <T extends object>(defaultsObj: T, saved: unknown): T => {
+  const merged: T = { ...defaultsObj };
+  if (saved && typeof saved === 'object') {
+    (Object.keys(defaultsObj) as (keyof T)[]).forEach((key) => {
+      if (key in (saved as object)) {
+        merged[key] = (saved as T)[key];
+      }
+    });
+  }
+  return merged;
+};
+
 export const generateVendingPrices = (): Record<string, number> => {
   const prices: Record<string, number> = {};
   vendingData.forEach((item) => {
@@ -394,9 +415,10 @@ export const loadState = (saveKey: string): GameState => {
       const sanitized = sanitizeGameState({
         ...defaults,
         ...parsed,
-        resources: { ...defaults.resources, ...(parsed.resources || {}) },
-        inventory: { ...defaults.inventory, ...(parsed.inventory || {}) },
-        hfStats: { ...defaults.hfStats, ...(parsed.hfStats || {}) },
+        resources: mergeKnownFields(defaults.resources, parsed.resources),
+        inventory: mergeKnownFields(defaults.inventory, parsed.inventory),
+        hfStats: mergeKnownFields(defaults.hfStats, parsed.hfStats),
+        flags: mergeKnownFields(defaults.flags, parsed.flags),
       });
 
       if (!sanitized) {
@@ -465,11 +487,10 @@ export const loadState = (saveKey: string): GameState => {
           hfRecurrentDueDate: sanitized.hfStats?.hfRecurrentDueDate ?? 0,
         },
         proficiency: {
-          ...defaults.proficiency,
-          ...(sanitized.proficiency || {}),
+          ...mergeKnownFields(defaults.proficiency, sanitized.proficiency),
           easaModulesPassed: sanitized.proficiency?.easaModulesPassed || [],
         },
-        stats: { ...defaults.stats, ...(sanitized.stats || {}) },
+        stats: mergeKnownFields(defaults.stats, sanitized.stats),
         archiveTerminal: sanitized.archiveTerminal || defaults.archiveTerminal,
         maintenanceTerminal: sanitized.maintenanceTerminal || defaults.maintenanceTerminal,
         mail: sanitized.mail || [],

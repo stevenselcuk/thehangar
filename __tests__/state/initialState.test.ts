@@ -651,9 +651,29 @@ describe('save validation', () => {
   afterEach(() => localStorage.removeItem(KEY));
 
   it('falls back to defaults when the save fails validation', () => {
-    localStorage.setItem(KEY, JSON.stringify({ resources: 'not an object', inventory: {} }));
+    // resources.focus is a real ResourceState field with a wrong type — passes
+    // the shallow `!parsed.resources` check (it's a truthy object) but must
+    // fail isValidGameState's `typeof focus !== 'number'` check. alclad is
+    // set to a value that differs from the default so the assertion can't
+    // pass by coincidence the way the old version of this test did (its
+    // input's resources.level was never anything but the default 0).
+    const defaults = createInitialState();
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        ...defaults,
+        resources: { ...defaults.resources, focus: 'not-a-number', alclad: 12345 },
+      })
+    );
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const state = loadState(KEY);
-    expect(state.resources.level).toBe(0);
+
+    expect(state.resources.focus).toBe(defaults.resources.focus);
+    expect(state.resources.alclad).toBe(defaults.resources.alclad);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('failed validation'));
+
+    warnSpy.mockRestore();
   });
 
   it('clamps out-of-range values instead of trusting them', () => {
@@ -670,5 +690,49 @@ describe('save validation', () => {
     expect(state.resources.sanity).toBeLessThanOrEqual(100);
     expect(state.resources.suspicion).toBeGreaterThanOrEqual(0);
     expect(state.resources.level).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_LEVEL);
+  });
+});
+
+describe('nested-object merge does not leak orphan keys', () => {
+  // Regression guard: a plain object spread merge (`{ ...defaults, ...saved
+  // }`) fills in missing fields but can never remove one — if a schema field
+  // is later deleted, a save written while it still existed would
+  // reintroduce it as an orphan key on every load, forever. `flags` is the
+  // field the audit actually found doing this (a save predating the removal
+  // of `fuelContaminationRisk`, `endingAlienConspiracyProgress` and
+  // `endingGovtConspiracyProgress` kept reintroducing them), but the same
+  // spread-merge pattern was used for every fixed-shape nested object, so
+  // this checks both directions on `flags` plus one more (`proficiency`) to
+  // confirm the fix generalises.
+  const KEY = 'test_save_orphan_keys';
+
+  afterEach(() => localStorage.removeItem(KEY));
+
+  it('backfills a flags field the save predates, and does not reintroduce one removed from the schema', () => {
+    const defaults = createInitialState();
+    const rawFlags: Record<string, unknown> = { ...defaults.flags };
+    delete rawFlags.sls3Unlocked; // simulate a save written before this field existed
+    rawFlags.fuelContaminationRisk = true; // simulate a save written before this field was removed
+
+    localStorage.setItem(KEY, JSON.stringify({ ...defaults, flags: rawFlags }));
+
+    const loaded = loadState(KEY);
+
+    expect(loaded.flags.sls3Unlocked).toBe(defaults.flags.sls3Unlocked); // backfilled
+    expect(loaded.flags).not.toHaveProperty('fuelContaminationRisk'); // not reintroduced
+  });
+
+  it('backfills a proficiency field the save predates, and does not reintroduce one removed from the schema', () => {
+    const defaults = createInitialState();
+    const rawProficiency: Record<string, unknown> = { ...defaults.proficiency };
+    delete rawProficiency.unlockedBonuses;
+    rawProficiency.legacyRankField = 'orphan';
+
+    localStorage.setItem(KEY, JSON.stringify({ ...defaults, proficiency: rawProficiency }));
+
+    const loaded = loadState(KEY);
+
+    expect(loaded.proficiency.unlockedBonuses).toEqual(defaults.proficiency.unlockedBonuses);
+    expect(loaded.proficiency).not.toHaveProperty('legacyRankField');
   });
 });
