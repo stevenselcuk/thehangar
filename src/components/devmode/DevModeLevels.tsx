@@ -9,6 +9,7 @@
  */
 
 import React from 'react';
+import { GAME_CONSTANTS } from '../../data/constants.ts';
 import { MILESTONE_DATA, getNextMilestone } from '../../data/levelMilestones.ts';
 import {
   getLevelProgressInfo,
@@ -24,7 +25,7 @@ interface DevModeLevelsProps {
   dispatch: React.Dispatch<GameReducerAction>;
 }
 
-const QUICK_JUMP_LEVELS = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 49];
+const QUICK_JUMP_LEVELS = [0, 5, 10, 15, 20, 25, 30, 35, 36, 38, GAME_CONSTANTS.MAX_LEVEL];
 
 export const DevModeLevels: React.FC<DevModeLevelsProps> = ({ gameState, dispatch }) => {
   const progressInfo = getLevelProgressInfo(gameState);
@@ -88,7 +89,9 @@ export const DevModeLevels: React.FC<DevModeLevelsProps> = ({ gameState, dispatc
             </button>
             <span className="text-3xl font-bold text-emerald-400">{progressInfo.currentLevel}</span>
             <button
-              onClick={() => setLevel(Math.min(49, gameState.resources.level + 1))}
+              onClick={() =>
+                setLevel(Math.min(GAME_CONSTANTS.MAX_LEVEL, gameState.resources.level + 1))
+              }
               className="w-8 h-8 bg-emerald-900/50 border border-emerald-700 text-emerald-400 hover:bg-emerald-800"
             >
               +

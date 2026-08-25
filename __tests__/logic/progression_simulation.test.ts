@@ -187,8 +187,8 @@ describe('Progression Simulation', () => {
     });
 
     it('should trigger story events via triggerEvent callback', () => {
-      // Setup Level 39 -> 40 (Truth Proximate)
-      // Level 40 Milestone has narrativeEvent: 'TRUTH_PROXIMATE_REVELATION'
+      // Setup Level 39 -> 40 (Truth Reveal, the level cap)
+      // Level 40 Milestone has narrativeEvent: 'TRUTH_REVEAL'
 
       initialState.resources.level = 39;
       initialState.resources.experience = 300000; // Force high XP (Need ~243k)

@@ -48,20 +48,20 @@ describe('FeatureRegistry', () => {
       }
     });
 
-    it('should have valid level requirements (0-49)', () => {
+    it('should have valid level requirements (0-40)', () => {
       for (const feature of Object.values(ACTION_FEATURES)) {
         expect(feature.requiredLevel).toBeGreaterThanOrEqual(0);
-        expect(feature.requiredLevel).toBeLessThanOrEqual(49);
+        expect(feature.requiredLevel).toBeLessThanOrEqual(40);
       }
     });
 
-    it('should include ending actions at level 49', () => {
+    it('should include ending actions at level 40', () => {
       expect(ACTION_FEATURES.TRIGGER_ALIEN_ENDING).toBeDefined();
-      expect(ACTION_FEATURES.TRIGGER_ALIEN_ENDING.requiredLevel).toBe(49);
+      expect(ACTION_FEATURES.TRIGGER_ALIEN_ENDING.requiredLevel).toBe(40);
       expect(ACTION_FEATURES.TRIGGER_GOVT_ENDING).toBeDefined();
-      expect(ACTION_FEATURES.TRIGGER_GOVT_ENDING.requiredLevel).toBe(49);
+      expect(ACTION_FEATURES.TRIGGER_GOVT_ENDING.requiredLevel).toBe(40);
       expect(ACTION_FEATURES.TRIGGER_CRAZY_ENDING).toBeDefined();
-      expect(ACTION_FEATURES.TRIGGER_CRAZY_ENDING.requiredLevel).toBe(49);
+      expect(ACTION_FEATURES.TRIGGER_CRAZY_ENDING.requiredLevel).toBe(40);
     });
 
     it('should have metallicSphere requirement for alien ending', () => {
@@ -108,7 +108,7 @@ describe('FeatureRegistry', () => {
 
     it('getActionRequiredLevel should return correct level for known actions', () => {
       expect(getActionRequiredLevel('GET_TOOLROOM_ITEM')).toBe(1);
-      expect(getActionRequiredLevel('TRIGGER_ALIEN_ENDING')).toBe(49);
+      expect(getActionRequiredLevel('TRIGGER_ALIEN_ENDING')).toBe(40);
     });
 
     it('getTabRequiredLevel should return correct levels', () => {

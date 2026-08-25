@@ -5,6 +5,7 @@
  * No state mutations - this is a query service only.
  */
 
+import { GAME_CONSTANTS } from '../data/constants.ts';
 import {
   ACTION_FEATURES,
   getActionRequiredLevel,
@@ -161,6 +162,18 @@ export const getLevelProgressInfo = (
 } => {
   const currentLevel = state.resources.level;
   const currentXP = state.resources.experience;
+
+  // At the level cap there is no next level to progress toward - report full/zero
+  // rather than dividing by the Infinity that getXpForNextLevel now returns there.
+  if (currentLevel >= GAME_CONSTANTS.MAX_LEVEL) {
+    return {
+      currentLevel,
+      currentXP,
+      xpToNextLevel: 0,
+      progressPercent: 100,
+      nextMilestone: getNextMilestone(currentLevel),
+    };
+  }
 
   // XP formula: Each level requires (level * 500) + 500 XP from the previous level
   // Level 1: 1000 XP, Level 2: 1500 XP, Level 3: 2000 XP, etc.

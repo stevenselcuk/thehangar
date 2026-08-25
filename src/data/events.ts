@@ -1410,7 +1410,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
       type: 'story_event',
       title: 'THE HANGAR DOORS OPEN',
       description:
-        'Level 49. The final shift. The main hangar doors are opening, but there is no runway outside. Only a swirling vortex of greyscale clouds and static.',
+        'Level 40. The final shift. The main hangar doors are opening, but there is no runway outside. Only a swirling vortex of greyscale clouds and static.',
       totalTime: 0,
       choices: [
         {

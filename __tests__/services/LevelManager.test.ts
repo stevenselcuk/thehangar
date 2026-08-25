@@ -105,27 +105,27 @@ describe('LevelManager', () => {
       expect(isActionUnlocked('UNKNOWN_ACTION', baseState)).toBe(true);
     });
 
-    it('should NOT allow ending actions below level 49', () => {
-      baseState.resources.level = 48;
+    it('should NOT allow ending actions below level 40', () => {
+      baseState.resources.level = 39;
       expect(isActionUnlocked('TRIGGER_ALIEN_ENDING', baseState)).toBe(false);
       expect(isActionUnlocked('TRIGGER_GOVT_ENDING', baseState)).toBe(false);
       expect(isActionUnlocked('TRIGGER_CRAZY_ENDING', baseState)).toBe(false);
     });
 
-    it('should allow ending actions at level 49', () => {
-      baseState.resources.level = 49;
+    it('should allow ending actions at level 40', () => {
+      baseState.resources.level = 40;
       expect(isActionUnlocked('TRIGGER_GOVT_ENDING', baseState)).toBe(true);
       expect(isActionUnlocked('TRIGGER_CRAZY_ENDING', baseState)).toBe(true);
     });
 
     it('should require metallicSphere for TRIGGER_ALIEN_ENDING', () => {
-      baseState.resources.level = 49;
+      baseState.resources.level = 40;
       baseState.inventory.metallicSphere = false;
       expect(isActionUnlocked('TRIGGER_ALIEN_ENDING', baseState)).toBe(false);
     });
 
     it('should allow TRIGGER_ALIEN_ENDING with metallicSphere', () => {
-      baseState.resources.level = 49;
+      baseState.resources.level = 40;
       baseState.inventory.metallicSphere = true;
       expect(isActionUnlocked('TRIGGER_ALIEN_ENDING', baseState)).toBe(true);
     });
@@ -231,6 +231,14 @@ describe('LevelManager', () => {
       expect(info.currentLevel).toBe(5);
       expect(info.currentXP).toBe(1000);
       expect(info.nextMilestone).toBeDefined();
+    });
+
+    it('should report a full, static bar at the level cap instead of cycling', () => {
+      baseState.resources.level = 40;
+      baseState.resources.experience = 999999;
+      const info = getLevelProgressInfo(baseState);
+      expect(info.progressPercent).toBe(100);
+      expect(info.xpToNextLevel).toBe(0);
     });
   });
 

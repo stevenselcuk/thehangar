@@ -1,4 +1,5 @@
 import { getLevelUpLog, getXpForNextLevel } from '@/logic/levels';
+import { GAME_CONSTANTS } from '@/data/constants.ts';
 import { describe, expect, it } from 'vitest';
 
 describe('levels', () => {
@@ -47,10 +48,10 @@ describe('levels', () => {
       expect(xp).toBe(500); // 500 * (0 + 1) = 500
     });
 
-    it('should handle high levels', () => {
-      const xp50 = getXpForNextLevel(50);
-      expect(xp50).toBe(25500); // 500 * 51
-      expect(Number.isFinite(xp50)).toBe(true);
+    it('should handle high levels below the cap', () => {
+      const xp39 = getXpForNextLevel(39);
+      expect(xp39).toBe(20000); // 500 * 40
+      expect(Number.isFinite(xp39)).toBe(true);
     });
 
     it('should match linear formula 500 * (level + 1)', () => {
@@ -224,6 +225,24 @@ describe('levels', () => {
       // Transitions happen at boundaries
       expect(level5Log).not.toBe(level6Log); // 5 to 6
       expect(level10Log).not.toBe(level11Log); // 10 to 11
+    });
+  });
+
+  describe('level cap', () => {
+    it('returns Infinity at the cap so no further level-up can occur', () => {
+      expect(getXpForNextLevel(GAME_CONSTANTS.MAX_LEVEL)).toBe(Infinity);
+    });
+
+    it('keeps the full run under 450k XP', () => {
+      let total = 0;
+      for (let l = 0; l < GAME_CONSTANTS.MAX_LEVEL; l++) {
+        total += getXpForNextLevel(l);
+      }
+      expect(total).toBeLessThan(450_000);
+    });
+
+    it('still scales with level below the cap', () => {
+      expect(getXpForNextLevel(10)).toBeGreaterThan(getXpForNextLevel(5));
     });
   });
 });

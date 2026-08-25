@@ -1,6 +1,6 @@
 export const GAME_CONSTANTS = {
   FPS: 15,
-  SAVE_KEY: 'the_hangar_save__build_181',
+  SAVE_KEY: 'the_hangar_save__build_182',
 
   // Resources
   FOCUS_REGEN_BASE: 3.0,
@@ -34,6 +34,8 @@ export const GAME_CONSTANTS = {
   MAX_SANITY: 100,
   MAX_FOCUS: 100,
   CRITICAL_SUSPICION_THRESHOLDS: [30, 60, 90],
+  // The final milestone is level 40 (TRUTH REVEAL). No level beyond it.
+  MAX_LEVEL: 40,
 
   // Dynamic Difficulty
   DIFFICULTY_SCALING: {

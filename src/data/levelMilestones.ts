@@ -1,11 +1,11 @@
 /**
- * Level Milestones - Defines the 50-level progression (0-49) for The Hangar
+ * Level Milestones - Defines the 41-level progression (0-40) for The Hangar
  *
  * Each milestone represents a narrative beat in the player's descent into
  * the Lovecraftian horror of corporate aviation maintenance.
  *
  * Level 0: Fresh meat. Sign the papers. Get your badge.
- * Level 49: The truth awaits. Choose your ending.
+ * Level 40: The truth awaits. Choose your ending.
  */
 
 import { TabType } from '../types.ts';
@@ -31,8 +31,8 @@ export interface LevelMilestone {
  * - Levels 6-15: First anomalies. Strange noises. Odd deliveries.
  * - Levels 16-25: The pattern emerges. The Suits take notice.
  * - Levels 26-35: Deep lore. KARDEX access. The truth fractures.
- * - Levels 36-48: Preparation for the end. Gather what you need.
- * - Level 49: Truth reveal. Three paths. None of them real.
+ * - Levels 36-39: Preparation for the end. Gather what you need.
+ * - Level 40: Truth reveal. Three paths. None of them real.
  */
 export const MILESTONE_DATA: LevelMilestone[] = [
   // ==================== ORIENTATION (0-5) ====================
@@ -219,9 +219,9 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     },
   },
 
-  // ==================== PREPARATION (36-48) ====================
+  // ==================== PREPARATION (36-39) ====================
   {
-    level: 40,
+    level: 36,
     name: 'TRUTH PROXIMATE',
     description:
       'The pieces are assembling themselves. MH370 was not lost. It was taken. Returned. Changed.',
@@ -231,7 +231,7 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     narrativeEvent: 'TRUTH_PROXIMATE_REVELATION',
   },
   {
-    level: 45,
+    level: 38,
     name: 'FINAL CLEARANCE',
     description:
       'They have stopped watching. Either they trust you, or they know it no longer matters.',
@@ -240,9 +240,9 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     },
   },
 
-  // ==================== TRUTH REVEAL (49) ====================
+  // ==================== TRUTH REVEAL (40) ====================
   {
-    level: 49,
+    level: 40,
     name: 'TRUTH REVEAL',
     description:
       'The hangar door opens to the void. Three paths. Three lies. MH370 remains missing. You cannot prove anything. But you got close.',

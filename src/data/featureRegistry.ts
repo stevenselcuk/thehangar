@@ -168,24 +168,24 @@ export const ACTION_FEATURES: Record<string, FeatureDefinition> = {
     requiredItems: ['metallicSphere'],
   },
 
-  // Level 49 - Endings
+  // Level 40 - Endings
   TRIGGER_ALIEN_ENDING: {
     id: 'TRIGGER_ALIEN_ENDING',
     type: 'action',
-    requiredLevel: 49,
+    requiredLevel: 40,
     requiredItems: ['metallicSphere'],
     description: 'Alien conspiracy ending - they were never from here',
   },
   TRIGGER_GOVT_ENDING: {
     id: 'TRIGGER_GOVT_ENDING',
     type: 'action',
-    requiredLevel: 49,
+    requiredLevel: 40,
     description: 'Government conspiracy ending - they knew all along',
   },
   TRIGGER_CRAZY_ENDING: {
     id: 'TRIGGER_CRAZY_ENDING',
     type: 'action',
-    requiredLevel: 49,
+    requiredLevel: 40,
     description: 'Madness ending - perhaps it was you all along',
   },
   // Violation Management

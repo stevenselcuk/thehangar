@@ -1,4 +1,7 @@
+import { GAME_CONSTANTS } from '../data/constants.ts';
+
 export const getXpForNextLevel = (level: number): number => {
+  if (level >= GAME_CONSTANTS.MAX_LEVEL) return Infinity;
   return 500 * (level + 1);
 };
 
