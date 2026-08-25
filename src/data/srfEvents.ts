@@ -73,7 +73,7 @@ export const srfEvents: EventTemplates[] = [
         cost: { resource: 'focus', amount: 20 },
         log: 'It fits perfectly. The aircraft hums with a new, strange resonance.',
         effects: { experience: 200, suspicion: 5 },
-        nextEventId: 'incident:SRF_CHAIN_4',
+        nextEventId: 'audit:SRF_CHAIN_4',
       },
       {
         id: 'quarantine',
@@ -186,7 +186,7 @@ export const srfEvents: EventTemplates[] = [
         cost: { resource: 'sanity', amount: 25 },
         log: 'The last entry is your own name. The ink is still wet.',
         effects: { experience: 500, suspicion: 10 },
-        nextEventId: 'incident:SRF_CHAIN_8',
+        nextEventId: 'audit:SRF_CHAIN_8',
       },
       {
         id: 'burn',
@@ -243,7 +243,7 @@ export const srfEvents: EventTemplates[] = [
         cost: { resource: 'focus', amount: 40 },
         log: 'You access the hangar control panel and synchronize the harmonics. The vibration stabilizes into a pure, clean tone.',
         effects: { experience: 800, sanity: 20 },
-        nextEventId: 'incident:SRF_CHAIN_10',
+        nextEventId: 'story_event:SRF_CHAIN_10',
       },
       {
         id: 'run',

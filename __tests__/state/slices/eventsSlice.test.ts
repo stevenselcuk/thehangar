@@ -640,6 +640,20 @@ describe('eventsSlice', () => {
 
       expect(next.activeEvent).toBeNull();
     });
+
+    it('resolves a category:id successor against the real authored data (LEAD_FAVOR -> RUSH_JOB_ACTIVE)', () => {
+      const state = createMinimalGameState();
+      state.activeEvent = createEventFromTemplate('incident', 'LEAD_FAVOR');
+
+      const next = eventsReducer(state as unknown as EventsSliceState, {
+        type: 'RESOLVE_EVENT',
+        payload: { choiceId: 'accept' },
+      });
+
+      expect(next.activeEvent).not.toBeNull();
+      expect(next.activeEvent?.id).toBe('RUSH_JOB_ACTIVE');
+      expect(next.activeEvent?.type).toBe('incident');
+    });
   });
 
   describe('focus effects on event choices', () => {

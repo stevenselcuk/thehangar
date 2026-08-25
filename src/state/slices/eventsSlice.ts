@@ -169,6 +169,20 @@ export const createEventFromTemplate = (
 };
 
 /**
+ * Resolves a successor id authored as either a bare id (looked up within
+ * `fallbackType`, the category of the event being left) or a `category:id`
+ * reference (looked up within the named category). The data authors use
+ * the `category:id` form for most chain links (e.g. the SRF chain, and
+ * LEAD_FAVOR -> RUSH_JOB_ACTIVE), since a successor commonly lives in a
+ * different event category than its predecessor.
+ */
+const resolveSuccessorRef = (rawId: string, fallbackType: string): { type: string; id: string } => {
+  const separatorIndex = rawId.indexOf(':');
+  if (separatorIndex === -1) return { type: fallbackType, id: rawId };
+  return { type: rawId.slice(0, separatorIndex), id: rawId.slice(separatorIndex + 1) };
+};
+
+/**
  * Generates a flavor log for event resolution based on state
  */
 export const generateResolutionLog = (
@@ -360,9 +374,9 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
 
           // Capture the authored successor, if any, while the choice is in scope.
           if (choice.event) {
-            successor = { type: choice.event.type, id: choice.event.id };
+            successor = resolveSuccessorRef(choice.event.id, choice.event.type);
           } else if (choice.nextEventId) {
-            successor = { type: event.type, id: choice.nextEventId };
+            successor = resolveSuccessorRef(choice.nextEventId, event.type);
           }
 
           // Log Result
@@ -394,9 +408,12 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
 
         // Capture the authored successor, if any.
         if (event.successOutcome.event) {
-          successor = { type: event.successOutcome.event.type, id: event.successOutcome.event.id };
+          successor = resolveSuccessorRef(
+            event.successOutcome.event.id,
+            event.successOutcome.event.type
+          );
         } else if (event.successOutcome.nextEventId) {
-          successor = { type: event.type, id: event.successOutcome.nextEventId };
+          successor = resolveSuccessorRef(event.successOutcome.nextEventId, event.type);
         }
 
         // Log Success
