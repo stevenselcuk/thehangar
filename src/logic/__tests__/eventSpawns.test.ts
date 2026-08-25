@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { processTick } from '../tickLogic.ts';
 import { TabType, type GameState } from '../../types.ts';
 import { createMinimalGameState } from '../../utils/testHelpers.ts';
+import { canSpawnEventCategory } from '../../services/LevelManager.ts';
 
 describe('event spawn coverage', () => {
   let state: GameState;
@@ -55,5 +56,28 @@ describe('event spawn coverage', () => {
 
     expect(categoriesTriggered()).not.toContain('syndicate');
     vi.restoreAllMocks();
+  });
+
+  it.each(['management', 'canteen_incident', 'bureaucratic_horror'])(
+    'can spawn %s events',
+    (category) => {
+      state.resources.level = 30;
+      vi.spyOn(Math, 'random').mockReturnValue(0);
+
+      processTick(state, 1000, triggerEvent, TabType.HANGAR);
+
+      expect(categoriesTriggered()).toContain(category);
+      vi.restoreAllMocks();
+    }
+  );
+
+  it('blocks management events below the registered required level', () => {
+    state.resources.level = 9;
+    expect(canSpawnEventCategory('management', state)).toBe(false);
+  });
+
+  it('allows management events at the registered required level', () => {
+    state.resources.level = 10;
+    expect(canSpawnEventCategory('management', state)).toBe(true);
   });
 });

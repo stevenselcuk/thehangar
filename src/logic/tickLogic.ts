@@ -296,6 +296,18 @@ export const processTick = (
       triggerRandomEvent('syndicate');
     }
 
+    // Categories with authored content and, until now, no spawn path.
+    // Level gating is enforced downstream by canSpawnEventCategory.
+    if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.MANAGEMENT_ACTIVITY * (delta / 1000)) {
+      triggerRandomEvent('management');
+    }
+    if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.CANTEEN_ENCOUNTER * (delta / 1000)) {
+      triggerRandomEvent('canteen_incident');
+    }
+    if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.BUREAUCRATIC_HORROR * (delta / 1000)) {
+      triggerRandomEvent('bureaucratic_horror');
+    }
+
     if (!draft.flags.activeComponentFailure) {
       for (const rotable of draft.rotables) {
         if (

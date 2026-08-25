@@ -236,6 +236,12 @@ export const EVENT_CATEGORY_FEATURES: Record<string, FeatureDefinition> = {
     requiredLevel: 10,
     description: 'Paperwork that fights back',
   },
+  management: {
+    id: 'EVENT_MANAGEMENT',
+    type: 'event_category',
+    requiredLevel: 10,
+    description: 'Directives, appraisals, and the org chart anomaly',
+  },
   eldritch_manifestation: {
     id: 'EVENT_ELDRITCH',
     type: 'event_category',
