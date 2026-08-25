@@ -1,10 +1,11 @@
+import { ACTION_LOGS } from '@/data/flavor.ts';
 import {
   officeReducer,
   type OfficeAction,
   type OfficeSliceState,
 } from '@/state/slices/officeSlice.ts';
 import seedrandom from 'seedrandom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('officeSlice', () => {
   let initialState: OfficeSliceState;
@@ -342,20 +343,44 @@ describe('officeSlice', () => {
       expect(next.logs[0].type).toBe('error');
     });
 
-    it('awards experience and suspicion on success', () => {
-      Math.random = seedrandom('decrypt-success');
+    it('awards experience and sanity loss on success', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.1);
       initialState.inventory.pcAssembled = true;
       initialState.resources.experience = 0;
       initialState.resources.suspicion = 0;
+      initialState.resources.sanity = 100;
 
       const next = officeReducer(initialState, {
         type: 'DECRYPT_AMM',
         payload: {},
       } as OfficeAction);
 
-      // Either branch must charge suspicion and log something.
-      expect(next.resources.suspicion).toBeGreaterThan(0);
-      expect(next.logs.length).toBeGreaterThan(0);
+      expect(next.resources.experience).toBe(400);
+      expect(next.resources.sanity).toBe(92);
+      expect(next.resources.suspicion).toBe(10);
+      expect(next.logs[0].text).toBe(ACTION_LOGS.DECRYPT_AMM_SUCCESS);
+
+      vi.restoreAllMocks();
+    });
+
+    it('reduces focus on failure', () => {
+      vi.spyOn(Math, 'random').mockReturnValue(0.9);
+      initialState.inventory.pcAssembled = true;
+      initialState.resources.experience = 0;
+      initialState.resources.suspicion = 0;
+      initialState.resources.focus = 100;
+
+      const next = officeReducer(initialState, {
+        type: 'DECRYPT_AMM',
+        payload: {},
+      } as OfficeAction);
+
+      expect(next.resources.experience).toBe(0);
+      expect(next.resources.focus).toBe(90);
+      expect(next.resources.suspicion).toBe(10);
+      expect(next.logs[0].text).toBe(ACTION_LOGS.DECRYPT_AMM_FAIL);
+
+      vi.restoreAllMocks();
     });
   });
 
