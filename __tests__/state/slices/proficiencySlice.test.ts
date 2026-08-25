@@ -555,6 +555,26 @@ describe('proficiencySlice', () => {
       expect(result.logs).toHaveLength(0);
     });
 
+    it('should ignore a skill id that does not exist in skillsData', () => {
+      const state = createProficiencyState({
+        proficiency: {
+          skillPoints: 1,
+          unlocked: [],
+          unlockedBonuses: [],
+          easaModulesPassed: [],
+        },
+      });
+
+      const result = proficiencyReducer(state, {
+        type: 'UNLOCK_SKILL',
+        payload: { id: 'nonExistentSkill' },
+      });
+
+      expect(result.proficiency.skillPoints).toBe(1); // Should not deduct
+      expect(result.proficiency.unlocked).not.toContain('nonExistentSkill');
+      expect(result.logs).toHaveLength(0);
+    });
+
     it('should unlock multiple skills in sequence', () => {
       let state = createProficiencyState({
         proficiency: {
