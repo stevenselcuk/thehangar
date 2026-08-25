@@ -542,6 +542,37 @@ describe('eventsSlice', () => {
     });
   });
 
+  describe('storyFlag persistence', () => {
+    it('writes a choice storyFlag into flags.storyFlags', () => {
+      const state = createMinimalGameState();
+      state.flags.storyFlags = {};
+      state.activeEvent = {
+        id: 'TEST_FLAG_EVENT',
+        type: 'story_event',
+        title: 'A Decision',
+        description: 'test',
+        timeLeft: 10000,
+        totalTime: 10000,
+        failureOutcome: { log: 'failed' },
+        choices: [
+          {
+            id: 'accept',
+            label: 'Accept',
+            storyFlag: { key: 'acceptedTheOffer', value: true },
+            log: 'You accept.',
+          },
+        ],
+      };
+
+      const next = eventsReducer(state as unknown as EventsSliceState, {
+        type: 'RESOLVE_EVENT',
+        payload: { choiceId: 'accept' },
+      });
+
+      expect(next.flags.storyFlags.acceptedTheOffer).toBe(true);
+    });
+  });
+
   describe('focus effects on event choices', () => {
     it('subtracts a negative focus effect instead of refilling to full', () => {
       const state = createMinimalGameState();

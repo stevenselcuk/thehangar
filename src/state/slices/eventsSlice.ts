@@ -351,6 +351,11 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
             });
           }
 
+          // Persist narrative state
+          if (choice.storyFlag) {
+            draft.flags.storyFlags[choice.storyFlag.key] = choice.storyFlag.value;
+          }
+
           // Log Result
           if (choice.log) {
             addLog(choice.log, 'story');
@@ -373,9 +378,15 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
           });
         }
 
+        if (event.successOutcome.storyFlag) {
+          draft.flags.storyFlags[event.successOutcome.storyFlag.key] =
+            event.successOutcome.storyFlag.value;
+        }
+
         // Log Success
         if (event.successOutcome.log) {
           addLog(event.successOutcome.log, 'story');
+          logAdded = true;
         } else {
           addLog(`You successfully completed: ${event.title}`, 'story');
           logAdded = true;
