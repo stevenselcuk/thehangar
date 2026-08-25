@@ -6,6 +6,7 @@ import {
 } from '@/state/initialState';
 import type { GameState } from '@/types';
 import { mockMathRandom } from '@/utils/testHelpers';
+import { getAllUnlockedFlags } from '@/data/levelMilestones.ts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('initialState', () => {
@@ -117,7 +118,7 @@ describe('initialState', () => {
       expect(state.resources.suspicion).toBe(0);
       expect(state.resources.focus).toBe(100);
       expect(state.resources.experience).toBe(0);
-      expect(state.resources.level).toBe(1);
+      expect(state.resources.level).toBe(0);
     });
 
     it('should start with basic inventory items', () => {
@@ -210,6 +211,21 @@ describe('initialState', () => {
 
       expect(state.lastUpdate).toBeGreaterThanOrEqual(before);
       expect(state.lastUpdate).toBeLessThanOrEqual(after);
+    });
+  });
+
+  describe('starting level', () => {
+    it('starts at level 0, the orientation milestone', () => {
+      const state = createInitialState();
+      expect(state.resources.level).toBe(0);
+    });
+
+    it('grants the level-0 milestone flags at init', () => {
+      const state = createInitialState();
+      const expected = getAllUnlockedFlags(0);
+      for (const flag of expected) {
+        expect(state.flags[flag as keyof typeof state.flags]).toBe(true);
+      }
     });
   });
 
