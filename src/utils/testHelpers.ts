@@ -272,8 +272,6 @@ export function createMinimalGameState(overrides: Partial<GameState> = {}): Game
       sls3Unlocked: false,
       janitorArcStage: 0,
       toolroomMasterArcStage: 0,
-      endingAlienConspiracyProgress: 0,
-      endingGovtConspiracyProgress: 0,
       endingTriggered: null,
       foundPhoto: false,
       storyFlags: {},

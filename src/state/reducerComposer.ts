@@ -1188,14 +1188,5 @@ export const composeReducers = (
     nextState = composeAction(state, action.payload as ReducerAction);
   }
 
-  // Check ending conditions
-  return produce(nextState, (draft) => {
-    if (!draft.flags.endingTriggered) {
-      if (draft.flags.endingAlienConspiracyProgress >= 100) {
-        draft.flags.endingTriggered = 'ALIEN';
-      } else if (draft.flags.endingGovtConspiracyProgress >= 100) {
-        draft.flags.endingTriggered = 'GOVT';
-      }
-    }
-  });
+  return nextState;
 };

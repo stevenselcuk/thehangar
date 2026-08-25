@@ -274,8 +274,6 @@ export interface GameFlags {
   janitorArcStage: number;
   toolroomMasterArcStage: number;
   // Endings
-  endingAlienConspiracyProgress: number;
-  endingGovtConspiracyProgress: number;
   endingTriggered: 'ALIEN' | 'GOVT' | 'CRAZY' | 'TRY_AGAIN' | null;
   foundPhoto: boolean;
   foundSnapon: boolean;

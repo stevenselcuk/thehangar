@@ -200,8 +200,6 @@ export const createInitialState = (): GameState => ({
     storyFlags: {},
     janitorArcStage: 0,
     toolroomMasterArcStage: 0,
-    endingAlienConspiracyProgress: 0,
-    endingGovtConspiracyProgress: 0,
     endingTriggered: null,
     foundPhoto: false,
     foundSnapon: false,
