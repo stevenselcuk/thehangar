@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { trainingData } from '../../data/training.ts';
 import type { EnvironmentalHazard, GameEvent, GameState } from '../../types.ts';
 import { createMinimalGameState } from '../../utils/testHelpers.ts';
 import { composeAction } from '../reducerComposer.ts';
@@ -202,5 +203,48 @@ describe('composeAction and event resolution', () => {
     });
 
     expect(next.resources.focus).toBe(70);
+  });
+});
+
+describe('composeAction charges training by the action, not by the dispatch', () => {
+  // TrainingTab spreads the whole authored course into the payload; other
+  // callers send only an identifier. The cost used to come off
+  // `payload.costFocus`, so the same course was free from the lean caller.
+  const course = trainingData.mandatoryCourses.find((c) => c.id === 'hfInitial')!;
+
+  it('charges the authored cost when the whole course object is dispatched', () => {
+    const next = composeAction(stateWith({ focus: 100 }), {
+      type: 'TAKE_MANDATORY_COURSE',
+      payload: { ...course },
+    });
+
+    expect(next.resources.focus).toBe(100 - course.costFocus);
+    expect(next.inventory.hasHfInitial).toBe(true);
+  });
+
+  it('charges the same when only the id is dispatched', () => {
+    const next = composeAction(stateWith({ focus: 100 }), {
+      type: 'TAKE_MANDATORY_COURSE',
+      payload: { id: course.id },
+    });
+
+    expect(next.resources.focus).toBe(100 - course.costFocus);
+    expect(next.inventory.hasHfInitial).toBe(true);
+  });
+
+  it('charges an NDT level the same both ways', () => {
+    const level = trainingData.ndtCerts.levels.find((l) => l.id === 'hasNdtLevel1')!;
+
+    const full = composeAction(stateWith({ focus: 100 }), {
+      type: 'TAKE_NDT_EXAM',
+      payload: { ...level },
+    });
+    const lean = composeAction(stateWith({ focus: 100 }), {
+      type: 'TAKE_NDT_EXAM',
+      payload: { id: level.id },
+    });
+
+    expect(full.resources.focus).toBe(lean.resources.focus);
+    expect(full.resources.focus).toBe(100 - level.costFocus);
   });
 });

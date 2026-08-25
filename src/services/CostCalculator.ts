@@ -1,3 +1,4 @@
+import { trainingData } from '../data/training.ts';
 import { GameState, Inventory } from '../types.ts';
 
 export const BASE_FOCUS_COSTS: Record<string, number> = {
@@ -101,6 +102,78 @@ export const AIRCRAFT_ACTION_COSTS: Record<string, number> = {
   READ_CABIN_LOG: 5,
 };
 
+/**
+ * The focus price a training entry declares, or 0 if it declares none.
+ * Entry shapes in trainingData are heterogeneous — a licence award carries no
+ * cost at all — so the property is read off defensively rather than typed.
+ */
+const authoredFocusCost = (entry: unknown): number => {
+  const cost = (entry as { costFocus?: unknown } | undefined)?.costFocus;
+  return typeof cost === 'number' ? cost : 0;
+};
+
+/**
+ * Resolve a training action's focus cost from trainingData.
+ *
+ * Training costs are authored in `src/data/training.ts` and were previously
+ * read off `payload.costFocus`, which made the price a property of the
+ * dispatch rather than of the action: TrainingTab passes the whole course
+ * object and paid, while a caller passing only `{ id }` paid nothing. This
+ * looks the entry up by action type and id — exactly how proficiencySlice
+ * already resolves the credit cost — so the two shapes cannot diverge.
+ *
+ * @returns the authored cost, or null when the action is not a training action
+ *          (0 is a real answer: an entry that authored no focus cost is free).
+ */
+const resolveTrainingFocusCost = (
+  actionType: string,
+  payload?: Record<string, unknown>
+): number | null => {
+  const id = payload?.id as string | number | undefined;
+  const { mandatoryCourses, faaLicense, easaLicense, ndtCerts, typeRatings } = trainingData;
+
+  switch (actionType) {
+    case 'TAKE_MANDATORY_COURSE':
+      return authoredFocusCost(mandatoryCourses.find((c) => c.id === id));
+
+    case 'TAKE_AP_EXAM':
+      if (id === 'apWritten') return authoredFocusCost(faaLicense.written);
+      if (id === 'apPractical') return authoredFocusCost(faaLicense.practical);
+      if (id === 'hasAPLicense') return authoredFocusCost(faaLicense.license);
+      return 0;
+
+    case 'TAKE_AP_WRITTEN':
+      return authoredFocusCost(faaLicense.written);
+
+    case 'TAKE_AVIONICS_EXAM':
+      return authoredFocusCost(faaLicense.avionics);
+
+    // Both dispatch the same handler and both pay for one exam sitting.
+    case 'TAKE_EASA_EXAM':
+    case 'START_EASA_MODULE':
+      return authoredFocusCost(easaLicense.examCost);
+
+    case 'CERTIFY_EASA_LICENSE':
+      return authoredFocusCost(easaLicense.licenses.find((l) => l.id === id));
+
+    case 'TAKE_NDT_EXAM':
+      return authoredFocusCost(ndtCerts.levels.find((l) => l.id === id));
+
+    case 'TAKE_NDT_SUBTASK_EXAM':
+      return authoredFocusCost(ndtCerts.subtasks.find((sub) => sub.id === id));
+
+    case 'TAKE_TYPE_RATING': {
+      const family = payload?.family;
+      const ratings =
+        family === '737' ? typeRatings['737'] : family === 'A330' ? typeRatings.A330 : undefined;
+      return authoredFocusCost(ratings?.find((r) => r.id === id));
+    }
+
+    default:
+      return null;
+  }
+};
+
 export const calculateFocusCost = (
   actionType: string,
   state: GameState,
@@ -111,10 +184,10 @@ export const calculateFocusCost = (
   if (actionType === 'AIRCRAFT_ACTION' && payload?.actionType) {
     const subAction = payload.actionType as string;
     cost = AIRCRAFT_ACTION_COSTS[subAction] || 0;
-  } else if (payload && typeof payload.costFocus === 'number') {
-    cost = payload.costFocus;
   } else {
-    cost = BASE_FOCUS_COSTS[actionType] || 0;
+    // Training prices live in trainingData; everything else in BASE_FOCUS_COSTS.
+    const trainingCost = resolveTrainingFocusCost(actionType, payload);
+    cost = trainingCost !== null ? trainingCost : BASE_FOCUS_COSTS[actionType] || 0;
   }
 
   if (cost === 0) return 0;
