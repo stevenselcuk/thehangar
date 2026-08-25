@@ -33,6 +33,7 @@ describe('eventsSlice - RESOLVE_EVENT', () => {
       proficiency: {} as EventsSliceState['proficiency'],
       activeJob: null,
       journal: [],
+      eventTimestamps: {},
     };
 
     const nextState = eventsReducer(initialState, { type: 'RESOLVE_EVENT', payload: {} });
@@ -77,6 +78,7 @@ describe('eventsSlice - RESOLVE_EVENT', () => {
       proficiency: {} as EventsSliceState['proficiency'],
       activeJob: null,
       journal: [],
+      eventTimestamps: {},
     };
 
     const nextState = eventsReducer(initialState, { type: 'RESOLVE_EVENT', payload: {} });

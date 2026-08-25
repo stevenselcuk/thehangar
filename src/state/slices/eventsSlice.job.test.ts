@@ -45,6 +45,7 @@ describe('eventsSlice - Job Flow', () => {
     logs: [],
     journal: [],
     rotables: [],
+    eventTimestamps: {},
     proficiency: {
       unlocked: ['highTorqueMethods'],
     } as unknown as EventsSliceState['proficiency'],

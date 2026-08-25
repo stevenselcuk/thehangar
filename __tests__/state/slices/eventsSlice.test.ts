@@ -573,6 +573,75 @@ describe('eventsSlice', () => {
     });
   });
 
+  describe('event chaining', () => {
+    it('promotes nextEventId into activeEvent within the same category', () => {
+      const state = createMinimalGameState();
+      state.resources.level = 40;
+      state.activeEvent = {
+        id: 'FAA_INSPECTOR',
+        type: 'audit',
+        title: 'FAA Spot-Check',
+        description: 'test',
+        timeLeft: 10000,
+        totalTime: 10000,
+        failureOutcome: { log: 'failed' },
+        choices: [{ id: 'stall', label: 'Stall', nextEventId: 'AUDIT_INTERNAL' }],
+      };
+
+      const next = eventsReducer(state as unknown as EventsSliceState, {
+        type: 'RESOLVE_EVENT',
+        payload: { choiceId: 'stall' },
+      });
+
+      expect(next.activeEvent).not.toBeNull();
+      expect(next.activeEvent?.id).toBe('AUDIT_INTERNAL');
+    });
+
+    it('clears activeEvent when the successor id does not exist', () => {
+      const state = createMinimalGameState();
+      state.resources.level = 40;
+      state.activeEvent = {
+        id: 'FAA_INSPECTOR',
+        type: 'audit',
+        title: 'FAA Spot-Check',
+        description: 'test',
+        timeLeft: 10000,
+        totalTime: 10000,
+        failureOutcome: { log: 'failed' },
+        choices: [{ id: 'stall', label: 'Stall', nextEventId: 'NO_SUCH_EVENT_ID' }],
+      };
+
+      const next = eventsReducer(state as unknown as EventsSliceState, {
+        type: 'RESOLVE_EVENT',
+        payload: { choiceId: 'stall' },
+      });
+
+      expect(next.activeEvent).toBeNull();
+    });
+
+    it('does not chain an event to itself', () => {
+      const state = createMinimalGameState();
+      state.resources.level = 40;
+      state.activeEvent = {
+        id: 'AUDIT_INTERNAL',
+        type: 'audit',
+        title: 'Internal Audit',
+        description: 'test',
+        timeLeft: 10000,
+        totalTime: 10000,
+        failureOutcome: { log: 'failed' },
+        choices: [{ id: 'loop', label: 'Loop', nextEventId: 'AUDIT_INTERNAL' }],
+      };
+
+      const next = eventsReducer(state as unknown as EventsSliceState, {
+        type: 'RESOLVE_EVENT',
+        payload: { choiceId: 'loop' },
+      });
+
+      expect(next.activeEvent).toBeNull();
+    });
+  });
+
   describe('focus effects on event choices', () => {
     it('subtracts a negative focus effect instead of refilling to full', () => {
       const state = createMinimalGameState();

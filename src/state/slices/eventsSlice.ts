@@ -44,6 +44,7 @@ export interface EventsSliceState {
   journal: GameState['journal'];
   rotables: GameState['rotables'];
   proficiency: GameState['proficiency'];
+  eventTimestamps: GameState['eventTimestamps'];
 }
 
 export type EventsAction =
@@ -309,6 +310,7 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
       const { choiceId } = action.payload as { choiceId?: string };
       const event = draft.activeEvent;
       let logAdded = false;
+      let successor: { type: string; id: string } | null = null;
 
       // 1. Handle Choice Selection
       if (choiceId && event.choices) {
@@ -356,6 +358,13 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
             draft.flags.storyFlags[choice.storyFlag.key] = choice.storyFlag.value;
           }
 
+          // Capture the authored successor, if any, while the choice is in scope.
+          if (choice.event) {
+            successor = { type: choice.event.type, id: choice.event.id };
+          } else if (choice.nextEventId) {
+            successor = { type: event.type, id: choice.nextEventId };
+          }
+
           // Log Result
           if (choice.log) {
             addLog(choice.log, 'story');
@@ -381,6 +390,13 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
         if (event.successOutcome.storyFlag) {
           draft.flags.storyFlags[event.successOutcome.storyFlag.key] =
             event.successOutcome.storyFlag.value;
+        }
+
+        // Capture the authored successor, if any.
+        if (event.successOutcome.event) {
+          successor = { type: event.successOutcome.event.type, id: event.successOutcome.event.id };
+        } else if (event.successOutcome.nextEventId) {
+          successor = { type: event.type, id: event.successOutcome.nextEventId };
         }
 
         // Log Success
@@ -423,7 +439,23 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
         draft.stats.eventsResolved += 1;
         draft.resources.experience += 100;
 
-        draft.activeEvent = null;
+        // Chain to the authored successor, if any. activeEvent is a single
+        // slot and a chain link is always an immediate successor, so no
+        // queue is needed. Self-references are dropped to avoid a loop.
+        let chained = null;
+        if (successor && successor.id !== event.id) {
+          chained = createEventFromTemplate(successor.type, successor.id);
+          if (!chained && import.meta.env.DEV) {
+            console.error(
+              `[eventsSlice] Chain target '${successor.id}' (${successor.type}) does not exist.`
+            );
+          }
+        }
+
+        draft.activeEvent = chained;
+        if (chained) {
+          draft.eventTimestamps[chained.id] = Date.now();
+        }
       } else {
         addLog(
           'Component failure persists until rectified. Check toolroom for replacement parts.',

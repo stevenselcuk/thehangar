@@ -817,6 +817,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
         rotables: draft.rotables,
         proficiency: draft.proficiency,
         journal: draft.journal,
+        eventTimestamps: draft.eventTimestamps,
       };
 
       const updated = eventsReducer(eventsState, {
@@ -835,6 +836,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs;
       draft.journal = updated.journal;
+      draft.eventTimestamps = updated.eventTimestamps;
     });
   }
 
