@@ -231,6 +231,11 @@ export const processTick = (
     if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.CONTAINMENT_BREACH * (delta / 1000)) {
       triggerEvent('incident', 'CONTAINMENT_BREACH_ALERT');
     }
+    // Union activity — backshop-specific. Ported from the retired
+    // tickProcessor.ts:56-59, where it was written and never executed.
+    if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.UNION_ACTIVITY * (delta / 1000)) {
+      triggerRandomEvent('union');
+    }
   }
 
   // Update rotables condition
@@ -280,6 +285,15 @@ export const processTick = (
     // General Weirdness (Generic Dispatcher for previously unreachable events)
     if (Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.THE_HUM * 0.5 * (delta / 1000)) {
       triggerRandomEvent('eldritch_manifestation');
+    }
+
+    // Syndicate activity — rare, anywhere, and only once the player is
+    // frayed enough to be approached. Ported from tickProcessor.ts:62-65.
+    if (
+      draft.resources.sanity < 50 &&
+      Math.random() < GAME_CONSTANTS.EVENT_PROBABILITIES.SYNDICATE_ACTIVITY * (delta / 1000)
+    ) {
+      triggerRandomEvent('syndicate');
     }
 
     if (!draft.flags.activeComponentFailure) {
