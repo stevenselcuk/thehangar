@@ -325,11 +325,6 @@ export const processTick = (
     draft.resources.credits = Math.max(0, draft.resources.credits - 1.5 * (delta / 1000));
   }
 
-  if (draft.flags.fuelContaminationRisk && Math.random() < 0.0002 * (delta / 1000)) {
-    triggerEvent('accident', 'CATASTROPHIC_FAILURE');
-    draft.flags.fuelContaminationRisk = false;
-  }
-
   // --- Hazard Logic ---
   // 1. Triggering (Small chance if no hazards active)
   if (draft.activeHazards.length === 0 && Math.random() < 0.00005 * (delta / 1000)) {
@@ -527,11 +522,6 @@ export const processTick = (
       draft.activeEvent.timeLeft -= delta;
       if (draft.activeEvent.timeLeft <= 0) {
         const expired = draft.activeEvent;
-
-        if (expired.id === 'FUEL_CONTAM') {
-          draft.flags.fuelContaminationRisk = true;
-          addLog("You flushed the contaminated sample. Let's hope nobody finds out.", 'warning');
-        }
 
         const outcome = expired.failureOutcome;
         let appliedAuthoredEffects = false;
