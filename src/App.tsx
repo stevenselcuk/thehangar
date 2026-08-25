@@ -16,6 +16,7 @@ import { useDevMode } from './hooks/useDevMode.ts';
 
 import { useMobileNotifications } from './hooks/useMobileNotifications.ts';
 import { GameState, TabType } from './types.ts';
+import { isDead } from './logic/deathConditions.ts';
 
 const AboutModal = React.lazy(() => import('./components/AboutModal.tsx'));
 const ArchiveTerminalModal = React.lazy(() => import('./components/ArchiveTerminalModal.tsx'));
@@ -42,8 +43,8 @@ import { useNotification } from './hooks/useNotification.ts';
 
 import ReloadPrompt from './components/ReloadPrompt.tsx';
 
-const SAVE_KEY = 'the_hangar_save__build_177';
-const WIP_WARNING_KEY = 'hasSeenWipWarning__build_177';
+const SAVE_KEY = 'the_hangar_save__build_178';
+const WIP_WARNING_KEY = 'hasSeenWipWarning__build_178';
 
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -188,14 +189,11 @@ const AppContent: React.FC = () => {
 
   // Effect for Game Over sound
   useEffect(() => {
-    if (
-      (state.resources.suspicion >= 100 || state.resources.sanity <= 0) &&
-      !hasPlayedGameOverSoundRef.current
-    ) {
+    if (isDead(state.resources) && !hasPlayedGameOverSoundRef.current) {
       play('SHOCKED');
       hasPlayedGameOverSoundRef.current = true;
     }
-  }, [state.resources.suspicion, state.resources.sanity, play]);
+  }, [state.resources, play]);
 
   // Effect for Suspicion reaching 50%
   const hasPlayedSuspicionThemeRef = useRef(false);
@@ -381,7 +379,7 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (state.resources.suspicion >= 100 || state.resources.sanity <= 0) {
+  if (isDead(state.resources)) {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-center text-red-500 bg-black">
         <h1 className="text-6xl font-black mb-8 tracking-tighter flicker">SYSTEM FAILURE</h1>

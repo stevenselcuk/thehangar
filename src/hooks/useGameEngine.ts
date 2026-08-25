@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { GameState, TabType } from '../types.ts';
+import { isDead } from '../logic/deathConditions.ts';
 
 const TARGET_FPS = 15;
 const FRAME_TIME = 1000 / TARGET_FPS;
@@ -12,8 +13,8 @@ export const useGameEngine = (
   const isDeadRef = useRef(false);
 
   useEffect(() => {
-    isDeadRef.current = state.resources.sanity <= 0 || state.resources.suspicion >= 100;
-  }, [state.resources.sanity, state.resources.suspicion]);
+    isDeadRef.current = isDead(state.resources);
+  }, [state.resources]);
 
   const activeTabRef = useRef<TabType>(activeTab);
 

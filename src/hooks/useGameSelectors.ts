@@ -51,13 +51,21 @@ export const useResourceSelectors = (state: GameState) => {
   // Combined vitals check (for critical alerts)
   const vitalsStatus = useMemo(
     () => ({
-      isDying: state.resources.sanity <= 10 || state.resources.suspicion >= 95,
+      isDying:
+        state.resources.sanity <= 10 ||
+        state.resources.suspicion >= 95 ||
+        state.resources.health <= 15,
       isCompromised:
         state.resources.sanity < 30 || state.resources.suspicion > 70 || state.resources.focus < 20,
       isStable:
         state.resources.sanity > 50 && state.resources.suspicion < 50 && state.resources.focus > 40,
     }),
-    [state.resources.sanity, state.resources.suspicion, state.resources.focus]
+    [
+      state.resources.sanity,
+      state.resources.suspicion,
+      state.resources.focus,
+      state.resources.health,
+    ]
   );
 
   // Material availability for common actions
