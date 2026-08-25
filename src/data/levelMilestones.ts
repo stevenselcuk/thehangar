@@ -108,6 +108,12 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     },
   },
   {
+    level: 7,
+    name: 'SECOND SHIFT',
+    description: 'You have worked the same eight hours twice. The logbook disagrees about which.',
+    unlocks: {},
+  },
+  {
     level: 8,
     name: 'TERMINAL ACCESS',
     description: 'The passenger terminal awaits. Lost luggage contains more than belongings.',
@@ -116,6 +122,13 @@ export const MILESTONE_DATA: LevelMilestone[] = [
       actions: ['LISTEN_FUSELAGE', 'USE_PAYPHONE'],
       eventCategories: ['component_failure'],
     },
+  },
+  {
+    level: 9,
+    name: 'TOOL ACCOUNTABILITY',
+    description:
+      'Every item signed out must be signed back in. The Master counts twice and writes down one number.',
+    unlocks: {},
   },
   {
     level: 10,
@@ -128,6 +141,12 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     },
   },
   {
+    level: 11,
+    name: 'RECORDS RETENTION',
+    description: 'Documentation is retained for seven years. Some of it is older than the company.',
+    unlocks: {},
+  },
+  {
     level: 12,
     name: 'TRAINING DEPARTMENT',
     description:
@@ -136,6 +155,19 @@ export const MILESTONE_DATA: LevelMilestone[] = [
       tabs: [TabType.TRAINING],
       actions: ['START_EASA_MODULE', 'TAKE_AP_WRITTEN'],
     },
+  },
+  {
+    level: 13,
+    name: 'MODULE TWO',
+    description: 'The training video has a second reel. Nobody remembers ordering it.',
+    unlocks: {},
+  },
+  {
+    level: 14,
+    name: 'PEER REVIEW',
+    description:
+      'Another technician signs your work. You have never met them. Their stamp is worn smooth.',
+    unlocks: {},
   },
   {
     level: 15,
@@ -151,6 +183,18 @@ export const MILESTONE_DATA: LevelMilestone[] = [
 
   // ==================== THE PATTERN EMERGES (16-25) ====================
   {
+    level: 16,
+    name: 'COMPONENT CUSTODY',
+    description: 'You are trusted with parts now. Parts are trusted with you.',
+    unlocks: {},
+  },
+  {
+    level: 17,
+    name: 'OVERTIME AUTHORISED',
+    description: 'The hours are approved in advance. You have not requested them yet.',
+    unlocks: {},
+  },
+  {
     level: 18,
     name: 'NIGHT CREW LIAISON',
     description: 'The night crew trusts you. They should not. You should not trust them either.',
@@ -159,6 +203,12 @@ export const MILESTONE_DATA: LevelMilestone[] = [
       flags: ['nightCrewUnlocked'],
       eventCategories: ['union'],
     },
+  },
+  {
+    level: 19,
+    name: 'SHIFT HANDOVER',
+    description: 'The night crew leaves notes in a hand that resembles yours.',
+    unlocks: {},
   },
   {
     level: 20,
@@ -170,12 +220,30 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     },
   },
   {
+    level: 21,
+    name: 'CAMERA BLIND SPOTS',
+    description: 'You have mapped where the lenses do not reach. Something else mapped it first.',
+    unlocks: {},
+  },
+  {
     level: 22,
     name: 'DIGITAL CLEARANCE',
     description: 'The old PC boots. The AMM contains more than maintenance manuals.',
     unlocks: {
       actions: ['PRINT_FORBIDDEN_PAGE', 'DECRYPT_AMM'],
     },
+  },
+  {
+    level: 23,
+    name: 'REVISION CONTROL',
+    description: 'The manual is at revision 44. You remember revision 44 saying something else.',
+    unlocks: {},
+  },
+  {
+    level: 24,
+    name: 'CALIBRATION DUE',
+    description: 'Every instrument drifts. The torquemeter drifts toward a number it prefers.',
+    unlocks: {},
   },
   {
     level: 25,
@@ -190,6 +258,18 @@ export const MILESTONE_DATA: LevelMilestone[] = [
 
   // ==================== DEEP LORE (26-35) ====================
   {
+    level: 26,
+    name: 'INDEX CARDS',
+    description: 'The archive is alphabetical. Under your surname there is already a card.',
+    unlocks: {},
+  },
+  {
+    level: 27,
+    name: 'MICROFICHE ACCESS',
+    description: 'Reels of film nobody has spooled since the eighties. The projector is warm.',
+    unlocks: {},
+  },
+  {
     level: 28,
     name: 'KARDEX INITIATED',
     description:
@@ -200,6 +280,13 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     },
   },
   {
+    level: 29,
+    name: 'RETENTION EXEMPTION',
+    description:
+      'Certain records are exempt from destruction. Nobody will say which authority granted it.',
+    unlocks: {},
+  },
+  {
     level: 30,
     name: 'LEGACY ACCESS',
     description:
@@ -207,6 +294,30 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     unlocks: {
       actions: ['CONSULT_LEGACY_ARCHIVES'],
     },
+  },
+  {
+    level: 31,
+    name: 'DORMANT ACCOUNTS',
+    description: 'Employee numbers that never clocked out. Yours is adjacent to one of them.',
+    unlocks: {},
+  },
+  {
+    level: 32,
+    name: 'PART NUMBER DRIFT',
+    description: 'The same component under three part numbers, each superseding the others.',
+    unlocks: {},
+  },
+  {
+    level: 33,
+    name: 'SERIAL COLLISION',
+    description: 'Two serial numbers, identical, both installed, both airborne.',
+    unlocks: {},
+  },
+  {
+    level: 34,
+    name: 'CAGE INVENTORY',
+    description: 'The count is short by one every quarter. The same one.',
+    unlocks: {},
   },
   {
     level: 35,
@@ -231,6 +342,12 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     narrativeEvent: 'TRUTH_PROXIMATE_REVELATION',
   },
   {
+    level: 37,
+    name: 'MANIFEST RECONCILIATION',
+    description: 'Cargo loaded against cargo landed. The difference has a mass and a temperature.',
+    unlocks: {},
+  },
+  {
     level: 38,
     name: 'FINAL CLEARANCE',
     description:
@@ -238,6 +355,13 @@ export const MILESTONE_DATA: LevelMilestone[] = [
     unlocks: {
       actions: [],
     },
+  },
+  {
+    level: 39,
+    name: 'FINAL WALKAROUND',
+    description:
+      'You check the aircraft one last time. It has already been checked, by you, in a hand you do not recognise.',
+    unlocks: {},
   },
 
   // ==================== TRUTH REVEAL (40) ====================
