@@ -1,11 +1,13 @@
 export const GAME_CONSTANTS = {
   FPS: 15,
-  SAVE_KEY: 'the_hangar_save__build_174',
+  SAVE_KEY: 'the_hangar_save__build_175',
 
   // Resources
   FOCUS_REGEN_BASE: 3.0,
   FOCUS_REGEN_NIGHT_CREW: 0.8,
   FOCUS_DRAIN_HALLUCINATION: 5.0,
+  // Fatigue at 100 makes every focus-spending action cost 1.5x.
+  FATIGUE_FOCUS_SURCHARGE: 0.5,
   SANITY_DRAIN_BASE: 0.5,
   SANITY_DRAIN_FEAR_MULTIPLIER: 0.5, // Applied to regen? No, verified logic: Fear adds 0.5 to drain.
 

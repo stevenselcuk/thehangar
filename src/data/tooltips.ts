@@ -12,7 +12,7 @@ export const resourceTooltips: Record<string, string> = {
   kardexFragments:
     'K-FRAGS: Encrypted data fragments related to Project Kardex. A key to unlocking the truth.',
   fatigue:
-    'Your physical and mental exhaustion. Increases with work and time. High fatigue increases Focus costs and the chance of making mistakes.',
+    'Your physical and mental exhaustion. Increases with work and time, and with the demands of where you are standing. High fatigue makes every task cost more Focus. A cigarette halves it.',
   noiseExposure:
     'Cumulative exposure to high-decibel environments. Can lead to focus penalties and migraines.',
   socialStress:
