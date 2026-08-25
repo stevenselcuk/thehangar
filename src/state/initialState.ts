@@ -3,6 +3,7 @@ import { jobsData } from '../data/jobs.ts';
 import { getAllUnlockedFlags, getMilestoneForLevel } from '../data/levelMilestones.ts';
 import { vendingData } from '../data/vending.ts';
 import { GameState, JobCard } from '../types.ts';
+import { sanitizeGameState } from './stateValidator.ts';
 
 export const generateVendingPrices = (): Record<string, number> => {
   const prices: Record<string, number> = {};
@@ -390,18 +391,32 @@ export const loadState = (saveKey: string): GameState => {
         return defaults;
       }
 
-      const loadedFlags = { ...defaults.flags, ...(parsed.flags || {}) };
+      const sanitized = sanitizeGameState({
+        ...defaults,
+        ...parsed,
+        resources: { ...defaults.resources, ...(parsed.resources || {}) },
+        inventory: { ...defaults.inventory, ...(parsed.inventory || {}) },
+        hfStats: { ...defaults.hfStats, ...(parsed.hfStats || {}) },
+      });
+
+      if (!sanitized) {
+        console.warn('Saved data failed validation. Loading default state.');
+        return defaults;
+      }
+
+      const loadedFlags = { ...defaults.flags, ...(sanitized.flags || {}) };
       // Removed manual resets to enforce state persistence
 
-      loadedFlags.onPerformanceImprovementPlan = parsed.flags.onPerformanceImprovementPlan || false;
+      loadedFlags.onPerformanceImprovementPlan =
+        sanitized.flags.onPerformanceImprovementPlan || false;
       loadedFlags.janitorPresent = false;
       loadedFlags.ndtFinding = null;
       loadedFlags.migraineActive = false;
       loadedFlags.isHallucinating = false;
       loadedFlags.isAfraid = false;
-      loadedFlags.storyFlags = parsed.flags.storyFlags || {};
+      loadedFlags.storyFlags = sanitized.flags.storyFlags || {};
 
-      const loadedLevel = parsed.resources?.level ?? defaults.resources.level;
+      const loadedLevel = sanitized.resources?.level ?? defaults.resources.level;
       if (loadedLevel >= 0) {
         const allMilestones = Array.from({ length: loadedLevel + 1 }, (_, i) =>
           getMilestoneForLevel(i)
@@ -425,20 +440,20 @@ export const loadState = (saveKey: string): GameState => {
 
       return {
         ...defaults,
-        ...parsed,
+        ...sanitized,
         activeEvent: null,
         activeHazards: [],
         activeScenario: null, // Scenarios don't persist through reloads
-        activeAircraft: parsed.activeAircraft || null, // Handle loading active aircraft
+        activeAircraft: sanitized.activeAircraft || null, // Handle loading active aircraft
         anomalies: [],
         calibrationMinigame: defaults.calibrationMinigame,
-        resources: { ...defaults.resources, ...parsed.resources },
-        inventory: { ...defaults.inventory, ...parsed.inventory },
-        flags: { ...defaults.flags, ...parsed.flags, ...loadedFlags }, // Ensure defaults (new fields) are present
+        resources: { ...defaults.resources, ...sanitized.resources },
+        inventory: { ...defaults.inventory, ...sanitized.inventory },
+        flags: { ...defaults.flags, ...sanitized.flags, ...loadedFlags }, // Ensure defaults (new fields) are present
         notificationQueue: [], // Always start with empty queue
         hfStats: {
           ...defaults.hfStats,
-          ...parsed.hfStats,
+          ...sanitized.hfStats,
           fearTimer: 0,
           migraineTimer: 0,
           compliancePressureTimer: 0,
@@ -446,30 +461,30 @@ export const loadState = (saveKey: string): GameState => {
           janitorCooldown: 0,
           sanityShieldTimer: 0,
           foundLoopholeTimer: 0,
-          clearanceLevel: parsed.hfStats?.clearanceLevel ?? 1,
-          hfRecurrentDueDate: parsed.hfStats?.hfRecurrentDueDate ?? 0,
+          clearanceLevel: sanitized.hfStats?.clearanceLevel ?? 1,
+          hfRecurrentDueDate: sanitized.hfStats?.hfRecurrentDueDate ?? 0,
         },
         proficiency: {
           ...defaults.proficiency,
-          ...(parsed.proficiency || {}),
-          easaModulesPassed: parsed.proficiency?.easaModulesPassed || [],
+          ...(sanitized.proficiency || {}),
+          easaModulesPassed: sanitized.proficiency?.easaModulesPassed || [],
         },
-        stats: { ...defaults.stats, ...(parsed.stats || {}) },
-        archiveTerminal: parsed.archiveTerminal || defaults.archiveTerminal,
-        maintenanceTerminal: parsed.maintenanceTerminal || defaults.maintenanceTerminal,
-        mail: parsed.mail || [],
-        rotables: parsed.rotables || [],
-        logs: parsed.logs && parsed.logs.length > 0 ? parsed.logs : defaults.logs,
-        journal: parsed.journal || defaults.journal,
+        stats: { ...defaults.stats, ...(sanitized.stats || {}) },
+        archiveTerminal: sanitized.archiveTerminal || defaults.archiveTerminal,
+        maintenanceTerminal: sanitized.maintenanceTerminal || defaults.maintenanceTerminal,
+        mail: sanitized.mail || [],
+        rotables: sanitized.rotables || [],
+        logs: sanitized.logs && sanitized.logs.length > 0 ? sanitized.logs : defaults.logs,
+        journal: sanitized.journal || defaults.journal,
         lastUpdate: Date.now(),
 
-        aog: parsed.aog || defaults.aog,
-        procurement: parsed.procurement || defaults.procurement,
-        toolroom: parsed.toolroom || defaults.toolroom,
-        bulletinBoard: parsed.bulletinBoard || defaults.bulletinBoard,
-        pet: parsed.pet || defaults.pet,
-        playerName: parsed.playerName || defaults.playerName,
-        employeeId: parsed.employeeId || defaults.employeeId,
+        aog: sanitized.aog || defaults.aog,
+        procurement: sanitized.procurement || defaults.procurement,
+        toolroom: sanitized.toolroom || defaults.toolroom,
+        bulletinBoard: sanitized.bulletinBoard || defaults.bulletinBoard,
+        pet: sanitized.pet || defaults.pet,
+        playerName: sanitized.playerName || defaults.playerName,
+        employeeId: sanitized.employeeId || defaults.employeeId,
       };
     } catch (e) {
       console.error('Failed to parse saved state:', e);

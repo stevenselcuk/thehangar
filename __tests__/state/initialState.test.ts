@@ -4,11 +4,12 @@ import {
   generateVendingPrices,
   loadState,
 } from '@/state/initialState';
+import { GAME_CONSTANTS } from '@/data/constants.ts';
 import { getAllUnlockedTabs } from '@/data/levelMilestones.ts';
 import { isTabUnlocked } from '@/services/LevelManager.ts';
 import type { GameState } from '@/types';
 import { mockMathRandom } from '@/utils/testHelpers';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('initialState', () => {
   beforeEach(() => {
@@ -641,5 +642,33 @@ describe('initialState', () => {
       expect(loaded.lastUpdate).toBeLessThanOrEqual(after);
       expect(loaded.lastUpdate).not.toBe(1000000);
     });
+  });
+});
+
+describe('save validation', () => {
+  const KEY = 'test_save_validation';
+
+  afterEach(() => localStorage.removeItem(KEY));
+
+  it('falls back to defaults when the save fails validation', () => {
+    localStorage.setItem(KEY, JSON.stringify({ resources: 'not an object', inventory: {} }));
+    const state = loadState(KEY);
+    expect(state.resources.level).toBe(0);
+  });
+
+  it('clamps out-of-range values instead of trusting them', () => {
+    const defaults = createInitialState();
+    localStorage.setItem(
+      KEY,
+      JSON.stringify({
+        ...defaults,
+        resources: { ...defaults.resources, sanity: 9999, suspicion: -50, level: 900 },
+      })
+    );
+
+    const state = loadState(KEY);
+    expect(state.resources.sanity).toBeLessThanOrEqual(100);
+    expect(state.resources.suspicion).toBeGreaterThanOrEqual(0);
+    expect(state.resources.level).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_LEVEL);
   });
 });
