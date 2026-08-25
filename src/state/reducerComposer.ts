@@ -74,6 +74,7 @@ export const composeTick = (
       const aogState = {
         aog: draft.aog,
         resources: draft.resources,
+        inventory: draft.inventory,
         logs: draft.logs,
       };
 
@@ -1181,6 +1182,7 @@ const routeAction = (state: GameState, action: ReducerAction): GameState => {
       const aogState = {
         aog: draft.aog,
         resources: draft.resources,
+        inventory: draft.inventory,
         logs: draft.logs,
       };
 
@@ -1189,8 +1191,6 @@ const routeAction = (state: GameState, action: ReducerAction): GameState => {
         payload: action.payload as Record<string, unknown>,
       });
 
-      draft.aog = updated.aog;
-      draft.resources = updated.resources;
       draft.aog = updated.aog;
       draft.resources = updated.resources;
       draft.logs = updated.logs;

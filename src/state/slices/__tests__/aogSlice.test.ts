@@ -36,6 +36,9 @@ const mockState = {
     bioFilament: 0,
     technicalLogbookHours: 0,
   },
+  inventory: {
+    technicianToolbox: false,
+  },
   logs: [],
 };
 

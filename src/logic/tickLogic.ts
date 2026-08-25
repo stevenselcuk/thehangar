@@ -73,7 +73,10 @@ export const processTick = (
     [NoiseLevel.HIGH]: 70,
     [NoiseLevel.EXTREME_HIGH]: 90,
   };
-  draft.hfStats.noiseExposure = noiseMap[locationProps.noise];
+  const wearingEarmuffs = draft.inventory.earmuffs === true;
+  const noiseRelief = wearingEarmuffs ? 0.45 : 1;
+
+  draft.hfStats.noiseExposure = noiseMap[locationProps.noise] * noiseRelief;
 
   // Noise Effects
   if (locationProps.noise === NoiseLevel.LOW) {
@@ -85,14 +88,17 @@ export const processTick = (
     locationProps.noise === NoiseLevel.HIGH ||
     locationProps.noise === NoiseLevel.EXTREME_HIGH
   ) {
-    const stressMultiplier = locationProps.noise === NoiseLevel.EXTREME_HIGH ? 1.5 : 0.8;
+    const stressMultiplier =
+      (locationProps.noise === NoiseLevel.EXTREME_HIGH ? 1.5 : 0.8) * noiseRelief;
     draft.hfStats.socialStress = Math.min(
       100,
       draft.hfStats.socialStress + stressMultiplier * (delta / 1000)
     );
 
     const focusDrain =
-      (locationProps.noise === NoiseLevel.EXTREME_HIGH ? 5.0 : 3.5) * difficultyMultiplier;
+      (locationProps.noise === NoiseLevel.EXTREME_HIGH ? 5.0 : 3.5) *
+      difficultyMultiplier *
+      noiseRelief;
     draft.resources.focus = Math.max(0, draft.resources.focus - focusDrain * (delta / 1000));
   }
 
@@ -215,6 +221,15 @@ export const processTick = (
   }
 
   if (activeTab === TabType.BACKSHOPS) {
+    // The component cage has no working lighting. Working it blind costs.
+    if (!draft.inventory.flashlight) {
+      draft.resources.sanity = Math.max(0, draft.resources.sanity - 0.4 * (delta / 1000));
+      if (Math.random() < 0.0002 * (delta / 1000)) {
+        draft.resources.health = Math.max(0, draft.resources.health - 5);
+        addLog('You catch your shin on something in the dark. It was not there before.', 'warning');
+      }
+    }
+
     draft.resources.suspicion = Math.min(
       GAME_CONSTANTS.MAX_SUSPICION,
       draft.resources.suspicion + 0.02 * (delta / 1000)

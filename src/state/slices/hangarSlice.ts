@@ -295,8 +295,15 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
 
       case 'MARSHALLING': {
         draft.resources.focus = Math.max(0, draft.resources.focus - 15);
-        draft.resources.experience += 100;
-        draft.resources.credits += 50;
+
+        // Without a radio you are guessing at dispatch instructions.
+        const hasRadio = draft.inventory.radio === true;
+        draft.resources.experience += hasRadio ? 100 : 60;
+        draft.resources.credits += hasRadio ? 50 : 30;
+
+        if (!hasRadio) {
+          addLog('You marshal by hand signals alone. Ground control repeats itself twice.', 'info');
+        }
 
         const roll = Math.random();
 

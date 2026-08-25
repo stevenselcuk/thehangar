@@ -17,6 +17,7 @@ export const aogReducer = (
   state: {
     aog: GameState['aog'];
     resources: GameState['resources'];
+    inventory: GameState['inventory'];
     logs: GameState['logs'];
   },
   action: AogAction
@@ -45,7 +46,8 @@ export const aogReducer = (
       draft.aog.completedActions.push(actionId);
 
       const progressAmount = aogAction.progress || 25;
-      draft.aog.currentProgress += progressAmount;
+      const toolPenalty = draft.inventory.technicianToolbox ? 1 : 0.6;
+      draft.aog.currentProgress += progressAmount * toolPenalty;
 
       // Add log
       addLog(`COMPLETED: ${aogAction.label}. (+${progressAmount} Progress)`, 'info');

@@ -48,6 +48,9 @@ describe('Photo Event System', () => {
         resources: { focus: 100, experience: 0, credits: 0, sanity: 100 } as any,
         activeEvent: null,
         logs: [],
+        // radio: true avoids the "no radio" log line, which would consume one of the
+        // mocked Math.random() calls this test relies on for a deterministic RNG sequence.
+        inventory: { radio: true } as any,
       } as any;
 
       const action = { type: 'MARSHALLING', payload: {} };
