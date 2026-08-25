@@ -327,6 +327,51 @@ describe('officeSlice', () => {
 
       expect(result.logs).toHaveLength(2);
     });
+
+    describe('KARDEX recovery gate', () => {
+      it('summons KARDEX_RECOVERY on the rare roll inside the notes branch', () => {
+        // First call is consumed by addLogToDraft's id generation for the
+        // "Digging through the archive" entry logged before the roll.
+        vi.spyOn(Math, 'random')
+          .mockReturnValueOnce(0.9)
+          .mockReturnValueOnce(0.3)
+          .mockReturnValueOnce(0.01);
+        const triggerEvent = vi.fn();
+        initialState.resources.experience = 0;
+
+        const result = officeReducer(initialState, {
+          type: 'SEARCH_MANUALS',
+          payload: { triggerEvent },
+        } as OfficeAction);
+
+        expect(triggerEvent).toHaveBeenCalledWith('eldritch_manifestation', 'KARDEX_RECOVERY');
+        expect(result.resources.experience).toBe(0);
+
+        vi.restoreAllMocks();
+      });
+
+      it('falls through to the normal notes outcome when the rare roll misses', () => {
+        // First call is consumed by addLogToDraft's id generation for the
+        // "Digging through the archive" entry logged before the roll.
+        vi.spyOn(Math, 'random')
+          .mockReturnValueOnce(0.9)
+          .mockReturnValueOnce(0.3)
+          .mockReturnValueOnce(0.5);
+        const triggerEvent = vi.fn();
+        initialState.resources.experience = 0;
+
+        const result = officeReducer(initialState, {
+          type: 'SEARCH_MANUALS',
+          payload: { triggerEvent },
+        } as OfficeAction);
+
+        expect(triggerEvent).not.toHaveBeenCalled();
+        expect(result.resources.experience).toBe(100);
+        expect(result.logs.some((l) => l.text === ACTION_LOGS.SEARCH_MANUALS_NOTES)).toBe(true);
+
+        vi.restoreAllMocks();
+      });
+    });
   });
 
   describe('DECRYPT_AMM', () => {
@@ -499,6 +544,60 @@ describe('officeSlice', () => {
 
       expect(result.resources.focus).toBe(100);
       expect(result.resources.sanity).toBe(90);
+    });
+  });
+
+  describe('REVIEW_SURVEILLANCE_LOGS — Archivist branch', () => {
+    it('summons the Archivist when suspicion is high and sanity is low', () => {
+      const triggerEvent = vi.fn();
+      initialState.resources.suspicion = 80;
+      initialState.resources.sanity = 30;
+
+      officeReducer(initialState, {
+        type: 'REVIEW_SURVEILLANCE_LOGS',
+        payload: { triggerEvent },
+      } as OfficeAction);
+
+      expect(triggerEvent).toHaveBeenCalledWith('canteen_incident', 'THE_ARCHIVIST');
+    });
+
+    it('uses the normal outcomes when the player is holding together', () => {
+      const triggerEvent = vi.fn();
+      initialState.resources.suspicion = 10;
+      initialState.resources.sanity = 90;
+
+      officeReducer(initialState, {
+        type: 'REVIEW_SURVEILLANCE_LOGS',
+        payload: { triggerEvent },
+      } as OfficeAction);
+
+      expect(triggerEvent).not.toHaveBeenCalledWith('canteen_incident', 'THE_ARCHIVIST');
+    });
+
+    it('does not summon the Archivist when suspicion is high but sanity is not low', () => {
+      const triggerEvent = vi.fn();
+      initialState.resources.suspicion = 80;
+      initialState.resources.sanity = 90;
+
+      officeReducer(initialState, {
+        type: 'REVIEW_SURVEILLANCE_LOGS',
+        payload: { triggerEvent },
+      } as OfficeAction);
+
+      expect(triggerEvent).not.toHaveBeenCalledWith('canteen_incident', 'THE_ARCHIVIST');
+    });
+
+    it('does not summon the Archivist when sanity is low but suspicion is not high', () => {
+      const triggerEvent = vi.fn();
+      initialState.resources.suspicion = 10;
+      initialState.resources.sanity = 30;
+
+      officeReducer(initialState, {
+        type: 'REVIEW_SURVEILLANCE_LOGS',
+        payload: { triggerEvent },
+      } as OfficeAction);
+
+      expect(triggerEvent).not.toHaveBeenCalledWith('canteen_incident', 'THE_ARCHIVIST');
     });
   });
 

@@ -58,7 +58,10 @@ export type OfficeAction =
       type: 'CREATE_SRF';
       payload?: { triggerEvent?: (type: string, id?: string) => void };
     }
-  | { type: 'SEARCH_MANUALS'; payload: Record<string, unknown> }
+  | {
+      type: 'SEARCH_MANUALS';
+      payload?: { triggerEvent?: (type: string, id?: string) => void };
+    }
   | { type: 'DECRYPT_AMM'; payload: Record<string, unknown> }
   | { type: 'ASSEMBLE_PC'; payload: { cost: number } }
   | { type: 'UPGRADE_PC_GPU'; payload: Record<string, unknown> }
@@ -182,8 +185,12 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
           draft.inventory.floppyDrive = true;
           addLog("FOUND: 3.5' Floppy Drive.", 'story');
         } else if (findRoll < 0.45) {
-          draft.resources.experience += 100;
-          addLog(ACTION_LOGS.SEARCH_MANUALS_NOTES, 'story');
+          if (Math.random() < 0.05 && action.payload?.triggerEvent) {
+            action.payload.triggerEvent('eldritch_manifestation', 'KARDEX_RECOVERY');
+          } else {
+            draft.resources.experience += 100;
+            addLog(ACTION_LOGS.SEARCH_MANUALS_NOTES, 'story');
+          }
         } else if (findRoll < 0.55) {
           addLog(ACTION_LOGS.SEARCH_MANUALS_KARDEX, 'vibration');
           draft.resources.sanity -= 5;
@@ -284,6 +291,19 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
       }
 
       case 'REVIEW_SURVEILLANCE_LOGS': {
+        // Ported from the retired actionProcessor.ts:437-440. Category
+        // corrected: THE_ARCHIVIST lives in the canteen_incident pool.
+        if (
+          draft.resources.suspicion > 75 &&
+          draft.resources.sanity < 40 &&
+          action.payload?.triggerEvent
+        ) {
+          draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 15);
+          addLog('The playback shows a figure cataloguing the shelves. It looks up.', 'vibration');
+          action.payload.triggerEvent('canteen_incident', 'THE_ARCHIVIST');
+          break;
+        }
+
         draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 15);
         const roll = Math.random();
         if (roll < 0.15 && action.payload?.triggerEvent) {
