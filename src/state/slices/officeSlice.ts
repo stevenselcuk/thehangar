@@ -59,6 +59,7 @@ export type OfficeAction =
       payload?: { triggerEvent?: (type: string, id?: string) => void };
     }
   | { type: 'SEARCH_MANUALS'; payload: Record<string, unknown> }
+  | { type: 'DECRYPT_AMM'; payload: Record<string, unknown> }
   | { type: 'ASSEMBLE_PC'; payload: { cost: number } }
   | { type: 'UPGRADE_PC_GPU'; payload: Record<string, unknown> }
   | { type: 'UPGRADE_PC_HDD'; payload: Record<string, unknown> }
@@ -188,6 +189,25 @@ export const officeReducer = (state: OfficeSliceState, action: OfficeAction): Of
           draft.resources.sanity -= 5;
         } else {
           addLog('Nothing but dust and silverfish.', 'info');
+        }
+        break;
+      }
+
+      case 'DECRYPT_AMM': {
+        if (!draft.inventory.pcAssembled) {
+          addLog('ERROR: NO TERMINAL AVAILABLE. Assemble the office PC first.', 'error');
+          break;
+        }
+
+        draft.resources.suspicion = Math.min(100, draft.resources.suspicion + 10);
+
+        if (Math.random() < 0.4) {
+          addLog(ACTION_LOGS.DECRYPT_AMM_SUCCESS, 'vibration');
+          draft.resources.experience += 400;
+          draft.resources.sanity = Math.max(0, draft.resources.sanity - 8);
+        } else {
+          addLog(ACTION_LOGS.DECRYPT_AMM_FAIL, 'warning');
+          draft.resources.focus = Math.max(0, draft.resources.focus - 10);
         }
         break;
       }

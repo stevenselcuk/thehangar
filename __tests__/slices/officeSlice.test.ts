@@ -328,6 +328,37 @@ describe('officeSlice', () => {
     });
   });
 
+  describe('DECRYPT_AMM', () => {
+    it('requires an assembled PC', () => {
+      initialState.inventory.pcAssembled = false;
+      initialState.resources.experience = 0;
+
+      const next = officeReducer(initialState, {
+        type: 'DECRYPT_AMM',
+        payload: {},
+      } as OfficeAction);
+
+      expect(next.resources.experience).toBe(0);
+      expect(next.logs[0].type).toBe('error');
+    });
+
+    it('awards experience and suspicion on success', () => {
+      Math.random = seedrandom('decrypt-success');
+      initialState.inventory.pcAssembled = true;
+      initialState.resources.experience = 0;
+      initialState.resources.suspicion = 0;
+
+      const next = officeReducer(initialState, {
+        type: 'DECRYPT_AMM',
+        payload: {},
+      } as OfficeAction);
+
+      // Either branch must charge suspicion and log something.
+      expect(next.resources.suspicion).toBeGreaterThan(0);
+      expect(next.logs.length).toBeGreaterThan(0);
+    });
+  });
+
   describe('ASSEMBLE_PC', () => {
     it('should succeed with all components', () => {
       const withComponents = {

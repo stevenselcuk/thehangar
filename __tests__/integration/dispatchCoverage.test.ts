@@ -22,7 +22,6 @@ const REDUCER_LEVEL = new Set(['IMPORT_STATE', 'ACTION_SPAM_PENALTY']);
  * Phase 2 (Tasks 5-7); each is removed from this list by its own task.
  */
 const PENDING_IMPLEMENTATION = new Set([
-  'DECRYPT_AMM',
   'OVERHAUL_IDG',
   'REPAIR_HP_VALVE',
   'RECONFIGURE_ADIRS',
