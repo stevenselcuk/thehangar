@@ -5,12 +5,30 @@
  * this point: snapOnWrenchSet, rivetGun and atlasCopcoDrill are only sold on
  * the Structure Shop shelves (TAB_STRUCTURE, level 5). The rest are gated by
  * the pool itself — the toolroom cards (malabar + greaseGun, inspectionMirror)
- * draw on level-1 stock, and the IDG swap needs a serviceable IDG rotable,
- * which comes off the boneyard paths at level 10 and above. Below level 5 a
- * standard work order would mostly be a card the player can raise and never
- * sign off, which is why the pool is split rather than merely weighted.
+ * draw on level-1 stock. Below level 5 a standard work order would mostly be
+ * a card the player can raise and never sign off, which is why the pool is
+ * split rather than merely weighted.
  */
 export const STANDARD_JOB_MIN_LEVEL = 5;
+
+/**
+ * The level at which a card whose requirement has no source yet joins the pool.
+ *
+ * A tier is a coarse instrument: it opens all six standard cards at once,
+ * and IDG Swap needs something the level-5 pool cannot supply. Its IDG is a
+ * rotable, and the only action that produces one is SCAVENGE_CORROSION_CORNER
+ * at requiredLevel 10 (featureRegistry.ts) — so from level 5 to 9 the card
+ * was drawable and unclosable, which is the exact defect the tier split was
+ * introduced to remove.
+ *
+ * Rather than push the whole standard tier to 10 (which would also withhold
+ * four cards that are perfectly workable at 5) or teach selectJobPool to
+ * simulate every requirement, a card may name its own floor. This mirrors
+ * how the rest of the game gates content: ACTION_FEATURES gives each action
+ * a requiredLevel; a work order now gets the same, and only where its
+ * prerequisite actually demands one.
+ */
+export const ROTABLE_SOURCE_MIN_LEVEL = 10;
 
 export const jobsData = [
   // ==================== ROOKIE TIER ====================
@@ -113,13 +131,17 @@ export const jobsData = [
     tier: 'standard',
   },
   {
-    // 'idg' names a rotable type, not a tool: eventsSlice resolves it against
-    // the rotables the technician holds. See isRotableRequirement there.
+    // 'idg' names a rotable type, not a tool: the requirement is resolved
+    // against the rotables the technician holds. See rotableIdentity.ts.
+    // minLevel matches SCAVENGE_CORROSION_CORNER's requiredLevel — the only
+    // action that puts an IDG on the shelf — so the card cannot be raised
+    // before a part exists to close it with.
     title: 'IDG Swap',
     description: 'Integrated Drive Generator replacement on Engine 2.',
     requirements: { titanium: 100, tools: ['torquemeter', 'idg'] },
     rewardXP: 1500,
     tier: 'standard',
+    minLevel: ROTABLE_SOURCE_MIN_LEVEL,
   },
   {
     title: 'FOD Guard Replacement',
@@ -139,8 +161,18 @@ export type JobTemplate = (typeof jobsData)[number];
 /**
  * The pool a work order is drawn from at a given level.
  *
- * Rookie cards never leave the pool — they thin out into filler once the
- * standard tier opens, rather than disappearing.
+ * Two gates, coarse then fine. The tier gate opens the standard pool at
+ * STANDARD_JOB_MIN_LEVEL; rookie cards never leave it — they thin out into
+ * filler once the standard tier opens, rather than disappearing. Then any
+ * card carrying its own `minLevel` is held back until the level that makes
+ * its requirement obtainable, so no card can be raised that the player has
+ * no way to close.
  */
-export const selectJobPool = (level: number): JobTemplate[] =>
-  level >= STANDARD_JOB_MIN_LEVEL ? jobsData : jobsData.filter((job) => job.tier === 'rookie');
+export const selectJobPool = (level: number): JobTemplate[] => {
+  const tiered =
+    level >= STANDARD_JOB_MIN_LEVEL ? jobsData : jobsData.filter((job) => job.tier === 'rookie');
+  return tiered.filter((job) => {
+    const floor = (job as { minLevel?: number }).minLevel;
+    return floor === undefined || level >= floor;
+  });
+};

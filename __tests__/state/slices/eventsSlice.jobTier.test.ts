@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { jobsData, selectJobPool, STANDARD_JOB_MIN_LEVEL } from '@/data/jobs.ts';
+import { ACTION_FEATURES } from '@/data/featureRegistry.ts';
+import {
+  jobsData,
+  ROTABLE_SOURCE_MIN_LEVEL,
+  selectJobPool,
+  STANDARD_JOB_MIN_LEVEL,
+} from '@/data/jobs.ts';
+import { isRotableRequirement } from '@/logic/rotableIdentity.ts';
 import { eventsReducer, EventsSliceState } from '@/state/slices/eventsSlice.ts';
 import { createMinimalGameState } from '@/utils/testHelpers.ts';
 import type { JobCard } from '@/types.ts';
@@ -91,6 +98,53 @@ describe('job tiers', () => {
   });
 });
 
+describe('a card is never drawable before its requirement has a source', () => {
+  /** Jobs whose `tools` line names a rotable rather than a tool. */
+  const rotableJobs = jobsData.filter((job) =>
+    ((job.requirements as { tools?: string[] }).tools || []).some(isRotableRequirement)
+  );
+
+  it('finds the rotable-requiring cards, so the rest of this suite has teeth', () => {
+    expect(rotableJobs.length).toBeGreaterThan(0);
+  });
+
+  it('floors every rotable card at the level its part first becomes obtainable', () => {
+    // The boneyard is the only producer of rotables, and it opens with
+    // SCAVENGE_CORROSION_CORNER. If that action's level moves, this fails
+    // rather than quietly reopening the gap.
+    const source = ACTION_FEATURES.SCAVENGE_CORROSION_CORNER.requiredLevel;
+
+    expect(ROTABLE_SOURCE_MIN_LEVEL).toBe(source);
+    for (const job of rotableJobs) {
+      const floor = (job as { minLevel?: number }).minLevel;
+      expect(floor, `${job.title} can be raised before its part exists`).toBeGreaterThanOrEqual(
+        source
+      );
+    }
+  });
+
+  it('withholds IDG Swap through the whole level-5-to-9 gap', () => {
+    for (let level = STANDARD_JOB_MIN_LEVEL; level < ROTABLE_SOURCE_MIN_LEVEL; level++) {
+      const pool = selectJobPool(level);
+
+      expect(
+        pool.some((j) => j.tier === 'standard'),
+        `level ${level} lost the standard tier`
+      ).toBe(true);
+      expect(
+        pool.some((j) => j.title === 'IDG Swap'),
+        `level ${level} offers IDG Swap`
+      ).toBe(false);
+    }
+  });
+
+  it('adds IDG Swap once the boneyard opens', () => {
+    const pool = selectJobPool(ROTABLE_SOURCE_MIN_LEVEL);
+
+    expect(pool.some((j) => j.title === 'IDG Swap')).toBe(true);
+  });
+});
+
 describe('eventsSlice - START_STANDARD_JOB tier filtering', () => {
   it('never hands a level-0 technician a standard work order', () => {
     for (let i = 0; i < 60; i++) {
@@ -100,6 +154,33 @@ describe('eventsSlice - START_STANDARD_JOB tier filtering', () => {
       });
       expect(result.activeJob?.tier).toBe('rookie');
     }
+  });
+
+  it('never raises IDG Swap below the level its part exists at', () => {
+    const titles = new Set<string | undefined>();
+    for (let i = 0; i < 200; i++) {
+      const result = eventsReducer(createEventsState(ROTABLE_SOURCE_MIN_LEVEL - 1), {
+        type: 'START_STANDARD_JOB',
+        payload: {},
+      });
+      titles.add(result.activeJob?.title);
+    }
+
+    expect(titles.has('IDG Swap')).toBe(false);
+    expect(titles.size).toBeGreaterThan(1); // the draw is live, not stuck
+  });
+
+  it('raises IDG Swap once the boneyard opens', () => {
+    const titles = new Set<string | undefined>();
+    for (let i = 0; i < 400; i++) {
+      const result = eventsReducer(createEventsState(ROTABLE_SOURCE_MIN_LEVEL), {
+        type: 'START_STANDARD_JOB',
+        payload: {},
+      });
+      titles.add(result.activeJob?.title);
+    }
+
+    expect(titles.has('IDG Swap')).toBe(true);
   });
 
   it('hands out standard work orders once the threshold is reached', () => {
