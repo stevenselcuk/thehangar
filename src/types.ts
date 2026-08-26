@@ -139,6 +139,22 @@ export interface GameEvent {
 
   choices?: EventChoice[]; // For multi-choice events
   requiredAction?: string; // For single-action, time-sensitive tasks
+  /**
+   * Narrows an umbrella `requiredAction` to the sub-actions that actually
+   * represent the work. `AIRCRAFT_ACTION` covers everything done at an
+   * airframe, including a 5-focus log read; an event that asks the player to
+   * isolate a hydraulic system must not be satisfied by reading the cabin
+   * log. When present, the dispatched payload's `actionType` must be one of
+   * these for the event to resolve.
+   */
+  requiredActionSubtypes?: string[];
+  /**
+   * Human-readable instruction shown on the event placard: the authored
+   * maintenance prose plus where in the hangar the work is done. Without it
+   * the panel can only print the action id, which tells the player neither
+   * what the task is nor where to go.
+   */
+  requiredActionLabel?: string;
   successOutcome?: EventOutcome; // If a requiredAction is completed in time
   failureOutcome: EventOutcome; // What happens on timeout.
   imagePath?: string; // Optional path to an image asset for the event

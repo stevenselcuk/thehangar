@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { aircraftData } from '../../data/aircraft.ts';
+import { AIRFRAME_CHECK_TASKS, aircraftData } from '../../data/aircraft.ts';
 import { aircraftScenarios } from '../../data/aircraftScenarios.ts'; // Added import
 import { ACTION_LOGS } from '../../data/flavor.ts';
 import { addLogToDraft } from '../../services/logService.ts';
@@ -155,7 +155,7 @@ export const aircraftReducer = (
           addLog(logEntry, 'story');
         }
 
-        if (['TRANSIT_CHECK', 'DAILY_CHECK', 'ETOPS_CHECK'].includes(actionType)) {
+        if ((AIRFRAME_CHECK_TASKS as string[]).includes(actionType)) {
           // Scenario Trigger Logic
           const SCENARIO_CHANCE = 0.15; // 15% chance
           const acType = aircraft.id as AircraftType;

@@ -134,6 +134,8 @@ export const createComponentFailureEvent = (rotableId: string, rotableLabel: str
     totalTime: template.totalTime,
     failureOutcome: template.failureOutcome,
     requiredAction: template.requiredAction,
+    requiredActionSubtypes: template.requiredActionSubtypes,
+    requiredActionLabel: template.requiredActionLabel,
   };
 };
 
@@ -170,6 +172,8 @@ export const createEventFromTemplate = (
     totalTime: template.totalTime,
     choices: template.choices,
     requiredAction: template.requiredAction,
+    requiredActionSubtypes: template.requiredActionSubtypes,
+    requiredActionLabel: template.requiredActionLabel,
     successOutcome: template.successOutcome,
     failureOutcome: template.failureOutcome,
     suitType: template.suitType,
@@ -453,7 +457,13 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
       }
 
       // 3. Fallback / Legacy Handling
-      if (!logAdded) {
+      //
+      // A component failure is deliberately NOT cleared by this dispatch (see
+      // the type check further down), so the generic "protocols were
+      // effective, no further action required" line would flatly contradict
+      // the "persists until rectified" warning the same dispatch is about to
+      // add. The player dismissing the alert gets the warning only.
+      if (!logAdded && event.type !== 'component_failure') {
         const resolutionLog = generateResolutionLog(draft as GameState, event);
         addLog(resolutionLog, 'story');
       }

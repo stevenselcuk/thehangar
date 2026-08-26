@@ -1,7 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { aircraftEvents } from '@/data/aircraftEvents.ts';
 import { gameReducer } from '@/state/gameReducer.ts';
+import { createEventFromTemplate } from '@/state/slices/eventsSlice.ts';
 import { createMinimalGameState } from '@/utils/testHelpers.ts';
+import { AircraftType } from '@/types.ts';
 import type { EnvironmentalHazard, GameEvent, GameState } from '@/types.ts';
 
 describe('requiredAction events', () => {
@@ -309,5 +311,73 @@ describe('DevMode force resolve payload', () => {
     });
 
     expect(next.activeEvent?.id).toBe('TEST_STUCK');
+  });
+});
+
+/**
+ * `AIRCRAFT_ACTION` is an umbrella action type: the "Perform DAILY CHECK"
+ * button and the 5-focus "Read Cabin Log" button both dispatch it, differing
+ * only in `payload.actionType`. Without narrowing, every aircraft accident
+ * would be cleared by reading a logbook. `requiredActionSubtypes` is what
+ * makes the event ask for the work it describes.
+ */
+describe('an umbrella requiredAction is narrowed to the sub-action that is the work', () => {
+  let state: GameState;
+
+  beforeEach(() => {
+    // The aircraft slice rolls for scenarios and findings on a real check;
+    // pin the dice so this exercises the resolution path, not the RNG.
+    vi.spyOn(Math, 'random').mockReturnValue(0.99);
+
+    state = createMinimalGameState();
+    state.resources.level = 25;
+    // Spawned the way the game spawns it, so the narrowing and the placard
+    // text have to survive createEventFromTemplate to reach the player.
+    const spawned = createEventFromTemplate('accident', 'MD80_HYDRAULIC_LEAK');
+    if (!spawned) throw new Error('No authored MD80_HYDRAULIC_LEAK');
+    state.activeEvent = spawned;
+    state.activeAircraft = { id: AircraftType.MD_80, task: 'DAILY_CHECK' };
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const perform = (actionType: string): GameState =>
+    gameReducer(state, {
+      type: 'ACTION',
+      payload: {
+        type: 'AIRCRAFT_ACTION',
+        payload: { aircraftId: AircraftType.MD_80, actionType },
+      },
+    });
+
+  it('carries the narrowing and the placard text onto the spawned event', () => {
+    expect(state.activeEvent?.requiredActionSubtypes).toContain('DAILY_CHECK');
+    expect(state.activeEvent?.requiredActionSubtypes).not.toContain('READ_CABIN_LOG');
+    expect(state.activeEvent?.requiredActionLabel).toMatch(/AMM 29-11-00/);
+  });
+
+  it('resolves on the assigned check', () => {
+    const next = perform('DAILY_CHECK');
+
+    expect(next.activeEvent).toBeNull();
+    expect(next.stats.eventsResolved).toBe(1);
+    expect(next.logs.some((l) => l.text.startsWith('You close isolation valve 12HV'))).toBe(true);
+  });
+
+  it('does not resolve on the 5-focus log read', () => {
+    const next = perform('READ_CABIN_LOG');
+
+    expect(next.activeEvent?.id).toBe('MD80_HYDRAULIC_LEAK');
+    expect(next.stats.eventsResolved).toBe(0);
+    expect(next.logs.some((l) => l.text.startsWith('You close isolation valve 12HV'))).toBe(false);
+  });
+
+  it('does not resolve on a sub-action the event never named', () => {
+    const next = perform('WALKAROUND');
+
+    expect(next.activeEvent?.id).toBe('MD80_HYDRAULIC_LEAK');
+    expect(next.stats.eventsResolved).toBe(0);
   });
 });

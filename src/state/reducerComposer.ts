@@ -257,12 +257,26 @@ export { ROUTED_ACTIONS };
  * off the back of that dispatch (whether the resolution clears the event
  * outright or chains a fresh successor into activeEvent).
  */
-const resolveRequiredAction = (state: GameState, actionType: string): GameState => {
-  if (actionType === 'RESOLVE_EVENT') return state;
+const resolveRequiredAction = (state: GameState, action: ReducerAction): GameState => {
+  if (action.type === 'RESOLVE_EVENT') return state;
 
   const event = state.activeEvent;
-  if (!event || event.requiredAction !== actionType || !event.successOutcome) {
+  if (!event || event.requiredAction !== action.type || !event.successOutcome) {
     return state;
+  }
+
+  // An umbrella action type (AIRCRAFT_ACTION) covers work of wildly
+  // different weight: a 40-focus ETOPS check and a 5-focus cabin log read
+  // are the same action type with a different payload. Where the event
+  // names the sub-actions that count, the payload has to be one of them, or
+  // the cheapest button on the panel would clear an airframe emergency.
+  const subtypes = event.requiredActionSubtypes;
+  if (subtypes && subtypes.length > 0) {
+    const payload = action.payload as Record<string, unknown> | undefined;
+    const dispatched = payload?.actionType;
+    if (typeof dispatched !== 'string' || !subtypes.includes(dispatched)) {
+      return state;
+    }
   }
 
   return composeAction(state, {
@@ -490,7 +504,7 @@ export const composeAction = (state: GameState, action: ReducerAction): GameStat
   // that satisfied it.
   const charged = chargeFocus(state, routed, action);
 
-  return resolveRequiredAction(charged, action.type);
+  return resolveRequiredAction(charged, action);
 };
 
 /**

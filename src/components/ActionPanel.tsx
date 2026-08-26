@@ -226,7 +226,12 @@ const ActionPanel: React.FC<{
           <div
             className={`mt-4 border-2 ${borderColor} bg-black/40 px-4 py-3 text-[10px] uppercase tracking-[0.15em] ${textColor}`}
           >
-            Required: {event.requiredAction.replace(/_/g, ' ')}
+            {/* The authored instruction, not the enum name: "AIRCRAFT ACTION"
+                tells the player neither what the maintenance task is nor
+                which tab the button lives on. requiredActionLabel carries
+                both; the humanised id is only a fallback for an event that
+                never authored one. */}
+            Required: {event.requiredActionLabel || event.requiredAction.replace(/_/g, ' ')}
             <div className="mt-1 text-[9px] normal-case tracking-normal text-zinc-500">
               Complete this task before the timer expires.
             </div>

@@ -11,6 +11,7 @@ import {
 import { syndicateEvents } from './syndicateEvents';
 import { unionEvents } from './unionEvents';
 
+import { AIRFRAME_CHECK_TASKS } from './aircraft';
 import { aircraftEvents } from './aircraftEvents';
 import { srfEvents } from './srfEvents';
 
@@ -819,6 +820,9 @@ export const eventsData: Record<string, EventTemplates[]> = {
         'A VIP flight is on the ground and needs an immediate turnaround. You have to perform a full transit check in record time.',
       totalTime: 180000, // 3 minutes
       requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Perform Rapid Transit Check — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: 'You completed the check with seconds to spare! The flight is away. The lead is impressed and you get a hefty bonus.',
         effects: { credits: 500, experience: 1000, suspicion: -5 },
@@ -836,6 +840,8 @@ export const eventsData: Record<string, EventTemplates[]> = {
         "While chatting with the cabin crew, they mention a recurring issue with the passenger count being off by one. It's probably just a ticketing error, but they want you to double-check the manifest against the system.",
       totalTime: 60000,
       requiredAction: 'CROSS_REFERENCE_MANIFESTS',
+      requiredActionLabel:
+        'Cross-Reference Passenger Manifest — Office: Cross-Reference Manifests (A&P licence required)',
       successOutcome: {
         log: "You find a minor clerical error and correct it. The cabin crew is relieved. You've built some trust.",
         effects: { experience: 200, suspicion: -2 },
@@ -1045,9 +1051,10 @@ export const eventsData: Record<string, EventTemplates[]> = {
       description: 'An inspector catches you without proper PPE.',
       type: 'bureaucratic_horror',
       totalTime: 30000,
-      requiredAction: 'MAINTAIN_LOW_PROFILE',
+      requiredAction: 'REPORT_MUNDANE',
+      requiredActionLabel: 'Get ahead of the citation — HR Floor: Report Mundane Infraction',
       successOutcome: {
-        log: 'You are already three bays away with your safety glasses on and your paperwork square by the time he looks up. The citation is written against a blank employee number.',
+        log: 'You beat him to the paperwork. By the time the inspector reaches the HR floor the infraction is already filed in your own hand, glasses on, PPE noted, corrective action listed. He signs off on your form instead of writing his own.',
         effects: { experience: 150 },
       },
       failureOutcome: {
@@ -1733,10 +1740,17 @@ export const eventsData: Record<string, EventTemplates[]> = {
     {
       id: 'BASE_FAILURE',
       type: 'component_failure',
+      // No requiredAction. RESOLVE_EVENT refuses to clear a component_failure
+      // whatever it is handed (eventsSlice keys that on the event type), so no
+      // requiredAction and no choice can ever resolve one: the only writer
+      // that clears it is REPAIR_ROTABLE, which has no button anywhere in the
+      // UI. Naming it here bought nothing and cost the player the DISCARD
+      // affordance — a placard pointing at a button that does not exist,
+      // instead of the log line telling them where the work is done.
       title: 'COMPONENT FAILURE',
-      description: "is showing signs of imminent failure. It's causing major operational drag.",
+      description:
+        "is showing signs of imminent failure. It's causing major operational drag. It will not clear on its own: the component has to be overhauled in the Backshops.",
       totalTime: 3600000,
-      requiredAction: 'REPAIR_ROTABLE',
       failureOutcome: {
         log: 'This component continues to degrade, increasing operational costs.',
         effects: {}, // The drain is handled in the tick processor

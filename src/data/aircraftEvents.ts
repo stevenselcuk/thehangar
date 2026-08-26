@@ -1,4 +1,5 @@
 import { GameEvent, SuitType } from '../types.ts';
+import { AIRFRAME_CHECK_TASKS } from './aircraft.ts';
 
 // Helper type for event templates (omitting 'timeLeft' as it's set on trigger)
 type EventTemplate = Omit<GameEvent, 'timeLeft'>;
@@ -14,6 +15,9 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
         "Hydraulic System B pressure dropping: 2800...2400...1900 PSI. Purple Skydrol LD-4 is atomizing from the aft pressure line near STA 1642. The mist is caustic. It's hissing like something alive.",
       totalTime: 35000,
       requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Isolate System B per AMM 29-11-00 — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: 'You close isolation valve 12HV at the aft hydraulic panel, depressurize per procedure. The spray stops. 14 quarts lost. You notice: the leaked fluid has etched your employee number into the aluminum floor panel.',
         effects: { skydrol: -14, experience: 200, sanity: -8 },
@@ -31,6 +35,8 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
         'Smoke detector B-3 triggered. Acrid white smoke pouring from the galley service panel. The smell: burning wiring insulation, ozone, and something metallic—like copper, or blood. Passengers would be evacuating if they were here.',
       totalTime: 40000,
       requiredAction: 'PERFORM_BORESCOPE_INSPECTION',
+      requiredActionLabel:
+        'Locate source per AMM 24-00-00 — Hangar Floor: Borescope Inspection at the NDT bench',
       successOutcome: {
         log: "You trace it to circuit breaker 3-K-12 (GALLEY BUS TIE). The breaker is welded closed—physically impossible, it's a thermal breaker. You pull it with pliers. The smoke stops. Inside the panel, the wire bundle shows arc damage in the shape of a hand.",
         effects: { experience: 280, sanity: -15, suspicion: 8 },
@@ -48,6 +54,8 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
         'Ramp crew reports a "scraping sound" during pushback. You inspect the tail: a 14-inch scrape on the belly skin at STA 1840, just aft of the pressure dome. The metal is deformed. The paint is...wet. It hasn\'t rained in three days.',
       totalTime: 60000,
       requiredAction: 'PERFORM_NDT',
+      requiredActionLabel:
+        'SRM 53-30-00 damage assessment — Hangar Floor: NDT Ultrasonic Scan at the NDT bench',
       successOutcome: {
         log: 'You perform dye penetrant inspection per SRM. Findings: no cracks, deformation within limits (0.040" depth). Cosmetic repair authorized. But the penetrant fluoresces in a pattern: coordinates. You Google them: middle of the Pacific, 2000 fathoms deep.',
         effects: { experience: 350, suspicion: 12, sanity: -18, alclad: -8 },
@@ -66,7 +74,10 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       description:
         "EICAS: FUEL CONFIG. Left tank: 1,240 lbs. Right tank: 3,890 lbs. Imbalance: 2,650 lbs. The crossfeed valve (1-FV-2) won't respond to solenoid commands. Electric pump P2-1 is running but no flow. The aircraft is listing 4° right on the jacks.",
       totalTime: 45000,
-      requiredAction: 'TIGHTEN_BOLT',
+      requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Manual crossfeed override per AMM 28-13-00 — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: 'You access the manual override lever in the fuel panel, force the valve open. Fuel transfers. Balance restored after 8 minutes. But the fuel flow sensor shows negative flow for 3 seconds—fluid moving backwards. Thermodynamically impossible.',
         effects: { experience: 300, focus: -15, sanity: -10 },
@@ -84,6 +95,9 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
         'Ground pressurization test per AMM 21-31-00. Target: 8.35 PSI differential. Actual: 0.2 PSI. The outflow valve is fully open, ignoring commands. Manual motor override: no response. Through the inspection window you see: the valve actuator is rotating backwards.',
       totalTime: 30000,
       requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Emergency valve closure AMM 21-31-45 — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: 'You manually crank the valve closed using the backup handle (120 turns clockwise per procedure). It seals with resistance at turn 119. On turn 120, the handle pulls back. Hard. You hear metal bending inside the valve body. But it holds pressure.',
         effects: { experience: 280, focus: -20, sanity: -12, alclad: -3 },
@@ -101,6 +115,9 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
         'During taxi-out config test, spoiler panel 3L deploys uncommanded. Speed: 8 knots. Crew reports "significant yaw". You find spoiler mixer PCU (P/N: 65-45890-11) servo valve stuck at 40% extension. Hydraulic pressure: normal. Electrical signal: 0 volts. It shouldn\'t move.',
       totalTime: 50000,
       requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Isolate spoiler per AMM 27-51-00 — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: 'You pull the spoiler control circuit breaker (C-37), depressurize the PCU per AMM. The panel retracts...slowly. You measure: it took 47 seconds. Spec: 3-5 seconds. As it retracts, the panel surface is ice-cold. Ambient temp: 78°F.',
         effects: { experience: 400, sanity: -20, suspicion: 15 },
@@ -149,7 +166,10 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       description:
         'Aft cargo loadmaster reports: "PMC pallet unseated during loading." You inspect: a 2,400 lb pallet (ID: AKE67239) has broken free from locks, shifted 18 inches aft toward the pressure bulkhead at FS 810. The locks are engaged. The pallet moved through them.',
       totalTime: 40000,
-      requiredAction: 'CLEAN_ULD',
+      requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Re-secure per AMM 25-72-00 — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: 'You use the cargo winch (3,000 lb capacity) to reposition the pallet. Net and straps applied per IATA standards. As you torque the restraint fittings to 45 ft-lbs, you notice: the pallet is labeled "DIPLOMATIC CARGO - DO NOT X-RAY." It is warm to the touch. And humming at 60 Hz.',
         effects: { experience: 320, sanity: -12, suspicion: 8 },
@@ -167,6 +187,9 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
         'ECAM: HYD G+Y PRESS LO. Green system: 2,100 PSI (normal: 3,000). Yellow: 1,950 PSI. Both PTU (Power Transfer Units) running but not equalizing pressure. Both engine-driven pumps: nominal RPM. Reservoir levels: full. Pressure is disappearing into nothing.',
       totalTime: 50000,
       requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Isolate leak per AMM 29-13-00 — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: 'You perform sectional isolation: close shut-off valves for flight controls, landing gear, brakes sequentially. Pressure stabilizes when you isolate the cargo door hydraulic circuit. But that circuit shows no leaks. You open it again: pressure drops. Close: stabilizes. The fluid is flowing to nowhere.',
         effects: { experience: 450, sanity: -25, suspicion: 20 },
@@ -185,7 +208,10 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       description:
         'Aft cargo zone temp indication: -40°C and dropping. Target: +7°C. The temp controller (P/N: 211-0711-001) shows "SENSOR FAULT" but you verify sensors with multimeter: functioning correctly. Current indication: -89°C. That\'s below dry ice sublimation temp. Frost is forming on the inside of the hull.',
       totalTime: 35000,
-      requiredAction: 'BOEING_SUPPORT',
+      requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Reset environmental control per AMM 21-52-00 — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: "You cycle the pack controller, close then re-open the trim air valve. Temperature begins rising: -89°C...-45°C...+2°C...+7°C. Stable. But frost patterns on the hull spell words in a language you don't recognize. You take a photo. The image is corrupted.",
         effects: { experience: 400, sanity: -22, suspicion: 12 },
@@ -202,7 +228,10 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
       description:
         'EICAS: ELEC BUS TIE 1 OPEN. You inspect: the BTB (Bus Tie Breaker) is physically closed but electrically open. Testing shows the main contacts are welded together—requires 800°C to weld copper at that cross-section. There has been no fire. The breaker is cold.',
       totalTime: 45000,
-      requiredAction: 'XRAY_WELDS',
+      requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Replace BTB per AMM 24-32-11 — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: 'You de-energize the system, remove the BTB (weighs 47 lbs). The contacts are indeed welded, but the weld pattern shows directionality—as if current flowed from both directions simultaneously. You install a new breaker (P/N: 360C3010-1, cost: $8,400). It works. For now.',
         effects: { experience: 380, credits: -8400, sanity: -15 },
@@ -250,6 +279,9 @@ export const aircraftEvents: Record<string, EventTemplate[]> = {
         "Pre-flight pressurization test: forward cargo door seal (P/N: A55456740120) fails at 4.2 PSI differential. You hear it before you see it—a high-pitched scream as air escapes. But it's not just escaping. Something is trying to pull the door open from outside.",
       totalTime: 25000,
       requiredAction: 'AIRCRAFT_ACTION',
+      requiredActionSubtypes: AIRFRAME_CHECK_TASKS,
+      requiredActionLabel:
+        'Emergency seal replacement AMM 52-11-05 — Apron & Line: perform the assigned check on the airframe',
       successOutcome: {
         log: 'You depressurize immediately, replace the seal with spares (36-foot circumference seal, 3 hours installation). During installation you find: the old seal has teeth marks. Not human. Not animal. The marks are too uniform. Forensics would call them "tool marks." You call them nothing.',
         effects: { experience: 300, sanity: -20, doorSeal: -1, focus: -15 },

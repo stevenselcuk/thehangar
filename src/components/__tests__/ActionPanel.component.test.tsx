@@ -138,6 +138,21 @@ describe('ActionPanel requiredAction affordance', () => {
     expect(screen.queryByText('DISCARD')).not.toBeInTheDocument();
   });
 
+  it('prints the authored instruction rather than the enum name', () => {
+    // The placard is the only place the player is told what the task is and
+    // which tab it lives on. "Required: AIRCRAFT ACTION" tells them neither.
+    const state = eventState('AIRCRAFT_ACTION');
+    state.activeEvent!.requiredActionLabel =
+      'Isolate System B per AMM 29-11-00 — Apron & Line: perform the assigned check on the airframe';
+
+    renderPanel(state);
+
+    expect(
+      screen.getByText(/Required: Isolate System B per AMM 29-11-00 — Apron & Line/i)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Required: AIRCRAFT ACTION/i)).not.toBeInTheDocument();
+  });
+
   it('offers DISCARD instead when the required action names nothing routable', () => {
     // The structural guard: prose the engine cannot act on must never leave
     // the player with a guaranteed timeout and no button.

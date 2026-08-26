@@ -109,3 +109,51 @@ describe('eventsSlice - RESOLVE_EVENT', () => {
     }
   });
 });
+
+/**
+ * BASE_FAILURE declares no requiredAction, so ActionPanel offers DISCARD on
+ * a component failure. The dispatch must not read as a success: the event
+ * stays, and the only line the player gets is the one telling them where the
+ * work is done.
+ */
+describe('eventsSlice - discarding a component failure', () => {
+  const failureState = (): EventsSliceState =>
+    ({
+      activeEvent: {
+        id: 'fail_rot_1',
+        type: 'component_failure',
+        title: 'COMPONENT FAILURE: IDG',
+        description: 'test',
+        timeLeft: 3600000,
+        totalTime: 3600000,
+        failureOutcome: { log: 'Continues to degrade.' },
+      },
+      resources: { sanity: 80, suspicion: 10, experience: 0, credits: 100 },
+      stats: { eventsResolved: 0 },
+      logs: [],
+      inventory: {},
+      anomalies: [],
+      toolConditions: {},
+      flags: {},
+      hfStats: {},
+      rotables: [],
+      proficiency: {},
+      activeJob: null,
+      journal: [],
+      eventTimestamps: {},
+    }) as unknown as EventsSliceState;
+
+  it('holds the event, awards nothing, and warns instead of claiming success', () => {
+    const next = eventsReducer(failureState(), { type: 'RESOLVE_EVENT', payload: {} });
+
+    expect(next.activeEvent?.id).toBe('fail_rot_1');
+    expect(next.stats.eventsResolved).toBe(0);
+    expect(next.resources.experience).toBe(0);
+
+    const texts = next.logs.map((log) => log.text);
+    expect(texts).toContain(
+      'Component failure persists until rectified. Check toolroom for replacement parts.'
+    );
+    expect(EVENT_RESOLUTION_TEMPLATES.some((t) => texts.includes(t.text))).toBe(false);
+  });
+});

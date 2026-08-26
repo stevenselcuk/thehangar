@@ -1,4 +1,21 @@
-import { AircraftData, AircraftType } from '../types';
+import { ActiveAircraft, AircraftData, AircraftType } from '../types';
+
+/**
+ * The `AIRCRAFT_ACTION` sub-actions that are actual maintenance work on the
+ * airframe — the ones GET_NEW_AIRCRAFT_TASK assigns and the "Perform ..."
+ * button dispatches. The other sub-actions the panel offers (READ_FLIGHT_LOG,
+ * READ_CABIN_LOG) are 5-focus flavour reads and are deliberately not in this
+ * list: an event that asks for an emergency procedure must not be satisfied
+ * by reading a logbook.
+ *
+ * Single source of truth for aircraftSlice's reward branch and for the
+ * `requiredActionSubtypes` the aircraft accidents declare.
+ */
+export const AIRFRAME_CHECK_TASKS: ActiveAircraft['task'][] = [
+  'TRANSIT_CHECK',
+  'DAILY_CHECK',
+  'ETOPS_CHECK',
+];
 
 export const aircraftData: AircraftData[] = [
   {
