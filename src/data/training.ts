@@ -3,7 +3,7 @@ export const trainingData = {
     {
       id: 'hfInitial',
       label: 'Human Factors (Initial)',
-      costFocus: 50,
+      costFocus: 10,
       costCredits: 200,
       rewardXp: 500,
       requiredFor: ['hasAPLicense', 'hasEasaB1_1'],
@@ -13,7 +13,7 @@ export const trainingData = {
     {
       id: 'hfRecurrent',
       label: 'Human Factors (Recurrent)',
-      costFocus: 25,
+      costFocus: 5,
       costCredits: 100,
       rewardXp: 250,
       prereq: 'hasHfInitial',
@@ -23,7 +23,7 @@ export const trainingData = {
     {
       id: 'fts',
       label: 'Fuel Tank Safety (FTS)',
-      costFocus: 40,
+      costFocus: 8,
       costCredits: 150,
       rewardXp: 400,
       prereq: 'hasHfInitial',
@@ -33,7 +33,7 @@ export const trainingData = {
     {
       id: 'hdi',
       label: 'Hidden Damage Inspection',
-      costFocus: 60,
+      costFocus: 12,
       costCredits: 300,
       rewardXp: 600,
       prereq: 'hasFts',
@@ -46,7 +46,7 @@ export const trainingData = {
     written: {
       id: 'apWritten',
       label: 'A&P Written Exam',
-      costFocus: 100,
+      costFocus: 20,
       costCredits: 250,
       rewardXp: 1000,
       prereq: 'hasHfInitial',
@@ -56,7 +56,7 @@ export const trainingData = {
     practical: {
       id: 'apPractical',
       label: 'A&P Practical Exam',
-      costFocus: 200,
+      costFocus: 40,
       costCredits: 500,
       rewardXp: 2500,
       prereq: 'apWrittenPassed',
@@ -73,7 +73,7 @@ export const trainingData = {
       id: 'hasAvionicsCert',
       label: 'Avionics Specialist Exam',
       prereq: 'hasAPLicense',
-      costFocus: 150,
+      costFocus: 30,
       costCredits: 400,
       rewardXp: 2000,
       description: 'Advanced certification for complex avionics systems.',
@@ -101,7 +101,7 @@ export const trainingData = {
       { id: 16, name: 'M16: Piston Engine' },
       { id: 17, name: 'M17A: Propeller' },
     ],
-    examCost: { costFocus: 50, costCredits: 100, rewardXp: 300 },
+    examCost: { costFocus: 10, costCredits: 100, rewardXp: 300 },
     licenses: [
       {
         id: 'hasEasaB1_1',
@@ -117,7 +117,7 @@ export const trainingData = {
       {
         id: 'hasNdtLevel1',
         label: 'NDT Level I',
-        costFocus: 100,
+        costFocus: 20,
         costCredits: 500,
         rewardXp: 1000,
         description: 'Qualifies you to perform specific NDT tests under supervision.',
@@ -126,7 +126,7 @@ export const trainingData = {
         id: 'hasNdtLevel2',
         label: 'NDT Level II',
         prereq: 'hasNdtLevel1',
-        costFocus: 200,
+        costFocus: 40,
         costCredits: 1000,
         rewardXp: 2000,
         description:
@@ -136,7 +136,7 @@ export const trainingData = {
         id: 'hasNdtLevel3',
         label: 'NDT Level III',
         prereq: 'hasNdtLevel2',
-        costFocus: 300,
+        costFocus: 60,
         costCredits: 2500,
         rewardXp: 5000,
         description:
@@ -148,7 +148,7 @@ export const trainingData = {
         id: 'eddy',
         label: 'Eddy Current Cert',
         prereq: 'hasNdtLevel1',
-        costFocus: 50,
+        costFocus: 10,
         costCredits: 200,
         rewardXp: 400,
       },
@@ -156,7 +156,7 @@ export const trainingData = {
         id: 'hfec',
         label: 'HFEC Cert',
         prereq: 'hasNdtLevel1',
-        costFocus: 60,
+        costFocus: 12,
         costCredits: 250,
         rewardXp: 500,
       },
@@ -164,7 +164,7 @@ export const trainingData = {
         id: 'tap',
         label: 'Tap Test Cert',
         prereq: 'hasNdtLevel1',
-        costFocus: 20,
+        costFocus: 4,
         costCredits: 50,
         rewardXp: 100,
       },
@@ -172,7 +172,7 @@ export const trainingData = {
         id: 'borescope',
         label: 'Borescope Cert',
         prereq: 'hasNdtLevel1',
-        costFocus: 40,
+        costFocus: 8,
         costCredits: 150,
         rewardXp: 300,
       },
@@ -180,7 +180,7 @@ export const trainingData = {
         id: 'dye',
         label: 'Dye Penetrant Cert',
         prereq: 'hasNdtLevel1',
-        costFocus: 30,
+        costFocus: 6,
         costCredits: 100,
         rewardXp: 200,
       },
@@ -191,7 +191,7 @@ export const trainingData = {
       {
         id: 1,
         label: '737 Familiarization',
-        costFocus: 50,
+        costFocus: 10,
         costCredits: 300,
         rewardXp: 500,
         prereq: 'hasAPLicense',
@@ -199,7 +199,7 @@ export const trainingData = {
       {
         id: 2,
         label: '737 Level I',
-        costFocus: 100,
+        costFocus: 20,
         costCredits: 600,
         rewardXp: 1000,
         prereqLevel: 1,
@@ -207,7 +207,7 @@ export const trainingData = {
       {
         id: 3,
         label: '737 Level II',
-        costFocus: 150,
+        costFocus: 30,
         costCredits: 1200,
         rewardXp: 2000,
         prereqLevel: 2,
@@ -215,7 +215,7 @@ export const trainingData = {
       {
         id: 4,
         label: '737 Level III',
-        costFocus: 200,
+        costFocus: 40,
         costCredits: 2400,
         rewardXp: 4000,
         prereqLevel: 3,
@@ -225,7 +225,7 @@ export const trainingData = {
       {
         id: 1,
         label: 'A330 Familiarization',
-        costFocus: 60,
+        costFocus: 12,
         costCredits: 400,
         rewardXp: 600,
         prereq: 'hasAPLicense',
@@ -233,7 +233,7 @@ export const trainingData = {
       {
         id: 2,
         label: 'A330 Level I',
-        costFocus: 120,
+        costFocus: 24,
         costCredits: 800,
         rewardXp: 1200,
         prereqLevel: 1,
@@ -241,7 +241,7 @@ export const trainingData = {
       {
         id: 3,
         label: 'A330 Level II (CFM)',
-        costFocus: 180,
+        costFocus: 36,
         costCredits: 1600,
         rewardXp: 2500,
         prereqLevel: 2,
@@ -249,7 +249,7 @@ export const trainingData = {
       {
         id: 4,
         label: 'A330 Level III (V2500)',
-        costFocus: 240,
+        costFocus: 48,
         costCredits: 3200,
         rewardXp: 5000,
         prereqLevel: 3,

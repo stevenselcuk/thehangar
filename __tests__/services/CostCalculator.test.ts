@@ -10,6 +10,7 @@ import {
   validateActionCost,
 } from '@/services/CostCalculator';
 import { trainingData } from '@/data/training';
+import { GAME_CONSTANTS } from '@/data/constants.ts';
 import { createMinimalGameState } from '@/utils/testHelpers';
 import { describe, expect, it } from 'vitest';
 
@@ -214,7 +215,7 @@ describe('CostCalculator Service', () => {
 
     it('agrees on a mandatory course', () => {
       const course = trainingData.mandatoryCourses.find((c) => c.id === 'hfInitial')!;
-      bothShapesAgree('TAKE_MANDATORY_COURSE', { ...course }, { id: 'hfInitial' }, 50);
+      bothShapesAgree('TAKE_MANDATORY_COURSE', { ...course }, { id: 'hfInitial' }, 10);
     });
 
     it('agrees on every mandatory course', () => {
@@ -233,13 +234,13 @@ describe('CostCalculator Service', () => {
         'TAKE_AP_EXAM',
         { ...trainingData.faaLicense.written },
         { id: 'apWritten' },
-        100
+        20
       );
       bothShapesAgree(
         'TAKE_AP_EXAM',
         { ...trainingData.faaLicense.practical },
         { id: 'apPractical' },
-        200
+        40
       );
     });
 
@@ -276,11 +277,11 @@ describe('CostCalculator Service', () => {
 
     it('resolves the fixed-price training actions with no id at all', () => {
       const state = createMinimalGameState();
-      expect(calculateFocusCost('TAKE_AP_WRITTEN', state, {})).toBe(100);
-      expect(calculateFocusCost('TAKE_AVIONICS_EXAM', state, {})).toBe(150);
-      expect(calculateFocusCost('START_EASA_MODULE', state, {})).toBe(50);
-      expect(calculateFocusCost('TAKE_EASA_EXAM', state, {})).toBe(50);
-      expect(calculateFocusCost('TAKE_AVIONICS_EXAM', state, undefined)).toBe(150);
+      expect(calculateFocusCost('TAKE_AP_WRITTEN', state, {})).toBe(20);
+      expect(calculateFocusCost('TAKE_AVIONICS_EXAM', state, {})).toBe(30);
+      expect(calculateFocusCost('START_EASA_MODULE', state, {})).toBe(10);
+      expect(calculateFocusCost('TAKE_EASA_EXAM', state, {})).toBe(10);
+      expect(calculateFocusCost('TAKE_AVIONICS_EXAM', state, undefined)).toBe(30);
     });
 
     it('charges nothing for a training action whose entry authors no cost', () => {
@@ -296,11 +297,73 @@ describe('CostCalculator Service', () => {
       expect(calculateFocusCost('TAKE_TYPE_RATING', state, { family: '737', id: 99 })).toBe(0);
     });
 
-    it('leaves the authored values alone, above MAX_FOCUS or not', () => {
+    it('leaves the authored values alone, whatever they are', () => {
       const state = createMinimalGameState();
-      // Balance is not this layer's call: a 300-focus cert stays 300.
-      expect(calculateFocusCost('TAKE_NDT_EXAM', state, { id: 'hasNdtLevel3' })).toBe(300);
-      expect(calculateFocusCost('TAKE_AP_EXAM', state, { id: 'apPractical' })).toBe(200);
+      // Balance is not this layer's call: an authored cert cost passes through untouched.
+      expect(calculateFocusCost('TAKE_NDT_EXAM', state, { id: 'hasNdtLevel3' })).toBe(60);
+      expect(calculateFocusCost('TAKE_AP_EXAM', state, { id: 'apPractical' })).toBe(40);
+    });
+  });
+
+  describe('training focus costs stay payable at saturated fatigue', () => {
+    // Fatigue surcharges a focus cost up to (1 + FATIGUE_FOCUS_SURCHARGE)x at
+    // fatigue 100 (see calculateFocusModifier in focusSurcharge.ts). If an
+    // authored training cost times that worst-case multiplier exceeds
+    // MAX_FOCUS, the course is unaffordable from a full pool no matter what
+    // — a purchase that can never be made. The multiplier is derived from
+    // GAME_CONSTANTS.FATIGUE_FOCUS_SURCHARGE, not hardcoded, so this stays
+    // correct if that constant is retuned later.
+    const maxFatigueMultiplier = 1 + GAME_CONSTANTS.FATIGUE_FOCUS_SURCHARGE;
+
+    const collectTrainingFocusCosts = (): Array<{ label: string; costFocus: number }> => {
+      const entries: Array<{ label: string; costFocus: number }> = [];
+      const add = (label: string, value: unknown) => {
+        if (
+          value &&
+          typeof value === 'object' &&
+          'costFocus' in value &&
+          typeof (value as { costFocus?: unknown }).costFocus === 'number'
+        ) {
+          entries.push({ label, costFocus: (value as { costFocus: number }).costFocus });
+        }
+      };
+
+      for (const course of trainingData.mandatoryCourses) {
+        add(`mandatoryCourses.${course.id}`, course);
+      }
+      add('faaLicense.written', trainingData.faaLicense.written);
+      add('faaLicense.practical', trainingData.faaLicense.practical);
+      add('faaLicense.avionics', trainingData.faaLicense.avionics);
+      add('easaLicense.examCost', trainingData.easaLicense.examCost);
+      for (const level of trainingData.ndtCerts.levels) {
+        add(`ndtCerts.levels.${level.id}`, level);
+      }
+      for (const sub of trainingData.ndtCerts.subtasks) {
+        add(`ndtCerts.subtasks.${sub.id}`, sub);
+      }
+      for (const family of ['737', 'A330'] as const) {
+        for (const rating of trainingData.typeRatings[family]) {
+          add(`typeRatings.${family}.${rating.id}`, rating);
+        }
+      }
+
+      return entries;
+    };
+
+    it('sweeps every authored training entry, not a sample', () => {
+      // Guards against silently dropping a category (e.g. type ratings) from
+      // the sweep above, which would let the invariant test below pass for
+      // the wrong reason.
+      expect(collectTrainingFocusCosts().length).toBe(24);
+    });
+
+    it('never lets a training cost exceed MAX_FOCUS at maximum fatigue surcharge', () => {
+      for (const { label, costFocus } of collectTrainingFocusCosts()) {
+        expect(
+          costFocus * maxFatigueMultiplier,
+          `${label}: ${costFocus} * ${maxFatigueMultiplier} exceeds MAX_FOCUS (${GAME_CONSTANTS.MAX_FOCUS})`
+        ).toBeLessThanOrEqual(GAME_CONSTANTS.MAX_FOCUS);
+      }
     });
   });
 });
