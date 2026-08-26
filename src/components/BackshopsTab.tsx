@@ -3,6 +3,8 @@ import { GameState } from '../types.ts';
 import ActionButton from './ActionButton.tsx';
 
 import { locationTriggers } from '../data/locationTriggers';
+import { hasOverhaulCandidate } from '../logic/rotableIdentity.ts';
+import { OVERHAUL_TARGETS } from '../state/slices/backshopSlice.ts';
 
 const BackshopsTab: React.FC<{
   state: GameState;
@@ -15,10 +17,17 @@ const BackshopsTab: React.FC<{
     if (trigger) onAction('LOG_FLAVOR', { text: trigger.text });
   }, [onAction]);
 
-  const hasBrokenIdg = state.rotables.some((r) => r.pn === 'IDG-757-A' && r.isRedTagged);
-  const hasBrokenHpValve = state.rotables.some((r) => r.pn === 'PRV-ENG-HP1' && r.isRedTagged);
-  const hasBrokenAdirs = state.rotables.some((r) => r.pn === 'ADIRS-HG2030' && r.isRedTagged);
-  const hasBrokenGalley = state.rotables.some((r) => r.pn === 'BREW-MASTER' && r.isRedTagged);
+  // Enabled exactly when the reducer would find a candidate: same predicate,
+  // same table. These four buttons once carried their own copy of the check,
+  // and it was wrong in the same way the reducer's was — agreeing with each
+  // other is what let all four actions sit dead through review.
+  const canOverhaul = (actionId: string) =>
+    hasOverhaulCandidate(state.rotables, OVERHAUL_TARGETS[actionId].templateId);
+
+  const hasBrokenIdg = canOverhaul('OVERHAUL_IDG');
+  const hasBrokenHpValve = canOverhaul('REPAIR_HP_VALVE');
+  const hasBrokenAdirs = canOverhaul('RECONFIGURE_ADIRS');
+  const hasBrokenGalley = canOverhaul('REPAIR_GALLEY_UNIT');
 
   return (
     <div className="space-y-8">

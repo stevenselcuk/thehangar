@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { itemsData } from '../../data/items.ts';
 import { trainingData } from '../../data/training.ts';
 import type { EnvironmentalHazard, GameEvent, GameState, RotableItem } from '../../types.ts';
 import { createMinimalGameState } from '../../utils/testHelpers.ts';
@@ -313,18 +314,28 @@ describe('composeAction backshop overhaul clears the pinned component-failure ev
     failureOutcome: { log: 'The failure went unresolved.' },
   });
 
-  const redTaggedIdg = (id: string): RotableItem => ({
-    id,
-    label: 'Integrated Drive Generator',
-    pn: 'IDG-757-A',
-    sn: 'SN-TEST-1',
-    condition: 10,
-    isInstalled: false,
-    isUntraceable: false,
-    isRedTagged: true,
-    history: [],
-    manufactureDate: 0,
-  });
+  /**
+   * A red-tagged IDG in the shape the boneyard drops one: the label comes
+   * from the real template, the part number is stamped 'UNKNOWN'. This
+   * fixture used to invent both ('Integrated Drive Generator', 'IDG-757-A')
+   * and matched a reducer that was looking for the same invented string, so
+   * it passed while the action was unreachable in play.
+   */
+  const redTaggedIdg = (id: string): RotableItem => {
+    const template = itemsData.rotables.find((r) => r.id === 'idg')!;
+    return {
+      id,
+      label: template.label,
+      pn: 'UNKNOWN',
+      sn: 'UNTRACEABLE',
+      condition: 10,
+      isInstalled: false,
+      isUntraceable: true,
+      isRedTagged: true,
+      history: [],
+      manufactureDate: 0,
+    };
+  };
 
   it('reaches real game state: overhauling the failed rotable clears both the flag and activeEvent', () => {
     const rotable = redTaggedIdg('idg-1');

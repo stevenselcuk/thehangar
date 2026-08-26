@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { anomaliesData } from '@/data/anomalies.ts';
+import { itemsData } from '@/data/items.ts';
 import { Anomaly, GameEvent } from '@/types.ts';
 import {
   BackshopAction,
@@ -896,21 +897,34 @@ describe('backshopSlice - Actions', () => {
       initialState = createBackshopState();
     });
 
-    const makeRotable = (pn: string) => ({
-      id: `rot-${pn}`,
-      label: pn,
-      pn,
-      sn: 'SN-TEST-1',
-      condition: 10,
-      isInstalled: false,
-      isUntraceable: false,
-      isRedTagged: true,
-      history: [],
-      manufactureDate: 0,
-    });
+    /**
+     * A red-tagged part built from the real template, the way the boneyard
+     * builds one: label from itemsData, part number stamped 'UNKNOWN'.
+     *
+     * The previous version of this helper took a part number and used it as
+     * the label too, so it happily built an 'IDG-757-A' — a string that
+     * appears nowhere in the game. Every assertion below passed against it
+     * while all four overhaul actions were unreachable in play.
+     */
+    const makeRotable = (templateId: string) => {
+      const template = itemsData.rotables.find((r) => r.id === templateId);
+      if (!template) throw new Error(`No rotable template "${templateId}"`);
+      return {
+        id: `rot-${templateId}`,
+        label: template.label,
+        pn: 'UNKNOWN',
+        sn: 'UNTRACEABLE',
+        condition: 10,
+        isInstalled: false,
+        isUntraceable: true,
+        isRedTagged: true,
+        history: [],
+        manufactureDate: 0,
+      };
+    };
 
     it('restores the target rotable and clears its red tag', () => {
-      initialState.rotables = [makeRotable('IDG-757-A')];
+      initialState.rotables = [makeRotable('idg')];
       initialState.resources.experience = 0;
       initialState.resources.credits = 0;
       initialState.stats.rotablesRepaired = 0;
@@ -941,7 +955,7 @@ describe('backshopSlice - Actions', () => {
     });
 
     it('ignores a rotable of the right type that is not red-tagged', () => {
-      const healthy = { ...makeRotable('IDG-757-A'), isRedTagged: false, condition: 90 };
+      const healthy = { ...makeRotable('idg'), isRedTagged: false, condition: 90 };
       initialState.rotables = [healthy];
       initialState.resources.experience = 0;
 
@@ -954,8 +968,8 @@ describe('backshopSlice - Actions', () => {
       expect(next.rotables[0].condition).toBe(90);
     });
 
-    it('routes each action to its own part number', () => {
-      initialState.rotables = [makeRotable('BREW-MASTER')];
+    it('routes each action to its own rotable template', () => {
+      initialState.rotables = [makeRotable('coffee_maker')];
       initialState.resources.experience = 0;
 
       const next = backshopReducer(initialState, {
@@ -968,7 +982,7 @@ describe('backshopSlice - Actions', () => {
     });
 
     it('clears both activeComponentFailure and activeEvent when the repaired rotable matches the pinned failure', () => {
-      const rotable = makeRotable('IDG-757-A');
+      const rotable = makeRotable('idg');
       initialState.rotables = [rotable];
       initialState.flags.activeComponentFailure = rotable.id;
       initialState.activeEvent = createTestComponentFailureEvent();
@@ -983,7 +997,7 @@ describe('backshopSlice - Actions', () => {
     });
 
     it('clears neither activeComponentFailure nor activeEvent when the pinned failure belongs to a different rotable', () => {
-      const rotable = makeRotable('IDG-757-A');
+      const rotable = makeRotable('idg');
       initialState.rotables = [rotable];
       initialState.flags.activeComponentFailure = 'some-other-rotable-id';
       const pinnedEvent = createTestComponentFailureEvent();

@@ -1,14 +1,14 @@
 import { produce } from 'immer';
 import { anomaliesData } from '../../data/anomalies.ts';
 import { eventsData } from '../../data/events.ts';
-import { itemsData } from '../../data/items.ts';
 import { ACTION_LOGS, EVENT_RESOLUTION_TEMPLATES, SYSTEM_LOGS } from '../../data/flavor.ts';
 import { selectJobPool } from '../../data/jobs.ts';
+import { hasServiceableRotable, isRotableRequirement } from '../../logic/rotableIdentity.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { applySignoffReward } from '../../services/RewardCalculator.ts';
 import { canSpawnEventCategory } from '../../services/LevelManager.ts';
 import { addLogToDraft } from '../../services/logService.ts';
-import { Anomaly, GameEvent, GameState, Inventory, JobCard, RotableItem } from '../../types.ts';
+import { Anomaly, GameEvent, GameState, Inventory, JobCard } from '../../types.ts';
 import { ROUTED_ACTIONS } from '../routedActions.ts';
 
 /**
@@ -78,38 +78,6 @@ export const isToolServiceable = (
   toolId: string
 ): boolean => {
   return (toolConditions[toolId] || 0) > 0;
-};
-
-/**
- * The rotable types a work order's `tools` line is allowed to name.
- *
- * An IDG is not a tool the technician checks out and hands back — it is a
- * rotable, and rotables are already modelled as instances in
- * state.rotables, with their own serial numbers, condition and red tags.
- * Satisfying `tools: ['idg']` from an inventory boolean would put the same
- * fact in two places and let them disagree, so a tool id that names one of
- * these templates is resolved against the rotables array instead.
- */
-const ROTABLE_TEMPLATES = new Map(itemsData.rotables.map((r) => [r.id, r]));
-
-/** Whether this requirement line names a rotable type rather than a tool. */
-export const isRotableRequirement = (toolId: string): boolean => ROTABLE_TEMPLATES.has(toolId);
-
-/**
- * Whether the technician is holding a serviceable rotable of `toolId`'s type.
- *
- * Matched on label rather than part number: a scavenged or boneyard part
- * carries pn 'UNKNOWN' but keeps the template's label, and an untraceable
- * IDG still turns an engine. Red-tagged parts are excluded — a red tag is
- * the paperwork for "unserviceable" — as are parts worn to zero condition,
- * which is the same bar isToolServiceable holds tools to.
- */
-export const hasServiceableRotable = (rotables: RotableItem[], toolId: string): boolean => {
-  const template = ROTABLE_TEMPLATES.get(toolId);
-  if (!template) return false;
-  return (rotables || []).some(
-    (r) => r.label === template.label && r.condition > 0 && !r.isRedTagged
-  );
 };
 
 /**
