@@ -168,3 +168,30 @@ describe('hangarSlice - PERFORM_ROOKIE_TASK', () => {
     });
   });
 });
+
+describe('hangarSlice - PERFORM_NDT certification gate', () => {
+  it('performs the scan when NDT Level I is held', () => {
+    const base = createHangarState();
+    const state = createHangarState({
+      inventory: { ...base.inventory, hasNdtLevel1: true },
+    });
+
+    const result = hangarReducer(state, { type: 'PERFORM_NDT', payload: {} });
+
+    expect(result.stats.ndtScansPerformed).toBe(1);
+    expect(result.resources.experience).toBe(200);
+  });
+
+  it('refuses the scan without the certification', () => {
+    const base = createHangarState();
+    const state = createHangarState({
+      inventory: { ...base.inventory, hasNdtLevel1: false },
+    });
+
+    const result = hangarReducer(state, { type: 'PERFORM_NDT', payload: {} });
+
+    expect(result.stats.ndtScansPerformed).toBe(0);
+    expect(result.resources.experience).toBe(0);
+    expect(result.logs[0].text).toContain('NDT Level I');
+  });
+});

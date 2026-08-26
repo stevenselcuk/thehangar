@@ -97,6 +97,42 @@ const ActionPanel: React.FC<{
     };
   };
 
+  // Helper for actions gated on a certification rather than a level.
+  // A certification refusal is explained on the button, in the same shape as
+  // the level lock, rather than leaving the player a dead control.
+  const getCertLockedProps = (actionId: string) => {
+    const inv = state.inventory;
+    const certs = inv.ndtCerts || [];
+
+    if (actionId === 'PERFORM_HFEC_SCAN') {
+      if (!inv.hfecDevice) {
+        return {
+          disabled: true,
+          description: '[LOCKED] Requires the HFEC Scanner from the toolroom.',
+          className: 'opacity-40 border-zinc-800 text-zinc-600 grayscale cursor-not-allowed',
+        };
+      }
+      if (!certs.includes('eddy') && !certs.includes('hfec')) {
+        return {
+          disabled: true,
+          description: '[LOCKED] Requires an Eddy Current or HFEC certification.',
+          className: 'opacity-40 border-zinc-800 text-zinc-600 grayscale cursor-not-allowed',
+        };
+      }
+      return {};
+    }
+
+    if (!inv.hasNdtLevel1) {
+      return {
+        disabled: true,
+        description: '[LOCKED] Requires NDT Level I certification.',
+        className: 'opacity-40 border-zinc-800 text-zinc-600 grayscale cursor-not-allowed',
+      };
+    }
+
+    return {};
+  };
+
   // Helper to check for hazard-blocked actions
   const getHazardLockedProps = (actionId: string) => {
     const activeHazards = state.activeHazards || [];
@@ -1132,22 +1168,28 @@ const ActionPanel: React.FC<{
                   label="NDT Ultrasonic Scan"
                   onClick={() => onAction('PERFORM_NDT')}
                   cost={{ label: 'FOCUS', value: 20 }}
-                  description="Detect subsurface structural fractures."
+                  description="Detect subsurface structural fractures. Certified work: NDT Level I."
                   disabled={!!finding}
+                  {...getCertLockedProps('PERFORM_NDT')}
+                  {...getLockedProps('PERFORM_NDT')}
                 />
                 <ActionButton
                   label="Perform HFEC Scan"
                   onClick={() => onAction('PERFORM_HFEC_SCAN')}
                   cost={{ label: 'FOCUS', value: 25 }}
-                  description="Use High-Frequency Eddy Current to find cracks in conductive materials. Requires HFEC Scanner."
-                  disabled={!!finding || !state.inventory.hfecDevice}
+                  description="Use High-Frequency Eddy Current to find cracks in conductive materials. Requires HFEC Scanner and an eddy current certification."
+                  disabled={!!finding}
+                  {...getCertLockedProps('PERFORM_HFEC_SCAN')}
+                  {...getLockedProps('PERFORM_HFEC_SCAN')}
                 />
                 <ActionButton
                   label="Borescope Inspection"
                   onClick={() => onAction('PERFORM_BORESCOPE_INSPECTION')}
                   cost={{ label: 'FOCUS', value: 30 }}
-                  description="Inspect engine internals for wear and foreign objects."
+                  description="Inspect engine internals for wear and foreign objects. Certified work: NDT Level I."
                   disabled={!!finding}
+                  {...getCertLockedProps('PERFORM_BORESCOPE_INSPECTION')}
+                  {...getLockedProps('PERFORM_BORESCOPE_INSPECTION')}
                 />
               </div>
             </div>

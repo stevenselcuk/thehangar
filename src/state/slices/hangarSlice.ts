@@ -180,6 +180,13 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
       }
 
       case 'PERFORM_NDT':
+        if (!draft.inventory.hasNdtLevel1) {
+          addLog(
+            'TASK REJECTED: Ultrasonic inspection requires NDT Level I certification.',
+            'error'
+          );
+          break;
+        }
         addLog(SYSTEM_LOGS.NDT_SCAN, 'info');
         draft.resources.experience += 200;
         draft.resources.sanity -= 2;

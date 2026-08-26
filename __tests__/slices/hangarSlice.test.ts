@@ -238,7 +238,14 @@ describe('hangarSlice', () => {
         payload: {},
       };
 
-      const result = hangarReducer(initialState, action);
+      // NDT is certified work: the scan is refused outright without Level I.
+      // The refusal has its own tests in hangarSlice.rookie.test.ts.
+      const certified = {
+        ...initialState,
+        inventory: { ...initialState.inventory, hasNdtLevel1: true },
+      };
+
+      const result = hangarReducer(certified, action);
 
       expect(result.resources.experience).toBe(200);
       expect(result.resources.sanity).toBe(98);

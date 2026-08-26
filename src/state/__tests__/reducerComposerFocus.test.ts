@@ -24,6 +24,9 @@ const stateWith = (overrides: {
       level: 25,
     },
     hfStats: { ...base.hfStats, fatigue: overrides.fatigue ?? 0 },
+    // PERFORM_NDT is certified work as well as level-gated; these tests are
+    // about what focus costs, not about who may run a scan.
+    inventory: { ...base.inventory, hasNdtLevel1: true },
     activeHazards: overrides.hazards ?? [],
     activeEvent: overrides.activeEvent ?? null,
     // FOD_SWEEP hands out a one-time toolbox event on first use; keep it out

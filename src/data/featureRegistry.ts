@@ -124,6 +124,29 @@ export const ACTION_FEATURES: Record<string, FeatureDefinition> = {
   // Level 6 - Night shift
   DELEGATE_NIGHT_CREW: { id: 'DELEGATE_NIGHT_CREW', type: 'action', requiredLevel: 6 },
 
+  // Level 8 - NDT
+  // NDT is certified work. The level gate keeps a rookie off the equipment;
+  // the certification itself (hasNdtLevel1, and an eddy/hfec entry in
+  // ndtCerts for the HFEC scanner) is checked at the point of use.
+  PERFORM_NDT: {
+    id: 'PERFORM_NDT',
+    type: 'action',
+    requiredLevel: 8,
+    description: 'Ultrasonic inspection - requires NDT Level I',
+  },
+  PERFORM_BORESCOPE_INSPECTION: {
+    id: 'PERFORM_BORESCOPE_INSPECTION',
+    type: 'action',
+    requiredLevel: 8,
+    description: 'Borescope inspection - requires NDT Level I',
+  },
+  PERFORM_HFEC_SCAN: {
+    id: 'PERFORM_HFEC_SCAN',
+    type: 'action',
+    requiredLevel: 8,
+    description: 'HFEC scan - requires the scanner and an eddy current cert',
+  },
+
   // Level 8 - Terminal
   LISTEN_FUSELAGE: { id: 'LISTEN_FUSELAGE', type: 'action', requiredLevel: 8 },
   USE_PAYPHONE: { id: 'USE_PAYPHONE', type: 'action', requiredLevel: 8 },

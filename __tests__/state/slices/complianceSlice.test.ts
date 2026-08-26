@@ -44,6 +44,15 @@ const createComplianceState = (
       ...baseState.proficiency,
       unlocked: [],
     },
+    // Fully certified by default: the existing scan tests are about what a
+    // scan finds, not about who is allowed to run one. The certification
+    // gates get their own tests, which override this.
+    inventory: {
+      ...baseState.inventory,
+      hasNdtLevel1: true,
+      hfecDevice: true,
+      ndtCerts: ['eddy', 'hfec'],
+    },
     logs: [],
     ...overrides,
   };

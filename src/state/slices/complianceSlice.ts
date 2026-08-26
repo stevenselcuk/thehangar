@@ -27,6 +27,11 @@ import { GameState } from '../../types.ts';
 
 export interface ComplianceSliceState {
   resources: GameState['resources'];
+  /**
+   * Read-only here, but required: the NDT actions are certification-gated at
+   * the point of use, and the certifications live in inventory.
+   */
+  inventory: GameState['inventory'];
   flags: GameState['flags'];
   hfStats: GameState['hfStats'];
   stats: GameState['stats'];
@@ -93,6 +98,20 @@ export const complianceReducer = (
       }
 
       case 'PERFORM_HFEC_SCAN': {
+        if (!draft.inventory.hfecDevice) {
+          addLog('TASK REJECTED: No HFEC scanner drawn from the toolroom.', 'error');
+          break;
+        }
+        if (
+          !draft.inventory.ndtCerts.includes('eddy') &&
+          !draft.inventory.ndtCerts.includes('hfec')
+        ) {
+          addLog(
+            'TASK REJECTED: Eddy current work requires an eddy current or HFEC certification.',
+            'error'
+          );
+          break;
+        }
         draft.stats.ndtScansPerformed += 1;
         const scanRoll = Math.random();
         if (scanRoll < 0.4) {
@@ -124,6 +143,13 @@ export const complianceReducer = (
       }
 
       case 'PERFORM_BORESCOPE_INSPECTION': {
+        if (!draft.inventory.hasNdtLevel1) {
+          addLog(
+            'TASK REJECTED: Borescope inspection requires NDT Level I certification.',
+            'error'
+          );
+          break;
+        }
         draft.stats.ndtScansPerformed += 1;
         const scopeRoll = Math.random();
         if (scopeRoll < 0.5) {

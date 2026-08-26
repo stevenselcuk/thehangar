@@ -766,6 +766,7 @@ const routeAction = (state: GameState, action: ReducerAction): GameState => {
     return produce(state, (draft) => {
       const complianceState = {
         resources: draft.resources,
+        inventory: draft.inventory,
         flags: draft.flags,
         hfStats: draft.hfStats,
         logs: draft.logs,
@@ -780,6 +781,7 @@ const routeAction = (state: GameState, action: ReducerAction): GameState => {
 
       // Map updated state back to draft
       draft.resources = updated.resources as typeof draft.resources;
+      draft.inventory = updated.inventory;
       draft.flags = updated.flags as typeof draft.flags;
       draft.hfStats = updated.hfStats as typeof draft.hfStats;
       draft.logs = updated.logs;
