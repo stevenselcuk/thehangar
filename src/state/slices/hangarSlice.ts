@@ -9,7 +9,7 @@ import {
   VOID_BROADCASTS,
 } from '../../data/flavor.ts';
 import { missingToolFor, ROOKIE_TASKS } from '../../data/rookieTasks.ts';
-import { canPerformNdt } from '../../logic/ndtGating.ts';
+import { canPerformNdt, hasDyePenetrantQualification } from '../../logic/ndtGating.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { applySignoffReward } from '../../services/RewardCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
@@ -22,7 +22,7 @@ import { GameEvent, GameState } from '../../types.ts';
  * - Radio listening (standard and void broadcasts)
  * - FOD sweep
  * - Rookie task cards (PERFORM_ROOKIE_TASK, parameterised by ROOKIE_TASKS id)
- * - NDT scans
+ * - NDT scans and the on-the-floor dye penetrant sign-off
  * - Orbital sanding
  * - Bolt tightening (riveting)
  * - Boeing support calls
@@ -35,7 +35,7 @@ import { GameEvent, GameState } from '../../types.ts';
  * - hfStats (fearTimer, noiseExposure)
  * - stats (ndtScansPerformed)
  * - toolConditions (rivetGun degradation)
- * - inventory (orbital sander, rivet gun checks)
+ * - inventory (orbital sander, rivet gun checks, ndtCerts sign-off)
  * - logs array
  */
 
@@ -57,6 +57,7 @@ export type HangarAction =
   | { type: 'LISTEN_RADIO'; payload: Record<string, unknown> }
   | { type: 'FOD_SWEEP'; payload: Record<string, unknown> }
   | { type: 'PERFORM_NDT'; payload: Record<string, unknown> }
+  | { type: 'QUALIFY_DYE_PENETRANT'; payload: Record<string, unknown> }
   | { type: 'PERFORM_ROOKIE_TASK'; payload: { id?: string } }
   | { type: 'ORBITAL_SAND'; payload: Record<string, unknown> }
   | { type: 'TIGHTEN_BOLT'; payload: Record<string, unknown> }
@@ -193,6 +194,27 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
         draft.resources.sanity -= 2;
         draft.stats.ndtScansPerformed += 1;
         break;
+
+      /**
+       * The on-the-floor dye penetrant sign-off.
+       *
+       * This is not the formal ladder. It grants the 'dye' entry in
+       * ndtCerts without hasNdtLevel1, which is the only way a level-8
+       * technician can put the NDT bay to any use before TrainingTab
+       * opens at level 12. What that entry then permits is decided in
+       * ndtGating.ts, not here.
+       */
+      case 'QUALIFY_DYE_PENETRANT': {
+        if (!draft.inventory.ndtCerts) draft.inventory.ndtCerts = [];
+        if (hasDyePenetrantQualification(draft.inventory)) {
+          addLog(ACTION_LOGS.DYE_SIGNOFF_ALREADY_HELD, 'info');
+          break;
+        }
+        draft.inventory.ndtCerts.push('dye');
+        draft.resources.experience += 150;
+        addLog(ACTION_LOGS.DYE_SIGNOFF_GRANTED, 'story');
+        break;
+      }
 
       case 'ORBITAL_SAND':
         if (draft.inventory.orbitalSander) {

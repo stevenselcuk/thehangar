@@ -10,14 +10,14 @@ import { GameState } from '../../types.ts';
  *
  * Handles:
  * - Non-routine report creation and filing
- * - NDT inspections (HFEC scans, borescope inspections)
+ * - NDT inspections (HFEC scans, borescope inspections, dye penetrant checks)
  * - Anomalous/mundane reporting to management
  * - HR interactions (performance reviews, leave requests, urine samples)
  * - Document management (alteration, destruction)
  * - Compliance review and low-profile maintenance
  *
  * State mutations:
- * - resources (sanity, suspicion, focus, credits, experience, kardexFragments)
+ * - resources (sanity, suspicion, focus, credits, experience, kardexFragments, mek)
  * - flags (ndtFinding, onPerformanceImprovementPlan, isAfraid)
  * - hfStats (fearTimer, compliancePressureTimer, scheduleCompressionTimer, sanityShieldTimer, performanceReviewCooldown, foundLoopholeTimer, socialStress)
  * - stats (ndtScansPerformed)
@@ -47,6 +47,7 @@ export type ComplianceAction =
       type: 'PERFORM_BORESCOPE_INSPECTION';
       payload?: { triggerEvent?: (type: string, id?: string) => void };
     }
+  | { type: 'PERFORM_DYE_PENETRANT'; payload?: Record<string, unknown> }
   | { type: 'REPORT_ANOMALOUS'; payload?: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'REPORT_MUNDANE'; payload?: { triggerEvent?: (type: string, id?: string) => void } }
   | { type: 'FORGE_SAMPLE'; payload?: Record<string, unknown> }
@@ -168,6 +169,50 @@ export const complianceReducer = (
           };
           addLog(ACTION_LOGS.BORESCOPE_SUSPICIOUS_RESIDUE, 'vibration');
           draft.resources.sanity -= 20;
+        }
+        break;
+      }
+
+      /**
+       * Dye penetrant: the shallow method.
+       *
+       * It reads surface-breaking defects and nothing else, so it can
+       * never return the 'suspicious' severity the ultrasonic, eddy
+       * current and borescope methods can — whatever is wrong with this
+       * hangar does not break the surface. It costs a litre of MEK
+       * because the process starts and ends with a solvent clean.
+       */
+      case 'PERFORM_DYE_PENETRANT': {
+        if (!canPerformNdt('PERFORM_DYE_PENETRANT', draft.inventory)) {
+          addLog(
+            'TASK REJECTED: Dye penetrant work requires a dye penetrant qualification.',
+            'error'
+          );
+          break;
+        }
+        if (draft.resources.mek < 1) {
+          addLog('TASK REJECTED: No MEK in the kit. The surface cannot be pre-cleaned.', 'error');
+          break;
+        }
+        draft.resources.mek -= 1;
+        draft.stats.ndtScansPerformed += 1;
+        const dyeRoll = Math.random();
+        if (dyeRoll < 0.6) {
+          addLog(ACTION_LOGS.DYE_PENETRANT_NORMAL, 'info');
+        } else if (dyeRoll < 0.9) {
+          draft.flags.ndtFinding = {
+            type: 'Dye Penetrant',
+            description: ACTION_LOGS.DYE_PENETRANT_INDICATION,
+            severity: 'minor',
+          };
+          addLog(ACTION_LOGS.DYE_PENETRANT_INDICATION, 'warning');
+        } else {
+          draft.flags.ndtFinding = {
+            type: 'Dye Penetrant',
+            description: ACTION_LOGS.DYE_PENETRANT_NETWORK,
+            severity: 'major',
+          };
+          addLog(ACTION_LOGS.DYE_PENETRANT_NETWORK, 'error');
         }
         break;
       }

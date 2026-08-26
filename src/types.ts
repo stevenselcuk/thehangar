@@ -279,7 +279,7 @@ export interface GameFlags {
   onPerformanceImprovementPlan: boolean;
   janitorPresent: boolean;
   ndtFinding: {
-    type: 'HFEC' | 'Borescope' | 'Visual' | 'Ultrasonic';
+    type: 'HFEC' | 'Borescope' | 'Visual' | 'Ultrasonic' | 'Dye Penetrant';
     description: string;
     severity: 'minor' | 'major' | 'suspicious';
   } | null;

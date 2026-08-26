@@ -18,7 +18,11 @@ import { getActionRequiredLevel } from '../data/featureRegistry';
 import { checkLocationRequirements } from '../logic/locationRequirements';
 import { isActionUnlocked } from '../services/LevelManager';
 import { calculateFocusModifier } from '../logic/focusSurcharge.ts';
-import { missingNdtRequirement, type NdtAction } from '../logic/ndtGating.ts';
+import {
+  hasDyePenetrantQualification,
+  missingNdtRequirement,
+  type NdtAction,
+} from '../logic/ndtGating.ts';
 import { ROUTED_ACTIONS } from '../state/routedActions.ts';
 import { FocusCostModifierProvider } from './FocusCostContext.ts';
 import BackroomModal from './BackroomModal';
@@ -112,7 +116,9 @@ const ActionPanel: React.FC<{
         ? '[LOCKED] Requires the HFEC Scanner from the toolroom.'
         : actionId === 'PERFORM_HFEC_SCAN'
           ? '[LOCKED] Requires an Eddy Current or HFEC certification.'
-          : '[LOCKED] Requires NDT Level I certification.';
+          : actionId === 'PERFORM_DYE_PENETRANT'
+            ? '[LOCKED] Requires a dye penetrant qualification.'
+            : '[LOCKED] Requires NDT Level I certification.';
 
     return {
       disabled: true,
@@ -1149,7 +1155,7 @@ const ActionPanel: React.FC<{
               <h4 className="text-[10px] text-blue-400 uppercase mb-4 font-bold tracking-widest border-l-2 border-blue-500 pl-3">
                 Non-Destructive Testing (NDT)
               </h4>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <ActionButton
                   label="NDT Ultrasonic Scan"
                   onClick={() => onAction('PERFORM_NDT')}
@@ -1176,6 +1182,28 @@ const ActionPanel: React.FC<{
                   disabled={!!finding}
                   {...getCertLockedProps('PERFORM_BORESCOPE_INSPECTION')}
                   {...getLockedProps('PERFORM_BORESCOPE_INSPECTION')}
+                />
+                <ActionButton
+                  label="Dye Penetrant Check"
+                  onClick={() => onAction('PERFORM_DYE_PENETRANT')}
+                  cost={{ label: 'FOCUS', value: 15 }}
+                  description="Solvent clean, penetrant, developer. Surface-breaking defects only. Consumes 1 MEK. Requires the dye penetrant qualification."
+                  disabled={!!finding}
+                  {...getCertLockedProps('PERFORM_DYE_PENETRANT')}
+                  {...getLockedProps('PERFORM_DYE_PENETRANT')}
+                />
+              </div>
+              <div className="mt-3">
+                <ActionButton
+                  label="Request Dye Penetrant Sign-Off"
+                  onClick={() => onAction('QUALIFY_DYE_PENETRANT')}
+                  cost={{ label: 'FOCUS', value: 10 }}
+                  description={
+                    hasDyePenetrantQualification(state.inventory)
+                      ? 'Already signed off. The training record carries the initials.'
+                      : 'Work a scrap panel under a senior technician until he initials your training record. No NDT Level I required.'
+                  }
+                  {...getLockedProps('QUALIFY_DYE_PENETRANT')}
                 />
               </div>
             </div>

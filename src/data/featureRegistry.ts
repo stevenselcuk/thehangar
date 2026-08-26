@@ -146,6 +146,23 @@ export const ACTION_FEATURES: Record<string, FeatureDefinition> = {
     requiredLevel: 8,
     description: 'HFEC scan - requires the scanner and an eddy current cert',
   },
+  // The floor route into NDT. Every other certification is bought in
+  // TrainingTab, which does not open until level 12, so without these two
+  // the NDT bay is visible and unusable for four levels. Dye penetrant is
+  // the one method a hangar signs off on the floor, under supervision, and
+  // it deliberately does not require hasNdtLevel1.
+  QUALIFY_DYE_PENETRANT: {
+    id: 'QUALIFY_DYE_PENETRANT',
+    type: 'action',
+    requiredLevel: 8,
+    description: 'On-the-floor dye penetrant sign-off - no NDT Level I required',
+  },
+  PERFORM_DYE_PENETRANT: {
+    id: 'PERFORM_DYE_PENETRANT',
+    type: 'action',
+    requiredLevel: 8,
+    description: 'Dye penetrant check - requires the dye penetrant qualification',
+  },
 
   // Level 8 - Terminal
   LISTEN_FUSELAGE: { id: 'LISTEN_FUSELAGE', type: 'action', requiredLevel: 8 },

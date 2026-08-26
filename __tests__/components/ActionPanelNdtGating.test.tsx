@@ -94,6 +94,43 @@ describe('ActionPanel - NDT gating', () => {
     vi.useRealTimers();
   });
 
+  it('explains the dye penetrant qualification requirement at level 8 without it', () => {
+    renderHangar(hangarState(8, { hasNdtLevel1: false, ndtCerts: [] }));
+
+    expect(screen.getByRole('button', { name: /Dye Penetrant Check/i })).toBeDisabled();
+    expect(hoverText(/Dye Penetrant Check/i)).toContain(
+      '[LOCKED] Requires a dye penetrant qualification.'
+    );
+
+    vi.useRealTimers();
+  });
+
+  it('enables the dye penetrant check on the floor qualification alone', () => {
+    // No hasNdtLevel1: this is the fork the whole feature exists for.
+    renderHangar(hangarState(8, { hasNdtLevel1: false, ndtCerts: ['dye'] }));
+
+    expect(screen.getByRole('button', { name: /Dye Penetrant Check/i })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /NDT Ultrasonic Scan/i })).toBeDisabled();
+
+    vi.useRealTimers();
+  });
+
+  it('offers the sign-off at level 8 and locks it below', () => {
+    renderHangar(hangarState(8, { ndtCerts: [] }));
+    expect(screen.getByRole('button', { name: /Request Dye Penetrant Sign-Off/i })).toBeEnabled();
+
+    vi.useRealTimers();
+  });
+
+  it('locks the sign-off below level 8', () => {
+    renderHangar(hangarState(7, { ndtCerts: [] }));
+
+    expect(screen.getByRole('button', { name: /Request Dye Penetrant Sign-Off/i })).toBeDisabled();
+    expect(hoverText(/Request Dye Penetrant Sign-Off/i)).toContain('Requires Level 8');
+
+    vi.useRealTimers();
+  });
+
   it('disables HFEC when the scanner is held but no eddy current certification is', () => {
     renderHangar(hangarState(8, { hasNdtLevel1: true, hfecDevice: true, ndtCerts: [] }));
 
