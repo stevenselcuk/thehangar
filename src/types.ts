@@ -337,6 +337,12 @@ export interface JobCard {
   rewardXP: number;
   timeLeft: number;
   totalTime: number;
+  /**
+   * Which pool the card was drawn from. Rookie cards are apprentice work
+   * signed off by somebody else; anything without a tier (anomaly retrofits,
+   * dev-mode cards) is standard work.
+   */
+  tier?: 'rookie' | 'standard';
   isRetrofit?: boolean;
   bonusId?: string;
 }

@@ -8,7 +8,9 @@ import {
   SYSTEM_LOGS,
   VOID_BROADCASTS,
 } from '../../data/flavor.ts';
+import { ROOKIE_TASKS } from '../../data/rookieTasks.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
+import { applySignoffReward } from '../../services/RewardCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameEvent, GameState } from '../../types.ts';
 
@@ -18,6 +20,7 @@ import { GameEvent, GameState } from '../../types.ts';
  * Handles:
  * - Radio listening (standard and void broadcasts)
  * - FOD sweep
+ * - Rookie task cards (PERFORM_ROOKIE_TASK, parameterised by ROOKIE_TASKS id)
  * - NDT scans
  * - Orbital sanding
  * - Bolt tightening (riveting)
@@ -53,6 +56,7 @@ export type HangarAction =
   | { type: 'LISTEN_RADIO'; payload: Record<string, unknown> }
   | { type: 'FOD_SWEEP'; payload: Record<string, unknown> }
   | { type: 'PERFORM_NDT'; payload: Record<string, unknown> }
+  | { type: 'PERFORM_ROOKIE_TASK'; payload: { id?: string } }
   | { type: 'ORBITAL_SAND'; payload: Record<string, unknown> }
   | { type: 'TIGHTEN_BOLT'; payload: Record<string, unknown> }
   | { type: 'INSTALL_RIVETS'; payload: Record<string, unknown> }
@@ -138,6 +142,42 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
           addLog('You found a hidden toolbox! Examine it.', 'levelup');
         }
         break;
+
+      case 'PERFORM_ROOKIE_TASK': {
+        const task = ROOKIE_TASKS[(action.payload as { id?: string })?.id ?? ''];
+        if (!task) {
+          addLog('TASK REJECTED: No such card in the apprentice folder.', 'error');
+          break;
+        }
+
+        const missing = (task.requires || []).find((item) => draft.inventory[item] !== true);
+        if (missing) {
+          addLog(
+            `TASK REJECTED: ${task.label} requires ${String(missing).toUpperCase()}.`,
+            'error'
+          );
+          break;
+        }
+
+        if (draft.resources.focus < task.focus) {
+          addLog(`TASK DEFERRED: ${task.label} needs ${task.focus} focus.`, 'warning');
+          break;
+        }
+
+        // Reward is computed in exactly one place for both rookie paths.
+        const reward = applySignoffReward(
+          { xp: task.xp, hours: task.hours, tier: 'rookie' },
+          draft.inventory
+        );
+
+        draft.resources.focus = Math.max(0, draft.resources.focus - task.focus);
+        draft.resources.experience += reward.xp;
+        draft.resources.technicalLogbookHours += reward.hours;
+
+        addLog(task.log, 'info');
+        addLog(`Logged ${reward.hours} technical hour(s): ${task.label}.`, 'info');
+        break;
+      }
 
       case 'PERFORM_NDT':
         addLog(SYSTEM_LOGS.NDT_SCAN, 'info');

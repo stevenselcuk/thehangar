@@ -1,4 +1,4 @@
-import { GameState, ResourceState } from '../types.ts';
+import { GameState, Inventory, ResourceState } from '../types.ts';
 
 /**
  * Reward calculation service
@@ -101,6 +101,44 @@ export const calculateXpGain = (baseXp: number, _state: GameState, deltaTime?: n
   }
 
   return xp;
+};
+
+/**
+ * The multiplier a held A&P licence puts on rookie work.
+ *
+ * An apprentice's task card is signed off by somebody else; once the player
+ * can sign their own, the same task is worth more to them. Hours are never
+ * touched — a licence does not make an hour longer, and the logbook
+ * thresholds in training.ts assume honest time.
+ */
+export const SIGNOFF_XP_MULTIPLIER = 1.5;
+
+export interface SignoffReward {
+  xp: number;
+  hours: number;
+}
+
+/**
+ * The single place rookie-task rewards are computed.
+ *
+ * Both rookie paths run through here: the instant task cards in
+ * hangarSlice (PERFORM_ROOKIE_TASK) and the timed rookie work orders in
+ * eventsSlice (COMPLETE_JOB). Standard-tier work is returned untouched, so
+ * the same call is safe on every job card.
+ *
+ * @param base - the card's authored xp, its logged hours, and its tier
+ * @param inventory - read only for the A&P licence
+ */
+export const applySignoffReward = (
+  base: { xp: number; hours: number; tier?: 'rookie' | 'standard' },
+  inventory: Pick<Inventory, 'hasAPLicense'>
+): SignoffReward => {
+  const licensed = base.tier === 'rookie' && inventory.hasAPLicense === true;
+
+  return {
+    xp: licensed ? base.xp * SIGNOFF_XP_MULTIPLIER : base.xp,
+    hours: base.hours,
+  };
 };
 
 /**

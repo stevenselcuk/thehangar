@@ -1,5 +1,6 @@
 import {
   AIRCRAFT_BASE_REWARDS,
+  applySignoffReward,
   NDT_FINDING_REWARDS,
   TRAINING_REWARDS,
   applyRewards,
@@ -338,6 +339,62 @@ describe('RewardCalculator Service', () => {
 
       expect(bonusXp).toBeCloseTo(110, 1); // 100 * 1.1
       expect(bonusXp).toBeCloseTo(baseXp * 1.1, 2);
+    });
+  });
+
+  describe('applySignoffReward', () => {
+    it('pays a rookie card its authored xp while unlicensed', () => {
+      const reward = applySignoffReward(
+        { xp: 80, hours: 3, tier: 'rookie' },
+        {
+          hasAPLicense: false,
+        }
+      );
+
+      expect(reward.xp).toBe(80);
+      expect(reward.hours).toBe(3);
+    });
+
+    it('pays a rookie card 1.5x xp once the A&P licence is held', () => {
+      const reward = applySignoffReward(
+        { xp: 80, hours: 3, tier: 'rookie' },
+        {
+          hasAPLicense: true,
+        }
+      );
+
+      expect(reward.xp).toBe(120);
+    });
+
+    it('never multiplies logbook hours — a licence does not lengthen an hour', () => {
+      const unlicensed = applySignoffReward(
+        { xp: 80, hours: 4, tier: 'rookie' },
+        {
+          hasAPLicense: false,
+        }
+      );
+      const licensed = applySignoffReward(
+        { xp: 80, hours: 4, tier: 'rookie' },
+        {
+          hasAPLicense: true,
+        }
+      );
+
+      expect(unlicensed.hours).toBe(4);
+      expect(licensed.hours).toBe(4);
+    });
+
+    it('leaves standard-tier work alone in both licence states', () => {
+      expect(
+        applySignoffReward({ xp: 500, hours: 5, tier: 'standard' }, { hasAPLicense: true }).xp
+      ).toBe(500);
+      expect(
+        applySignoffReward({ xp: 500, hours: 5, tier: 'standard' }, { hasAPLicense: false }).xp
+      ).toBe(500);
+    });
+
+    it('treats an untiered card (anomaly retrofit, dev card) as standard work', () => {
+      expect(applySignoffReward({ xp: 2000, hours: 6 }, { hasAPLicense: true }).xp).toBe(2000);
     });
   });
 

@@ -1,5 +1,5 @@
 import { SYSTEM_LOGS } from '../data/flavor.ts';
-import { jobsData } from '../data/jobs.ts';
+import { selectJobPool } from '../data/jobs.ts';
 import { getAllUnlockedFlags, getMilestoneForLevel } from '../data/levelMilestones.ts';
 import { vendingData } from '../data/vending.ts';
 import { GameState, JobCard } from '../types.ts';
@@ -38,8 +38,16 @@ export const generateVendingPrices = (): Record<string, number> => {
   return prices;
 };
 
-export const createJob = (): JobCard => {
-  const template = jobsData[Math.floor(Math.random() * jobsData.length)];
+/**
+ * Raise a work order for a technician at `level`.
+ *
+ * The pool is tier-filtered exactly as START_STANDARD_JOB filters it: a
+ * level-0 technician handed a standard card would hold a work order they
+ * have no tool to close.
+ */
+export const createJob = (level: number = 0): JobCard => {
+  const pool = selectJobPool(level);
+  const template = pool[Math.floor(Math.random() * pool.length)];
   const duration = 120000 + Math.random() * 240000;
   return {
     ...template,

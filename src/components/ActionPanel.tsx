@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { aircraftData } from '../data/aircraft.ts';
 import { itemsData } from '../data/items.ts';
+import { ROOKIE_TASK_LIST } from '../data/rookieTasks.ts';
 import { AircraftType, GameState, Inventory, SuitType, TabType } from '../types.ts';
 import ActionButton from './ActionButton.tsx';
 import AogTab from './AogTab.tsx';
@@ -1041,6 +1042,43 @@ const ActionPanel: React.FC<{
                 />
               </div>
             )}
+
+            {/* Apprentice Task Cards */}
+            <div className="p-5 border border-emerald-900/40 bg-black/30">
+              <h4 className="text-[10px] text-emerald-600 uppercase mb-2 font-bold tracking-widest border-l-2 border-emerald-700 pl-3">
+                Apprentice Task Cards
+              </h4>
+              <p className="text-[9px] text-emerald-900 mb-4">
+                Supervised work. Somebody else signs it off, but the hours are yours and the logbook
+                is the only thing the examiners read.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {ROOKIE_TASK_LIST.map((task) => {
+                  const missing = (task.requires || []).find(
+                    (item) => state.inventory[item] !== true
+                  );
+                  return (
+                    <ActionButton
+                      key={task.id}
+                      label={task.label}
+                      onClick={() => onAction('PERFORM_ROOKIE_TASK', { id: task.id })}
+                      cost={{ label: 'FOCUS', value: task.focus }}
+                      description={
+                        missing
+                          ? `[LOCKED] Requires ${String(missing).toUpperCase()}.`
+                          : `${task.description} Logs ${task.hours} technical hour(s).`
+                      }
+                      disabled={!!missing}
+                      className={
+                        missing
+                          ? 'opacity-40 border-zinc-800 text-zinc-600 grayscale cursor-not-allowed'
+                          : 'border-emerald-900/60 text-emerald-500'
+                      }
+                    />
+                  );
+                })}
+              </div>
+            </div>
 
             {/* Anomaly Analysis */}
             {state.anomalies.length > 0 && (

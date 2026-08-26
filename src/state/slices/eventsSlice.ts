@@ -2,8 +2,9 @@ import { produce } from 'immer';
 import { anomaliesData } from '../../data/anomalies.ts';
 import { eventsData } from '../../data/events.ts';
 import { ACTION_LOGS, EVENT_RESOLUTION_TEMPLATES, SYSTEM_LOGS } from '../../data/flavor.ts';
-import { jobsData } from '../../data/jobs.ts';
+import { selectJobPool } from '../../data/jobs.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
+import { applySignoffReward } from '../../services/RewardCalculator.ts';
 import { canSpawnEventCategory } from '../../services/LevelManager.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { Anomaly, GameEvent, GameState, Inventory, JobCard } from '../../types.ts';
@@ -306,15 +307,25 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
         }
       }
 
-      // Award rewards
+      // Award rewards. Rookie cards are apprentice work signed off by
+      // somebody else, so their XP runs through applySignoffReward — the same
+      // helper the instant task cards use. Standard cards come back untouched.
+      const signoff = applySignoffReward(
+        {
+          xp: job.rewardXP,
+          hours: calculateLogbookHours(job.totalTime),
+          tier: job.tier,
+        },
+        draft.inventory
+      );
+
       addLog(`Work Order ${job.id} Signed Off.`, 'story');
       draft.resources.credits += job.rewardXP / 2;
-      draft.resources.experience += job.rewardXP;
+      draft.resources.experience += signoff.xp;
 
       // Log technical hours
-      const jobHours = calculateLogbookHours(job.totalTime);
-      draft.resources.technicalLogbookHours += jobHours;
-      addLog(`Logged ${jobHours} technical hour(s) for Work Order ${job.id}.`, 'info');
+      draft.resources.technicalLogbookHours += signoff.hours;
+      addLog(`Logged ${signoff.hours} technical hour(s) for Work Order ${job.id}.`, 'info');
 
       // Increment stats
       draft.stats.jobsCompleted += 1;
@@ -562,7 +573,11 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
         return;
       }
 
-      const template = jobsData[Math.floor(Math.random() * jobsData.length)];
+      // Below STANDARD_JOB_MIN_LEVEL the standard pool is unworkable — every
+      // card in it needs a tool the player has no source for — so a rookie
+      // draws only rookie cards. Above it, both tiers are in the hat.
+      const pool = selectJobPool(draft.resources.level);
+      const template = pool[Math.floor(Math.random() * pool.length)];
       const duration = 120000 + Math.random() * 240000;
 
       draft.activeJob = {

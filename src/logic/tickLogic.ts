@@ -606,12 +606,12 @@ export const processTick = (
     draft.activeJob.timeLeft -= timeDeduction;
     if (draft.activeJob.timeLeft <= 0) {
       addLog(`JOB EXPIRED: ${draft.activeJob.title}`, 'warning');
-      draft.activeJob = createJob(); // Auto-replace expired job? logic said "if <= 0" below in original, effectively replacing it.
+      draft.activeJob = createJob(draft.resources.level); // Auto-replace expired job? logic said "if <= 0" below in original, effectively replacing it.
     }
   }
   // Ensure we always have a job (Logic copied from reducer)
   if (!draft.activeJob) {
-    draft.activeJob = createJob();
+    draft.activeJob = createJob(draft.resources.level);
   }
 
   // Mail
