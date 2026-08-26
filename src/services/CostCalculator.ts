@@ -88,7 +88,12 @@ export const BASE_FOCUS_COSTS: Record<string, number> = {
   ORBITAL_SAND: 10,
   TIGHTEN_BOLT: 3,
   COMPLETE_JOB: 15,
-  RESOLVE_EVENT: 30,
+  // RESOLVE_EVENT deliberately has no registered cost. An event choice
+  // declares its own price (EventChoice.cost) and eventsSlice deducts it, so
+  // a registered cost here is charged *on top of* the advertised one and is
+  // invisible to the player. resolveFocusSpend still surcharges whatever the
+  // choice itself deducted, so fatigue and hazards keep biting; the figure on
+  // the button is simply the truth again.
   CREATE_SRF: 10,
   STUDY_MODULE: 8,
   SLEEP_CAR: 0,

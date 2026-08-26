@@ -194,14 +194,57 @@ describe('composeAction and event resolution', () => {
     expect(next.activeEvent).toBeNull();
   });
 
-  it('charges a resolution the player dispatches', () => {
+  const chooseableEvent = (): GameEvent => ({
+    id: 'TEST_CHOICE_EVENT',
+    title: 'Pick one',
+    description: 'test',
+    type: 'incident',
+    timeLeft: 5000,
+    totalTime: 5000,
+    choices: [
+      {
+        id: 'act',
+        label: 'Act',
+        cost: { resource: 'focus', amount: 20 },
+        log: 'Done.',
+        effects: { experience: 10 },
+      },
+    ],
+    failureOutcome: { log: 'Missed.' },
+  });
+
+  it('charges a resolution the player dispatches at the price the choice advertises', () => {
     // The app always dispatches with a payload object, so match that shape.
-    const next = composeAction(stateWith({ focus: 100, activeEvent: timedTask() }), {
+    // RESOLVE_EVENT carries no registered cost: the choice's own 20 is the
+    // whole price, deducted by eventsSlice, with no invisible top-up.
+    const next = composeAction(stateWith({ focus: 100, activeEvent: chooseableEvent() }), {
       type: 'RESOLVE_EVENT',
-      payload: {},
+      payload: { choiceId: 'act' },
     });
 
-    expect(next.resources.focus).toBe(70);
+    expect(next.resources.focus).toBe(80);
+    expect(next.activeEvent).toBeNull();
+  });
+
+  it('surcharges a player-dispatched resolution for fatigue, and exempts the internal one', () => {
+    // Both sides of the viaRequiredAction exemption at the same modifier.
+    // Player dispatch at fatigue 100 (x1.5): the choice's 20 plus a 10
+    // surcharge = 30.
+    const dispatched = composeAction(
+      stateWith({ focus: 100, fatigue: 100, activeEvent: chooseableEvent() }),
+      { type: 'RESOLVE_EVENT', payload: { choiceId: 'act' } }
+    );
+    expect(dispatched.resources.focus).toBe(70);
+
+    // The resolution resolveRequiredAction fires internally is bookkeeping for
+    // an action already paid for, so it adds nothing: PERFORM_NDT's 20 x 1.5
+    // = 30, and not a point more.
+    const internal = composeAction(
+      stateWith({ focus: 100, fatigue: 100, activeEvent: timedTask() }),
+      { type: 'PERFORM_NDT' }
+    );
+    expect(internal.resources.focus).toBe(70);
+    expect(internal.activeEvent).toBeNull();
   });
 });
 

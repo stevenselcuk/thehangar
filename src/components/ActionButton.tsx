@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import React, { memo, useEffect, useState } from 'react';
+import { useFocusCostModifier } from './FocusCostContext.ts';
 import { Tooltip } from './common/Tooltip';
 
 export interface ActionButtonProps {
@@ -90,6 +91,7 @@ const ActionButtonComponent: React.FC<ActionButtonProps> = ({
   sanity = 100, // Default to 100 if not provided
 }) => {
   const [active, setActive] = useState(false);
+  const focusCostModifier = useFocusCostModifier();
   const { displayLabel, setIsHovered } = useHauntedLabel(label, sanity);
   const [isSpamLocked, setIsSpamLocked] = useState(() => {
     const state = spamRegistry[label];
@@ -191,7 +193,14 @@ const ActionButtonComponent: React.FC<ActionButtonProps> = ({
     }
   };
 
-  const costDescription = cost ? `[COST: ${cost.value} ${cost.label}] ` : '';
+  // Focus costs are surcharged by fatigue and hazards before they are
+  // deducted, so the base value is not what the player pays. Other resources
+  // (credits, sanity, materials) are charged at face value and are shown as
+  // authored.
+  const isFocusCost = !!cost && cost.label.toUpperCase().startsWith('FOC');
+  const chargedCostValue =
+    cost && isFocusCost ? Math.round(cost.value * focusCostModifier) : cost?.value;
+  const costDescription = cost ? `[COST: ${chargedCostValue} ${cost.label}] ` : '';
   const fullDescription = description || '';
   const tooltipContent =
     costDescription || fullDescription ? (

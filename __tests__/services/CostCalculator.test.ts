@@ -19,7 +19,14 @@ describe('CostCalculator Service', () => {
       expect(BASE_FOCUS_COSTS['TIGHTEN_BOLT']).toBe(3);
       expect(BASE_FOCUS_COSTS['COMPLETE_JOB']).toBe(15);
       expect(BASE_FOCUS_COSTS['PERFORM_NDT']).toBe(20);
-      expect(BASE_FOCUS_COSTS['RESOLVE_EVENT']).toBe(30);
+    });
+
+    it('registers no cost for RESOLVE_EVENT, whose price is authored per choice', () => {
+      // An EventChoice declares its own cost and eventsSlice deducts it. A
+      // registered cost here would be billed on top of the advertised one,
+      // with nothing on screen to show it.
+      expect(BASE_FOCUS_COSTS['RESOLVE_EVENT']).toBeUndefined();
+      expect(calculateFocusCost('RESOLVE_EVENT', createMinimalGameState())).toBe(0);
     });
 
     it('should have 0 cost for free actions', () => {
