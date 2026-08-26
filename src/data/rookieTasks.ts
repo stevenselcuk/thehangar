@@ -22,6 +22,9 @@ export interface RookieTask {
   /** Optional tool gate, checked against inventory at the point of use. */
   requires?: (keyof Inventory)[];
   log: string;
+  /** Log styling for `log`. Defaults to 'info'; 'vibration' is for the cards
+   *  whose log ends on an uncanny beat rather than a routine completion. */
+  logType?: 'info' | 'vibration';
 }
 
 export const ROOKIE_TASKS: Record<string, RookieTask> = {
@@ -62,6 +65,7 @@ export const ROOKIE_TASKS: Record<string, RookieTask> = {
     focus: 10,
     requires: ['flashlight'],
     log: 'Fitted, bonded, tested serviceable. It was already burning red on the bench, before you connected it. You connected it anyway.',
+    logType: 'vibration',
   },
   ROOKIE_LOGBOOK: {
     id: 'ROOKIE_LOGBOOK',
@@ -72,15 +76,17 @@ export const ROOKIE_TASKS: Record<string, RookieTask> = {
     focus: 8,
     requires: ['pencil'],
     log: 'Fourteen entries carried across, no abbreviations, no erasures. Two of them are in your handwriting. You have never worked a night shift.',
+    logType: 'vibration',
   },
-  ROOKIE_TYRE_PRESSURE: {
-    id: 'ROOKIE_TYRE_PRESSURE',
-    label: 'Check Tyre Pressures',
+  ROOKIE_TIRE_PRESSURE: {
+    id: 'ROOKIE_TIRE_PRESSURE',
+    label: 'Check Tire Pressures',
     description: 'Read cold, correct to the chart, record every wheel position.',
     hours: 3,
     xp: 70,
     focus: 8,
-    log: 'Four mains and the nose, all within limits, two topped to spec. The nose tyre is warm. Nothing has moved this airframe in eleven days.',
+    log: 'Four mains and the nose, all within limits, two topped to spec. The nose tire is warm. Nothing has moved this airframe in eleven days.',
+    logType: 'vibration',
   },
   ROOKIE_OIL_CHECK: {
     id: 'ROOKIE_OIL_CHECK',
@@ -90,6 +96,7 @@ export const ROOKIE_TASKS: Record<string, RookieTask> = {
     xp: 60,
     focus: 6,
     log: 'Both within limits, no uplift required. The book says check within fifteen minutes of shutdown. Nothing has been shut down since Tuesday. The cowlings are warm.',
+    logType: 'vibration',
   },
   ROOKIE_SUMP_DRAIN: {
     id: 'ROOKIE_SUMP_DRAIN',
@@ -109,6 +116,7 @@ export const ROOKIE_TASKS: Record<string, RookieTask> = {
     xp: 95,
     focus: 12,
     log: 'Eleven changed, all within resistance limits. The card says twelve. You walk the trailing edges twice and find eleven.',
+    logType: 'vibration',
   },
   ROOKIE_SEAT_TRACKS: {
     id: 'ROOKIE_SEAT_TRACKS',
@@ -136,8 +144,20 @@ export const ROOKIE_TASKS: Record<string, RookieTask> = {
     xp: 50,
     focus: 5,
     log: "The captain's side clears. The first officer's side keeps one handprint on the outside, at forty feet, and you clean around it.",
+    logType: 'vibration',
   },
 };
 
 /** Display order for the apprentice task board. */
 export const ROOKIE_TASK_LIST: RookieTask[] = Object.values(ROOKIE_TASKS);
+
+/**
+ * The tool gate for a rookie task, in one place. Both the reducer
+ * (PERFORM_ROOKIE_TASK, which must refuse) and the button (which must show
+ * the same refusal before the player spends focus on it) call this rather
+ * than each re-deriving it from `requires`.
+ */
+export const missingToolFor = (
+  task: RookieTask,
+  inventory: Inventory
+): keyof Inventory | undefined => (task.requires || []).find((item) => inventory[item] !== true);

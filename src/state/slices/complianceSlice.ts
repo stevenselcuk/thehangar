@@ -1,5 +1,6 @@
 import { produce } from 'immer';
 import { ACTION_LOGS } from '../../data/flavor.ts';
+import { canPerformNdt, missingNdtRequirement } from '../../logic/ndtGating.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { GameState } from '../../types.ts';
@@ -98,14 +99,12 @@ export const complianceReducer = (
       }
 
       case 'PERFORM_HFEC_SCAN': {
-        if (!draft.inventory.hfecDevice) {
+        const gateReason = missingNdtRequirement('PERFORM_HFEC_SCAN', draft.inventory);
+        if (gateReason === 'MISSING_SCANNER') {
           addLog('TASK REJECTED: No HFEC scanner drawn from the toolroom.', 'error');
           break;
         }
-        if (
-          !draft.inventory.ndtCerts.includes('eddy') &&
-          !draft.inventory.ndtCerts.includes('hfec')
-        ) {
+        if (gateReason === 'MISSING_CERT') {
           addLog(
             'TASK REJECTED: Eddy current work requires an eddy current or HFEC certification.',
             'error'
@@ -143,7 +142,7 @@ export const complianceReducer = (
       }
 
       case 'PERFORM_BORESCOPE_INSPECTION': {
-        if (!draft.inventory.hasNdtLevel1) {
+        if (!canPerformNdt('PERFORM_BORESCOPE_INSPECTION', draft.inventory)) {
           addLog(
             'TASK REJECTED: Borescope inspection requires NDT Level I certification.',
             'error'

@@ -8,7 +8,8 @@ import {
   SYSTEM_LOGS,
   VOID_BROADCASTS,
 } from '../../data/flavor.ts';
-import { ROOKIE_TASKS } from '../../data/rookieTasks.ts';
+import { missingToolFor, ROOKIE_TASKS } from '../../data/rookieTasks.ts';
+import { canPerformNdt } from '../../logic/ndtGating.ts';
 import { hasSkill } from '../../services/CostCalculator.ts';
 import { applySignoffReward } from '../../services/RewardCalculator.ts';
 import { addLogToDraft } from '../../services/logService.ts';
@@ -150,7 +151,7 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
           break;
         }
 
-        const missing = (task.requires || []).find((item) => draft.inventory[item] !== true);
+        const missing = missingToolFor(task, draft.inventory);
         if (missing) {
           addLog(
             `TASK REJECTED: ${task.label} requires ${String(missing).toUpperCase()}.`,
@@ -174,13 +175,13 @@ export const hangarReducer = (state: HangarSliceState, action: HangarAction): Ha
         draft.resources.experience += reward.xp;
         draft.resources.technicalLogbookHours += reward.hours;
 
-        addLog(task.log, 'info');
+        addLog(task.log, task.logType ?? 'info');
         addLog(`Logged ${reward.hours} technical hour(s): ${task.label}.`, 'info');
         break;
       }
 
       case 'PERFORM_NDT':
-        if (!draft.inventory.hasNdtLevel1) {
+        if (!canPerformNdt('PERFORM_NDT', draft.inventory)) {
           addLog(
             'TASK REJECTED: Ultrasonic inspection requires NDT Level I certification.',
             'error'

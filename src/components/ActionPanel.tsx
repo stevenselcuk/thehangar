@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { aircraftData } from '../data/aircraft.ts';
 import { itemsData } from '../data/items.ts';
-import { ROOKIE_TASK_LIST } from '../data/rookieTasks.ts';
+import { missingToolFor, ROOKIE_TASK_LIST } from '../data/rookieTasks.ts';
 import { AircraftType, GameState, Inventory, SuitType, TabType } from '../types.ts';
 import ActionButton from './ActionButton.tsx';
 import AogTab from './AogTab.tsx';
@@ -18,6 +18,7 @@ import { getActionRequiredLevel } from '../data/featureRegistry';
 import { checkLocationRequirements } from '../logic/locationRequirements';
 import { isActionUnlocked } from '../services/LevelManager';
 import { calculateFocusModifier } from '../logic/focusSurcharge.ts';
+import { missingNdtRequirement, type NdtAction } from '../logic/ndtGating.ts';
 import { ROUTED_ACTIONS } from '../state/routedActions.ts';
 import { FocusCostModifierProvider } from './FocusCostContext.ts';
 import BackroomModal from './BackroomModal';
@@ -99,38 +100,25 @@ const ActionPanel: React.FC<{
 
   // Helper for actions gated on a certification rather than a level.
   // A certification refusal is explained on the button, in the same shape as
-  // the level lock, rather than leaving the player a dead control.
-  const getCertLockedProps = (actionId: string) => {
-    const inv = state.inventory;
-    const certs = inv.ndtCerts || [];
+  // the level lock, rather than leaving the player a dead control. The rule
+  // itself (what's required) lives in ndtGating.ts, shared with the
+  // reducers; only the wording of the refusal is local to the button.
+  const getCertLockedProps = (actionId: NdtAction) => {
+    const reason = missingNdtRequirement(actionId, state.inventory);
+    if (!reason) return {};
 
-    if (actionId === 'PERFORM_HFEC_SCAN') {
-      if (!inv.hfecDevice) {
-        return {
-          disabled: true,
-          description: '[LOCKED] Requires the HFEC Scanner from the toolroom.',
-          className: 'opacity-40 border-zinc-800 text-zinc-600 grayscale cursor-not-allowed',
-        };
-      }
-      if (!certs.includes('eddy') && !certs.includes('hfec')) {
-        return {
-          disabled: true,
-          description: '[LOCKED] Requires an Eddy Current or HFEC certification.',
-          className: 'opacity-40 border-zinc-800 text-zinc-600 grayscale cursor-not-allowed',
-        };
-      }
-      return {};
-    }
+    const description =
+      reason === 'MISSING_SCANNER'
+        ? '[LOCKED] Requires the HFEC Scanner from the toolroom.'
+        : actionId === 'PERFORM_HFEC_SCAN'
+          ? '[LOCKED] Requires an Eddy Current or HFEC certification.'
+          : '[LOCKED] Requires NDT Level I certification.';
 
-    if (!inv.hasNdtLevel1) {
-      return {
-        disabled: true,
-        description: '[LOCKED] Requires NDT Level I certification.',
-        className: 'opacity-40 border-zinc-800 text-zinc-600 grayscale cursor-not-allowed',
-      };
-    }
-
-    return {};
+    return {
+      disabled: true,
+      description,
+      className: 'opacity-40 border-zinc-800 text-zinc-600 grayscale cursor-not-allowed',
+    };
   };
 
   // Helper to check for hazard-blocked actions
@@ -1090,9 +1078,7 @@ const ActionPanel: React.FC<{
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {ROOKIE_TASK_LIST.map((task) => {
-                  const missing = (task.requires || []).find(
-                    (item) => state.inventory[item] !== true
-                  );
+                  const missing = missingToolFor(task, state.inventory);
                   return (
                     <ActionButton
                       key={task.id}

@@ -59,7 +59,9 @@ describe('ActionPanel - NDT gating', () => {
     renderHangar(hangarState(8, { hasNdtLevel1: false }));
 
     expect(screen.getByRole('button', { name: /NDT Ultrasonic Scan/i })).toBeDisabled();
-    expect(hoverText(/NDT Ultrasonic Scan/i)).toContain('NDT Level I');
+    expect(hoverText(/NDT Ultrasonic Scan/i)).toContain(
+      '[LOCKED] Requires NDT Level I certification.'
+    );
 
     vi.useRealTimers();
   });
@@ -77,7 +79,9 @@ describe('ActionPanel - NDT gating', () => {
     renderHangar(hangarState(8, { hasNdtLevel1: true, hfecDevice: false, ndtCerts: ['eddy'] }));
 
     expect(screen.getByRole('button', { name: /Perform HFEC Scan/i })).toBeDisabled();
-    expect(hoverText(/Perform HFEC Scan/i)).toContain('HFEC Scanner');
+    expect(hoverText(/Perform HFEC Scan/i)).toContain(
+      '[LOCKED] Requires the HFEC Scanner from the toolroom.'
+    );
 
     vi.useRealTimers();
   });
@@ -94,7 +98,9 @@ describe('ActionPanel - NDT gating', () => {
     renderHangar(hangarState(8, { hasNdtLevel1: true, hfecDevice: true, ndtCerts: [] }));
 
     expect(screen.getByRole('button', { name: /Perform HFEC Scan/i })).toBeDisabled();
-    expect(hoverText(/Perform HFEC Scan/i)).toContain('certification');
+    expect(hoverText(/Perform HFEC Scan/i)).toContain(
+      '[LOCKED] Requires an Eddy Current or HFEC certification.'
+    );
 
     vi.useRealTimers();
   });
