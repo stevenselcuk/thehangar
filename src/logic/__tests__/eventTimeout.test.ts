@@ -36,6 +36,49 @@ describe('event timeout', () => {
     expect(state.activeEvent).toBeNull();
   });
 
+  it('floors credits at 0 rather than leaving the player in debt', () => {
+    // Authored failure penalties are airline-scale: MD80_HYDRAULIC_LEAK bills
+    // -47,000 against a 500-credit balance. Credits accrue at ~1.5/s, so an
+    // unclamped debt is a multi-hour lockout from first-aid kits — and
+    // sanitizeGameState silently erases it on the next reload.
+    state.activeEvent = {
+      id: 'TEST_TIMEOUT_RUINOUS',
+      type: 'accident',
+      title: 'Ruinous Failure',
+      description: 'test',
+      timeLeft: 1,
+      totalTime: 10000,
+      failureOutcome: {
+        log: 'Cost: $47,000.',
+        effects: { credits: -47000 },
+      },
+    };
+
+    processTick(state, 100, triggerEvent, TabType.HANGAR);
+
+    expect(state.resources.credits).toBe(0);
+  });
+
+  it('does not floor a failure the player can afford', () => {
+    // The other side of the clamp: a survivable bill is still charged in full.
+    state.activeEvent = {
+      id: 'TEST_TIMEOUT_AFFORDABLE',
+      type: 'accident',
+      title: 'Affordable Failure',
+      description: 'test',
+      timeLeft: 1,
+      totalTime: 10000,
+      failureOutcome: {
+        log: 'A manageable bill.',
+        effects: { credits: -120 },
+      },
+    };
+
+    processTick(state, 100, triggerEvent, TabType.HANGAR);
+
+    expect(state.resources.credits).toBe(380);
+  });
+
   it('falls back to the generic penalty when failureOutcome has no effects', () => {
     state.activeEvent = {
       id: 'TEST_TIMEOUT_BARE',

@@ -583,6 +583,13 @@ export const processTick = (
         );
         draft.resources.focus = Math.max(0, Math.min(100, draft.resources.focus));
         draft.resources.health = Math.max(0, Math.min(100, draft.resources.health));
+        // Authored failure effects are airline-scale (a single event can bill
+        // -47,000) while credits accrue at ~1.5/s. Left unclamped this is a
+        // multi-hour lockout the player cannot buy their way out of - and one
+        // that sanitizeGameState silently repairs on the next reload, so the
+        // trap is both real and inconsistent. Floor it here, as every other
+        // resource on this path already is.
+        draft.resources.credits = Math.max(0, draft.resources.credits);
 
         addLog(outcome?.log || `SITUATION FAILED: ${expired.title}`, 'error');
         draft.activeEvent = null;
