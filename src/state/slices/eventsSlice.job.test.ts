@@ -28,7 +28,6 @@ describe('eventsSlice - Job Flow', () => {
       greaseGun: 100,
       inspectionMirror: 100,
       torquemeter: 100,
-      idg: 100,
     },
     inventory: {
       snapOnWrenchSet: true,
@@ -38,13 +37,27 @@ describe('eventsSlice - Job Flow', () => {
       greaseGun: true,
       inspectionMirror: true,
       torquemeter: true,
-      idg: true,
     } as unknown as EventsSliceState['inventory'],
     flags: {} as unknown as EventsSliceState['flags'],
     hfStats: {} as unknown as EventsSliceState['hfStats'],
     logs: [],
     journal: [],
-    rotables: [],
+    // The IDG Swap card names a rotable type, not a tool, so a fixture that
+    // may draw any standard card has to be holding a serviceable IDG.
+    rotables: [
+      {
+        id: 'rot_idg_fixture',
+        label: 'Integrated Drive Gen',
+        pn: 'IDG-757-PWR-A',
+        sn: 'SN-FIXTURE',
+        condition: 100,
+        isInstalled: false,
+        isUntraceable: false,
+        isRedTagged: false,
+        history: [],
+        manufactureDate: 0,
+      },
+    ],
     eventTimestamps: {},
     proficiency: {
       unlocked: ['highTorqueMethods'],

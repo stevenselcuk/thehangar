@@ -275,6 +275,28 @@ export const itemsData: Record<string, Item[]> = {
       },
     },
     {
+      id: 'GG-50',
+      key: 'greaseGun',
+      label: 'Pneumatic Grease Gun',
+      pn: 'GG-50-PNEU-HP',
+      description: {
+        normal: 'High-pressure grease gun for landing gear zerk fittings.',
+        unsettled: 'It holds its charge overnight. Nobody pumped it.',
+        madness: 'The joints are hungry. I feed them and they are still hungry.',
+      },
+    },
+    {
+      id: 'IM-12',
+      key: 'inspectionMirror',
+      label: 'Telescopic Inspection Mirror',
+      pn: 'IM-12-TELE-45',
+      description: {
+        normal: 'Telescoping mirror for blind fastener rows and closed bays.',
+        unsettled: 'It shows the bay behind me. Someone is standing in it.',
+        madness: 'I use it to check that I am still here. Some shifts I am not.',
+      },
+    },
+    {
       id: 'AD-400',
       key: 'airDataTestBox',
       label: 'Air Data Test Box',

@@ -1,12 +1,13 @@
 /**
  * The level at which the standard pool opens.
  *
- * Every standard job is gated behind a tool the player cannot hold before
+ * Most standard jobs are gated behind a tool the player cannot hold before
  * this point: snapOnWrenchSet, rivetGun and atlasCopcoDrill are only sold on
- * the Structure Shop shelves (TAB_STRUCTURE, level 5), and the toolroom jobs
- * (malabar + greaseGun, torquemeter + idg) each pair a level-1 toolroom item
- * with a second tool that has no source below it either. Below level 5 a
- * standard work order is therefore a card the player can raise and never
+ * the Structure Shop shelves (TAB_STRUCTURE, level 5). The rest are gated by
+ * the pool itself — the toolroom cards (malabar + greaseGun, inspectionMirror)
+ * draw on level-1 stock, and the IDG swap needs a serviceable IDG rotable,
+ * which comes off the boneyard paths at level 10 and above. Below level 5 a
+ * standard work order would mostly be a card the player can raise and never
  * sign off, which is why the pool is split rather than merely weighted.
  */
 export const STANDARD_JOB_MIN_LEVEL = 5;
@@ -112,6 +113,8 @@ export const jobsData = [
     tier: 'standard',
   },
   {
+    // 'idg' names a rotable type, not a tool: eventsSlice resolves it against
+    // the rotables the technician holds. See isRotableRequirement there.
     title: 'IDG Swap',
     description: 'Integrated Drive Generator replacement on Engine 2.',
     requirements: { titanium: 100, tools: ['torquemeter', 'idg'] },
