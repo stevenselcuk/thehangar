@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { anomaliesData } from '@/data/anomalies.ts';
-import { Anomaly } from '@/types.ts';
+import { Anomaly, GameEvent } from '@/types.ts';
 import {
   BackshopAction,
   backshopReducer,
@@ -48,9 +48,20 @@ const createBackshopState = (overrides: Partial<BackshopSliceState> = {}): Backs
     },
     activeJob: null,
     logs: [],
+    activeEvent: baseState.activeEvent,
     ...overrides,
   };
 };
+
+const createTestComponentFailureEvent = (): GameEvent => ({
+  id: 'test-component-failure-event',
+  title: 'Component Failure',
+  description: 'A component has failed.',
+  type: 'component_failure',
+  timeLeft: 100000,
+  totalTime: 100000,
+  failureOutcome: { log: 'The failure went unresolved.' },
+});
 
 const createTestAnomaly = (templateId: string = 'ANOM_RESONATOR_1'): Anomaly => ({
   id: 'test-anomaly-1',
@@ -954,6 +965,37 @@ describe('backshopSlice - Actions', () => {
 
       expect(next.resources.experience).toBe(400);
       expect(next.rotables[0].isRedTagged).toBe(false);
+    });
+
+    it('clears both activeComponentFailure and activeEvent when the repaired rotable matches the pinned failure', () => {
+      const rotable = makeRotable('IDG-757-A');
+      initialState.rotables = [rotable];
+      initialState.flags.activeComponentFailure = rotable.id;
+      initialState.activeEvent = createTestComponentFailureEvent();
+
+      const next = backshopReducer(initialState, {
+        type: 'OVERHAUL_IDG',
+        payload: {},
+      } as BackshopAction);
+
+      expect(next.flags.activeComponentFailure).toBeNull();
+      expect(next.activeEvent).toBeNull();
+    });
+
+    it('clears neither activeComponentFailure nor activeEvent when the pinned failure belongs to a different rotable', () => {
+      const rotable = makeRotable('IDG-757-A');
+      initialState.rotables = [rotable];
+      initialState.flags.activeComponentFailure = 'some-other-rotable-id';
+      const pinnedEvent = createTestComponentFailureEvent();
+      initialState.activeEvent = pinnedEvent;
+
+      const next = backshopReducer(initialState, {
+        type: 'OVERHAUL_IDG',
+        payload: {},
+      } as BackshopAction);
+
+      expect(next.flags.activeComponentFailure).toBe('some-other-rotable-id');
+      expect(next.activeEvent).toEqual(pinnedEvent);
     });
   });
 });

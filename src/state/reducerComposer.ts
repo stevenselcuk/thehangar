@@ -738,6 +738,7 @@ const routeAction = (state: GameState, action: ReducerAction): GameState => {
         logs: draft.logs,
         stats: draft.stats,
         activeJob: draft.activeJob,
+        activeEvent: draft.activeEvent,
       };
 
       const updated = backshopReducer(backshopState, {
@@ -754,6 +755,9 @@ const routeAction = (state: GameState, action: ReducerAction): GameState => {
       draft.logs = updated.logs;
       draft.stats = updated.stats as typeof draft.stats;
       draft.activeJob = updated.activeJob;
+      if (updated.activeEvent !== undefined) {
+        draft.activeEvent = updated.activeEvent as typeof draft.activeEvent;
+      }
     });
   }
 

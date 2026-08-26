@@ -38,6 +38,7 @@ export interface BackshopSliceState {
   stats: GameState['stats'];
   activeJob: GameState['activeJob'];
   logs: GameState['logs'];
+  activeEvent: GameState['activeEvent'];
 }
 
 export type BackshopAction =
@@ -411,6 +412,8 @@ export const backshopReducer = (
 
         if (draft.flags.activeComponentFailure === rotable.id) {
           draft.flags.activeComponentFailure = null;
+          draft.activeEvent = null;
+          addLog(`Operational drag on ${rotable.label} has been eliminated.`, 'info');
         }
 
         addLog(target.log, 'story');

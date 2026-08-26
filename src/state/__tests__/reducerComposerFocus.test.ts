@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { trainingData } from '../../data/training.ts';
-import type { EnvironmentalHazard, GameEvent, GameState } from '../../types.ts';
+import type { EnvironmentalHazard, GameEvent, GameState, RotableItem } from '../../types.ts';
 import { createMinimalGameState } from '../../utils/testHelpers.ts';
 import { composeAction } from '../reducerComposer.ts';
 
@@ -288,5 +288,69 @@ describe('composeAction charges training by the action, not by the dispatch', ()
 
     expect(full.resources.focus).toBe(lean.resources.focus);
     expect(full.resources.focus).toBe(100 - level.costFocus);
+  });
+});
+
+describe('composeAction backshop overhaul clears the pinned component-failure event', () => {
+  // component_failure events are deliberately excluded from RESOLVE_EVENT's
+  // normal clearing path (they're meant to persist until the failed part is
+  // actually repaired), so the repair action itself is the only place
+  // activeEvent can be cleared. This exercises the full composeAction route
+  // (routeAction -> BACKSHOP_ACTIONS -> backshopReducer -> write-back onto
+  // draft), not just the slice reducer, so a write-back that gets dropped in
+  // reducerComposer.ts would be caught here even if the slice-level test
+  // passed.
+  const failedComponentEvent = (): GameEvent => ({
+    id: 'TEST_COMPONENT_FAILURE',
+    title: 'IDG Failure',
+    description: 'test',
+    type: 'component_failure',
+    timeLeft: 999999,
+    totalTime: 999999,
+    failureOutcome: { log: 'The failure went unresolved.' },
+  });
+
+  const redTaggedIdg = (id: string): RotableItem => ({
+    id,
+    label: 'Integrated Drive Generator',
+    pn: 'IDG-757-A',
+    sn: 'SN-TEST-1',
+    condition: 10,
+    isInstalled: false,
+    isUntraceable: false,
+    isRedTagged: true,
+    history: [],
+    manufactureDate: 0,
+  });
+
+  it('reaches real game state: overhauling the failed rotable clears both the flag and activeEvent', () => {
+    const rotable = redTaggedIdg('idg-1');
+    const state = createMinimalGameState({
+      resources: { ...createMinimalGameState().resources, level: 25 },
+      rotables: [rotable],
+      flags: { ...createMinimalGameState().flags, activeComponentFailure: rotable.id },
+      activeEvent: failedComponentEvent(),
+    });
+
+    const next = composeAction(state, { type: 'OVERHAUL_IDG', payload: {} });
+
+    expect(next.flags.activeComponentFailure).toBeNull();
+    expect(next.activeEvent).toBeNull();
+  });
+
+  it('leaves both untouched when the pinned failure belongs to a different rotable', () => {
+    const rotable = redTaggedIdg('idg-1');
+    const pinnedEvent = failedComponentEvent();
+    const state = createMinimalGameState({
+      resources: { ...createMinimalGameState().resources, level: 25 },
+      rotables: [rotable],
+      flags: { ...createMinimalGameState().flags, activeComponentFailure: 'some-other-rotable' },
+      activeEvent: pinnedEvent,
+    });
+
+    const next = composeAction(state, { type: 'OVERHAUL_IDG', payload: {} });
+
+    expect(next.flags.activeComponentFailure).toBe('some-other-rotable');
+    expect(next.activeEvent).toEqual(pinnedEvent);
   });
 });
