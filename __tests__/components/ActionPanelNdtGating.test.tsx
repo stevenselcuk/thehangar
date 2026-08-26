@@ -115,9 +115,20 @@ describe('ActionPanel - NDT gating', () => {
     vi.useRealTimers();
   });
 
-  it('offers the sign-off at level 8 and locks it below', () => {
+  it('offers the sign-off at level 8 to a technician who does not hold it', () => {
     renderHangar(hangarState(8, { ndtCerts: [] }));
     expect(screen.getByRole('button', { name: /Request Dye Penetrant Sign-Off/i })).toBeEnabled();
+
+    vi.useRealTimers();
+  });
+
+  it('stops offering the sign-off once the qualification is held', () => {
+    // The reducer refuses the second request but the composer still charges
+    // the button's 10 focus, so a live button here is a focus leak.
+    renderHangar(hangarState(8, { ndtCerts: ['dye'] }));
+
+    expect(screen.getByRole('button', { name: /Request Dye Penetrant Sign-Off/i })).toBeDisabled();
+    expect(hoverText(/Request Dye Penetrant Sign-Off/i)).toContain('Already signed off');
 
     vi.useRealTimers();
   });

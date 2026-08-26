@@ -1194,6 +1194,9 @@ const ActionPanel: React.FC<{
                 />
               </div>
               <div className="mt-3">
+                {/* A qualification is held once and for good: the reducer
+                    refuses a second request, so the button stops offering it
+                    rather than charging focus for the refusal. */}
                 <ActionButton
                   label="Request Dye Penetrant Sign-Off"
                   onClick={() => onAction('QUALIFY_DYE_PENETRANT')}
@@ -1203,6 +1206,7 @@ const ActionPanel: React.FC<{
                       ? 'Already signed off. The training record carries the initials.'
                       : 'Work a scrap panel under a senior technician until he initials your training record. No NDT Level I required.'
                   }
+                  disabled={hasDyePenetrantQualification(state.inventory)}
                   {...getLockedProps('QUALIFY_DYE_PENETRANT')}
                 />
               </div>

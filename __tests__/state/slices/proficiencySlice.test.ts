@@ -379,6 +379,41 @@ describe('proficiencySlice', () => {
       expect(state.resources.credits).toBe(1000 - 250 - 200 - 150);
       expect(state.resources.experience).toBe(500 + 400 + 300);
     });
+
+    it('refuses to write a certification the technician already holds', () => {
+      // 'dye' is the one entry with two writers: the floor sign-off in
+      // hangarSlice (which guards) and this formal exam. Without the mirror
+      // guard the cert lands twice and is paid for twice.
+      const state = createProficiencyState({
+        resources: { credits: 500, experience: 0, level: 12 },
+        inventory: { ...createMinimalGameState().inventory, hasNdtLevel1: true, ndtCerts: ['dye'] },
+      });
+
+      const result = proficiencyReducer(state, {
+        type: 'TAKE_NDT_SUBTASK_EXAM',
+        payload: { id: 'dye' },
+      });
+
+      expect(result.inventory.ndtCerts).toEqual(['dye']);
+      expect(result.resources.credits).toBe(500);
+      expect(result.resources.experience).toBe(0);
+      expect(result.logs[0].text).toContain('already hold');
+    });
+
+    it('still writes a certification the technician does not hold', () => {
+      const state = createProficiencyState({
+        resources: { credits: 500, experience: 0, level: 12 },
+        inventory: { ...createMinimalGameState().inventory, hasNdtLevel1: true, ndtCerts: ['dye'] },
+      });
+
+      const result = proficiencyReducer(state, {
+        type: 'TAKE_NDT_SUBTASK_EXAM',
+        payload: { id: 'tap' },
+      });
+
+      expect(result.inventory.ndtCerts).toEqual(['dye', 'tap']);
+      expect(result.resources.credits).toBe(450);
+    });
   });
 
   describe('TAKE_TYPE_RATING', () => {

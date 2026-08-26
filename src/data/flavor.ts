@@ -270,13 +270,13 @@ export const ACTION_LOGS: Record<string, string> = {
   BORESCOPE_SUSPICIOUS_RESIDUE:
     "Finding: An unidentifiable organic residue is coating the 10th stage compressor blades. It's slick and slightly iridescent.",
   DYE_SIGNOFF_GRANTED:
-    "Two hours on a scrap panel with a senior technician: solvent clean, penetrant, dwell, remove, developer, read. He initials the training record against dye penetrant and hands it back. 'Surface only,' he says. 'Anything under the skin isn't yours.' The panel came off the rack with no defects listed on its card. You found four.",
+    "Two hours on a scrap panel: clean, penetrant, dwell, remove, developer, read. He initials the training record and hands it back. 'Surface only. Anything under the skin isn't yours.' The panel's card listed no defects. You found four.",
   DYE_SIGNOFF_ALREADY_HELD:
     "He opens the training record, finds his own initials already against dye penetrant, and closes it. 'You have it. Go and use it.' He does not remember signing it.",
   DYE_PENETRANT_NORMAL:
     'Dye penetrant check complete. The developer draws nothing out of the panel; the surface is sound within the limits of the method.',
   DYE_PENETRANT_INDICATION:
-    'Finding: A linear indication bleeds through the developer along the fastener row. Surface-breaking, minor, and worth a non-routine card.',
+    'Finding: A linear indication bleeds through the developer along the fastener row, short and sharp-edged, still darkening after the dwell time ran out.',
   DYE_PENETRANT_NETWORK:
     'Finding: The developer maps a network of surface cracks across the doubler, well outside the acceptance limits. It is still bleeding an hour after the dwell time ended.',
   NON_ROUTINE_FILED_MINOR:

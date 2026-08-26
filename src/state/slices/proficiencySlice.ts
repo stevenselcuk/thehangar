@@ -228,6 +228,16 @@ export const proficiencyReducer = produce(
         const subtask = trainingData.ndtCerts.subtasks.find((s) => s.id === id);
         if (!subtask) break;
 
+        // The same entry can arrive from the floor sign-off in hangarSlice,
+        // which guards its own push; without the mirror guard here a
+        // technician who qualified on the floor and then sat the formal exam
+        // would carry the cert twice.
+        if (!draft.inventory.ndtCerts) draft.inventory.ndtCerts = [];
+        if (draft.inventory.ndtCerts.includes(id)) {
+          addLog(`You already hold the ${subtask.label} qualification.`, 'info');
+          break;
+        }
+
         draft.resources.credits -= subtask.costCredits;
         draft.resources.experience += subtask.rewardXp;
         draft.inventory.ndtCerts.push(id);
