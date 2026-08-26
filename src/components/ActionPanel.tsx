@@ -16,6 +16,9 @@ import { locationTriggers } from '../data/locationTriggers';
 import { getActionRequiredLevel } from '../data/featureRegistry';
 import { checkLocationRequirements } from '../logic/locationRequirements';
 import { isActionUnlocked } from '../services/LevelManager';
+import { calculateFocusModifier } from '../logic/focusSurcharge.ts';
+import { ROUTED_ACTIONS } from '../state/routedActions.ts';
+import { FocusCostModifierProvider } from './FocusCostContext.ts';
 import BackroomModal from './BackroomModal';
 import ComponentInspectionModal from './ComponentInspectionModal';
 import PetInteraction from './PetInteraction';
@@ -219,7 +222,7 @@ const ActionPanel: React.FC<{
               );
             })}
           </div>
-        ) : event.requiredAction ? (
+        ) : event.requiredAction && ROUTED_ACTIONS.has(event.requiredAction) ? (
           <div
             className={`mt-4 border-2 ${borderColor} bg-black/40 px-4 py-3 text-[10px] uppercase tracking-[0.15em] ${textColor}`}
           >
@@ -229,7 +232,13 @@ const ActionPanel: React.FC<{
             </div>
           </div>
         ) : (
-          /* Fallback / Discard for informative events */
+          /* Fallback / Discard for informative events.
+             Also the deliberate landing place for an event whose
+             requiredAction names something composeAction cannot route: there
+             is no task the player could perform, so the placard above would
+             be a guaranteed timeout with no counterplay. DISCARD keeps the
+             event losable-but-escapable; eventsSlice lets this dispatch
+             through for the same reason. */
           <div className="mt-4">
             <ActionButton
               label="DISCARD"
@@ -1199,25 +1208,29 @@ const ActionPanel: React.FC<{
   };
 
   return (
-    <div ref={panelRef} className="w-full">
-      {renderActiveEvent()}
-      {renderActiveScenario()}
-      {renderContent()}
-      {(state.activeEvent?.id === 'FOUND_PHOTO_EVENT' || state.activeEvent?.imagePath) && (
-        <React.Suspense fallback={null}>
-          <PhotoModal
-            isOpen={isPhotoModalOpen}
-            onClose={() => setIsPhotoModalOpen(false)}
-            imagePath={state.activeEvent?.imagePath || '/images/found_photo.png'}
-            title={state.activeEvent?.title || 'RECOVERED ARCHIVE #770'}
-            description={
-              state.activeEvent?.description ||
-              'DATE: UNKNOWN // SUBJECT: UNKNOWN // STATUS: CLASSIFIED'
-            }
-          />
-        </React.Suspense>
-      )}
-    </div>
+    <FocusCostModifierProvider
+      value={calculateFocusModifier(state.hfStats?.fatigue, state.activeHazards || [])}
+    >
+      <div ref={panelRef} className="w-full">
+        {renderActiveEvent()}
+        {renderActiveScenario()}
+        {renderContent()}
+        {(state.activeEvent?.id === 'FOUND_PHOTO_EVENT' || state.activeEvent?.imagePath) && (
+          <React.Suspense fallback={null}>
+            <PhotoModal
+              isOpen={isPhotoModalOpen}
+              onClose={() => setIsPhotoModalOpen(false)}
+              imagePath={state.activeEvent?.imagePath || '/images/found_photo.png'}
+              title={state.activeEvent?.title || 'RECOVERED ARCHIVE #770'}
+              description={
+                state.activeEvent?.description ||
+                'DATE: UNKNOWN // SUBJECT: UNKNOWN // STATUS: CLASSIFIED'
+              }
+            />
+          </React.Suspense>
+        )}
+      </div>
+    </FocusCostModifierProvider>
   );
 };
 

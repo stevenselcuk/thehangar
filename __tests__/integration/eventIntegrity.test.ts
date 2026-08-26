@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { eventsData } from '@/data/events.ts';
+import { ROUTED_ACTIONS } from '@/state/routedActions.ts';
+import type { GameEvent } from '@/types.ts';
 
 const SRC = path.resolve(__dirname, '../../src');
 
@@ -75,5 +77,62 @@ describe('event id integrity', () => {
       .sort();
 
     expect(dangling).toEqual([]);
+  });
+});
+
+/**
+ * Mirrors the only success path a requiredAction event has:
+ * reducerComposer.resolveRequiredAction fires when a *dispatched action type*
+ * equals event.requiredAction, which can only happen for a type composeAction
+ * routes. A requiredAction naming anything else — maintenance prose, an
+ * English task name, an action id that was never wired — is unsatisfiable,
+ * and the event is a guaranteed timeout at its authored failure penalty.
+ */
+function unroutableRequiredActions(pools: Record<string, GameEvent[]>): string[] {
+  return Object.values(pools)
+    .flat()
+    .filter((event) => event.requiredAction && !ROUTED_ACTIONS.has(event.requiredAction))
+    .map((event) => `${event.id} -> ${event.requiredAction}`)
+    .sort();
+}
+
+describe('requiredAction integrity', () => {
+  it('names a routable action on every event that declares one', () => {
+    expect(unroutableRequiredActions(eventsData as Record<string, GameEvent[]>)).toEqual([]);
+  });
+
+  it('actually rejects a requiredAction that names nothing routable', () => {
+    // The negative side of the same predicate. Without this, the assertion
+    // above would still pass if ROUTED_ACTIONS were ever empty, or if the
+    // filter silently matched nothing.
+    const authored: GameEvent = {
+      id: 'FIXTURE_BAD',
+      type: 'accident',
+      title: 'Prose, not an action',
+      description: 'test',
+      timeLeft: 1000,
+      totalTime: 1000,
+      requiredAction: 'Isolate System B per AMM 29-11-00',
+      failureOutcome: { log: 'Missed.' },
+    };
+
+    expect(unroutableRequiredActions({ accident: [authored] })).toEqual([
+      'FIXTURE_BAD -> Isolate System B per AMM 29-11-00',
+    ]);
+  });
+
+  it('accepts a requiredAction that names a routed action', () => {
+    const authored: GameEvent = {
+      id: 'FIXTURE_GOOD',
+      type: 'accident',
+      title: 'A real task',
+      description: 'test',
+      timeLeft: 1000,
+      totalTime: 1000,
+      requiredAction: 'PERFORM_NDT',
+      failureOutcome: { log: 'Missed.' },
+    };
+
+    expect(unroutableRequiredActions({ accident: [authored] })).toEqual([]);
   });
 });

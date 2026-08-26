@@ -38,7 +38,11 @@ export const DevModeEvents: React.FC<DevModeEventsProps> = ({ gameState, dispatc
               onClick={() =>
                 dispatch({
                   type: 'ACTION',
-                  payload: { type: 'RESOLVE_EVENT', payload: { forceResolve: true } },
+                  // viaRequiredAction is what actually clears a requiredAction
+                  // event (eventsSlice branch 2) and exempts the dispatch from
+                  // the 30-focus RESOLVE_EVENT charge, so the dev tool neither
+                  // no-ops nor bills the player for a no-op.
+                  payload: { type: 'RESOLVE_EVENT', payload: { viaRequiredAction: true } },
                 })
               }
               className="bg-red-900/50 hover:bg-red-800 text-red-200 border border-red-700 font-bold py-1 px-3 text-xs relative z-10"

@@ -7,6 +7,7 @@ import { hasSkill } from '../../services/CostCalculator.ts';
 import { canSpawnEventCategory } from '../../services/LevelManager.ts';
 import { addLogToDraft } from '../../services/logService.ts';
 import { Anomaly, GameEvent, GameState, Inventory, JobCard } from '../../types.ts';
+import { ROUTED_ACTIONS } from '../routedActions.ts';
 
 /**
  * eventsSlice.ts - Job and Event Lifecycle Management
@@ -439,7 +440,15 @@ export const eventsReducer = produce((draft: EventsSliceState, action: EventsAct
       // resolved: bare RESOLVE_EVENT clicks (or a stray dispatch with no
       // payload) must not fall through to the legacy fallback below and
       // clear it for free.
-      if (event.requiredAction && !logAdded) {
+      //
+      // The exception is an event whose requiredAction names something the
+      // composer cannot route. There is then no action the player could
+      // ever perform to satisfy it, so holding the event open would make it
+      // an unwinnable, guaranteed timeout. Such an event falls through to
+      // the legacy resolution instead, matching the DISCARD affordance
+      // ActionPanel renders for it. This is a structural guard against bad
+      // authoring, not a resolution path any correct event should take.
+      if (event.requiredAction && ROUTED_ACTIONS.has(event.requiredAction) && !logAdded) {
         return;
       }
 

@@ -559,7 +559,22 @@ export const eventsData: Record<string, EventTemplates[]> = {
       description: 'Spilled MEK acts... aggressively.',
       type: 'accident',
       totalTime: 15000,
-      requiredAction: 'WASH_HANDS',
+      choices: [
+        {
+          id: 'flush',
+          label: 'Flush At The Eyewash Station',
+          cost: { resource: 'focus', amount: 15 },
+          log: 'You get to the eyewash station and flush until the burning stops. The MEK beads off and runs away down the drain. The skin underneath is pink and brand new.',
+          effects: { experience: 100, sanity: -5 },
+        },
+        {
+          id: 'wipe',
+          label: 'Wipe It Off And Keep Working',
+          cost: { resource: 'sanity', amount: 10 },
+          log: 'You wipe your hands on a shop rag and carry on. The rag disintegrates in the bin an hour later. Your fingertips have no prints.',
+          effects: { health: -5, experience: 50 },
+        },
+      ],
       failureOutcome: {
         log: 'The skin is gone. The bone underneath is... shiny.',
         effects: { health: -10, sanity: -5 },
@@ -572,11 +587,22 @@ export const eventsData: Record<string, EventTemplates[]> = {
       description:
         'A short circuit in the avionics bay has caused a small fire. You need to act fast.',
       totalTime: 30000,
-      requiredAction: 'Activate Fire Suppression',
-      successOutcome: {
-        log: 'You activated the halon suppression system. The fire is out, but the bay is a mess.',
-        effects: { experience: 200, sanity: -10 },
-      },
+      choices: [
+        {
+          id: 'suppress',
+          label: 'Activate Halon Suppression',
+          cost: { resource: 'focus', amount: 25 },
+          log: 'You activated the halon suppression system. The fire is out, but the bay is a mess.',
+          effects: { experience: 200, sanity: -10 },
+        },
+        {
+          id: 'breaker',
+          label: 'Kill The Bus At The Breaker Panel',
+          cost: { resource: 'sanity', amount: 10 },
+          log: 'You pull the bus breaker. The arc dies mid-crackle. Half the avionics rack is dark and will need a full power-up test before anyone signs for it.',
+          effects: { experience: 120, credits: -150 },
+        },
+      ],
       failureOutcome: {
         log: 'The fire spread, damaging several key components before the automated systems kicked in. You have minor burns.',
         effects: { sanity: -40, suspicion: 15, credits: -300, health: -10 },
@@ -588,7 +614,22 @@ export const eventsData: Record<string, EventTemplates[]> = {
       title: 'CONTAINMENT LEAK',
       description: 'Something is leaking from the pressure vessel.',
       totalTime: 45000,
-      requiredAction: 'SEAL BREACH',
+      choices: [
+        {
+          id: 'seal',
+          label: 'Clamp And Seal The Breach',
+          cost: { resource: 'focus', amount: 25 },
+          log: 'You clamp a ferrule over the weep hole and torque it blind, arms turned away. The hissing stops. The vessel goes quiet, and it was not quiet before.',
+          effects: { experience: 250, sanity: -10 },
+        },
+        {
+          id: 'evacuate',
+          label: 'Evacuate And Dog The Hatch',
+          cost: { resource: 'sanity', amount: 15 },
+          log: "You back out and dog the hatch behind you. Containment is somebody else's problem now. The paperwork will still find you.",
+          effects: { experience: 80, suspicion: 10 },
+        },
+      ],
       failureOutcome: {
         log: 'It sprayed you. Your skin is blistering.',
         effects: { health: -20, sanity: -15 },
@@ -601,11 +642,22 @@ export const eventsData: Record<string, EventTemplates[]> = {
       description:
         'Multiple cascading system failures reported on an aircraft you recently serviced. The fuel lines are... dissolving.',
       totalTime: 60000,
-      requiredAction: 'Attempt to Contain',
-      successOutcome: {
-        log: "You manage to isolate the failing systems, preventing a complete write-off. It's a disaster, but it could have been worse.",
-        effects: { experience: 500, suspicion: 20, sanity: -20 },
-      },
+      choices: [
+        {
+          id: 'contain',
+          label: 'Attempt To Contain',
+          cost: { resource: 'focus', amount: 40 },
+          log: "You manage to isolate the failing systems, preventing a complete write-off. It's a disaster, but it could have been worse.",
+          effects: { experience: 500, suspicion: 20, sanity: -20 },
+        },
+        {
+          id: 'ground',
+          label: 'Ground The Airframe And File It Yourself',
+          cost: { resource: 'sanity', amount: 25 },
+          log: 'You pull the aircraft off the line and write the report in your own hand before anyone can edit it. Nobody thanks you. The airframe never flies again.',
+          effects: { experience: 200, suspicion: -10, credits: -400 },
+        },
+      ],
       failureOutcome: {
         log: 'The failure cascaded beyond control. The airframe is a total loss. An investigation is already underway, and your name is at the top of the list.',
         effects: { suspicion: 60, sanity: -50 },
@@ -766,7 +818,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
       description:
         'A VIP flight is on the ground and needs an immediate turnaround. You have to perform a full transit check in record time.',
       totalTime: 180000, // 3 minutes
-      requiredAction: 'Perform Rapid Transit Check',
+      requiredAction: 'AIRCRAFT_ACTION',
       successOutcome: {
         log: 'You completed the check with seconds to spare! The flight is away. The lead is impressed and you get a hefty bonus.',
         effects: { credits: 500, experience: 1000, suspicion: -5 },
@@ -783,7 +835,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
       description:
         "While chatting with the cabin crew, they mention a recurring issue with the passenger count being off by one. It's probably just a ticketing error, but they want you to double-check the manifest against the system.",
       totalTime: 60000,
-      requiredAction: 'Cross-Reference Passenger Manifest',
+      requiredAction: 'CROSS_REFERENCE_MANIFESTS',
       successOutcome: {
         log: "You find a minor clerical error and correct it. The cabin crew is relieved. You've built some trust.",
         effects: { experience: 200, suspicion: -2 },
@@ -828,11 +880,22 @@ export const eventsData: Record<string, EventTemplates[]> = {
       description:
         'The klaxons are silent. The warning light pulses in sync with your heartbeat. The magnetic locks on Storage 4C have disengaged. Nothing has come out... yet.',
       totalTime: 25000,
-      requiredAction: 'Re-engage Magnetic Locks',
-      successOutcome: {
-        log: 'You force the lever down. The darkness recedes, leaving oily residues on the floor. You try not to step in them.',
-        effects: { experience: 500, sanity: -15 },
-      },
+      choices: [
+        {
+          id: 'reengage',
+          label: 'Re-engage The Magnetic Locks',
+          cost: { resource: 'focus', amount: 30 },
+          log: 'You force the lever down. The darkness recedes, leaving oily residues on the floor. You try not to step in them.',
+          effects: { experience: 500, sanity: -15 },
+        },
+        {
+          id: 'weld',
+          label: 'Weld The Bay Door Shut',
+          cost: { resource: 'sanity', amount: 20 },
+          log: 'You run a bead across the seam and let it cool. Storage 4C is no longer a room anyone can enter. Something inside taps twice, politely.',
+          effects: { experience: 250, suspicion: 10, alclad: -10 },
+        },
+      ],
       failureOutcome: {
         log: "You were too late. A wave of intense cold washes over you as something... leaves. The alert ends. A single log is filed: 'SYSTEM RESET'.",
         effects: { sanity: -50, suspicion: 30 },
@@ -982,7 +1045,11 @@ export const eventsData: Record<string, EventTemplates[]> = {
       description: 'An inspector catches you without proper PPE.',
       type: 'bureaucratic_horror',
       totalTime: 30000,
-      requiredAction: 'HIDE_IN_LOCKER', // Assuming this action exists or needs wiring
+      requiredAction: 'MAINTAIN_LOW_PROFILE',
+      successOutcome: {
+        log: 'You are already three bays away with your safety glasses on and your paperwork square by the time he looks up. The citation is written against a blank employee number.',
+        effects: { experience: 150 },
+      },
       failureOutcome: {
         log: 'Fined for "Willful Disregard of Safety".',
         effects: { credits: -500, suspicion: 5 },
@@ -1669,7 +1736,7 @@ export const eventsData: Record<string, EventTemplates[]> = {
       title: 'COMPONENT FAILURE',
       description: "is showing signs of imminent failure. It's causing major operational drag.",
       totalTime: 3600000,
-      requiredAction: 'REPAIR IN TOOLROOM',
+      requiredAction: 'REPAIR_ROTABLE',
       failureOutcome: {
         log: 'This component continues to degrade, increasing operational costs.',
         effects: {}, // The drain is handled in the tick processor
